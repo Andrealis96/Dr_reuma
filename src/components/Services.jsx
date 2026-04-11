@@ -82,10 +82,31 @@ const handleSubmit = async (e) => {
   createdAt: new Date()
 });
 
+// guardar datos
+setCitaGuardada(form);
+
+toast.success("✅ Cita agendada correctamente");
+
+// 👉 activar UI
+setSuccess(true);
+
+// limpiar form
+setForm({
+  nombre: "",
+  email: "",
+  telefono: "",
+  tipo: "virtual",
+  fecha: "",
+  hora: ""
+});
+
+setHorariosDisponibles([]);
+
 // 🔥 guardamos los datos antes de limpiar
 setCitaGuardada(form);
 
 toast.success("✅ Cita agendada correctamente");
+setSuccess(true);
 
 const mensaje = `Hola Dr. Reuma, agendé una cita.
 
@@ -98,7 +119,7 @@ const mensaje = `Hola Dr. Reuma, agendé una cita.
 
 const link = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(mensaje)}`;
 
-window.location.href = link;
+
 // limpiar form
 setForm({
   nombre: "",
@@ -320,7 +341,7 @@ setForm({
 
       <button
         className="btn btn-outline-secondary"
-        onClick={() => setSuccess(true)} // 🔥 cerrar manual
+        onClick={() => setSuccess(false)} // 🔥 cerrar manual
       >
         Cerrar
       </button>
