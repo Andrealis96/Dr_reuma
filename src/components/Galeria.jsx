@@ -11,7 +11,7 @@ function Galeria() {
     {
       type: "video",
       src: gotavideo,
-      title: "GOTA",
+      title: "ARTITIS REMAUTOIDE",
     },
     {
       type: "video",
