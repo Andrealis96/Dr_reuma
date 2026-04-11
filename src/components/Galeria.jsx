@@ -4,6 +4,10 @@ import esclerodermiaImg from "../assets/esclerodermiaa.webp";
 import rodillaImg from "../assets/rodilla.webp";
 import dermatomiositisImg from "../assets/dermatomiositiss.webp";
 import lupusImg from "../assets/lupuss.webp";
+import protesisImg from "../assets/protesis.webp";
+import gotaImg from "../assets/gotaa.webp";
+import osteoporosisImg from "../assets/osteoporosiss.webp";
+import fibromialgiaImg from "../assets/fibromialgiaa.webp";
 import gotavideo from "../assets/gotavideo.mp4";
 import esclerodermiavideo from "../assets/esclerodermiavideo.mp4";
 import artritisvideo from "../assets/artritisreumavideo.mp4";
@@ -45,6 +49,26 @@ function Galeria() {
       src: lupusImg,
       title: "LUPUS",
     },
+    {
+      type: "image",
+      src: protesisImg,
+      title: "ARTOSIS AVANZADA DE RODILLA QUE LLEGA A PRÓTESIS",
+    },
+    {
+      type: "image",
+      src: gotaImg,
+      title: "PIE DE GOTA",
+    },
+    {
+      type: "image",
+      src: osteoporosisImg,
+      title: "MÚLTIPLES FRACTURAS POR OSTEOPOROSIS",
+    },
+    {
+      type: "image",
+      src: fibromialgiaImg,
+      title: "FIBROMIALGIA TRATABLE",
+    },
   ];
 
   return (
@@ -59,10 +83,12 @@ function Galeria() {
             
             {item.type === "video" ? (
               <video
-              className="galeria-media"
-              src={item.src}
-              controls
-              />
+                  className="galeria-media"
+                  src={item.src}
+                  controls
+                  preload="metadata"
+                  muted
+                />
             ) : (
                 <img
                 className="galeria-media "

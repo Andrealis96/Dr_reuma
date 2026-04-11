@@ -1119,21 +1119,29 @@ animation-delay:0.4s;
 }
 
 .galeria-card {
-  background:  rgba(182, 255, 141, 0.32);
-  border-radius: 10px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-  transition: transform 0.3s;
+  transition: 0.3s;
 }
 
 .galeria-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-6px) scale(1.01);
 }
 
 .galeria-media {
   width: 100%;
-  height: 400px;
+  aspect-ratio: 1 / 1; /* 🔥 mantiene tamaño uniforme */
   object-fit: cover;
+  border-radius: 10px;
+}
+@media (max-width: 768px) {
+  .galeria {
+    padding: 30px 20px;
+  }
+
+  .galeria-media {
+    aspect-ratio: 4 / 3; /* 🔥 mejor proporción en móvil */
+  }
 }
 
 .galeria-caption {
