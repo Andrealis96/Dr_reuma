@@ -4,7 +4,7 @@ import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import ServiceCard from "./ServiceCard";
 import { FaCalendarCheck, FaCalendarAlt, FaSave } from "react-icons/fa";
-import { FaMoneyBillWave, FaExclamationCircle } from "react-icons/fa";
+import { FaMoneyBillWave, FaExclamationCircle, FaExclamationTriangle  } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { FaWhatsapp } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
@@ -243,7 +243,7 @@ function Services() {
 
   <p className="info-title">📌 Información importante</p>
     <div className="info-item warning">
-    <FaMoneyBillWave />
+    <FaExclamationTriangle />
     <span>Después de agendar la cita, presiona el botón de WhatsApp para notificar al médico.</span>
   </div>
 
