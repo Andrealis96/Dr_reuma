@@ -319,36 +319,6 @@ setForm({
                 </div>
             </div>
           </form>
-
-          {/* SUCCESS */}
-          {success && (
-  <div className="alert alert-success mt-4 text-center">
-    <p className="mb-3 fw-bold">
-      ✅ Tu cita ha sido agendada correctamente
-    </p>
-
-    <div className="d-flex justify-content-center gap-2">
-
-      <a
-        href={whatsappLink}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="btn btn-success"
-        onClick={() => setSuccess(false)} // 🔥 se cierra al hacer click
-      >
-        Ir a WhatsApp
-      </a>
-
-      <button
-        className="btn btn-outline-secondary"
-        onClick={() => setSuccess(false)} // 🔥 cerrar manual
-      >
-        Cerrar
-      </button>
-
-    </div>
-  </div>
-)}
         </div>
 
       </div>
