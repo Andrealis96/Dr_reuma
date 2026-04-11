@@ -425,6 +425,72 @@ display: block;
 /* =========================
 SERVICE CARDS PRO STYLE --- servicios
 ========================= */
+
+input[type="date"] {
+  cursor: pointer;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+}
+.fake-placeholder {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  pointer-events: none;
+  font-size: 14px;
+}
+.info-card {
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  border: 1px solid #e5e7eb;
+}
+
+.info-title {
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #111827;
+}
+
+.info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 14px;
+  transition: 0.3s;
+}
+
+.info-item svg {
+  margin-top: 3px;
+  font-size: 18px;
+}
+
+/* colores suaves */
+.info-item.success {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.info-item.danger {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.info-item.primary {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+/* hover sutil */
+.info-item:hover {
+  transform: translateX(3px);
+}
 .card.card-general{
   background:  rgba(182, 255, 141, 0.32);
   border-radius: 18px;
@@ -470,6 +536,29 @@ SERVICE CARDS PRO STYLE --- servicios
   color: #000000 !important;
 }
 
+.btn-whatsapp {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #25D366;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 50px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.btn-whatsapp:hover {
+  background: #1ebe5d;
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+}
+
+.btn-whatsapp:active {
+  transform: scale(0.98);
+}
 /* =========================
 TESTIMONIOS 
 ========================= */
