@@ -94,7 +94,7 @@ function Services() {
       whatsappRef.current?.scrollIntoView({
         behavior: "smooth",
         block: "center"
-      });
+      },500);
 
       // ✅ limpiar form
       setForm({
@@ -143,19 +143,32 @@ function Services() {
         <div className="row g-4 mb-5">
 
           <div className="col-12 col-md-6">
-            <ServiceCard title="Receta médica" description="Emisión y renovación de recetas médicas." />
+            <ServiceCard 
+            title="Receta médica" 
+            message="Hola Dr. Reuma, vengo desde la página web. Quisiera solicitar una receta médica."
+            description="Emisión y renovación de recetas médicas." />
           </div>
 
           <div className="col-12 col-md-6">
-            <ServiceCard title="Aptitud física" description="Emisión y renovación de recetas médicas." />
+            <ServiceCard 
+            title="Aptitud física" 
+            message="Hola Dr. Reuma, vengo desde la página web. Quisiera consultar por un certificado de aptitud física."
+            description="Emisión y renovación de recetas médicas." />
           </div>
 
           <div className="col-12 col-md-6">
-            <ServiceCard title="Charlas y educación" description="Charlas sobre salud reumatológica." />
+            <ServiceCard 
+            title="Charlas y educación" 
+            message="Hola Dr. Reuma, vengo desde la página web. Quisiera información sobre charlas y educación."
+            description="Charlas sobre salud reumatológica." />
           </div>
 
           <div className="col-12 col-md-6">
-            <ServiceCard title="Consulta presencial" description="Ubicación: Clínica San Agusntín." showButton={false} />
+            <ServiceCard 
+            title="Consulta presencial" 
+            description="Ubicación: San Martín 1355 (Consultorios Externos - Clínica San Agusntín.)" 
+            mapLink="https://maps.app.goo.gl/u5aRXf6BsRKKMhYf7"
+            showButton={false} />
           </div>
 
           <div className="col-12 col-md-6">

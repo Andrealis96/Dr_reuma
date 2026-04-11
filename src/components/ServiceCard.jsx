@@ -1,6 +1,6 @@
-import { FaWhatsapp } from "react-icons/fa";
+import { FaWhatsapp, FaMapMarkerAlt } from "react-icons/fa";
 
-function ServiceCard({ title, description, message, disabled, badge, showButton= true}) {
+function ServiceCard({ title, description, message, disabled, badge, mapLink, showButton= true}) {
   const phoneNumber = "5492994666559";
 
   const whatsappLink = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
@@ -25,6 +25,17 @@ function ServiceCard({ title, description, message, disabled, badge, showButton=
             >
               <FaWhatsapp size={18} />
               Contactar por WhatsApp
+            </a>
+          )}
+          {mapLink && (
+            <a
+              href={mapLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-dark fw-bold mt-2 d-flex align-items-center justify-content-center gap-2"
+            >
+              <FaMapMarkerAlt size={18} />
+              Ver ubicación
             </a>
           )}
         </div>
