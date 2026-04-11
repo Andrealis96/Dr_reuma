@@ -98,7 +98,7 @@ const mensaje = `Hola Dr. Reuma, agendé una cita.
 
 const link = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(mensaje)}`;
 
-window.open(link, "_blank");
+window.location.href = link;
 // limpiar form
 setForm({
   nombre: "",
