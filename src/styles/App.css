@@ -1,0 +1,1273 @@
+/* FONDO GLOBAL */
+
+.app-content{
+  position: relative;
+  z-index: 2;
+}
+
+.title-general{
+  font-size: 3.2rem;
+  font-weight: 1000;
+  margin-top: -12px;
+}
+.title-celeste{
+  color: rgba(114, 198, 209, 0.322);
+  -webkit-text-stroke: 2px rgb(0, 0, 0);
+}
+
+.title-negro{
+  color: rgb(0, 0, 0);
+}
+
+.fly-text {
+  display: inline-flexbox;
+  animation: volar 1s ease-out forwards;
+}
+
+@keyframes volar {
+  from {
+    transform: translateX(-100vw); /* empieza fuera de la pantalla */
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0); /* posición normal */
+    opacity: 1;
+  }
+}
+/*----- app.jsx-------*/
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+/*subtitulos */
+.subtitle-general{
+  font-size: 2.5rem;
+  font-weight: 1000;
+}
+.subtitle-celeste{
+  color: rgba(114, 198, 209, 0.322);
+  -webkit-text-stroke: 2px rgb(0, 0, 0);
+}
+
+.subtitle-negro{
+  color: rgb(0, 0, 0);
+}
+
+
+.app-background {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-content {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.routes-container {
+  flex: 1;
+}
+
+/* fondo de articulaciones */
+
+.joints-background{
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+
+  background-color: #f4fbf7;
+
+  background-image: url("/joints-pattern.svg");
+  background-repeat: repeat;
+  background-size: 280px;
+
+  opacity: 0.08;
+}
+/* ===============================
+  NAVBAR DR REUMA – CLÍNICA TOP
+================================ */
+
+.navbar-drreuma {
+  background: rgba(0, 0, 0, 0.747);
+  padding: 14px 0;
+  transition: all 0.4s ease;
+  animation: fadeDown 0.8s ease;
+}
+.nav-link {
+  cursor: pointer;
+}
+
+/* Logo */
+.logo-drreuma {
+  height: 45px;
+  transition: transform 0.3s ease;
+}
+
+.logo-drreuma:hover {
+  transform: scale(1.06);
+}
+
+/* Links */
+.nav-links .nav-link {
+  color: #ffffff !important;
+  font-weight: 500;
+  font-size: 16px;
+  margin-left: 22px;
+  position: relative;
+  transition: all 0.3s ease;
+  padding: 0.5rem 0;
+}
+
+/* Línea elegante abajo */
+.nav-links .nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0px;
+  width: 0%;
+  height: 3px;
+  background-color: #bbf7d0;
+  transition: width 0.35s ease;
+}
+
+.nav-links .nav-link:hover::after {
+  width: 100%;
+}
+
+.nav-links .nav-link:hover {
+  color: #bbf7d0 !important;
+}
+
+/* Botón hamburguesa */
+.navbar-toggler {
+  border: none;
+}
+
+.navbar-toggler:focus {
+  box-shadow: none;
+}
+
+.navbar-toggler-icon {
+  filter: invert(1);
+}
+
+/* Animación entrada */
+@keyframes fadeDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* logo */
+.logo-drreuma{
+height:55px;
+}
+
+/* botón consulta */
+.navbar-consulta-btn{
+font-weight:500;
+border-radius:50px;
+padding:6px 12px;
+background: rgba(114, 198, 209, 0.322);
+color: #ffffff;
+font-size: 14px;
+}
+/* ============================= */
+/* HERO CAROUSEL */
+/* ============================= */
+
+.hero-carousel{
+width:100%;
+height: 580%;
+padding:0;
+position:relative;
+z-index: 2;
+}
+
+/* bootstrap reset */
+
+.hero-carousel .carousel-inner{
+  transform: none !important;
+}
+
+/* imagen banner */
+
+.hero-img{
+
+width:100%;
+height: 450px;
+object-fit:cover;
+display: block;
+}
+/* ============================= */
+/* MOBILE */
+/* ============================= */
+
+@media (max-width:800px){
+
+.hero-img{
+  max-height: 240px;
+  width:auto;
+}
+
+}
+
+/* ============================= */
+/* SECCIÓN BIENVENIDOS */
+/* ============================= */
+
+.welcome-text{
+  font-size: 1.05rem;
+  font-weight: 550;
+  line-height: 1.7;
+  text-align: justify;
+}
+
+/* BENEFICIOS */
+.benefits{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.benefit-item{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-size:1rem;
+  font-weight:700;
+  background: rgb(0, 0, 0);
+  color:#fffefe;
+  padding: 10px 15px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.benefit-icon{
+  color: #ffffff;
+  font-size:2.0rem;
+}
+
+/* SLIDER IMÁGENES */
+
+.image-slider{
+  overflow:hidden;
+  width:100%;
+  position:relative;
+  isolation: isolate;
+}
+
+.slider-track{
+  display:flex;
+  width:max-content;
+  animation: scrollImages 25s linear infinite;
+}
+
+.slide{
+  flex:0 0 200px;
+  margin-right:16px;
+}
+.slide img{
+  width:100%;
+  aspect-ratio:1/1;
+  object-fit:cover;
+  box-shadow:0 8px 18px rgba(0,0,0,0.08);
+  transition:none;
+  transform:none;
+}
+
+/* ANIMACIÓN SLIDER */
+
+@keyframes scrollImages{
+
+  0%{
+    transform:translateX(0);
+  }
+  100%{
+    transform:translateX(-50%);
+  }
+}
+
+/* MOBILE SLIDER*/
+
+@media (max-width:768px){
+  .title-general{
+    font-size:2rem;
+  }
+  .slide{
+    flex:0 0 140px;
+  }
+}
+
+/* ===============================
+    SECCIÓN SOLUCIONES
+================================ */
+.solutions-container{
+  padding: 80px 0;
+}
+/*TITULO DE DIAGNOSTICO...... */
+
+.solutions-container {
+  max-width: 1200px;
+  padding: 15px 15px;
+  border-radius: 18px;
+  /*background-color: #0a5024;*/
+}
+
+/* Card */
+.solutions-card {
+ background: rgba(163, 216, 133, 0.25);
+  border-radius: 18px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  height: 10;
+  padding: 10px ;
+  transition: transform 0.3s ease;
+}
+
+.solutions-card:hover {
+  transform: translateY(-6px);
+}
+
+/* Header */
+.solutions-header {
+  width: 100%;
+  border-radius: 50px;
+  background: rgba(163, 216, 133, 0.25);
+  background:  rgba(182, 255, 141, 0.32);
+  padding: 10px 20px;
+  font-weight: 600;
+  font-size: 1rem;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+/* Arrow */
+.arrow {
+  transition: transform 0.3s ease;
+}
+
+.arrow.open {
+  transform: rotate(180deg);
+}
+
+/* Body */
+.solutions-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, opacity 0.3s ease;
+  opacity: 0;
+  font-size: 3.2rem;
+  font-weight: 500;
+}
+
+.solutions-body.show {
+  max-height: 1000px;
+  opacity: 1;
+}
+
+/* List */
+.solutions-body ul {
+  list-style: none;
+  margin: 0;
+}
+
+.solutions-body li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+}
+
+.icon {
+  color: #a1b2ffd2;
+  font-size: 1.1rem;
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+/* Floating title */
+@keyframes floatText {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+.solutions-image{
+  padding: 5px;
+  display: block;
+  margin:auto;
+  width:50%;
+  aspect-ratio:1 / 1;
+  object-fit:cover;
+  border-radius:12px;
+  margin-bottom:15px;
+}
+
+/* =========================
+SERVICE CARDS PRO STYLE --- servicios
+========================= */
+.card.card-general{
+  background:  rgba(182, 255, 141, 0.32);
+  border-radius: 18px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.service-card-wrapper {
+  position: relative;
+}
+
+.service-card {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(182, 255, 141, 0.32);
+  transition: all 0.35s ease;
+  background: #c9e2fa88;
+}
+
+.service-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 18px 35px (114, 198, 209, 0.322);
+}
+
+.service-card.disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.service-badge {
+  position: absolute;
+  top: -10px;
+  right: 12px;
+  background: #83a891;
+  color: #ffffff62;
+  font-size: 0.75rem;
+  padding: 6px 10px;
+  border-radius: 20px;
+  z-index: 2;
+}
+
+.btn.btn-succes {
+  background:  rgba(163, 216, 133, 0.671) !important;
+  color: #000000 !important;
+}
+
+/* =========================
+TESTIMONIOS 
+========================= */
+.boton-comentario {
+  background:  rgba(182, 255, 141, 0.32) !important;
+}
+
+.rating-summary{
+text-align:center;
+margin-bottom:20px;
+}
+
+.stars svg{
+color:  rgba(163, 216, 133, 0.671);
+font-size:20px;
+}
+
+.stars svg.active{
+color:#facc15;
+}
+
+.rating-select svg{
+font-size:24px;
+cursor:pointer;
+margin-right:5px;
+color:#d1d5db;
+}
+
+.rating-select svg.active{
+color:#facc15;
+}
+
+.testimonial-form{
+max-width:500px;
+margin:0 auto 40px;
+display:flex;
+flex-direction:column;
+gap:12px;
+}
+
+.testimonial-form input,
+.testimonial-form textarea{
+padding:12px;
+border-radius:10px;
+border:1px solid #e5e7eb;
+font-size:16px;
+}
+
+.testimonial-form button{
+background: rgba(163, 216, 133, 0.671);
+color:white;
+border:none;
+padding:12px;
+border-radius:10px;
+font-weight:600;
+transition:0.2s;
+}
+
+.testimonial-form button:hover{
+background: rgba(163, 216, 133, 0.671);
+}
+
+
+/* ⭐ LISTA LINEAL */
+.testimonials-list{
+display:flex;
+flex-direction:column;
+gap:20px;
+max-width:700px;
+margin:0 auto;
+}
+
+
+/* CARD */
+.testimonial-card{
+background:white;
+padding:20px;
+border-radius:14px;
+box-shadow:0 4px 15px rgba(0,0,0,0.08);
+width:100%;
+}
+
+
+/* HEADER */
+.testimonial-header{
+display:flex;
+gap:12px;
+align-items:center;
+margin-bottom:10px;
+}
+
+
+/* AVATAR USER */
+.user-avatar{
+width:40px;
+height:40px;
+border-radius:50%;
+background:#16a34a;
+color:white;
+display:flex;
+align-items:center;
+justify-content:center;
+font-weight:bold;
+font-size:16px;
+}
+
+
+/* RESPUESTA DOCTOR */
+.doctor-reply{
+display:flex;
+gap:10px;
+background:#f0fdf4;
+padding:12px;
+border-radius:10px;
+margin-top:12px;
+align-items:flex-start;
+}
+
+
+/* AVATAR DOCTOR FIX TAMAÑO */
+.doctor-avatar{
+width:40px;
+height:40px;
+min-width:40px;
+max-width:40px;
+border-radius:50%;
+object-fit:cover;
+}
+
+
+/* BOTON RESPONDER */
+.reply-btn{
+background:rgb(22, 185, 22); 
+color:white;
+border:none;
+padding:8px 14px;
+border-radius:8px;
+margin-top:10px;
+font-size:14px;
+transition:0.2s;
+}
+
+.reply-btn:hover{
+background: rgba(163, 216, 133, 0.671)
+}
+
+
+/* FORM RESPUESTA */
+.reply-form textarea{
+width:100%;
+margin-top:10px;
+padding:10px;
+border-radius:8px;
+border:1px solid  rgba(163, 216, 133, 0.671);
+font-size:15px;
+}
+
+.reply-form button{
+margin-top:6px;
+background:#16a34a;
+color:white;
+border:none;
+padding:8px 14px;
+border-radius:8px;
+font-size:14px;
+}
+
+.reply-form button:hover{
+background:#15803d;
+}
+
+.pagination .page-item.active .page-link {
+background-color:#000000;
+border: #000000;
+}
+
+
+/* 📱 RESPONSIVE CELULAR */
+@media (max-width:768px){
+
+.testimonials-section{
+padding:50px 10px;
+}
+
+.testimonial-card{
+padding:16px;
+}
+
+.testimonial-form{
+max-width:100%;
+}
+
+}
+
+/*------------ NOSOTROS -----------------*/
+
+/* TARJETA DOCTOR */
+
+.doctor-card{
+background:white;
+padding:25px;
+border-radius:16px;
+box-shadow:0 10px 25px rgba(0,0,0,0.08);
+max-width:420px;
+margin:auto;
+}
+
+
+.doctor-img{
+max-height:320px;
+object-fit:cover;
+}
+
+
+/* CREDENCIALES */
+
+.doctor-credentials{
+font-size:14px;
+color:rgb(111, 194, 190);  
+margin-bottom:15px;
+}
+
+.doctor-credencial {
+  color:rgb(111, 194, 190);   
+}
+/* TARJETAS BENEFICIOS */
+
+.feature-card{
+background:rgba(182, 255, 141, 0.32);
+padding:12px 16px;
+border-radius:10px;
+box-shadow:0 6px 15px rgba(0,0,0,0.05);
+font-size:14px;
+}
+
+
+/* EXPERIENCIA */
+
+.trust-section h3{
+font-size:32px;
+}
+
+
+/*---------- GALERIA ---------------------------*/
+
+.expo-img{
+overflow:hidden;
+border-radius:12px;
+box-shadow:0 6px 15px rgba(0,0,0,0.05);
+}
+
+.expo-img img{
+transition:transform .4s ease;
+}
+
+.expo-img:hover img{
+transform:scale(1.07);
+}
+
+/* --------------------  LOGIN DISEÑO ------------------------ */
+
+.login-title {
+  text-align: left;
+  font-weight: 800;
+  font-size: 2.2rem;
+}
+.login-green {
+  color: #16a34a;
+}
+.login-orange {
+  color: #c26e0f;
+}
+.login-admin-container { 
+  min-height: 100vh; 
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  background: linear-gradient( 135deg, #f0fdf423, #ffffff31 ); 
+} 
+
+.login-card { 
+    width: 100%; 
+    max-width: 500px; 
+    padding: 45px; 
+    border-radius: 18px; 
+    background: rgba(255, 255, 255, 0.192); 
+    animation: fadeIn 0.4s ease; 
+  } 
+    
+.login-card input { height: 45px; border-radius: 30px; } 
+.login-card button { height: 45px; border-radius: 30px; font-weight: 600; } 
+
+/*administrador*/ 
+.admin-layout { display: flex; min-height: 100vh; } 
+/* SIDEBAR */ 
+.admin-sidebar { 
+  width: 240px; background: rgb(22, 185, 22); color: rgba(255, 255, 255, 0.301); padding: 20px; 
+  display: flex; flex-direction: column; } 
+
+.admin-link { 
+    color: rgba(255, 255, 255, 0.24); text-decoration: none; padding: 10px; 
+    border-radius: 8px; margin-bottom: 5px; cursor: pointer; border: none; 
+    background: none; text-align: left; } 
+.admin-link:hover { 
+  background: rgba(255,255,255,0.15); } 
+
+.admin-link.active { background: rgba(255,255,255,0.25); } 
+.logout-btn { margin-top: auto; color: #ffc107; } 
+
+/* CONTENT */ 
+.admin-content { flex: 1; background: #f8f9fa4b; padding: 30px; } 
+.form-control{
+  height:52px;
+  font-size:16px;
+  border-radius:12px;
+}
+/* MOBILE */ 
+@media (max-width: 768px) { 
+  .admin-sidebar { width: 70px; padding: 10px; } 
+  .admin-link { font-size: 12px; } } 
+  
+  /* Animación entrada elegante */ 
+  .fade-slide { 
+    opacity: 0; transform: translateY(10px); 
+    animation: fadeSlideIn 0.4s ease forwards; } 
+    @keyframes fadeSlideIn { 
+      to { opacity: 1; transform: translateY(0); } } 
+      body { background-color: #f0fff435; font-family: 'Inter', sans-serif; } 
+      
+      /* Entrada suave */ 
+      .fade-slide { opacity: 0; transform: translateY(10px); animation: fadeSlideIn 0.4s ease forwards; } 
+      @keyframes fadeSlideIn { 
+        to { opacity: 1; transform: translateY(0); } } 
+      /* Hover premium */ 
+      .card-hover { transition: all 0.25s ease; } 
+      .card-hover:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(47, 133, 90, 0.08); } 
+      
+      /* Botones suaves */ 
+      button { transition: all 0.2s ease; } 
+      /* Glow verde elegante */ 
+      .glow-green { transition: box-shadow 0.3s ease; } 
+      .glow-green:hover { box-shadow: 0 0 0 3px rgba(47, 133, 90, 0.15); } 
+      
+      /* Badge animación sutil */ 
+      .status-badge { 
+        animation: pulseSoft 0.5s ease; } 
+        @keyframes pulseSoft { 0% { transform: scale(0.95); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
+/*botones*/
+.btn-success{
+  height:52px;
+  font-size:17px;
+  font-weight:600;
+  border-radius:12px;
+}
+/* ===============================
+  ASISTENTE MÉDICO ELEGANTE
+================================ */
+
+/* BOTÓN FLOTANTE */
+.floating-btn {
+position:fixed;
+bottom:25px;
+right:25px;
+width:70px;
+height:70px;
+border-radius:50%;
+border:none;
+background:white;
+box-shadow:0 8px 25px rgba(0,0,0,0.25);
+cursor:pointer;
+z-index:9999;
+display:flex;
+align-items:center;
+justify-content:center;
+  animation: pulse 2.2s infinite
+}
+@keyframes pulse{
+
+0%{
+transform:scale(1);
+box-shadow:0 0 0 0 #1bad2e88; background: rgba(114, 198, 209, 0.322);
+}
+
+70%{
+transform:scale(1.05);
+box-shadow:0 0 0 14px rgba(15,157,122,0);
+}
+
+100%{
+transform:scale(1);
+box-shadow:0 0 0 0 rgba(15,157,122,0);
+}
+
+}
+.assistant-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.floating-btn:hover .assistant-logo {
+  transform: scale(1.08);
+}
+
+/* CAJA CHAT */
+.chat-box {
+  position: fixed;
+  bottom: 105px;
+  right: 25px;
+  width: 340px;
+  max-height: 460px;
+  background: white;
+  border-radius: 18px;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.12);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 9999;
+  animation: chatFade 0.25s ease;
+}
+
+@keyframes chatFade {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* HEADER */
+.chat-header {
+  background: rgb(6, 109, 44);
+  color: white;
+  padding: 14px 16px;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-logo {
+  width: 28px;
+}
+
+.close-btn {
+  cursor: pointer;
+  font-size: 18px;
+}
+
+/* BODY */
+.chat-body {
+  padding: 14px;
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* MENSAJES */
+.bot-msg{
+background:rgba(157, 236, 54, 0.945);
+backdrop-filter:blur(6px);
+padding:12px;
+border-radius:12px;
+margin-bottom:10px;
+font-size:14px;
+line-height:1.4;
+border:1px solid rgba(17, 85, 68, 0.2);
+}
+
+.options{
+display:flex;
+flex-direction:column;
+gap:8px;
+margin-top:10px;
+}
+
+.options button{
+background: #1e990e;
+border:none;
+padding:10px;
+border-radius:10px;
+cursor:pointer;
+transition:0.2s;
+font-size:14px;
+}
+
+.options button:hover{
+background: #c26e0f;
+transform:translateY(-1px);
+}
+
+/* EFECTO ESCRIBIENDO */
+
+.typing{
+display:flex;
+gap:6px;
+padding:10px;
+}
+
+.typing span{
+width:8px;
+height:8px;
+background: #1e990e;
+border-radius:50%;
+animation:typing 1s infinite;
+}
+
+.typing span:nth-child(2){
+animation-delay:0.2s;
+}
+
+.typing span:nth-child(3){
+animation-delay:0.4s;
+}
+
+@keyframes typing{
+
+0%{opacity:0.3}
+50%{opacity:1}
+100%{opacity:0.3}
+}
+
+/*galeriaaaaaaaaaaaaaaaaaaaaaaaa*/
+.galeria {
+  padding: 50px 90px;
+  text-align: center;
+}
+
+.galeria-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  max-width: 1000px;
+  margin: auto;
+  
+}
+
+.galeria-card {
+  background:  rgba(182, 255, 141, 0.32);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  transition: transform 0.3s;
+}
+
+.galeria-card:hover {
+  transform: translateY(-5px);
+}
+
+.galeria-media {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+}
+
+.galeria-caption {
+  padding: 12px;
+  font-weight: 500;
+}
+
+
+/*----- FOOTER----- ----------*/
+.footer-section{
+  background: rgba(0, 0, 0, 0.747);
+}
+
+.footer-list{
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-list li{
+  margin-bottom: 10px;
+}
+
+.footer-list a{
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+.footer-list a:hover{
+  text-decoration: underline;
+}
+
+.footer-section a{
+  transition: 0.2s;
+}
+
+.footer-section a:hover{
+  opacity: 0.8;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  flex: 1;
+}
+
+/* --------  HISTORIA PACIENTES -------------------*/
+
+
+.nombre-paciente {
+  text-transform: uppercase;
+  color:  rgb(57, 100, 105);
+}
+
+.header-consulta {
+  transition: all 0.2s ease;
+}
+
+.header-consulta:hover {
+  background-color:  rgba(182, 255, 141, 0.32);
+  transform: scale(1.01);
+}
+
+
+/* ------ panel administrativo ----------------------*/
+
+/* ICONO centrado + color base */
+.icono-panel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+ }
+
+/* TARJETA */
+.panel-card {
+  border-radius: 100px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background-color: rgba(182, 255, 141, 0.32) !important;
+}
+
+/* HOVER general */
+.panel-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+/* 🔥 CAMBIO DE COLOR DEL ICONO */
+.panel-card:hover .icono-panel {
+  color: rgba(22, 185, 22, 0.9); /* verde clínico */
+}
+
+/* TEXTO también cambia (pro tip) */
+.panel-card:hover h5 {
+  color: rgba(22, 185, 22, 0.9);
+}
+
+.panel-card:hover {
+  transform: translateY(-6px);
+
+  box-shadow:
+    0 12px 30px rgba(22, 185, 22, 0.9),
+    0 0 0 1px rgba(22, 185, 22, 0.9);
+}
+
+/*------ HISTORIA CLINICA ---------------------*/
+
+.paciente-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border-radius: 12px;
+  background-color:  rgba(182, 255, 141, 0.32) !important;
+}
+
+.paciente-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgb(0, 0, 0);
+}
+
+/* Botones con efecto hover más pro */
+.btn {
+  transition: all 0.2s ease-in-out;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+}
+
+.form-card {
+  background: rgb(0, 0, 0) !important;
+  border-radius: 15px;
+  color: white;
+  border: none;
+}
+
+.btn.btn-green {
+  background-color: rgb(22, 185, 22);
+  color: white;
+  border: none;
+}
+
+.btn.btn-green:hover {
+  background-color: rgba(82, 190, 55, 0.575);
+  color: white;
+}
+
+.btn.btn-orange {
+  background-color:  rgb(57, 100, 105);
+  color: white;
+  border: none;
+}
+
+.btn.btn-orange:hover {
+  background-color:  rgba(182, 255, 141, 0.32);
+  color: white;
+}
+
+.clinica-green {
+  color: rgb(255, 255, 255);
+  padding: 3px 3px;
+  background-color: rgb(0, 0, 0);
+  border-radius: 10px;
+}
+
+/* ------------------- PANEL COMENTARIOS -------------*/
+
+
+.comentarios-container {
+  min-height: 100vh; /* 🔥 CLAVE */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding-bottom: 80px;
+  
+  
+}
+
+.comentario-card {
+  background: rgba(183, 255, 141, 0.199)!important;
+}
+
+.respuesta-box {
+  background:  rgba(126, 126, 126, 0.151);
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+/*--------------------LABORATORIO----------------------*/
+.card-ordenes {
+  background: rgba(182, 255, 141, 0.32)!important;
+}
+
+/*calendario*/
+.fc-daygrid-day {
+  cursor: pointer;
+}
+
+.fc-daygrid-day:hover {
+  background-color: #f5f5f5;
+  transition: 0.2s;
+}
+
+.fc-daygrid-day {
+  background-color: white !important;
+}
+
+.fc-daygrid-day:hover {
+  background-color: #f5f5f5 !important; /* gris suave */
+  cursor: pointer;
+}
+
+.fc-daygrid-day-number {
+  color: #000 !important; /* negro */
+  font-weight: 500;
+}
+
+.fc-daygrid-day.fc-day-other {
+  background-color: #fafafa !important;
+}
+
+.fc-daygrid-day.fc-day-other .fc-daygrid-day-number {
+  color: #aaa !important;
+}
