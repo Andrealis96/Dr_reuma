@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useRef } from "react";
 import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import ServiceCard from "./ServiceCard";
@@ -26,7 +27,7 @@ function Services() {
   const phoneNumber = "5491128524979";
 
   const horariosBase = ["15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00"];
-
+  const whatsappRef = useRef(null);
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -89,6 +90,11 @@ function Services() {
 
       // ✅ mostrar botón WhatsApp
       setSuccess(true);
+      // 👇 SCROLL automático
+      whatsappRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
 
       // ✅ limpiar form
       setForm({
@@ -100,6 +106,8 @@ function Services() {
         hora: ""
       });
 
+      
+      
       setHorariosDisponibles([]);
 
     } catch (error) {
@@ -234,6 +242,10 @@ function Services() {
             <div className="info-card mt-4">
 
   <p className="info-title">📌 Información importante</p>
+    <div className="info-item warning">
+    <FaMoneyBillWave />
+    <span>Después de agendar la cita, presiona el botón de WhatsApp para notificar al médico.</span>
+  </div>
 
   <div className="info-item success">
     <FaMoneyBillWave />
@@ -259,20 +271,21 @@ function Services() {
 
           {/* ✅ BOTÓN WHATSAPP */}
           {success && (
-  <div className="text-center mt-4">
-
-    <a
-      href={whatsappLink}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="btn-whatsapp"
-      onClick={() => setSuccess(false)}
-    >
-      <FaWhatsapp size={22} />
-      <span>Enviar al doctor por WhatsApp</span>
-    </a>
-
-  </div>
+  <div ref={whatsappRef}>
+  {success && (
+    <div className="text-center mt-4">
+      <a
+        href={whatsappLink}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="btn-whatsapp"
+        onClick={() => setSuccess(false)}
+      >
+        Enviar al doctor por WhatsApp
+      </a>
+    </div>
+  )}
+</div>
 )}
 
         </div>

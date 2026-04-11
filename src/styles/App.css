@@ -438,6 +438,12 @@ small {
   display: block;
   margin-top: 4px;
 }
+
+.info-item.warning {
+  background: #fff17352;
+  color: #596516;
+}
+
 .fake-placeholder {
   position: absolute;
   left: 12px;
