@@ -2,6 +2,7 @@
 import "../styles/App.css";
 import esclerodermiaImg from "../assets/esclerodermiaa.webp";
 import rodillaImg from "../assets/rodilla.webp";
+import dermatoisitisImg from "../assets/dermatoisitiss.webp";
 import gotavideo from "../assets/gotavideo.mp4";
 import esclerodermiavideo from "../assets/esclerodermiavideo.mp4";
 import artritisvideo from "../assets/artritisreumavideo.mp4";
@@ -32,6 +33,11 @@ function Galeria() {
       type: "image",
       src: rodillaImg,
       title: "DOLOR DE RODILLA",
+    },
+    {
+      type: "image",
+      src: dermatoisitisImg,
+      title: "DERMATOISITIS",
     },
   ];
 
