@@ -25,7 +25,7 @@ function NavbarDrReuma() {
   const navigate = useNavigate();
 
   const whatsappMessage = "Hola, solicito una consulta con el Dr.Reuma te contacto desde la pagina web. Mi nombre es ";
-  const whatsappLink = `https://wa.me/5491128524979?text=${encodeURIComponent(whatsappMessage)}`;
+  const whatsappLink = `https://wa.me/5492994666559?text=${encodeURIComponent(whatsappMessage)}`;
 
   /* detectar admin */
   useEffect(() => {
