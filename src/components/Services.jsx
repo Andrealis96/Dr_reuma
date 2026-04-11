@@ -24,7 +24,7 @@ function Services() {
   const [success, setSuccess] = useState(false);
   const [citaGuardada, setCitaGuardada] = useState(null);
 
-  const phoneNumber = "5491128524979";
+  const phoneNumber = "5492994666559";
 
   const horariosBase = ["15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00"];
   const whatsappRef = useRef(null);
@@ -91,10 +91,20 @@ function Services() {
       // ✅ mostrar botón WhatsApp
       setSuccess(true);
       // 👇 SCROLL automático
-      whatsappRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "center"
-      },500);
+      setTimeout(() => {
+  if (whatsappRef.current) {
+    const yOffset = -80; // ajusta si quieres más arriba
+    const y =
+      whatsappRef.current.getBoundingClientRect().top +
+      window.pageYOffset +
+      yOffset;
+
+    window.scrollTo({
+      top: y,
+      behavior: "smooth"
+    });
+  }
+}, 600); // ⬅️ más tiempo para móvil
 
       // ✅ limpiar form
       setForm({
