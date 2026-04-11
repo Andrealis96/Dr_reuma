@@ -113,10 +113,10 @@ function Services() {
     ? `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
         `Hola Dr. Reuma, agendé una cita.
 
-👤 Nombre: ${citaGuardada.nombre}
-📅 Fecha: ${citaGuardada.fecha}
-⏰ Hora: ${citaGuardada.hora}
-💻 Tipo: ${citaGuardada.tipo}
+- Nombre: ${citaGuardada.nombre}
+- Fecha: ${citaGuardada.fecha}
+- Hora: ${citaGuardada.hora}
+- Tipo: ${citaGuardada.tipo}
 
 ¡Gracias!`
       )}`

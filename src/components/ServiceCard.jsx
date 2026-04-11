@@ -1,7 +1,7 @@
 import { FaWhatsapp } from "react-icons/fa";
 
 function ServiceCard({ title, description, message, disabled, badge, showButton= true}) {
-  const phoneNumber = "5491128524979";
+  const phoneNumber = "5492994666559";
 
   const whatsappLink = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
     message
