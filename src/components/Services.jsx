@@ -189,21 +189,24 @@ function Services() {
                 </select>
               </div>
 
-              <div className="col-md-6 position-relative">
-                {!form.fecha && (
-                  <span className="fake-placeholder">
-                  </span>
-                )}
+              <div className="col-md-6">
+                  <label className="form-label fw-semibold">
+                    📅 Fecha de la cita
+                  </label>
 
-                <input
-                  type="date"
-                  name="fecha"
-                  className="form-control"
-                  required
-                  value={form.fecha}
-                  onChange={handleChange}
-                />
-              </div>
+                  <input
+                    type="date"
+                    name="fecha"
+                    className="form-control"
+                    required
+                    value={form.fecha}
+                    onChange={handleChange}
+                  />
+
+                  <small className="text-muted">
+                    Selecciona una fecha disponible
+                  </small>
+                </div>
 
               <div className="col-md-6">
                 <select name="hora" className="form-select" required value={form.hora} onChange={handleChange}>

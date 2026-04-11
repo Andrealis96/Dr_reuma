@@ -433,6 +433,11 @@ input[type="date"] {
 input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
 }
+
+small {
+  display: block;
+  margin-top: 4px;
+}
 .fake-placeholder {
   position: absolute;
   left: 12px;
