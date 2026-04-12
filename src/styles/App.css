@@ -202,8 +202,8 @@ z-index: 2;
 /* imagen banner */
 .hero-img{
   width: 100%;
-  aspect-ratio: 2240 / 800;
-  object-fit: cover;
+  height: auto; /* 🔥 CLAVE */
+  display: block;
 }
 /* ============================= */
 /* MOBILE */
@@ -211,9 +211,8 @@ z-index: 2;
 
 @media (max-width:800px){
   .hero-img{
-    aspect-ratio: auto;
+    width: 100%;
     height: auto;
-    object-fit: contain;
   }
 }
 
