@@ -202,7 +202,8 @@ z-index: 2;
 /* imagen banner */
 .hero-img{
   width: 100%;
-  height: auto; /* 🔥 CLAVE */
+  height: 60vh; /* desktop */
+  object-fit: cover;
   display: block;
 }
 /* ============================= */
@@ -210,10 +211,12 @@ z-index: 2;
 /* ============================= */
 
 @media (max-width:800px){
-  .hero-img{
-    width: 100%;
-    height: auto;
-  }
+
+.hero-img{
+  height: 40vh; /* 🔥 mucho mejor que px */
+  width: 100%;  /* 🔥 esto arregla el recorte */
+}
+
 }
 
 .carousel-control-prev-icon,
