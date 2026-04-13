@@ -193,6 +193,16 @@ position:relative;
 z-index: 2;
 }
 
+.carousel-indicators [data-bs-target] {
+  width: 30px;
+  height: 4px;
+  border-radius: 2px;
+  background-color: rgba(129, 124, 124, 0.815);
+}
+
+.carousel-indicators .active {
+  background-color: #000000;
+}
 /* bootstrap reset */
 
 .hero-carousel .carousel-inner{
