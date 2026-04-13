@@ -90,7 +90,7 @@ function Welcome() {
 
                   <div className="slide" key={i}>
 
-                    <img src={img} alt="Paciente Dr Reuma" />
+                    <img src={img} alt="Paciente Dr Reuma" loading="lazy" />
 
                   </div>
 
