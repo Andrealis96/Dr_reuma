@@ -20,36 +20,36 @@ function HeroCarousel() {
         
             <Carousel.Item>
                 <picture>
-                    <source media="(max-width: 800px)" srcSet={imgMobile1} />
-                    <img className="d-block w-100 hero-img" src={img1} alt="Atención en reumatología" loading="eager"/>
+                    <source media="(max-width: 768px)" srcSet={imgMobile1} />
+                    <img className="d-block w-100 hero-img" src={img1} alt="Atención en reumatología" loading="eager"  style={{ minHeight: "200px" }}/>
                 </picture>
             </Carousel.Item>
 
             <Carousel.Item>
                 <picture>
-                    <source media="(max-width: 800px)" srcSet={imgMobile2} />
-                    <img className="d-block w-100 hero-img" src={img2} alt="Diagnóstico preciso"/>
+                    <source media="(max-width: 768px)" srcSet={imgMobile2} />
+                    <img className="d-block w-100 hero-img" src={img2} alt="Diagnóstico preciso"  style={{ minHeight: "200px" }}/>
                 </picture>
             </Carousel.Item>
 
             <Carousel.Item>
                 <picture>
-                    <source media="(max-width: 800px)" srcSet={imgMobile3} />
-                    <img className="d-block w-100 hero-img" src={img3} alt="Tratamientos personalizados"/>
+                    <source media="(max-width: 768px)" srcSet={imgMobile3} />
+                    <img className="d-block w-100 hero-img" src={img3} alt="Tratamientos personalizados"  style={{ minHeight: "200px" }}/>
                 </picture>
             </Carousel.Item>
 
             <Carousel.Item>
                 <picture>
-                    <source media="(max-width: 800px)" srcSet={imgMobile4} />
-                    <img className="d-block w-100 hero-img" src={img4} alt="Tratamientos personalizados"/>
+                    <source media="(max-width: 768px)" srcSet={imgMobile4} />
+                    <img className="d-block w-100 hero-img" src={img4} alt="Tratamientos personalizados"  style={{ minHeight: "200px" }}/>
                 </picture>
             </Carousel.Item>
 
             <Carousel.Item>
                 <picture>
-                    <source media="(max-width: 800px)" srcSet={imgMobile5} />
-                    <img className="d-block w-100 hero-img" src={img5} alt="Tratamientos personalizados"/>
+                    <source media="(max-width: 768px)" srcSet={imgMobile5} />
+                    <img className="d-block w-100 hero-img" src={img5} alt="Tratamientos personalizados"  style={{ minHeight: "200px" }}/>
                 </picture>
             </Carousel.Item>
 
