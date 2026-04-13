@@ -193,15 +193,17 @@ position:relative;
 z-index: 2;
 }
 
-.carousel-indicators [data-bs-target] {
-  width: 30px;
-  height: 4px;
-  border-radius: 2px;
-  background-color: rgba(129, 124, 124, 0.815);
+.hero-carousel .carousel-indicators [data-bs-target] {
+  width: 30px !important;
+  height: 4px !important;
+  border-radius: 2px !important;
+  background-color: rgba(129, 124, 124, 0.9) !important;
+  opacity: 1 !important;
 }
 
-.carousel-indicators .active {
-  background-color: #000000;
+.hero-carousel .carousel-indicators .active {
+  background-color: #000000 !important;
+  opacity: 1 !important;
 }
 /* bootstrap reset */
 
