@@ -292,14 +292,25 @@ z-index: 2;
 }
 
 .slider-track{
-  display:flex;
-  width:max-content;
-  animation: scrollImages 35s linear infinite;
+  display: flex;
+  width: max-content;
+  animation: scrollImages 30s linear infinite;
+  will-change: transform;
+}
+
+@keyframes scrollImages{
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 .slide{
-  flex:0 0 200px;
-  margin-right:16px;
+  flex: 0 0 auto; /* 🔥 clave */
+  width: 200px;
+  margin-right: 16px;
 }
 .slide img{
   width:100%;
