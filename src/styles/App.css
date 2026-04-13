@@ -294,7 +294,7 @@ z-index: 2;
 .slider-track{
   display:flex;
   width:max-content;
-  animation: scrollImages 25s linear infinite;
+  animation: scrollImages 35s linear infinite;
 }
 
 .slide{
@@ -308,6 +308,7 @@ z-index: 2;
   box-shadow:0 8px 18px rgba(0,0,0,0.08);
   transition:none;
   transform:none;
+  opacity: 0.95;
 }
 
 /* ANIMACIÓN SLIDER */
