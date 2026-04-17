@@ -38,13 +38,22 @@ useEffect(() => {
 
   const cargarHorarios = async () => {
 
-    // ✅ día correcto (sin bugs de zona horaria)
-    const day = new Date(form.fecha + "T00:00:00").getDay();
-    console.log("Fecha:", form.fecha, "Día:", day);
+    const fechaObj = new Date(form.fecha + "T00:00:00");
+
+    const diaSemana = fechaObj.toLocaleDateString("es-AR", {
+      weekday: "long"
+    });
+
+    console.log("Día detectado:", diaSemana);
+
     let horariosBase = [];
 
-    // ✅ SOLO lunes (1), martes (2), miércoles (3)
-    if (day === 1 || day === 2 || day === 3) {
+    // ✅ SOLO lunes, martes, miércoles
+    if (
+      diaSemana === "lunes" ||
+      diaSemana === "martes" ||
+      diaSemana === "miércoles"
+    ) {
       horariosBase = [
         "15:00", "15:30",
         "16:00", "16:30",
@@ -52,12 +61,11 @@ useEffect(() => {
         "18:00"
       ];
     } else {
-      // ❌ cualquier otro día = vacío
       setHorariosDisponibles([]);
       return;
     }
 
-    // 🔥 traer citas ocupadas
+    // 🔥 traer ocupados
     const q = query(
       collection(db, "citas"),
       where("fecha", "==", form.fecha)
