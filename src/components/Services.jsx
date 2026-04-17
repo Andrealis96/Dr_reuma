@@ -33,38 +33,67 @@ function Services() {
   };
 
   // 🔥 Cargar horarios disponibles
-  useEffect(() => {
-    if (!form.fecha) return;
+useEffect(() => {
+  if (!form.fecha) return;
 
-    const cargarHorarios = async () => {
+  const cargarHorarios = async () => {
+    const [year, month, dayNum] = form.fecha.split("-");
+    const day = new Date(year, month - 1, dayNum).getDay();
 
-      const [year, month, dayNum] = form.fecha.split("-");
-      const day = new Date(year, month - 1, dayNum).getDay();
+    let horariosBase = [];
 
-      // ❌ bloquear viernes, sábado, domingo
-      if (day === 5 || day === 6 || day === 0) {
+    // ✅ Lunes (1) a miércoles (3)
+    if (day >= 1 && day <= 3) {
+      horariosBase = [
+        "15:00", "15:30",
+        "16:00", "16:30",
+        "17:00", "17:30",
+        "18:00"
+      ];
+    }
+
+    // ❌ Jueves (4) → no hay atención
+    else if (day === 4) {
+      setHorariosDisponibles([]);
+      return;
+    }
+
+    // ⚠️ Viernes (5) → dejamos vacío (o podrías meter horarios dinámicos después)
+    else if (day === 5) {
+      setHorariosDisponibles([]);
+      return;
+    }
+
+    // ✅ Sábado (6) y domingo (0) → SOLO virtual
+    else if (day === 6 || day === 0) {
+      if (form.tipo === "presencial") {
         setHorariosDisponibles([]);
         return;
       }
 
-      const q = query(
-        collection(db, "citas"),
-        where("fecha", "==", form.fecha)
-      );
+      horariosBase = [
+        "09:00", "10:00", "11:00",
+        "15:00", "16:00", "17:00"
+      ];
+    }
 
-      const snapshot = await getDocs(q);
+    // 🔥 consultar citas ocupadas
+    const q = query(
+      collection(db, "citas"),
+      where("fecha", "==", form.fecha)
+    );
 
-      const ocupados = snapshot.docs.map(doc => doc.data().hora);
+    const snapshot = await getDocs(q);
+    const ocupados = snapshot.docs.map(doc => doc.data().hora);
 
-      const disponibles = horariosBase.filter(
-        h => !ocupados.includes(h)
-      );
+    const disponibles = horariosBase.filter(h => !ocupados.includes(h));
 
-      setHorariosDisponibles(disponibles);
-    };
+    setHorariosDisponibles(disponibles);
+  };
 
-    cargarHorarios();
-  }, [form.fecha]);
+  cargarHorarios();
+
+}, [form.fecha, form.tipo]);
 
   // 🔥 GUARDAR CITA
   const handleSubmit = async (e) => {
