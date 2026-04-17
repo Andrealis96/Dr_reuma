@@ -15,7 +15,7 @@ function Services() {
     nombre: "",
     email: "",
     telefono: "",
-    tipo: "virtual",
+    tipo: "presencial",
     fecha: "",
     hora: ""
   });
@@ -148,6 +148,23 @@ useEffect(() => {
   cargarHorarios();
 }, [form.fecha]);
 
+useEffect(() => {
+  if (!form.fecha) return;
+
+  const fechaObj = new Date(form.fecha + "T00:00:00");
+
+  const diaSemana = fechaObj
+    .toLocaleDateString("es-AR", { weekday: "long" })
+    .toLowerCase();
+
+  if (diaSemana === "sábado") {
+    setForm((prev) => ({
+      ...prev,
+      tipo: "virtual"
+    }));
+  }
+}, [form.fecha]);
+
   // 🔥 GUARDAR CITA
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -257,14 +274,14 @@ useEffect(() => {
 
           <div className="col-12 col-md-6">
             <ServiceCard 
-            title="Consulta presencial" 
+            title="Consulta presencial $50.000" 
             description="Ubicación: San Martín 1355 (Consultorios Externos - Clínica San Agusntín.)" 
             mapLink="https://maps.app.goo.gl/u5aRXf6BsRKKMhYf7"
             showButton={false} />
           </div>
 
           <div className="col-12 col-md-6">
-            <ServiceCard title="Consulta por videollamada" description="Atención médica online." showButton={false} />
+            <ServiceCard title="Consulta por videollamada $25.000" description="Atención médica online." showButton={false} />
           </div>
 
           <div className="col-12 col-md-6">
@@ -296,11 +313,35 @@ useEffect(() => {
               </div>
 
               <div className="col-md-6">
-                <select name="tipo" className="form-select" value={form.tipo} onChange={handleChange}>
-                  <option value="virtual">Virtual</option>
-                  <option value="presencial">Presencial</option>
-                </select>
-              </div>
+                <select
+  name="tipo"
+  className="form-select"
+  value={form.tipo}
+  onChange={handleChange}
+>
+  <option value="virtual">Virtual</option>
+  <option
+    value="presencial"
+    disabled={
+      form.fecha &&
+      new Date(form.fecha + "T00:00:00")
+        .toLocaleDateString("es-AR", { weekday: "long" })
+        .toLowerCase() === "sábado"
+    }
+  >
+    Presencial
+  </option>
+</select>
+{/* 🔥 MENSAJE AQUÍ */}
+  {form.fecha &&
+    new Date(form.fecha + "T00:00:00")
+      .toLocaleDateString("es-AR", { weekday: "long" })
+      .toLowerCase() === "sábado" && (
+      <small className="text-danger d-block mt-1">
+        ⚠️ Los sábados solo se permiten consultas virtuales, en caso de querer presencial comunicarse directamente con el Dr.Reuma y preguntar disponibilidad.
+      </small>
+      )}
+</div>
 
               <div className="col-md-6">
                   <label className="form-label fw-semibold">
@@ -347,11 +388,6 @@ useEffect(() => {
             <div className="info-card mt-4">
 
   <p className="info-title">📌 Información importante</p>
-    <div className="info-item warning">
-    <FaExclamationTriangle />
-    <span>Después de agendar la cita, presiona el botón de WhatsApp para notificar al médico.</span>
-  </div>
-
   <div className="info-item success">
     <FaMoneyBillWave />
     <span>El pago se realizará al finalizar la consulta médica.</span>
@@ -364,13 +400,6 @@ useEffect(() => {
     </span>
   </div>
 
-  <div className="info-item primary">
-    <FaCalendarAlt />
-    <span>
-      Para citas los viernes o fines de semana, comunícate directamente con el médico.
-    </span>
-  </div>
-
 </div>
           </form>
 
@@ -379,6 +408,9 @@ useEffect(() => {
   <div ref={whatsappRef}>
   {success && (
     <div className="text-center mt-4">
+      <small className="d-block text-primary fw-semibold mb-2">
+      📲 Presiona el botón de WhatsApp para notificar al médico, de tu cita.
+    </small>
       <a
         href={whatsappLink}
         target="_blank"
@@ -386,7 +418,9 @@ useEffect(() => {
         className="btn-whatsapp"
         onClick={() => setSuccess(false)}
       >
-        Enviar al doctor por WhatsApp
+        NOTIFIQUE AQUÍ
+        <FaWhatsapp style={{ marginRight: "20px" }} />
+
       </a>
     </div>
   )}
