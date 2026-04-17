@@ -37,30 +37,74 @@ useEffect(() => {
   if (!form.fecha) return;
 
   const cargarHorarios = async () => {
-
     const fechaObj = new Date(form.fecha + "T00:00:00");
 
-    const diaSemana = fechaObj.toLocaleDateString("es-AR", {
-      weekday: "long"
-    });
+    const diaSemana = fechaObj
+      .toLocaleDateString("es-AR", { weekday: "long" })
+      .toLowerCase();
 
-    console.log("Día detectado:", diaSemana);
+    const generarHorarios = (inicio, fin) => {
+      const horarios = [];
+      for (let h = inicio; h <= fin; h++) {
+        horarios.push(`${h}:00`);
+        horarios.push(`${h}:30`);
+      }
+      return horarios;
+    };
+
+    const getWeekNumber = (date) => {
+      const firstJan = new Date(date.getFullYear(), 0, 1);
+      const days = Math.floor((date - firstJan) / (24 * 60 * 60 * 1000));
+      return Math.ceil((days + firstJan.getDay() + 1) / 7);
+    };
+
+    const week = getWeekNumber(fechaObj);
+
+    // 🔥 patrón viernes: [no, si, si, no]
+    const viernesActivo = (() => {
+      const pattern = week % 4;
+      return pattern === 1 || pattern === 2; // semanas 2 y 3
+    })();
 
     let horariosBase = [];
 
-    // ✅ SOLO lunes, martes, miércoles
-    if (
-      diaSemana === "lunes" ||
-      diaSemana === "martes" ||
-      diaSemana === "miércoles"
-    ) {
+    // ❌ MIÉRCOLES
+    if (diaSemana === "miércoles") {
+      setHorariosDisponibles([]);
+      return;
+    }
+
+    // 🟢 LUNES Y MARTES
+    if (diaSemana === "lunes" || diaSemana === "martes") {
       horariosBase = [
         "15:00", "15:30",
         "16:00", "16:30",
         "17:00", "17:30",
         "18:00"
       ];
-    } else {
+    }
+
+    // 🟡 JUEVES
+    else if (diaSemana === "jueves") {
+      horariosBase = generarHorarios(9, 12);
+    }
+
+    // 🔴 VIERNES (ciclo 4 semanas)
+    else if (diaSemana === "viernes") {
+      if (!viernesActivo) {
+        setHorariosDisponibles([]);
+        return;
+      }
+      horariosBase = generarHorarios(15, 18);
+    }
+
+    // 🔵 SÁBADO (solo virtual)
+    else if (diaSemana === "sábado") {
+      horariosBase = generarHorarios(8, 18);
+    }
+
+    // ❌ DOMINGO
+    else if (diaSemana === "domingo") {
       setHorariosDisponibles([]);
       return;
     }
@@ -80,7 +124,6 @@ useEffect(() => {
   };
 
   cargarHorarios();
-
 }, [form.fecha]);
 
   // 🔥 GUARDAR CITA
