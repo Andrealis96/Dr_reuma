@@ -364,6 +364,10 @@ font-size: 14px;
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
+
+  color:#000;
+  -webkit-text-fill-color: #000;
+  text-decoration: none;
 }
 
 /* Arrow */
