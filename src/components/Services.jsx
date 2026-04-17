@@ -37,47 +37,27 @@ useEffect(() => {
   if (!form.fecha) return;
 
   const cargarHorarios = async () => {
-    const [year, month, dayNum] = form.fecha.split("-");
-    const day = new Date(year, month - 1, dayNum).getDay();
 
+    // ✅ día correcto (sin bugs de zona horaria)
+    const day = new Date(form.fecha + "T00:00:00").getDay();
+    console.log("Fecha:", form.fecha, "Día:", day);
     let horariosBase = [];
 
-    // ✅ Lunes (1) a miércoles (3)
-    if (day >= 1 && day <= 3) {
+    // ✅ SOLO lunes (1), martes (2), miércoles (3)
+    if (day === 1 || day === 2 || day === 3) {
       horariosBase = [
         "15:00", "15:30",
         "16:00", "16:30",
         "17:00", "17:30",
         "18:00"
       ];
-    }
-
-    // ❌ Jueves (4) → no hay atención
-    else if (day === 4) {
+    } else {
+      // ❌ cualquier otro día = vacío
       setHorariosDisponibles([]);
       return;
     }
 
-    // ⚠️ Viernes (5) → dejamos vacío (o podrías meter horarios dinámicos después)
-    else if (day === 5) {
-      setHorariosDisponibles([]);
-      return;
-    }
-
-    // ✅ Sábado (6) y domingo (0) → SOLO virtual
-    else if (day === 6 || day === 0) {
-      if (form.tipo === "presencial") {
-        setHorariosDisponibles([]);
-        return;
-      }
-
-      horariosBase = [
-        "09:00", "10:00", "11:00",
-        "15:00", "16:00", "17:00"
-      ];
-    }
-
-    // 🔥 consultar citas ocupadas
+    // 🔥 traer citas ocupadas
     const q = query(
       collection(db, "citas"),
       where("fecha", "==", form.fecha)
@@ -93,7 +73,7 @@ useEffect(() => {
 
   cargarHorarios();
 
-}, [form.fecha, form.tipo]);
+}, [form.fecha]);
 
   // 🔥 GUARDAR CITA
   const handleSubmit = async (e) => {
