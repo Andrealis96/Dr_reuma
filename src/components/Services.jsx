@@ -23,7 +23,7 @@ function Services() {
   const [horariosDisponibles, setHorariosDisponibles] = useState([]);
   const [success, setSuccess] = useState(false);
   const [citaGuardada, setCitaGuardada] = useState(null);
-
+  const FRIDAY_START = new Date("2026-04-10T00:00:00");
   const phoneNumber = "5492994666559";
 
   const horariosBase = ["15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00"];
@@ -32,6 +32,27 @@ function Services() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const esViernesActivo = (fechaObj) => {
+  const MS_DIA = 1000 * 60 * 60 * 24;
+
+  // 🔥 fecha base: viernes 10 abril 2026 (NO atención)
+  const base = new Date(2026, 3, 10);
+
+  const actual = new Date(
+    fechaObj.getFullYear(),
+    fechaObj.getMonth(),
+    fechaObj.getDate()
+  );
+
+  const diffDias = Math.round((actual - base) / MS_DIA);
+
+  const semana = Math.floor(diffDias / 7);
+
+  const ciclo = ((semana % 3) + 3) % 3; // 🔥 ciclo de 3
+
+  // patrón: [0 ❌, 1 ✅, 2 ✅]
+  return ciclo === 1 || ciclo === 2;
+};
   // 🔥 Cargar horarios disponibles
 useEffect(() => {
   if (!form.fecha) return;
@@ -91,12 +112,13 @@ useEffect(() => {
 
     // 🔴 VIERNES (ciclo 4 semanas)
     else if (diaSemana === "viernes") {
-      if (!viernesActivo) {
-        setHorariosDisponibles([]);
-        return;
-      }
-      horariosBase = generarHorarios(15, 18);
-    }
+  if (!esViernesActivo(fechaObj)) {
+    setHorariosDisponibles([]);
+    return;
+  }
+
+  horariosBase = generarHorarios(15, 18);
+}
 
     // 🔵 SÁBADO (solo virtual)
     else if (diaSemana === "sábado") {
