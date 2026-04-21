@@ -966,7 +966,7 @@ justify-content:center;
 
 0%{
 transform:scale(1);
-box-shadow:0 0 0 0 #1bad2e88; background: rgba(114, 198, 209, 0.322);
+box-shadow:0 0 0 0 #1b90ad88; background: rgba(114, 198, 209, 0.322);
 }
 
 70%{
@@ -1021,7 +1021,7 @@ box-shadow:0 0 0 0 rgba(15,157,122,0);
 
 /* HEADER */
 .chat-header {
-  background: rgb(6, 109, 44);
+  background: rgb(87, 163, 182);
   color: white;
   padding: 14px 16px;
   font-weight: 600;
@@ -1056,9 +1056,9 @@ box-shadow:0 0 0 0 rgba(15,157,122,0);
 
 /* MENSAJES */
 .bot-msg{
-background:rgba(157, 236, 54, 0.945);
+background:rgba(76, 255, 60, 0.582);
 backdrop-filter:blur(6px);
-padding:12px;
+padding:7px;
 border-radius:12px;
 margin-bottom:10px;
 font-size:14px;
@@ -1074,17 +1074,18 @@ margin-top:10px;
 }
 
 .options button{
-background: #1e990e;
+background:rgb(87, 163, 182);
 border:none;
 padding:10px;
 border-radius:10px;
 cursor:pointer;
 transition:0.2s;
 font-size:14px;
+color:rgb(0, 0, 0) !important;
 }
 
 .options button:hover{
-background: #c26e0f;
+background: rgba(140, 209, 133, 0.726);
 transform:translateY(-1px);
 }
 

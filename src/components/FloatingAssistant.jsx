@@ -62,26 +62,26 @@ export default function FloatingAssistant() {
         return (
           <>
             <div className="bot-msg">
-              Hola 👋 Soy el asistente médico del consultorio Dr.Reuma. 
-              Puedo orientarte o ayudarte a solicitar una consulta.
+              Hola 👋 Soy el Asistente Médico del consultorio <span className="fw-semibold">Dr.Reuma</span>. <br />
+              Puedo orientarte o ayudarte a solicitar una consulta.<span className="fw-semibold">  A continuación selecciona lo que deseas consultar:</span> 
             </div>
 
             <div className="options">
 
               <button onClick={() => setStep("dolor")}>
-                Dolor articular
+                👉 Dolor articular
               </button>
 
               <button onClick={() => setStep("enfermedades")}>
-                Enfermedades que tratamos
+                👉 Enfermedades que tratamos
               </button>
 
               <button onClick={() => setStep("turnos")}>
-                Turnos y consultas
+                👉 Turnos y consultas
               </button>
 
               <button onClick={() => setStep("ubicacion")}>
-                Ubicación del consultorio
+                👉 Ubicación del consultorio
               </button>
 
             </div>
@@ -92,16 +92,15 @@ export default function FloatingAssistant() {
         return (
           <>
             <div className="bot-msg">
-              El dolor articular puede aparecer en distintas zonas del cuerpo.
-              Para un diagnóstico correcto es importante una evaluación médica.
+              <span className="fw-semibold">El dolor articular puede aparecer en distintas zonas del cuerpo.</span> Para un diagnóstico correcto es importante una evaluación médica.
             </div>
 
             <div className="bot-msg">
-              - Dolor de rodilla <br />
-              - Dolor de manos o dedos <br />
-              - Dolor de columna <br />
-              - Dolor de cadera <br />
-              - Otras articulaciones
+              👉 Dolor de rodilla <br />
+              👉 Dolor de manos o dedos <br />
+              👉 Dolor de columna <br />
+              👉 Dolor de cadera <br />
+              👉 <span className="fw-semibold">Otras articulaciones ..... !!!!</span>
             </div>
 
             <div className="options">
@@ -116,22 +115,22 @@ export default function FloatingAssistant() {
         return (
           <>
             <div className="bot-msg">
-              Estas son algunas de las enfermedades que tratamos:
+              <span className="fw-semibold">Estas son algunas de las enfermedades que tratamos:</span>
             </div>
 
             <div className="bot-msg">
-              - Artritis reumatoide <br />
-              - Artritis psoriásica <br />
-              - Artrosis <br />
-              - Lupus <br />
-              - Fibromialgia <br />
-              - Esclerodermia <br />
-              - Gota (ácido úrico elevado) <br />
-              - Osteoporosis <br />
-              - Dolor de columna <br />
-              - Dolor de rodillas <br />
-              - Dolor de cadera <br />
-              - Otras consultas
+              👉 Artritis reumatoide <br />
+              👉 Artritis psoriásica <br />
+              👉 Artrosis <br />
+              👉 Lupus <br />
+              👉 Fibromialgia <br />
+              👉 Esclerodermia <br />
+              👉 Gota (ácido úrico elevado) <br />
+              👉 Osteoporosis <br />
+              👉 Dolor de columna <br />
+              👉 Dolor de rodillas <br />
+              👉 Dolor de cadera <br />
+              👉 <span className="fw-semibold">OTRAS CONSULTAS</span>
             </div>
 
             <div className="options">
@@ -146,14 +145,14 @@ export default function FloatingAssistant() {
         return (
           <>
             <div className="bot-msg">
-              Podés solicitar distintos tipos de consulta.
-              Consultá por WhatsApp la disponibilidad.
+              <span className="fw-semibold">Podés solicitar distintos tipos de consulta:
+            </span>
+              
             </div>
 
             <div className="bot-msg">
-              - Consulta presencial <br />
-              - Consulta por videollamada <br />
-              - Consulta a domicilio
+              👉 Consulta presencial (Clinica San Agustin )<br />
+              👉 Consulta por videollamada (Atención desde cualquier lugar del país) <br />
             </div>
 
             <div className="options">
@@ -174,22 +173,23 @@ export default function FloatingAssistant() {
         return (
           <>
             <div className="bot-msg">
-              El consultorio se encuentra en:
+              <span className="fw-semibold">El consultorio se encuentra en:</span>
             </div>
 
             <div className="bot-msg">
-              📍 Clínica San Agustín <br />
+              Clínica San Agustín <br />
+              San Martiín 1355 - Consultorios Externos
               Neuquén Capital
             </div>
 
             <div className="options">
 
               <button onClick={goMaps}>
-                Ver ubicación
+                📍 Ver ubicación
               </button>
 
               <button onClick={goWhatsApp}>
-                Solicitar consulta
+                👉 Solicitar consulta
               </button>
 
               <button onClick={() => setStep("start")}>
