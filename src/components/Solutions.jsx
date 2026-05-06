@@ -15,7 +15,7 @@ import lupus from "../assets/lupus.webp";
 
 const solutions = [
     {
-        title: "Artritis Rematoide",
+        title: "Artritis Reumatoide",
         image: artritis,
         items: ["Mi objetivo es tratar la inflamación y el daño a tus articulaciones así evitamos que se deformen y se desvíen tus manitos y tus pies.",
                 "Control continuo: Esta es una enfermedad que no es solo artritis , puede afectarte los pulmones y otros órganos importantes.", 
