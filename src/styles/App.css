@@ -1396,3 +1396,221 @@ html, body, #root {
 .fc-daygrid-day.fc-day-other .fc-daygrid-day-number {
   color: #aaa !important;
 }
+
+/* ................ CITAS .......................*/
+/* ===== CONTENEDOR GENERAL ===== */
+.fc {
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ===== HEADER (MES Y BOTONES) ===== */
+.fc .fc-toolbar {
+  padding: 10px 15px;
+  background: #ffffff;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+.fc .fc-toolbar-title {
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 1px;
+  color: #1a1a1a;
+}
+
+/* Botones */
+.fc .fc-button {
+  background: #f5f7fa;
+  border: none;
+  color: #333;
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 5px 10px;
+  transition: 0.2s;
+}
+
+.fc .fc-button:hover {
+  background: #e0f2fe;
+  color: #0d6efd;
+}
+
+.fc .fc-button-active {
+  background: #0d6efd !important;
+  color: white !important;
+}
+
+/* ===== NOMBRES DE LOS DÍAS ===== */
+.fc .fc-col-header-cell {
+  background: #f8fafc;
+  border: none;
+}
+
+.fc .fc-col-header-cell-cushion {
+  color: #000;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+/* ===== CUADRÍCULA ===== */
+.fc-theme-standard td,
+.fc-theme-standard th {
+  border: 1px solid rgba(0,0,0,0.08);
+}
+
+/* ===== DÍAS ===== */
+.fc-daygrid-day {
+  background: #ffffff;
+  transition: 0.2s;
+}
+
+/* Hover estilo Google */
+.fc-daygrid-day:hover {
+  background: #f0f9ff;
+  cursor: pointer;
+}
+
+/* Hoy */
+.fc-day-today {
+  background: #e0f2fe !important;
+}
+
+/* ===== FIN DE SEMANA ===== */
+.fc-day-sat {
+  background: #faf5ff !important;
+}
+
+.fc-day-sun {
+  background: #fff1f2 !important;
+}
+
+/* ===== EVENTOS ===== */
+.fc-event {
+  border: none;
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* 🟢 Presencial */
+.evento-presencial {
+  background-color: #22c55e !important;
+  border: none !important;
+  color: #fff !important;
+}
+
+/* 🔵 Virtual */
+.evento-virtual {
+  background-color: #3b82f6 !important;
+  border: none !important;
+  color: #fff !important;
+}
+
+/* Sábado (morado) */
+.fc-event[style*="#6f42c1"] {
+  background-color: #a855f7 !important;
+}
+
+/* ===== HORA (VISTA SEMANA) ===== */
+.fc-timegrid-slot-label {
+  font-size: 11px;
+  color: #666;
+}
+
+/* ===== SCROLL ===== */
+.fc-scroller {
+  scrollbar-width: thin;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+
+  .fc .fc-toolbar {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .fc .fc-toolbar-title {
+    font-size: 14px;
+  }
+
+  .fc-button {
+    font-size: 12px;
+    padding: 4px 6px;
+  }
+
+  .fc-col-header-cell-cushion {
+    font-size: 11px;
+  }
+}
+
+.fc-daygrid-event-dot {
+  display: none !important;
+}
+.fc-daygrid-event {
+  display: block !important;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.btn-verde {
+  background-color: rgba(22, 185, 22, 0.61) !important;
+  color: white !important;
+  border: none !important;
+}
+
+.card {
+  border-radius: 12px;
+}
+
+.card h4 {
+  font-size: 28px;
+}
+
+/*====*/
+/* ===== STATS DASHBOARD ===== */
+.stats-container {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.stat-card {
+  flex: 1;
+  min-width: 120px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.stat-card h6 {
+  font-size: 12px;
+  color: #666;
+  margin: 0;
+}
+
+.stat-card h4 {
+  font-size: 22px;
+  margin: 5px 0 0;
+}
+
+/* 🔥 MOBILE MODE */
+@media (max-width: 768px) {
+  .stats-container {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 8px;
+  }
+
+  .stat-card {
+    min-width: 140px;
+    flex: 0 0 auto;
+  }
+}

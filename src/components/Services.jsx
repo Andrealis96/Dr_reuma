@@ -87,50 +87,43 @@ useEffect(() => {
       return pattern === 1 || pattern === 2; // semanas 2 y 3
     })();
 
-    let horariosBase = [];
+   let horariosBase = [];
 
-    // ❌ MIÉRCOLES
-    if (diaSemana === "miércoles") {
-      setHorariosDisponibles([]);
-      return;
-    }
-
-    // 🟢 LUNES Y MARTES
-    if (diaSemana === "lunes" || diaSemana === "martes") {
-      horariosBase = [
-        "15:00", "15:30",
-        "16:00", "16:30",
-        "17:00", "17:30",
-        "18:00"
-      ];
-    }
-
-    // 🟡 JUEVES
-    else if (diaSemana === "jueves") {
-      horariosBase = generarHorarios(9, 12);
-    }
-
-    // 🔴 VIERNES (ciclo 4 semanas)
-    else if (diaSemana === "viernes") {
-  if (!esViernesActivo(fechaObj)) {
-    setHorariosDisponibles([]);
-    return;
-  }
-
-  horariosBase = generarHorarios(15, 18);
+// ❌ MIÉRCOLES NO LO TOCAMOS (queda dentro del grupo)
+if (diaSemana === "domingo") {
+  setHorariosDisponibles([]);
+  return;
 }
 
-    // 🔵 SÁBADO (solo virtual)
-    else if (diaSemana === "sábado") {
-      horariosBase = generarHorarios(8, 18);
-    }
+// 🔴 VIERNES BLOQUEADO
+if (diaSemana === "viernes") {
+  setHorariosDisponibles([]);
+  return;
+}
 
-    // ❌ DOMINGO
-    else if (diaSemana === "domingo") {
-      setHorariosDisponibles([]);
-      return;
-    }
+// 🟢 LUNES - MARTES - MIÉRCOLES
+if (
+  diaSemana === "lunes" ||
+  diaSemana === "martes" ||
+  diaSemana === "miércoles"
+) {
+  horariosBase = [
+    "15:00", "15:30",
+    "16:00", "16:30",
+    "17:00", "17:30",
+    "18:00"
+  ];
+}
 
+// 🟡 JUEVES (mañana)
+else if (diaSemana === "jueves") {
+  horariosBase = generarHorarios(9, 11);
+}
+
+// 🔵 SÁBADO (solo virtual)
+else if (diaSemana === "sábado") {
+  horariosBase = generarHorarios(8, 18);
+}
     // 🔥 traer ocupados
     const q = query(
       collection(db, "citas"),
@@ -255,7 +248,7 @@ useEffect(() => {
             <ServiceCard 
             title="Receta médica" 
             message="Hola Dr. Reuma, vengo desde la página web. Quisiera solicitar una receta médica."
-            description="Emisión y renovación de recetas médicas." />
+            description="Emisión y renovación de recetas médicas, de todas las obras sociales." />
           </div>
 
           <div className="col-12 col-md-6">
@@ -341,6 +334,16 @@ useEffect(() => {
         ⚠️ Los sábados solo se permiten consultas virtuales, en caso de querer presencial comunicarse directamente con el Dr.Reuma y preguntar disponibilidad.
       </small>
       )}
+
+      {/* 🔴 MENSAJE VIERNES */}
+        {form.fecha &&
+          new Date(form.fecha + "T00:00:00")
+            .toLocaleDateString("es-AR", { weekday: "long" })
+            .toLowerCase() === "viernes" && (
+            <small className="text-danger d-block mt-1">
+              ⚠️ Los viernes existe disponibiblidad variada. Para consultas o turnos especiales, comunícate directamente con el Dr. Reuma.
+            </small>
+        )}
 </div>
 
               <div className="col-md-6">
