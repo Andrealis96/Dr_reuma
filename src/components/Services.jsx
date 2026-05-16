@@ -4,7 +4,7 @@ import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import ServiceCard from "./ServiceCard";
 import { FaCalendarCheck, FaCalendarAlt, FaSave } from "react-icons/fa";
-import { FaMoneyBillWave, FaExclamationCircle, FaExclamationTriangle  } from "react-icons/fa";
+import { FaMapMarkerAlt , FaMoneyBillWave, FaExclamationCircle, FaExclamationTriangle  } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { FaWhatsapp } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
@@ -240,46 +240,51 @@ useEffect(() => {
           <span className="subtitle-celeste">¿QUE SERVICIOS</span>
           <span className="subtitle-negro"> OFRECEMOS? </span>
         </h3>
-
+        <h3 className="title-negro fw-bold mb-4"> 
+          <FaMapMarkerAlt className="fs-2 me-1 celeste" />
+          NEUQUÉN
+        </h3>
         {/* CARDS */}
-        <div className="row g-4 mb-5">
+        <div className="row g-4 mb-5 ">
 
           <div className="col-12 col-md-6">
             <ServiceCard 
-            title="Receta médica" 
-            message="Hola Dr. Reuma, vengo desde la página web. Quisiera solicitar una receta médica."
-            description="Emisión y renovación de recetas médicas, de todas las obras sociales." />
-          </div>
-
-          <div className="col-12 col-md-6">
-            <ServiceCard 
-            title="Aptitud física" 
-            message="Hola Dr. Reuma, vengo desde la página web. Quisiera consultar por un certificado de aptitud física."
-            description="Emisión y renovación de recetas médicas." />
-          </div>
-
-          <div className="col-12 col-md-6">
-            <ServiceCard 
-            title="Charlas y educación" 
-            message="Hola Dr. Reuma, vengo desde la página web. Quisiera información sobre charlas y educación."
-            description="Charlas sobre salud reumatológica." />
-          </div>
-
-          <div className="col-12 col-md-6">
-            <ServiceCard 
-            title="Consulta presencial $50.000" 
-            description="Ubicación: San Martín 1355 (Consultorios Externos - Clínica San Agusntín.)" 
+            title="CONSULTA PRESENCIAL - NEUQUÉN  $50.000" 
+            description="La mejor atención personalizada a nuestros pacientes en, la Clinica San Agustín en Neuquén (Consultorios Externos)." 
             mapLink="https://maps.app.goo.gl/u5aRXf6BsRKKMhYf7"
             showButton={false} />
           </div>
 
           <div className="col-12 col-md-6">
-            <ServiceCard title="Consulta por videollamada $25.000" description="Atención médica online." showButton={false} />
+            <ServiceCard title="CONSULTA POR VIDEOLLAMADA $25.000" description="Desde la comidad de tu hogar o cualquier lugar. 
+            Atención a todo Argentina, Ecuador, Estados Unidos." showButton={false} />
+          </div>
+
+          <div className="col-12 col-md-6 ">
+            <ServiceCard 
+            title="RECETA MÉDICA $10.000" 
+            message="Hola Dr. Reuma, vengo desde la página web. Quisiera solicitar una receta médica."
+            description="Emisión y renovación de recetas médicas, de todas las obras sociales (Online o Presencial)" />
           </div>
 
           <div className="col-12 col-md-6">
-            <ServiceCard title="Consulta a domicilio" description="Próximamente..... !!!" disabled badge="NO DISPONIBLE" />
+            <ServiceCard 
+            title="APTITUD FÍSICA $30.000" 
+            message="Hola Dr. Reuma, vengo desde la página web. Quisiera consultar por un certificado de aptitud física."
+            description="Realizamos Aptos físicos en Neuquén, mediante un control clínico." />
           </div>
+
+          <div className="col-12 col-md-6">
+            <ServiceCard 
+            title="CHARLAS Y EDUCACÍON " 
+            message="Hola Dr. Reuma, vengo desde la página web. Quisiera información sobre charlas y educación."
+            description="Charlas sobre salud reumatológica." />
+          </div>
+          <div className="col-12 col-md-6">
+            <ServiceCard title="CONSULTA A DOMICILIO" description="Próximamente..... !!!" disabled badge="NO DISPONIBLE" />
+          </div>
+
+
 
         </div>
 

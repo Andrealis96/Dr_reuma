@@ -1,5 +1,5 @@
 import { motion } from "framer-motion"
-import { FaHeartbeat, FaUserMd, FaClipboardCheck } from "react-icons/fa"
+import { FaHeart, FaMapMarkerAlt, FaHeartbeat, FaUserMd, FaClipboardCheck } from "react-icons/fa"
 
 import paciente1 from "../assets/paciente1.webp"
 import paciente2 from "../assets/paciente2.webp"
@@ -24,12 +24,32 @@ const images = [
 
 function Welcome() {
   return (
-    <section className="welcome-section py-5">
-      <div className="container">
-        <h1 className="title-general  text-center fly-text mb-5">
+    <section className="welcome-section ">
+      <div className="container ">
+        <h1 className="title-general  text-center fly-text py-5">
           <span className="title-celeste">BIENVENIDO A  </span>
-          <span className="title-negro"> DR.REUMA</span>
+          <span className="title-negro"> DR.REUMA</span>  
         </h1>
+        
+           <div className="row align-items-center text-center text-md-start">
+            <h3 className="title-negro fw-bold"> 
+            <FaMapMarkerAlt className="fs-2 me-1 celeste" />
+            NEUQUÉN
+          </h3>
+            <p className="welcome-text">
+              En Dr. Reuma trabajamos para que vuelvas a moverte sin dolor.
+              Brindamos atención reumatológica integral en <span className="fw-bold celeste"> Neuquén - Capital 
+              (San Martín 1355 - consultorios externos)</span>
+              , brindamos un diagnóstico preciso
+              y tratamientos orientados a mejorar tu calidad de vida.
+              <br /><br />
+              <span className="fw-bold text-uppercase">
+                <FaHeart className="me-3 fs-2 celeste" />
+                Acá no sos un número: sos una persona.
+              </span>
+            </p>
+
+           </div>
         <div className="row align-items-center">
 
           {/* TEXTO */}
@@ -41,14 +61,6 @@ function Welcome() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-
-            <p className="welcome-text">
-              En Dr. Reuma trabajamos para que vuelvas a moverte sin dolor.
-              Brindamos atención reumatológica integral con diagnóstico preciso
-              y tratamientos orientados a mejorar tu calidad de vida.
-              <br /><br />
-               Acá no sos un número: sos una persona.
-            </p>
 
             <div className="benefits mt-4">
 
@@ -63,7 +75,7 @@ function Welcome() {
                   viewport={{ once: true }}
                 >
 
-                  <span className="benefit-icon">
+                  <span className="benefit-icon ">
                     {item.icon}
                   </span>
 
