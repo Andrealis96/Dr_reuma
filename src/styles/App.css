@@ -444,6 +444,39 @@ font-size: 14px;
 /* =========================
 SERVICE CARDS PRO STYLE --- servicios
 ========================= */
+.flags{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  margin-top:15px;
+}
+
+.flags img{
+  width:55px;
+  height:40px;
+
+  border-radius:4px;
+
+  object-fit:cover;
+
+  box-shadow:0 2px 5px rgba(0,0,0,0.2);
+}
+.service-icon{
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #e9f8fa;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-size: 35px;
+  color:#6ec1c8;
+
+  margin:auto;
+  margin-bottom:20px;
+}
 
 input[type="date"] {
   cursor: pointer;
@@ -522,7 +555,7 @@ small {
   transform: translateX(3px);
 }
 .card.card-general{
-  background:  rgba(182, 255, 141, 0.32);
+  background:  rgba(9, 154, 173, 0.575) !important;
   border-radius: 18px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.08);
 }
@@ -534,7 +567,6 @@ small {
 .service-card {
   border: none;
   border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(104, 235, 28, 0.32);
   transition: all 0.35s ease;
   background: rgba(9, 154, 173, 0.575) !important;
 }
@@ -553,8 +585,8 @@ small {
   position: absolute;
   top: -10px;
   right: 12px;
-  background: #83a891;
-  color: #c9434362;
+  background:  rgba(9, 173, 45, 0.575) ;
+  color: #ff0202fb;
   font-size: 0.75rem;
   padding: 6px 10px;
   border-radius: 20px;
@@ -562,7 +594,7 @@ small {
 }
 
 .btn.btn-succes {
-  background:  rgba(163, 216, 133, 0.671) !important;
+  background:  rgba(69, 173, 9, 0.822)  !important;
   color: #000000 !important;
 }
 
@@ -1124,6 +1156,9 @@ animation-delay:0.4s;
 }
 
 /*galeriaaaaaaaaaaaaaaaaaaaaaaaa*/
+
+/* galeriaaaaaaaaaaaaaaaaaaaaaaaa */
+
 .galeria {
   padding: 50px 90px;
   text-align: center;
@@ -1135,13 +1170,15 @@ animation-delay:0.4s;
   gap: 20px;
   max-width: 1000px;
   margin: auto;
-  
 }
 
 .galeria-card {
   border-radius: 16px;
   overflow: hidden;
   transition: 0.3s;
+
+  background: white;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
 }
 
 .galeria-card:hover {
@@ -1150,23 +1187,31 @@ animation-delay:0.4s;
 
 .galeria-media {
   width: 100%;
-  aspect-ratio: 1 / 1; /* 🔥 mantiene tamaño uniforme */
-  object-fit: cover;
-  border-radius: 10px;
-}
-@media (max-width: 768px) {
-  .galeria {
-    padding: 30px 20px;
-  }
+  height: 320px;
 
-  .galeria-media {
-    aspect-ratio: 4 / 3; /* 🔥 mejor proporción en móvil */
-  }
+  object-fit: contain;
+
+  border-radius: 10px;
+  background: #000;
+
+  display: block;
 }
 
 .galeria-caption {
   padding: 12px;
   font-weight: 500;
+}
+
+@media (max-width: 768px) {
+
+  .galeria {
+    padding: 30px 20px;
+  }
+
+  .galeria-media {
+    height: 240px;
+  }
+
 }
 
 

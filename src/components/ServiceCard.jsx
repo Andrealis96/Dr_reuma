@@ -1,6 +1,6 @@
 import { FaWhatsapp, FaMapMarkerAlt } from "react-icons/fa";
 
-function ServiceCard({ title, description, message, disabled, badge, mapLink, showButton= true}) {
+function ServiceCard({ icon, title, description, message, extra, disabled, badge, mapLink, showButton= true}) {
   const phoneNumber = "5492994666559";
 
   const whatsappLink = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
@@ -13,9 +13,12 @@ function ServiceCard({ title, description, message, disabled, badge, mapLink, sh
 
       <div className={`card service-card h-100 ${disabled ? "disabled" : ""}`}>
         <div className="card-body d-flex flex-column">
+          <div className="service-icon">
+            {icon}
+          </div>
           <h5 className="card-title fw-bold">{title}</h5>
           <p className="card-text text-muted">{description}</p>
-
+          {extra && extra} 
           {!disabled && showButton && (
             <a
               href={whatsappLink}

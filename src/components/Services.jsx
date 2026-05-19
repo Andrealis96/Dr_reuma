@@ -8,7 +8,15 @@ import { FaMapMarkerAlt , FaMoneyBillWave, FaExclamationCircle, FaExclamationTri
 import { toast } from "react-toastify";
 import { FaWhatsapp } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
-
+import ReactCountryFlag from "react-country-flag";
+import {
+  FaVideo,
+  FaClinicMedical,
+  FaPrescriptionBottleAlt,
+  FaDumbbell,
+  FaHome,
+  FaChalkboardTeacher
+} from "react-icons/fa";
 function Services() {
 
   const [form, setForm] = useState({
@@ -249,19 +257,39 @@ useEffect(() => {
 
           <div className="col-12 col-md-6">
             <ServiceCard 
+            icon={<FaClinicMedical />}
             title="CONSULTA PRESENCIAL - NEUQUÉN  $50.000" 
             description="La mejor atención personalizada a nuestros pacientes en, la Clinica San Agustín en Neuquén (Consultorios Externos)." 
-            mapLink="https://maps.app.goo.gl/u5aRXf6BsRKKMhYf7"
+            mapLink="https://maps.app.goo.gl/y39PjaxnvSacMdxf7"
+            extra={
+                <div className="flags mb-2">
+                  <img src="https://flagcdn.com/ar.svg" alt="Argentina" />
+                </div>
+              }
             showButton={false} />
           </div>
 
-          <div className="col-12 col-md-6">
-            <ServiceCard title="CONSULTA POR VIDEOLLAMADA $25.000" description="Desde la comidad de tu hogar o cualquier lugar. 
-            Atención a todo Argentina, Ecuador, Estados Unidos." showButton={false} />
+          <div className="col-12 col-md-2">
+            <ServiceCard 
+              icon={<FaVideo />}
+              title="CONSULTA POR VIDEOLLAMADA $25.000" 
+              message="Hola Dr. Reuma, vengo desde la página web. Quisiera solicitar una consulta por videollamada."
+              description="Desde la comodidad de tu hogar o cualquier lugar. Atención online para pacientes de Argentina, Ecuador y Estados Unidos."
+
+              extra={
+                <div className="flags mb-2">
+                  <img src="https://flagcdn.com/ar.svg" alt="Argentina" />
+                  <img src="https://flagcdn.com/ec.svg" alt="Ecuador" />
+                  <img src="https://flagcdn.com/us.svg" alt="USA" />
+                </div>
+              }
+              
+            />
           </div>
 
           <div className="col-12 col-md-6 ">
             <ServiceCard 
+            icon={<FaPrescriptionBottleAlt />}
             title="RECETA MÉDICA $10.000" 
             message="Hola Dr. Reuma, vengo desde la página web. Quisiera solicitar una receta médica."
             description="Emisión y renovación de recetas médicas, de todas las obras sociales (Online o Presencial)" />
@@ -269,6 +297,7 @@ useEffect(() => {
 
           <div className="col-12 col-md-6">
             <ServiceCard 
+            icon={<FaDumbbell />}
             title="APTITUD FÍSICA $30.000" 
             message="Hola Dr. Reuma, vengo desde la página web. Quisiera consultar por un certificado de aptitud física."
             description="Realizamos Aptos físicos en Neuquén, mediante un control clínico." />
@@ -276,12 +305,17 @@ useEffect(() => {
 
           <div className="col-12 col-md-6">
             <ServiceCard 
+            icon={<FaChalkboardTeacher />}
             title="CHARLAS Y EDUCACÍON " 
             message="Hola Dr. Reuma, vengo desde la página web. Quisiera información sobre charlas y educación."
             description="Charlas sobre salud reumatológica." />
           </div>
           <div className="col-12 col-md-6">
-            <ServiceCard title="CONSULTA A DOMICILIO" description="Próximamente..... !!!" disabled badge="NO DISPONIBLE" />
+            <ServiceCard 
+            title="CONSULTA A DOMICILIO" 
+            icon={<FaHome />}
+            description="Próximamente..... !!!" 
+            disabled badge="NO DISPONIBLE" />
           </div>
 
 
@@ -291,8 +325,14 @@ useEffect(() => {
         {/* FORMULARIO */}
         <div className="card card-general p-4 shadow-sm">
           <div className="mb-4 text-center">
-            <FaCalendarCheck size={30} />
-            <h4 className="mb-3 fw-bold">AGENDA TU CITA</h4>
+            <div className="service-icon mx-auto">
+              <FaCalendarCheck />
+            </div>
+
+            <h4 className="mb-3 fw-bold">
+              AGENDA TU CITA
+            </h4>
+
           </div>
 
           <form onSubmit={handleSubmit}>
