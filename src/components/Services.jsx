@@ -269,7 +269,7 @@ useEffect(() => {
             showButton={false} />
           </div>
 
-          <div className="col-12 col-md-2">
+          <div className="col-12 col-md-6">
             <ServiceCard 
               icon={<FaVideo />}
               title="CONSULTA POR VIDEOLLAMADA $25.000" 
