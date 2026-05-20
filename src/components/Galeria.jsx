@@ -128,9 +128,12 @@ function Galeria() {
       <div className="galeria-section">
 
         <div className="galeria-header">
-          <h3>
-            <FaPlayCircle /> VIDEOS DE CASOS
-          </h3>
+          <h4 className="fw-bold">
+            <span className="me-2 fs-2 galeria-icon">
+              <FaPlayCircle />
+            </span>
+            VIDEOS DE CASOS
+          </h4>
 
           <div className="galeria-buttons">
             <button onClick={() => scroll(videosRef, "left")}>
@@ -169,9 +172,12 @@ function Galeria() {
       <div className="galeria-section">
 
         <div className="galeria-header">
-          <h3>
-            <FaImages /> IMÁGENES CON PACIENTES
-          </h3>
+          <h4 className="fw-bold">
+            <span className="me-2 fs-2 galeria-icon">
+              <FaImages  />
+            </span>
+              IMÁGENES CON PACIENTES
+          </h4>
 
           <div className="galeria-buttons">
             <button onClick={() => scroll(pacientesRef, "left")}>
@@ -206,9 +212,12 @@ function Galeria() {
       <div className="galeria-section">
 
         <div className="galeria-header">
-          <h3>
-            <FaImages /> IMÁGENES DE CASO DE ENFERMEDADES
-          </h3>
+          <h4 className="fw-bold">
+            <span className="me-2 fs-2 galeria-icon">
+              <FaImages />
+            </span>
+            IMÁGENES DE ENFERMEDADES
+          </h4>
 
           <div className="galeria-buttons">
             <button onClick={() => scroll(casosRef, "left")}>
