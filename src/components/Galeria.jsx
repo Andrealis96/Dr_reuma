@@ -119,11 +119,16 @@ function Galeria() {
   return (
     <section className="galeria" id="galeriaa">
       <div className="container py-1">  
-      <h2 className="subtitle-general mb-5">
+      <h2 className="subtitle-general mb-3">
         <span className="subtitle-celeste">GALERÍA DE </span>
         <span className="subtitle-negro">CASOS</span>
       </h2>
-
+         <h6>
+          En esta sección podemos encontar videos de pacientes
+          
+         e imagenes de varias enfermedades que tratamos en 
+         <span className="fw-bold"> Dr. Reuma</span>
+         </h6> <br />
       {/* VIDEOS */}
       <div className="galeria-section">
 
@@ -164,6 +169,7 @@ function Galeria() {
           ))}
 
         </div>
+
       </div>
 
 
@@ -247,7 +253,13 @@ function Galeria() {
 
         </div>
       </div>
-    
+
+      <h6 className="mt-4 text-center fw-bold">
+        Consulta sin compromiso, tenemos citas virtuales o citas presenciales en Neuquén - Capital.
+      </h6>
+      <h6 className="mt-4 text-center fst-italic celeste">
+        "TU CALIDAD DE VIDA ES NUESTRA PRIORIEDAD"
+      </h6>
       </div>
     </section>
   );
