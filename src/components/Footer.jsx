@@ -88,7 +88,7 @@ function Footer() {
           <div className="d-flex gap-4 fs-4 mb-3">
 
             <a
-              href="https://instagram.com/"
+              href="https://www.instagram.com/drreuma?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
               target="_blank"
               rel="noopener noreferrer"
               className="text-light"
@@ -97,7 +97,7 @@ function Footer() {
             </a>
 
             <a
-              href="https://facebook.com/"
+              href="https://www.facebook.com/profile.php?id=61585981370318"
               target="_blank"
               rel="noopener noreferrer"
               className="text-light"
@@ -106,7 +106,7 @@ function Footer() {
             </a>
 
             <a
-              href="mailto:tonygregoryvelez@gmail.com"
+              href="mailto:tonygregoryvelez@yahoo.com"
               className="text-light"
             >
               <FaEnvelope />
