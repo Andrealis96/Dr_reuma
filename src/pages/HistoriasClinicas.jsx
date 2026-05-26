@@ -12,6 +12,7 @@ import { db } from "../firebase";
 import { Link } from "react-router-dom";
 
 import {
+FaPlus,
 FaSearch,
 FaTrash,
 FaPencilAlt,
@@ -175,13 +176,13 @@ return(
 <h2 className="mb-4 subtitle-general text-center">
   {editando ? ( 
     <>
-      <span className=" fw-bold subtitle-celeste">EDITAR</span>{" "}
-      <span className="fw-bold subtitle-negro">PACIENTE</span>
+      <span className="subtitle-celeste">EDITAR</span>{" "}
+      <span className="subtitle-negro">PACIENTE</span>
     </>
   ) : (
     <>
-      <span className=" fw-bold subtitle-celeste">HISTORIAS</span>{" "}
-      <span className="fw-bold subtitle-negro">CLÍNICAS</span>
+      <span className="subtitle-celeste">HISTORIAS</span>{" "}
+      <span className="subtitle-negro">CLÍNICAS</span>
     </>
   )}
 </h2>
@@ -220,6 +221,9 @@ return(
         required
         />
 
+        <label className="form-label  text-start fw-bold">
+        Fecha de nacimiento:
+        </label>
         <input
         type="date"
         className="form-control mb-2"
@@ -249,7 +253,7 @@ return(
 
         <div>
 
-        <button className="btn btn-orange fw-bold">
+        <button className="btn btn-info fw-bold">
         {editando ? "GUARDAR CAMBIOS" : "GUARDAR"}
         </button>
 
@@ -300,44 +304,44 @@ return(
 
 <img
 src={avatar}
-width="55"
-height="55"
+width="75"
+height="75"
 className="rounded-circle me-3"
 />
  
 
 <div>
 
-<strong className="clinica-green fw-bold">{p.nombre}</strong> 
+<strong className="clinica-green fw-bold text-uppercase">{p.nombre}</strong> 
 
-<div> <span className="fw-semibold">DNI:</span> {p.dni}</div>
-<div> <span className="fw-semibold">Nacimiento:</span> {formatearFecha(p.fechaNacimiento)}</div>
-<div> <span className="fw-semibold">Obra social:</span> {p.obraSocial}</div>
-<div> <span className="fw-semibold">Sexo:</span> {p.sexo}</div>
-
-</div>
+<div> <span className=" celeste fw-semibold">DNI:</span> {p.dni}</div>
+<div> <span className="celeste fw-semibold">Nacimiento:</span> {formatearFecha(p.fechaNacimiento)}</div>
+<div> <span className="celeste fw-semibold">Obra social:</span> {p.obraSocial}</div>
+<div> <span className="celeste fw-semibold">Sexo:</span> {p.sexo}</div>
 
 </div>
 
-<div className="d-flex gap-2">
+</div>
+
+<div className="gap-2 d-flex  ">
 
 <Link
 to={`/admin/historia/${p.id}`}
-className="btn btn-outline-success btn-sm"
+className="btn btn-info btn-sm"
 >
-<FaFileMedical/>
+<FaPlus/>
 </Link>
 
 <button
 onClick={()=>editarPaciente(p)}
-className="btn btn-outline-warning btn-sm"
+className="btn btn-warning btn-sm"
 >
 <FaPencilAlt/>
 </button>
 
 <button
 onClick={()=>eliminarPaciente(p.id)}
-className="btn btn-outline-danger btn-sm"
+className="btn btn-danger btn-sm"
 >
 <FaTrash/>
 </button>
@@ -355,7 +359,7 @@ className="btn btn-outline-danger btn-sm"
 <div className="d-flex justify-content-center mt-5 mb-5">
 
 <button
-className="btn btn-outline-secondary me-3"
+className="btn btn-info me-3"
 disabled={pagina===1}
 onClick={()=>setPagina(pagina-1)}
 >
@@ -367,7 +371,7 @@ onClick={()=>setPagina(pagina-1)}
 </span>
 
 <button
-className="btn btn-outline-secondary ms-3"
+className="btn btn-info ms-3"
 disabled={pagina===totalPaginas}
 onClick={()=>setPagina(pagina+1)}
 >

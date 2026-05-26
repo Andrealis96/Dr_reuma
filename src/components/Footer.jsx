@@ -85,7 +85,7 @@ function Footer() {
 
 
           {/* REDES */}
-          <div className="d-flex gap-4 fs-4 mb-3">
+          <div className="d-flex gap-4 fs-4 mb-3 text-center ">
 
             <a
               href="https://www.instagram.com/drreuma?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="

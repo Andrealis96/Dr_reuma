@@ -377,11 +377,12 @@ Se extiende el presente certificado a solicitud del interesado/a para ser presen
             <span className="subtitle-negro">DEL PACIENTE</span>
           </h2>
 
-          <div className="card p-4 mb-4">
+          <div className="card-paciente p-4 mb-4">
             <div className="d-flex align-items-start">
               <img
                 src={obtenerIconoSexo()} 
                 alt="usuario"
+                className="usuariohistoria"
                 style={{ width: "150px", opacity: 0.7 }}
               />
 
@@ -390,11 +391,11 @@ Se extiende el presente certificado a solicitud del interesado/a para ser presen
                   {paciente.nombre}
                 </h3>
 
-                <div><span className="fw-semibold">Edad:</span> {calcularEdad(paciente.fechaNacimiento)} años</div>
-                <div><span className="fw-semibold">DNI:</span> {paciente.dni}</div>
-                <div><span className="fw-semibold">Nacimiento:</span> {formatearFecha(paciente.fechaNacimiento)}</div>
-                <div><span className="fw-semibold">Obra social:</span> {paciente.obraSocial}</div>
-                <div><span className="fw-semibold">Consultas médicas:</span> {consultas.length}</div>
+                <div><span className="celeste fw-semibold">Edad:</span> {calcularEdad(paciente.fechaNacimiento)} años</div>
+                <div><span className="celeste fw-semibold">DNI:</span> {paciente.dni}</div>
+                <div><span className="celeste fw-semibold">Nacimiento:</span> {formatearFecha(paciente.fechaNacimiento)}</div>
+                <div><span className="celeste fw-semibold">Obra social:</span> {paciente.obraSocial}</div>
+                <div><span className="celeste fw-semibold">Consultas médicas:</span> {consultas.length}</div>
               </div>
             </div>
           </div>
@@ -403,7 +404,7 @@ Se extiende el presente certificado a solicitud del interesado/a para ser presen
             <div className="row">
 
               <div className="col-md-3">
-                <h6 className="fw-bold">DIAGNÓSTICO</h6>
+                <h6 className="fw-bold celeste ">DIAGNÓSTICO</h6>
 
                 <select
                   className="form-control mb-3"
@@ -430,46 +431,45 @@ Se extiende el presente certificado a solicitud del interesado/a para ser presen
 
                   <button
                     type="button"
-                    className="btn btn-dark"
+                    className="btn btn-info"
                     onClick={agregarDiagnostico}
                   >
                     <FaPlus />
                   </button>
                 </div>
 
-                <h6 className="fw-bold">PLANTILLAS</h6>
+                <h6 className="fw-bold celeste">PLANTILLAS</h6>
 
-                <button type="button" className="btn btn-outline-secondary btn-sm mb-2 w-100" onClick={()=>usarPlantilla("aptitudfisica")}>
+                <button type="button" className="btn btn-plantillas btn-sm mb-2 w-100 fw-bold" onClick={()=>usarPlantilla("aptitudfisica")}>
                   Certificado de aptitud física
                 </button>
 
-                <button type="button" className="btn btn-outline-secondary btn-sm mb-2 w-100" onClick={()=>usarPlantilla("primeravez")}>
+                <button type="button" className="btn btn-plantillas btn-sm mb-2 w-100 fw-bold" onClick={()=>usarPlantilla("primeravez")}>
                   Historia clínica reumatológica
                 </button>
 
-                <button type="button" className="btn btn-outline-secondary btn-sm mb-2 w-100" onClick={()=>usarPlantilla("evolucion")}>
+                <button type="button" className="btn btn-plantillas btn-sm mb-2 w-100 fw-bold" onClick={()=>usarPlantilla("evolucion")}>
                   Evolución clínica
                 </button>
 
-                <button type="button" className="btn btn-outline-secondary btn-sm mb-2 w-100" onClick={()=>usarPlantilla("reposo")}>
+                <button type="button" className="btn btn-plantillas btn-sm mb-2 w-100 fw-bold" onClick={()=>usarPlantilla("reposo")}>
                   Justificante médico reposo
                 </button>
 
-                <button type="button" className="btn btn-outline-secondary btn-sm mb-2 w-100" onClick={()=>usarPlantilla("receta")}>
+                <button type="button" className="btn btn-plantillas btn-sm mb-2 w-100 fw-bold" onClick={()=>usarPlantilla("receta")}>
                   Receta médica
                 </button>
 
-                <button className="btn btn-dark my-3 fw-bold">
+                <button className="btn btn-info my-3 fw-bold">
                   GUARDAR CONSULTA
                 </button>
               </div>
 
-              <div className="col-md-9">
-                <h6 className="fw-bold">HISTORIA CLÍNICA</h6>
+              <div className="col-md-9 d-flex  historia-container">
+                <h6 className="fw-bold celeste">HISTORIA CLÍNICA</h6>
 
                 <textarea
-                  className="form-control "
-                  style={{ height: "520px" }}
+                  className="form-control historia-textarea"
                   value={historia}
                   onChange={(e) => setHistoria(e.target.value)}
                   required
@@ -481,7 +481,7 @@ Se extiende el presente certificado a solicitud del interesado/a para ser presen
 
           <hr className="my-5" />
 
-          <h4 className=" historia-green fw-bold">CONSULTAS REGISTRADAS</h4> <br />
+          <h4 className=" historia-green celeste fw-bold">CONSULTAS REGISTRADAS</h4> <br />
 
           {consultas.map((c) => (
             <div key={c.id} className="card mb-2 ">

@@ -14,7 +14,7 @@ return(
 
 <div className="container-fluid text-center mt-5">
   <h2 className="subtitle-general ">
-    <span className="subtitle-celeste">PANEL </span>
+    <span className="subtitle-celeste">PANEL </span> <br />
     <span className="subtitle-negro">ADMINISTRATIVO</span>
   </h2>
 

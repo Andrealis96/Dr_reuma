@@ -45,7 +45,7 @@ function LoginAdmin() {
 
       <div className="row justify-content-center align-items-center min-vh-100">
 
-        <div className="col-11 col-sm-8 col-md-6 col-lg-6">
+        <div className="col-8 ">
 
           <div className="card shadow border-0">
 
@@ -58,11 +58,11 @@ function LoginAdmin() {
                   alt="Dr Reuma"
                   style={{ width: "100px" }}
                 />
-
-                <h6 className="mt-3 fw-bold subtitle-general">
-                  <span className="subtitle-celeste">ACCESO</span>
-                  <span className="subtitle-negro"> ADMINISTRATIVO</span>
-                </h6>
+                  <br />
+                <h8 className="mt-3 subtitle-general">
+                  <span className="subtitle-celeste">INGRESO</span> <br />
+                  <span className="subtitle-negro"> PERSONAL MÉDICO</span>
+                </h8>
 
               </div>
 
