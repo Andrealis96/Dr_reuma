@@ -322,7 +322,7 @@ export default function Testimonials() {
               <div
                 className="mt-3 p-3"
                 style={{
-                  background:" rgba(182, 255, 141, 0.32)",
+                  background:"rgba(9, 154, 173, 0.185)",
                   borderRadius:"10px",
                   borderLeft:"4px solid #070404"
                 }}
@@ -344,11 +344,11 @@ export default function Testimonials() {
 
                     <div className="d-flex align-items-center gap-2">
 
-                      <strong className="text-success">
+                      <strong className="celeste">
                         Dr. Reuma
                       </strong>
 
-                      <small className="text-success d-flex align-items-center">
+                      <small className="celeste d-flex align-items-center">
 
                         <FaCheckCircle size={14} className="me-1"/>
                         Respuesta oficial

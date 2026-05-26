@@ -779,7 +779,7 @@ margin-bottom:10px;
 width:40px;
 height:40px;
 border-radius:50%;
-background:rgba(9, 154, 173, 0.575); 
+background:rgba(9, 154, 173, 0.575) !important; 
 color:white;
 display:flex;
 align-items:center;
@@ -835,7 +835,7 @@ width:100%;
 margin-top:10px;
 padding:10px;
 border-radius:8px;
-border:1px solid  rgba(9, 154, 173, 0.575);
+border:1px solid  rgba(9, 154, 173, 0.575) !important;
 font-size:15px;
 }
 
