@@ -714,6 +714,13 @@ color:#d1d5db;
 color:#facc15;
 }
 
+.formulario-testimonios {
+  display: flex;    
+  justify-content: center; 
+  background: rgba(9, 154, 173, 0.575) !important;         
+}
+
+
 .testimonial-form{
 max-width:500px;
 margin:0 auto 40px;
@@ -882,8 +889,7 @@ max-width:100%;
 
 .about-text{
   font-size:1.05rem;
-  line-height:1.9;
-  color:#555;
+  color:#000000;
   text-align:justify;
 }
 

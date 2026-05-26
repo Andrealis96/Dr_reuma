@@ -30,11 +30,11 @@ function About() {
       <div className="text-center mb-5">
 
         <h2 className="subtitle-general">
-          <span className="subtitle-celeste fw-bold">
+          <span className="subtitle-celeste">
             SOBRE
           </span>
 
-          <span className="subtitle-negro fw-bold">
+          <span className="subtitle-negro">
             {" "}EL ESPECIALISTA
           </span>
         </h2>
@@ -52,9 +52,9 @@ function About() {
         {/* TEXTO */}
         <div className="col-lg-7">
 
-          <h3 className="celeste fw-bold mb-4">
+          <h4 className="celeste fw-bold mb-4">
             EXPERIENCIA Y ENFOQUE MÉDICO
-          </h3>
+          </h4>
 
           <p className="about-text">
             El Dr. Tony Vélez conocido como

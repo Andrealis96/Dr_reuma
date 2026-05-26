@@ -205,11 +205,11 @@ export default function Testimonials() {
 
 
       {/* formulario */}
-      <div className="d-flex justify-content-center">
+      <div className=" d-flex justify-content-center">
 
         <form
           onSubmit={handleSubmit}
-          className="card shadow-sm p-4 mb-5"
+          className="card formulario-testimonios shadow-sm p-4 mb-5"
           style={{ maxWidth:"500px", width:"100%" }}
         >
 
@@ -229,7 +229,7 @@ export default function Testimonials() {
           />
 
           <div className="mb-3">
-            <span> Calificar 1 a 5:  </span>
+            <span className=" fw-bold"> Calificar 1 a 5:  </span>
             {[1,2,3,4,5].map(s => (
 
               <FaStar
