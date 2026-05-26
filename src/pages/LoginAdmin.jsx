@@ -61,7 +61,7 @@ function LoginAdmin() {
                   <br />
                 <h8 className="mt-3 subtitle-general">
                   <span className="subtitle-celeste">INGRESO</span> <br />
-                  <span className="subtitle-negro"> PERSONAL MÉDICO</span>
+                  <span className="subtitle-negro"> MÉDICO</span>
                 </h8>
 
               </div>
