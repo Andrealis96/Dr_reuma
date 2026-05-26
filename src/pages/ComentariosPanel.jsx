@@ -145,13 +145,13 @@ function ComentariosPanel() {
       <h2 className="mb-4 text-center subtitle-general">
         {esNoLeidos ? 
         (<>
-        <span className="subtitle-celeste fw-bold">MENSAJES NO </span>
-        <span className="subtitle-negro fw-bold">LEÍDOS</span>
+        <span className="subtitle-celeste">MENSAJES NO </span>
+        <span className="subtitle-negro ">LEÍDOS</span>
         </>)
         : 
         (<>
-        <span className="subtitle-celeste fw-bold">PANEL DE </span>
-        <span className="subtitle-negro fw-bold">COMENTARIOS</span>
+        <span className="subtitle-celeste ">PANEL DE </span>
+        <span className="subtitle-negro ">COMENTARIOS</span>
         </>)}
       </h2>
 
@@ -161,24 +161,24 @@ function ComentariosPanel() {
         <div className="row mb-4 text-center g-3 ">
 
           <div className="col-md-4">
-            <div className="card shadow-sm p-3 justify-content-center align-items-center d-flex flex-column">
-              <FaComments size={40}/>
+            <div className="card-celeste shadow-sm p-3 justify-content-center align-items-center d-flex flex-column">
+              <FaComments size={40} className="celeste"/>
               <h6>TOTAL</h6>
               <h3>{total}</h3>
             </div>
           </div>
 
           <div className="col-md-4">
-            <div className="card shadow-sm p-3 justify-content-center align-items-center d-flex flex-column">
-              <FaEnvelopeOpenText size={40}/>
+            <div className="card-celeste shadow-sm p-3 justify-content-center align-items-center d-flex flex-column">
+              <FaEnvelopeOpenText size={40} className="celeste"/>
               <h6>NO LEÍDOS</h6>
               <h3>{noLeidos}</h3>
             </div>
           </div>
 
           <div className="col-md-4">
-            <div className="card shadow-sm p-3 justify-content-center align-items-center d-flex flex-column">
-              <FaStar size={40}/>
+            <div className="card-celeste shadow-sm p-3 justify-content-center align-items-center d-flex flex-column">
+              <FaStar size={40} className="celeste"/>
               <h6>PROMEDIO</h6>
               <h3>{promedio}</h3>
             </div>
@@ -199,12 +199,12 @@ function ComentariosPanel() {
           />
         </div>
 
-        <div className="mb-4 d-flex gap-2 flex-wrap justify-content-center">
-          <button className="btn btn-outline-success btn-sm" onClick={()=>cambiarFiltro("todos")}>TODOS</button>
-          <button className="btn btn-outline-primary btn-sm" onClick={()=>cambiarFiltro("noLeidos")}>NO LEÍDOS</button>
-          <button className="btn btn-outline-success btn-sm" onClick={()=>cambiarFiltro("respondidos")}>RESPONDIDOS</button>
-          <button className="btn btn-outline-primary btn-sm" onClick={()=>cambiarFiltro("recientes")}>RECIENTES</button>
-          <button className="btn btn-outline-success btn-sm" onClick={()=>cambiarFiltro("antiguos")}>ANTIGUOS</button>
+        <div className="mb-4 d-flex gap-2 flex-wrap justify-content-center fw-bold">
+          <button className="btn btn-warning btn-sm" onClick={()=>cambiarFiltro("todos")}>TODOS</button>
+          <button className="btn btn-info btn-sm" onClick={()=>cambiarFiltro("noLeidos")}>NO LEÍDOS</button>
+          <button className="btn btn-warning btn-sm" onClick={()=>cambiarFiltro("respondidos")}>RESPONDIDOS</button>
+          <button className="btn btn-info btn-sm" onClick={()=>cambiarFiltro("recientes")}>RECIENTES</button>
+          <button className="btn btn-warning btn-sm" onClick={()=>cambiarFiltro("antiguos")}>ANTIGUOS</button>
         </div>
 
         </>
@@ -288,7 +288,7 @@ function ComentariosPanel() {
             )}
 
             <div className="mt-3 d-flex gap-2">
-              <button className="btn btn-outline-warning btn-sm"
+              <button className="btn btn-warning btn-sm"
                 onClick={()=>{
                   setEditando(review.id);
                   setRespuestaEditada(review.adminReply || "");
@@ -296,7 +296,7 @@ function ComentariosPanel() {
                 <FaEdit/>
               </button>
 
-              <button className="btn btn-outline-danger btn-sm"
+              <button className="btn btn-danger btn-sm"
                 onClick={()=>eliminarReview(review.id)}>
                 <FaTrash/>
               </button>

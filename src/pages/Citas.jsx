@@ -221,7 +221,7 @@ function Citas() {
       </h3>
 
       <div className="text-end mb-3">
-        <button className="btn btn-verde fw-bold" onClick={crearCita}>
+        <button className="btn btn-info fw-bold" onClick={crearCita}>
           + Nueva cita
         </button>
       </div>

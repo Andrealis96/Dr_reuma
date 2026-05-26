@@ -1629,8 +1629,6 @@ html, body, #root {
 
 /* --------  HISTORIA PACIENTES -------------------*/
 
-/* --------  HISTORIA PACIENTES -------------------*/
-
 .card-paciente {
   background: rgba(9, 154, 173, 0.185) !important;
   border-radius: 18px;
@@ -1709,6 +1707,7 @@ html, body, #root {
 
 /* ICONO centrado + color base */
 .icono-panel {
+  color: rgb(9, 154, 173);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1720,7 +1719,7 @@ html, body, #root {
   border-radius: 100px;
   transition: all 0.3s ease;
   cursor: pointer;
-  background-color: rgba(182, 255, 141, 0.32) !important;
+  background-color: rgba(9, 154, 173, 0.185) !important;
 }
 
 /* HOVER general */
@@ -1816,27 +1815,34 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  padding-bottom: 80px;
-  
-  
+  padding-bottom: 80px;  
 }
 
 .comentario-card {
-  background: rgba(183, 255, 141, 0.199)!important;
+  background: rgba(9, 154, 173, 0.185) !important;
 }
 
 .respuesta-box {
-  background:  rgba(126, 126, 126, 0.151);
+  background:  rgba(255, 255, 255, 0.836);
   padding: 10px;
   border-radius: 8px;
   margin-top: 10px;
 }
 
-/*--------------------LABORATORIO----------------------*/
-.card-ordenes {
-  background: rgba(182, 255, 141, 0.32)!important;
+.card-celeste {
+  background: rgba(9, 154, 173, 0.185) !important;
+  border-radius: 18px;
 }
 
+/*--------------------LABORATORIO----------------------*/
+.card-ordenes {
+  background: rgba(9, 154, 173, 0.185)!important;
+}
+
+.card-laboratorios {
+  background: rgba(9, 154, 173, 0.185)!important;
+  border-radius: 18px;
+}
 /*calendario*/
 .fc-daygrid-day {
   cursor: pointer;

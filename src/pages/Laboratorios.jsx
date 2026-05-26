@@ -429,7 +429,7 @@ const formatearFecha = (fecha) => {
       />
 
       {/* ESTUDIOS */}
-      <div className="card p-3 mb-3">
+      <div className="card-laboratorios p-3 mb-3">
 
         {Object.entries(gruposEstudios).map(([grupo, lista]) => (
           <div key={grupo} className="mb-3">
@@ -438,7 +438,7 @@ const formatearFecha = (fecha) => {
               <h6 className="fw-bold text-uppercase">{grupo}</h6>
 
               <button
-                className="btn btn-sm btn-outline-success"
+                className="btn btn-sm btn-info"
                 onClick={() => seleccionarGrupo(grupo)}
               >
                 Seleccionar todo
@@ -475,10 +475,10 @@ const formatearFecha = (fecha) => {
       />
 
       <button
-        className="btn btn-dark fw-bold mb-4"
+        className="btn btn-info fw-bold mb-4"
         onClick={guardarLaboratorio}
       >
-        Guardar orden
+        GUARDAR ORDEN
       </button>
       <div className="input-group mb-4">
           <span className="input-group-text">
@@ -493,7 +493,7 @@ const formatearFecha = (fecha) => {
       </div>
 
       {/* LISTADO */}
-      <h4>Órdenes generadas</h4>
+      <h4 className="celeste fw-bold">ORDENES GENERADAS</h4>
 
     {loading ? (
   <p className="text-center">Cargando...</p>
@@ -515,14 +515,14 @@ const formatearFecha = (fecha) => {
 
         <div className="d-flex align-items-center gap-2">
           <button 
-            className="btn btn-outline-danger btn-sm"
+            className="btn btn-danger btn-sm"
             onClick={() => eliminarLaboratorio(lab.id)}
           >
             <FaTrash />
           </button>
 
           <button
-            className="btn btn-outline-dark btn-sm"
+            className="btn btn-dark btn-sm"
             onClick={() => generarPDF(lab)}
           >
             <FaFilePdf />
