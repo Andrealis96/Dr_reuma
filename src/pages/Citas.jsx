@@ -110,7 +110,7 @@ function Citas() {
   const crearCita = async () => {
 
     const { value: fecha } = await Swal.fire({
-      title: "Selecciona fecha",
+      title: "Fecha de cita:",
       input: "date",
       showCancelButton: true
     });
@@ -132,13 +132,11 @@ function Citas() {
   title: "Nueva cita",
   html: `
     <input id="nombre" class="swal2-input" placeholder="Nombre">
-    <input id="telefono" class="swal2-input" placeholder="Teléfono">
-
+    <input id="telefono" class="swal2-input" placeholder="Teléfono"> <br />
     <select id="hora" class="swal2-input">
       <option value="">Selecciona hora</option>
       ${options}
-    </select>
-
+    </select>   <br />
     <select id="tipo" class="swal2-input">
       <option value="">Tipo de cita</option>
       <option value="presencial">Presencial</option>

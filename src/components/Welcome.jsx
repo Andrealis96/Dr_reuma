@@ -39,10 +39,14 @@ function Welcome() {
       <div className="container">
 
         {/* TITULO */}
-        <h1 className="title-general text-center fly-text py-5">
-          <span className="title-celeste">BIENVENIDO A </span>
+        <h1 className="title-general text-center py-3 ly-text text-uppercase">
+          <span className="title-celeste"> Reumatólogo en Neuquén |</span>
           <span className="title-negro"> DR.REUMA</span>
         </h1>
+
+        <h5 className="subtitle text-center fw-bold">
+          Tratamiento • Diagnóstico • Seguimiento
+        </h5>
 
         {/* CONTENIDO PRINCIPAL */}
         <div className="row align-items-start">
@@ -50,22 +54,24 @@ function Welcome() {
           {/* IZQUIERDA */}
           <div className="col-lg-7 text-center text-md-start">
 
-            <h3 className="title-negro fw-bold mb-4">
+            <h4 className="title-negro fw-bold mb-4">
               <FaMapMarkerAlt className="fs-2 me-1 celeste" />
-              NEUQUÉN
-            </h3>
+                (San Martín 1355 - Neuquén Capital)
+            </h4>
 
             <p className="welcome-text">
-              En Dr. Reuma trabajamos para que vuelvas a moverte sin dolor.
-
-              Brindamos atención reumatológica integral en
-
-              <span className="fw-bold celeste">
-                {" "}Neuquén - Capital
-                (San Martín 1355 - consultorios externos)
-              </span>,
-
-              brindando un diagnóstico preciso y tratamientos orientados a mejorar tu calidad de vida.
+            En <span className="fw-bold celeste">Dr. reuma</span> trabajamos para que vuelvas a moverte sin dolor
+            y mejores tu calidad de vida mediante una atención
+            médica cercana, humana y personalizada.
+            Nos enfocamos en el diagnóstico temprano,
+            tratamiento y seguimiento de enfermedades
+            reumatológicas y autoinmunes.  <br />
+            <span className="fw-bold celeste">
+              Tratamos patologías como:<br />
+            </span>
+            Fibromialgia, artritis reumatoidea, artritis psoriásica, 
+            lupus, artrosis, osteoporosis, dolor articular (rodilla, columnas, manos), Síndrome de Sjögren
+            y entre otras.
 
               <br /><br />
 

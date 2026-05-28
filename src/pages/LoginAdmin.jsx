@@ -2,14 +2,14 @@ import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase/Auth";
 import { useNavigate } from "react-router-dom";
-
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import DrReumaLogo from "../assets/DrReumaLogo.svg";
 
 function LoginAdmin() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -83,18 +83,28 @@ function LoginAdmin() {
                 </div>
 
 
-                <div className="mb-3">
+                <div className="mb-3 password-container">
 
-                  <input
-                    type="password"
-                    className="form-control"
-                    placeholder="Contraseña"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
+  <input
+    type={showPassword ? "text" : "password"}
+    className="form-control"
+    placeholder="Contraseña"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    required
+  />
 
-                </div>
+  <button
+    type="button"
+    className="toggle-password"
+    onClick={() => setShowPassword(!showPassword)}
+  >
+
+    {showPassword ? <FaEyeSlash /> : <FaEye />}
+
+  </button>
+
+</div>
 
 
                 {error && (

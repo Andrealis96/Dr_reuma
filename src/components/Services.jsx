@@ -245,13 +245,22 @@ useEffect(() => {
       <div className="container py-5">
 
         <h3 className="subtitle-general mb-5">
-          <span className="subtitle-celeste">¿QUE SERVICIOS</span>
-          <span className="subtitle-negro"> OFRECEMOS? </span>
+          <span className="subtitle-celeste">CONSULTAS Y SERVICIOS</span>
+          <span className="subtitle-negro"> DE REUMATOLÓGICA </span>
         </h3>
-        <h3 className="title-negro fw-bold mb-4"> 
-          <FaMapMarkerAlt className="fs-2 me-1 celeste" />
-          NEUQUÉN
-        </h3>
+        
+        <p className="services-description mb-5">
+          Ofrecemos atención <span className="fw-bold"> (Presencial en Neuquén - Capital y consultas online) </span> desde la comodidad
+          de tu hogar por si no puedes venir, para personas con dolor articular, inflamación, cansancio,
+          rigidez o síntomas reumatológicos.
+        </p>
+
+        <p className="services-description text-center mb-5">
+
+          <span className="fw-bold celeste ">"QUE EL DOLOR CONSTANTE NO ES NORMAL,
+            UNA ENFERMEDAD REUMATOLÓGICA NO TIENE EDAD." 
+          </span>
+        </p>
         {/* CARDS */}
         <div className="row g-4 mb-5 ">
 
@@ -259,12 +268,37 @@ useEffect(() => {
             <ServiceCard 
             icon={<FaClinicMedical />}
             title="CONSULTA PRESENCIAL - NEUQUÉN  $50.000" 
-            description="La mejor atención personalizada a nuestros pacientes en, la Clinica San Agustín en Neuquén (Consultorios Externos)." 
+            description="
+            Atención reumatológica presencial en Neuquén Capital, ubicados en la  
+            Clínica San Agustín en Neuquén (Consultorios Externos - San Martín 1355)." 
             mapLink="https://maps.app.goo.gl/y39PjaxnvSacMdxf7"
             extra={
-                <div className="flags mb-2">
-                  <img src="https://flagcdn.com/ar.svg" alt="Argentina" />
-                </div>
+                <>
+
+        <div className="flags mb-3">
+          <img
+            src="https://flagcdn.com/ar.svg"
+            alt="Argentina"
+          />
+        </div>
+
+        <div className="mini-map-container">
+
+          <iframe
+            title="Mapa Clínica San Agustín"
+            src="https://www.google.com/maps?q=San+Martín+1350+Neuquén&output=embed"
+            width="100%"
+            height="180"
+            style={{
+              border: 0,
+              borderRadius: "15px"
+            }}
+            allowFullScreen=""
+            loading="lazy"
+          />
+
+        </div>
+      </>
               }
             showButton={false} />
           </div>
@@ -274,9 +308,10 @@ useEffect(() => {
               icon={<FaVideo />}
               title="CONSULTA POR VIDEOLLAMADA $25.000" 
               message="Hola Dr. Reuma, vengo desde la página web. Quisiera solicitar una consulta por videollamada."
-              description="Desde la comodidad de tu hogar o cualquier lugar. Atención online para pacientes de Argentina, Ecuador y Estados Unidos."
+              description="Consulta reumatológica online por videollamada para pacientes de Argentina, Ecuador y Estados Unidos desde la comodidad de su hogar."
 
               extra={
+                
                 <div className="flags mb-2">
                   <img src="https://flagcdn.com/ar.svg" alt="Argentina" />
                   <img src="https://flagcdn.com/ec.svg" alt="Ecuador" />
@@ -292,7 +327,15 @@ useEffect(() => {
             icon={<FaPrescriptionBottleAlt />}
             title="RECETA MÉDICA $10.000" 
             message="Hola Dr. Reuma, vengo desde la página web. Quisiera solicitar una receta médica."
-            description="Emisión y renovación de recetas médicas, de todas las obras sociales (Online o Presencial)" />
+            description="Emisión y renovación de recetas médicas, para tratamientos reumatológicos, enfermedades autoinmues o malestar en general para todas las obras sociales." />
+          </div>
+
+          <div className="col-12 col-md-6 ">
+            <ServiceCard 
+            icon={<FaPrescriptionBottleAlt />}
+            title="CERTIFICADO MÉDICO DE TRABAJO $15.000" 
+            message="Hola Dr. Reuma, vengo desde la página web. Quisiera solicitar una receta médica."
+            description="Emisión de certificados médicos de trabajo." />
           </div>
 
           <div className="col-12 col-md-6">
@@ -318,6 +361,15 @@ useEffect(() => {
             disabled badge="NO DISPONIBLE" />
           </div>
 
+            <p className="services-description text-center mb-4">
+
+            Agenda tu consulta presencial o virtual
+            con <span className="fw-bold celeste">Dr. Reuma</span>
+            y recibe atención especializada en <span className="fw-bold">
+            {" "}enfermedades reumatológicas,
+            autoinmunes y dolor articular. </span>
+
+            </p>
 
 
         </div>
@@ -352,44 +404,44 @@ useEffect(() => {
 
               <div className="col-md-6">
                 <select
-  name="tipo"
-  className="form-select"
-  value={form.tipo}
-  onChange={handleChange}
->
-  <option value="virtual">Virtual</option>
-  <option
-    value="presencial"
-    disabled={
-      form.fecha &&
-      new Date(form.fecha + "T00:00:00")
-        .toLocaleDateString("es-AR", { weekday: "long" })
-        .toLowerCase() === "sábado"
-    }
-  >
-    Presencial
-  </option>
-</select>
-{/* 🔥 MENSAJE AQUÍ */}
-  {form.fecha &&
-    new Date(form.fecha + "T00:00:00")
-      .toLocaleDateString("es-AR", { weekday: "long" })
-      .toLowerCase() === "sábado" && (
-      <small className="text-danger d-block mt-1">
-        ⚠️ Los sábados solo se permiten consultas virtuales, en caso de querer presencial comunicarse directamente con el Dr.Reuma y preguntar disponibilidad.
-      </small>
-      )}
+                  name="tipo"
+                  className="form-select"
+                  value={form.tipo}
+                  onChange={handleChange}
+                >
+                  <option value="virtual">Virtual</option>
+                  <option
+                    value="presencial"
+                    disabled={
+                      form.fecha &&
+                      new Date(form.fecha + "T00:00:00")
+                        .toLocaleDateString("es-AR", { weekday: "long" })
+                        .toLowerCase() === "sábado"
+                    }
+                  >
+                    Presencial
+                  </option>
+                </select>
+              {/* 🔥 MENSAJE AQUÍ */}
+                {form.fecha &&
+                  new Date(form.fecha + "T00:00:00")
+                    .toLocaleDateString("es-AR", { weekday: "long" })
+                    .toLowerCase() === "sábado" && (
+                    <small className="text-danger d-block mt-1">
+                      ⚠️ Los sábados solo se permiten consultas virtuales, en caso de querer presencial comunicarse directamente con el Dr.Reuma y preguntar disponibilidad.
+                    </small>
+                    )}
 
-      {/* 🔴 MENSAJE VIERNES */}
-        {form.fecha &&
-          new Date(form.fecha + "T00:00:00")
-            .toLocaleDateString("es-AR", { weekday: "long" })
-            .toLowerCase() === "viernes" && (
-            <small className="text-danger d-block mt-1">
-              ⚠️ Los viernes existe disponibiblidad variada. Para consultas o turnos especiales, comunícate directamente con el Dr. Reuma.
-            </small>
-        )}
-</div>
+                    {/* 🔴 MENSAJE VIERNES */}
+                      {form.fecha &&
+                        new Date(form.fecha + "T00:00:00")
+                          .toLocaleDateString("es-AR", { weekday: "long" })
+                          .toLowerCase() === "viernes" && (
+                          <small className="text-danger d-block mt-1">
+                            ⚠️ Los viernes existe disponibiblidad variada. Para consultas o turnos especiales, comunícate directamente con el Dr. Reuma.
+                          </small>
+                      )}
+              </div>
 
               <div className="col-md-6">
                   <label className="form-label fw-semibold">

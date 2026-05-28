@@ -387,10 +387,43 @@ font-size: 14px;
 /* ===============================
     SECCIÓN SOLUCIONES
 ================================ */
+
+.solutions-description{
+  font-size: 1.05rem;
+  font-weight: 550;
+  line-height: 1.7;
+  text-align: justify;
+}
+
+
 .solutions-container{
   padding: 80px 0;
 }
 /*TITULO DE DIAGNOSTICO...... */
+.solutions-body ul {
+padding: 0;
+margin: 0;
+}
+
+.solutions-body li {
+display: flex;
+align-items: flex-start;
+gap: 10px;
+
+margin-bottom: 18px;
+
+text-align: justify;
+line-height: 1.6;
+
+list-style: none;
+}
+
+.solutions-body li .icon {
+flex-shrink: 0;
+margin-top: 5px;
+}
+
+
 
 .solutions-container {
   max-width: 1200px;
@@ -473,7 +506,7 @@ font-size: 14px;
 }
 
 .icon {
-  color: #a1b2ffd2;
+  color:rgba(9, 154, 173, 0.575);
   font-size: 1.1rem;
   margin-top: 3px;
   flex-shrink: 0;
@@ -505,6 +538,14 @@ font-size: 14px;
 /* =========================
 SERVICE CARDS PRO STYLE --- servicios
 ========================= */
+
+.services-description{
+  font-size: 1.05rem;
+  font-weight: 550;
+  line-height: 1.7;
+  text-align: justify;
+}
+
 .flags{
   display:flex;
   justify-content:center;
@@ -1204,6 +1245,29 @@ transform:scale(1.07);
 
 .admin-link.active { background: rgba(255,255,255,0.25); } 
 .logout-btn { margin-top: auto; color: #ffc107; } 
+
+.password-container{
+  position: relative;
+}
+
+.toggle-password{
+  position: absolute;
+
+  top: 50%;
+  right: 15px;
+
+  transform: translateY(-50%);
+
+  background: transparent;
+  border: none;
+
+  color: rgb(9, 154, 173);
+
+  font-size: 18px;
+
+  cursor: pointer;
+}
+
 
 /* CONTENT */ 
 .admin-content { flex: 1; background: #f8f9fa4b; padding: 30px; } 
