@@ -723,6 +723,42 @@ small {
 .btn-whatsapp:active {
   transform: scale(0.98);
 }
+
+
+.success-card{
+  padding: 20px;
+  animation: fadeIn .4s ease;
+}
+
+.success-check{
+  font-size: 50px;
+  margin-bottom: 15px;
+}
+
+.appointment-summary{
+  background: rgba(255,255,255,0.7);
+  border-radius: 18px;
+  padding: 20px;
+  text-align: left;
+  margin-bottom: 25px;
+}
+
+.appointment-summary p{
+  margin-bottom: 10px;
+  font-size: 15px;
+}
+
+@keyframes fadeIn{
+  from{
+    opacity:0;
+    transform:translateY(20px);
+  }
+
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
 /* =========================
 TESTIMONIOS 
 ========================= */

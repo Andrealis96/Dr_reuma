@@ -387,146 +387,233 @@ useEffect(() => {
 
           </div>
 
-          <form onSubmit={handleSubmit}>
-            <div className="row g-3">
+          {!success ? (
 
-              <div className="col-md-6">
-                <input type="text" name="nombre" placeholder="Nombre completo" className="form-control" required value={form.nombre} onChange={handleChange}/>
-              </div>
+<form onSubmit={handleSubmit}>
 
-              <div className="col-md-6">
-                <input type="email" name="email" placeholder="Correo electrónico" className="form-control" required value={form.email} onChange={handleChange}/>
-              </div>
+  <div className="row g-3">
 
-              <div className="col-md-6">
-                <input type="text" name="telefono" placeholder="Teléfono" className="form-control" required value={form.telefono} onChange={handleChange}/>
-              </div>
-
-              <div className="col-md-6">
-                <select
-                  name="tipo"
-                  className="form-select"
-                  value={form.tipo}
-                  onChange={handleChange}
-                >
-                  <option value="virtual">Virtual</option>
-                  <option
-                    value="presencial"
-                    disabled={
-                      form.fecha &&
-                      new Date(form.fecha + "T00:00:00")
-                        .toLocaleDateString("es-AR", { weekday: "long" })
-                        .toLowerCase() === "sábado"
-                    }
-                  >
-                    Presencial
-                  </option>
-                </select>
-              {/* 🔥 MENSAJE AQUÍ */}
-                {form.fecha &&
-                  new Date(form.fecha + "T00:00:00")
-                    .toLocaleDateString("es-AR", { weekday: "long" })
-                    .toLowerCase() === "sábado" && (
-                    <small className="text-danger d-block mt-1">
-                      ⚠️ Los sábados solo se permiten consultas virtuales, en caso de querer presencial comunicarse directamente con el Dr.Reuma y preguntar disponibilidad.
-                    </small>
-                    )}
-
-                    {/* 🔴 MENSAJE VIERNES */}
-                      {form.fecha &&
-                        new Date(form.fecha + "T00:00:00")
-                          .toLocaleDateString("es-AR", { weekday: "long" })
-                          .toLowerCase() === "viernes" && (
-                          <small className="text-danger d-block mt-1">
-                            ⚠️ Los viernes existe disponibiblidad variada. Para consultas o turnos especiales, comunícate directamente con el Dr. Reuma.
-                          </small>
-                      )}
-              </div>
-
-              <div className="col-md-6">
-                  <label className="form-label fw-semibold">
-                    📅 Fecha de la cita
-                  </label>
-
-                  <input
-                    type="date"
-                    name="fecha"
-                    className="form-control"
-                    required
-                    value={form.fecha}
-                    onChange={handleChange}
-                  />
-
-                  <small className="text-muted">
-                    Selecciona una fecha disponible
-                  </small>
-                </div>
-
-              <div className="col-md-6">
-                <select name="hora" className="form-select" required value={form.hora} onChange={handleChange}>
-                  <option value="">Selecciona una hora</option>
-                  {horariosDisponibles.length > 0 ? (
-                    horariosDisponibles.map((h, i) => (
-                      <option key={i} value={h}>{h}</option>
-                    ))
-                  ) : (
-                    <option disabled>
-                      {form.fecha ? "No hay horarios disponibles 😢" : "Primero selecciona una fecha"}
-                    </option>
-                  )}
-                </select>
-              </div>
-
-            </div>
-
-            <div className="d-flex justify-content-center">
-              <button className="btn btn-dark fw-bold mt-4">
-                <FaSave size={20}/> Guardar Cita
-              </button>
-            </div>
-
-            <div className="info-card mt-4">
-
-  <p className="info-title">📌 Información importante</p>
-  <div className="info-item success">
-    <FaMoneyBillWave />
-    <span>El pago se realizará al finalizar la consulta médica.</span>
-  </div>
-
-  <div className="info-item danger">
-    <FaExclamationCircle />
-    <span>
-      En caso de inconvenientes o cancelación, comunícate con el médico para reprogramar la cita.
-    </span>
-  </div>
-
-</div>
-          </form>
-
-          {/* ✅ BOTÓN WHATSAPP */}
-          {success && (
-  <div ref={whatsappRef}>
-  {success && (
-    <div className="text-center mt-4">
-      <small className="d-block text-primary fw-semibold mb-2">
-      📲 Presiona el botón de WhatsApp para notificar al médico, de tu cita.
-    </small>
-      <a
-        href={whatsappLink}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="btn-whatsapp"
-        onClick={() => setSuccess(false)}
-      >
-        NOTIFIQUE AQUÍ
-        <FaWhatsapp style={{ marginRight: "20px" }} />
-
-      </a>
+    <div className="col-md-6">
+      <input
+        type="text"
+        name="nombre"
+        placeholder="Nombre completo"
+        className="form-control"
+        required
+        value={form.nombre}
+        onChange={handleChange}
+      />
     </div>
-  )}
-</div>
-)}
 
+    <div className="col-md-6">
+      <input
+        type="email"
+        name="email"
+        placeholder="Correo electrónico"
+        className="form-control"
+        required
+        value={form.email}
+        onChange={handleChange}
+      />
+    </div>
+
+    <div className="col-md-6">
+      <input
+        type="text"
+        name="telefono"
+        placeholder="Teléfono"
+        className="form-control"
+        required
+        value={form.telefono}
+        onChange={handleChange}
+      />
+    </div>
+
+    <div className="col-md-6">
+
+      <select
+        name="tipo"
+        className="form-select"
+        value={form.tipo}
+        onChange={handleChange}
+      >
+
+        <option value="virtual">Virtual</option>
+
+        <option
+          value="presencial"
+          disabled={
+            form.fecha &&
+            new Date(form.fecha + "T00:00:00")
+              .toLocaleDateString("es-AR", { weekday: "long" })
+              .toLowerCase() === "sábado"
+          }
+        >
+          Presencial
+        </option>
+
+      </select>
+
+      {form.fecha &&
+        new Date(form.fecha + "T00:00:00")
+          .toLocaleDateString("es-AR", { weekday: "long" })
+          .toLowerCase() === "sábado" && (
+          <small className="text-danger d-block mt-1">
+            ⚠️ Los sábados solo se permiten consultas virtuales.
+          </small>
+      )}
+
+    </div>
+
+    <div className="col-md-6">
+
+      <label className="form-label fw-semibold">
+        📅 Fecha de la cita
+      </label>
+
+      <input
+        type="date"
+        name="fecha"
+        className="form-control"
+        required
+        value={form.fecha}
+        onChange={handleChange}
+      />
+
+    </div>
+
+    <div className="col-md-6">
+
+      <select
+        name="hora"
+        className="form-select"
+        required
+        value={form.hora}
+        onChange={handleChange}
+      >
+
+        <option value="">
+          Selecciona una hora
+        </option>
+
+        {horariosDisponibles.length > 0 ? (
+
+          horariosDisponibles.map((h, i) => (
+            <option key={i} value={h}>
+              {h}
+            </option>
+          ))
+
+        ) : (
+
+          <option disabled>
+            {form.fecha
+              ? "No hay horarios disponibles 😢"
+              : "Primero selecciona una fecha"}
+          </option>
+
+        )}
+
+      </select>
+
+    </div>
+
+  </div>
+
+  <div className="d-flex justify-content-center">
+
+    <button className="btn btn-dark fw-bold mt-4">
+      <FaSave size={20}/>
+      Guardar Cita
+    </button>
+
+  </div>
+
+  <div className="info-card mt-4">
+
+    <p className="info-title">
+      📌 Información importante
+    </p>
+
+    <div className="info-item success">
+      <FaMoneyBillWave />
+      <span>
+        El pago se realizará al finalizar la consulta médica.
+      </span>
+    </div>
+
+    <div className="info-item danger">
+      <FaExclamationCircle />
+      <span>
+        En caso de cancelación, comunícate con el médico.
+      </span>
+    </div>
+
+  </div>
+
+</form>
+
+) : (
+
+<div className="success-card text-center">
+
+  <div className="success-check">
+    ✅
+  </div>
+
+  <h3 className="fw-bold mb-3">
+    ¡Cita agendada correctamente!
+  </h3>
+
+  <p className="mb-4">
+    Tu turno fue reservado exitosamente.
+  </p>
+
+  <div className="appointment-summary">
+
+    <p>
+      <strong>Paciente:</strong>
+      {" "}
+      {citaGuardada.nombre}
+    </p>
+
+    <p>
+      <strong>Fecha:</strong>
+      {" "}
+      {citaGuardada.fecha}
+    </p>
+
+    <p>
+      <strong>Hora:</strong>
+      {" "}
+      {citaGuardada.hora}
+    </p>
+
+    <p>
+      <strong>Tipo:</strong>
+      {" "}
+      {citaGuardada.tipo}
+    </p>
+
+  </div>
+
+  <small className="d-block text-primary fw-semibold mb-3">
+    📲 Presiona el botón para notificar al médico.
+  </small>
+
+  <a
+    href={whatsappLink}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="btn-whatsapp"
+  >
+    NOTIFICAR POR WHATSAPP
+    <FaWhatsapp />
+  </a>
+
+</div>
+
+)}
         </div>
       </div>
     </section>
