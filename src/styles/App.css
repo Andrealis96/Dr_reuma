@@ -730,9 +730,9 @@ small {
   animation: fadeIn .4s ease;
 }
 
-.success-check{
-  font-size: 50px;
-  margin-bottom: 15px;
+.success-logo{
+  width: 120px;
+  height: auto;
 }
 
 .appointment-summary{

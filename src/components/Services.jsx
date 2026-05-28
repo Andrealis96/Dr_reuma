@@ -3,8 +3,9 @@ import { useRef } from "react";
 import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import ServiceCard from "./ServiceCard";
-import { FaCalendarCheck, FaCalendarAlt, FaSave } from "react-icons/fa";
+import { FaCalendarCheck, FaCheckCircle, FaCalendarAlt, FaSave } from "react-icons/fa";
 import { FaMapMarkerAlt , FaMoneyBillWave, FaExclamationCircle, FaExclamationTriangle  } from "react-icons/fa";
+import DrReumaLogo from "../assets/DrReumalogo.png";
 import { toast } from "react-toastify";
 import { FaWhatsapp } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
@@ -557,12 +558,16 @@ useEffect(() => {
 
 <div className="success-card text-center">
 
-  <div className="success-check">
-    ✅
+  <div>
+     <img 
+        src={DrReumaLogo} 
+        alt="Dr. Reuma" 
+        className="success-logo"
+     />
   </div>
 
   <h3 className="fw-bold mb-3">
-    ¡Cita agendada correctamente!
+     <FaCheckCircle /> ¡Cita agendada correctamente!
   </h3>
 
   <p className="mb-4">
@@ -593,6 +598,15 @@ useEffect(() => {
       <strong>Tipo:</strong>
       {" "}
       {citaGuardada.tipo}
+    </p>
+
+    <p>
+      <strong>Especialidad: </strong>
+      Reumatología - Dr.Tony Vélez (Dr.Reuma)
+    </p>
+    <p>
+      <strong>Ubicación: </strong>
+      San Martín 1355, Neuquén Capital (Consultorios Externos)
     </p>
 
   </div>
