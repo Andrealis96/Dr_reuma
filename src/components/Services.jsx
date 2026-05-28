@@ -255,7 +255,8 @@ useEffect(() => {
           de tu hogar por si no puedes venir, para personas con dolor articular, inflamación, cansancio,
           rigidez o síntomas reumatológicos.
         </p>
-
+    
+           
         <p className="services-description text-center mb-5">
 
           <span className="fw-bold celeste ">"QUE EL DOLOR CONSTANTE NO ES NORMAL,
@@ -264,45 +265,6 @@ useEffect(() => {
         </p>
         {/* CARDS */}
         <div className="row g-4 mb-5 ">
-
-          <div className="col-12 col-md-6">
-            <ServiceCard 
-            icon={<FaClinicMedical />}
-            title="CONSULTA PRESENCIAL - NEUQUÉN  $50.000" 
-            description="
-            Atención reumatológica presencial en Neuquén Capital, ubicados en la  
-            Clínica San Agustín en Neuquén (Consultorios Externos - San Martín 1355)." 
-            mapLink="https://maps.app.goo.gl/y39PjaxnvSacMdxf7"
-            extra={
-                <>
-
-        <div className="flags mb-3">
-          <img
-            src="https://flagcdn.com/ar.svg"
-            alt="Argentina"
-          />
-        </div>
-
-        <div className="mini-map-container">
-
-          <iframe
-            title="Mapa Clínica San Agustín"
-            src="https://www.google.com/maps?q=San+Martín+1350+Neuquén&output=embed"
-            width="100%"
-            height="180"
-            style={{
-              border: 0,
-              borderRadius: "15px"
-            }}
-            allowFullScreen=""
-            loading="lazy"
-          />
-
-        </div>
-      </>
-              }
-            showButton={false} />
-          </div>
 
           <div className="col-12 col-md-6">
             <ServiceCard 
@@ -360,6 +322,45 @@ useEffect(() => {
             icon={<FaHome />}
             description="Próximamente..... !!!" 
             disabled badge="NO DISPONIBLE" />
+          </div>
+
+            <div className="">
+            <ServiceCard 
+            icon={<FaClinicMedical />}
+            title="CONSULTA PRESENCIAL - NEUQUÉN  $50.000" 
+            description="
+            Atención reumatológica presencial en Neuquén Capital, ubicados en la  
+            Clínica San Agustín en Neuquén (Consultorios Externos - San Martín 1355)." 
+            mapLink="https://maps.app.goo.gl/y39PjaxnvSacMdxf7"
+            extra={
+                <>
+
+        <div className="flags mb-3">
+          <img
+            src="https://flagcdn.com/ar.svg"
+            alt="Argentina"
+          />
+        </div>
+
+        <div className="mini-map-container">
+
+          <iframe
+            title="Mapa Clínica San Agustín"
+            src="https://www.google.com/maps?q=San+Martín+1350+Neuquén&output=embed"
+            width="100%"
+            height="180"
+            style={{
+              border: 0,
+              borderRadius: "15px"
+            }}
+            allowFullScreen=""
+            loading="lazy"
+          />
+
+        </div>
+      </>
+              }
+            showButton={false} />
           </div>
 
             <p className="services-description text-center mb-4">
@@ -508,7 +509,7 @@ useEffect(() => {
         ) : (
 
           <option disabled>
-            {form.fecha
+           {form.fecha
               ? "No hay horarios disponibles 😢"
               : "Primero selecciona una fecha"}
           </option>
@@ -566,16 +567,18 @@ useEffect(() => {
      />
   </div>
 
-  <h3 className="fw-bold mb-3">
+  <h3 className="fw-bold">
      <FaCheckCircle /> ¡Cita agendada correctamente!
   </h3>
 
-  <p className="mb-4">
+  <p className="">
     Tu turno fue reservado exitosamente.
   </p>
 
+  <div className="row justify-content-center mt-4">
+  <div className="col-9 col-md-12"> 
   <div className="appointment-summary">
-
+    
     <p>
       <strong>Paciente:</strong>
       {" "}
@@ -608,7 +611,8 @@ useEffect(() => {
       <strong>Ubicación: </strong>
       San Martín 1355, Neuquén Capital (Consultorios Externos)
     </p>
-
+</div>
+  </div>
   </div>
 
   <small className="d-block text-primary fw-semibold mb-3">
