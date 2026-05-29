@@ -770,7 +770,7 @@ small {
 
   padding: 12px 24px;
 
-  font-weight: 600;
+  font-weight: 400;
 
   transition: all 0.3s ease;
 
@@ -792,7 +792,7 @@ small {
   color: #ffffff !important;
   border: none;
   border-radius: 50px;
-  font-weight: 600;
+  font-weight:400;
   transition: all 0.3s ease;
 }
 
