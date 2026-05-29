@@ -331,7 +331,7 @@ useEffect(() => {
             description="
             Atención reumatológica presencial en Neuquén Capital, ubicados en la  
             Clínica San Agustín en Neuquén (Consultorios Externos - San Martín 1355)." 
-            mapLink="https://maps.app.goo.gl/y39PjaxnvSacMdxf7"
+            mapLink="https://maps.app.goo.gl/WgDkBRvfiKK3cP1y7"
             extra={
                 <>
 
@@ -346,7 +346,7 @@ useEffect(() => {
 
           <iframe
             title="Mapa Clínica San Agustín"
-            src="https://www.google.com/maps?q=San+Martín+1350+Neuquén&output=embed"
+            src="https://www.google.com/maps?q=San+Martín+1355+Neuquén&output=embed"
             width="100%"
             height="180"
             style={{

@@ -38,7 +38,7 @@ export default function FloatingAssistant() {
   const goMaps = () => {
 
     window.open(
-      "https://maps.app.goo.gl/kMp4pKkqsouhkqsUA",
+      "https://maps.app.goo.gl/WgDkBRvfiKK3cP1y7",
       "_blank"
     )
 
