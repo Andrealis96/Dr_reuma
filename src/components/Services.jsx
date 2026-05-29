@@ -366,7 +366,7 @@ useEffect(() => {
             <p className="services-description text-center mb-4">
 
             Agenda tu consulta presencial o virtual
-            con <span className="fw-bold celeste">Dr. Reuma</span>
+            con <span className="fw-bold celeste">Dr. Reuma </span>
             y recibe atención especializada en <span className="fw-bold">
             {" "}enfermedades reumatológicas,
             autoinmunes y dolor articular. </span>
@@ -378,7 +378,16 @@ useEffect(() => {
 
         {/* FORMULARIO */}
         <div className="card card-general p-4 shadow-sm">
-          <div className="mb-4 text-center">
+        
+          {!success ? (
+            
+
+<form onSubmit={handleSubmit}>
+
+  <div className="row g-3">
+
+    <div className="col-12">
+      <div className="mb-4 text-center">
             <div className="service-icon mx-auto">
               <FaCalendarCheck />
             </div>
@@ -388,15 +397,10 @@ useEffect(() => {
             </h4>
 
           </div>
+      </div>
 
-          {!success ? (
-
-<form onSubmit={handleSubmit}>
-
-  <div className="row g-3">
-
-    <div className="col-md-6">
-      <input
+      <div className="col-md-6">
+       <input
         type="text"
         name="nombre"
         placeholder="Nombre completo"
@@ -405,7 +409,10 @@ useEffect(() => {
         value={form.nombre}
         onChange={handleChange}
       />
-    </div>
+      </div>
+     
+      
+    
 
     <div className="col-md-6">
       <input
@@ -558,7 +565,30 @@ useEffect(() => {
 ) : (
 
 <div className="success-card text-center">
+  <div className="d-flex justify-content-end ">
+    <button
+  className="btn btn-agendar fw-semibold my-1 "
+  onClick={() => {
 
+    setSuccess(false);
+
+    setCitaGuardada(null);
+
+    setForm({
+      nombre: "",
+      email: "",
+      telefono: "",
+      tipo: "virtual",
+      fecha: "",
+      hora: ""
+    });
+
+  }}
+>
+ Agendar otra cita
+</button>
+
+  </div>
   <div>
      <img 
         src={DrReumaLogo} 
@@ -567,16 +597,16 @@ useEffect(() => {
      />
   </div>
 
-  <h3 className="fw-bold">
+  <h4 className="fw-bold">
      <FaCheckCircle /> ¡Cita agendada correctamente!
-  </h3>
+  </h4>
 
   <p className="">
     Tu turno fue reservado exitosamente.
   </p>
 
-  <div className="row justify-content-center mt-4">
-  <div className="col-9 col-md-12"> 
+  <div className="row justify-content-center ">
+  <div className="col-md-8"> 
   <div className="appointment-summary">
     
     <p>
@@ -615,7 +645,7 @@ useEffect(() => {
   </div>
   </div>
 
-  <small className="d-block text-primary fw-semibold mb-3">
+  <small className="d-block  fw-semibold mb-3">
     📲 Presiona el botón para notificar al médico.
   </small>
 
@@ -625,9 +655,10 @@ useEffect(() => {
     rel="noopener noreferrer"
     className="btn-whatsapp"
   >
+    <FaWhatsapp /> 
     NOTIFICAR POR WHATSAPP
-    <FaWhatsapp />
   </a>
+<br /> 
 
 </div>
 
