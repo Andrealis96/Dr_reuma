@@ -639,11 +639,11 @@ useEffect(() => {
 
   }}
 >
- Agendar otra cita
+Nueva cita
 </button>
 
  <button className="btn btn-pdf" onClick={descargarPDF}>
-      Descargar PDF del turno
+      PDF turno
     </button>
   
   </div>
@@ -751,7 +751,7 @@ useEffect(() => {
     <h2>Dr. Reuma - Especialista en Reumatología</h2>
     <p>Turno médico oficial verificado</p>
     <p>Cita agendada correctamente</p>
-    
+
   </div>
 
   <hr />
