@@ -59,7 +59,7 @@ const descargarPDF = async () => {
 
     const canvas = await html2canvas(element, {
 
-      scale: 1, // 🔥 antes 2
+      scale: 1.5,
 
       useCORS: true,
 
@@ -70,7 +70,7 @@ const descargarPDF = async () => {
 
     const imgData = canvas.toDataURL(
       "image/jpeg",
-      0.7 // 🔥 compresión
+      0.9// 🔥 compresión
     );
 
     const pdf = new jsPDF("p", "mm", "a4");
