@@ -10,6 +10,11 @@ import { toast } from "react-toastify";
 import { FaWhatsapp } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
 import ReactCountryFlag from "react-country-flag";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+import { QRCodeCanvas } from "qrcode.react";
+import marcaDeAgua from "../assets/marcaDeAgua.png";
+import FirmaDoctor from "../assets/firma.png";
 import {
   FaVideo,
   FaClinicMedical,
@@ -40,6 +45,55 @@ function Services() {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+
+const codigoTurno =
+  `https://drreuma.com/verificacion?paciente=${encodeURIComponent(citaGuardada?.nombre || "")}&fecha=${encodeURIComponent(citaGuardada?.fecha || "")}&hora=${encodeURIComponent(citaGuardada?.hora || "")}`;
+
+const descargarPDF = async () => {
+
+  const element = document.getElementById("pdf-turno");
+
+  if (!element) return;
+
+  try {
+
+    // esperar render
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff"
+    });
+
+    const imgData = canvas.toDataURL("image/png");
+
+    const pdf = new jsPDF("p", "mm", "a4");
+
+    const pdfWidth = 210;
+
+    const pdfHeight =
+      (canvas.height * pdfWidth) / canvas.width;
+
+    pdf.addImage(
+      imgData,
+      "PNG",
+      0,
+      0,
+      pdfWidth,
+      pdfHeight
+    );
+
+    pdf.save(`turno-${citaGuardada?.nombre}.pdf`);
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert("Error generando PDF");
+
+  }
+};
 
   const esViernesActivo = (fechaObj) => {
   const MS_DIA = 1000 * 60 * 60 * 24;
@@ -565,9 +619,9 @@ useEffect(() => {
 ) : (
 
 <div className="success-card text-center">
-  <div className="d-flex justify-content-end ">
+  <div className="d-flex justify-content-between align-items-center mb-3">
     <button
-  className="btn btn-agendar fw-semibold my-1 "
+  className="btn btn-agendar fw-semibold "
   onClick={() => {
 
     setSuccess(false);
@@ -588,12 +642,17 @@ useEffect(() => {
  Agendar otra cita
 </button>
 
+ <button className="btn btn-pdf" onClick={descargarPDF}>
+      Descargar PDF del turno
+    </button>
+  
   </div>
   <div>
      <img 
         src={DrReumaLogo} 
         alt="Dr. Reuma" 
         className="success-logo"
+          crossOrigin="anonymous"
      />
   </div>
 
@@ -607,7 +666,7 @@ useEffect(() => {
 
   <div className="row justify-content-center ">
   <div className="col-md-8"> 
-  <div className="appointment-summary">
+  <div id="turno-print" className=" appointment-summary">
     
     <p>
       <strong>Paciente:</strong>
@@ -663,6 +722,82 @@ useEffect(() => {
 </div>
 
 )}
+
+<div
+  id="pdf-turno"
+  style={{
+  position: "fixed",
+  top: "-99999px",
+  left: "-99999px",
+
+  width: "800px",
+
+  background: "#fff",
+
+  padding: "40px"
+}}
+>
+  {/* MARCA DE AGUA */}
+  <img
+  src={marcaDeAgua}
+  className="pdf-watermark"
+  crossOrigin="anonymous"
+/>
+
+  {/* HEADER */}
+  <div className="pdf-header">
+
+    <img src={DrReumaLogo} className="pdf-logo" />
+    <h2>Dr. Reuma - Especialista en Reumatología</h2>
+    <p>Turno médico oficial verificado</p>
+    <p>Cita agendada correctamente</p>
+    
+  </div>
+
+  <hr />
+
+  {/* DATOS PACIENTE */}
+  <div className="pdf-body">
+
+    <div><strong>Paciente:</strong> {citaGuardada?.nombre}</div>
+    <div><strong>Fecha:</strong> {citaGuardada?.fecha}</div>
+    <div><strong>Hora:</strong> {citaGuardada?.hora}</div>
+    <div><strong>Tipo:</strong> {citaGuardada?.tipo}</div>
+
+  </div>
+  {/* FIRMA */}
+  <div className="pdf-signature">
+
+    <img 
+    src={FirmaDoctor} 
+    crossOrigin="anonymous"
+    />
+
+    <p>Firma digital del profesional</p>
+
+  </div>
+{/* DOCTOR */}
+  <div className="pdf-doctor">
+
+    <p><strong>Dr. Tony Vélez</strong></p>
+    <p>MN 178050</p>
+    <p> MP 9762</p>
+  </div>
+
+  {/* FOOTER */}
+  <div className="pdf-footer">
+
+    <p>📍 San Martín 1355 - Neuquén Capital</p>
+    <p>🏥 Clínica San Agustín - Consultorios Externos</p>
+
+    <p className="pdf-note">
+      Documento oficial generado automáticamente
+    </p>
+
+  </div>
+
+</div>
+
         </div>
       </div>
     </section>

@@ -695,7 +695,7 @@ small {
   z-index: 2;
 }
 
-.btn.btn-succes {
+.btn.btn-success {
   background:  rgba(69, 173, 9, 0.822)  !important;
   color: #000000 !important;
 }
@@ -780,10 +780,159 @@ small {
   gap: 10px;
 }
 
+
 .btn-agendar:hover {
   background: rgb(9, 154, 173) !important;
   transform: translateY(-2px) scale(1.03);
   box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+}
+
+.btn-pdf {
+  background: rgb(0, 0, 0) !important;
+  color: #ffffff !important;
+  border: none;
+  border-radius: 50px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-pdf:hover {
+  background: rgb(9, 154, 173) !important;
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+}
+
+/*parte del pdf de agendar cita*/
+
+.pdf-ticket-premium{
+  width: 800px;
+  background: #ffffff;
+
+  padding: 45px;
+
+  font-family: 'Poppins', sans-serif;
+
+  color: #1e293b;
+
+  position: relative;
+
+  overflow: hidden;
+
+  border-radius: 20px;
+}
+
+/* CONTENIDO ENCIMA */
+.pdf-ticket-premium *{
+  position: relative;
+  z-index: 1;
+}
+
+.pdf-header{
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.pdf-header h2{
+  margin-top: 10px;
+  margin-bottom: 5px;
+
+  font-size: 30px;
+  font-weight: 700;
+
+  color: #111827;
+}
+
+.pdf-header p{
+  color: #6b7280;
+  font-size: 15px;
+}
+
+.pdf-signature{
+  margin-top: 10px;
+}
+
+.pdf-signature img{
+  width: 120px;
+
+  display: block;
+
+  margin: 0 auto 8px auto;
+}
+.pdf-signature p{
+  font-size: 13px;
+  color: #6b7280;
+  text-align: center;
+}
+
+.pdf-doctor{
+  margin-top: 30px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.pdf-doctor p{
+  margin-bottom: 6px;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.pdf-footer{
+  margin-top: 40px;
+  text-align: center;
+  font-size: 13px;
+  color: #475569;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 20px;
+   line-height: 1;
+}
+
+.pdf-body{
+  background: linear-gradient(
+    135deg,
+    #8fd3dc,
+    #6fc3cf
+  );
+
+  padding: 28px;
+
+  border-radius: 18px;
+
+  margin: 30px auto;
+
+  width: 75%;
+
+  text-align: center;
+
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
+
+.pdf-body div{
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.pdf-watermark{
+  position: absolute;
+
+  width: 500px;
+
+  opacity: 0.04;
+
+  top: 50%;
+  left: 50%;
+
+  transform: translate(-50%, -50%);
+}
+
+.pdf-logo{
+  width: 130px;
+  margin-bottom: 10px;
+}
+
+.pdf-logo p {
+  margin-bottom: 6px;
+  font-size: 16px;
+  line-height: 1;
 }
 
 /* =========================
