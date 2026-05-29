@@ -5,7 +5,7 @@ import { db } from "../firebase";
 import ServiceCard from "./ServiceCard";
 import { FaCalendarCheck, FaCheckCircle, FaCalendarAlt, FaSave } from "react-icons/fa";
 import { FaMapMarkerAlt , FaMoneyBillWave, FaExclamationCircle, FaExclamationTriangle  } from "react-icons/fa";
-import DrReumaLogo from "../assets/DrReumalogo.png";
+import DrReumaLogo from "../assets/DrReumaLogo.png";
 import { toast } from "react-toastify";
 import { FaWhatsapp } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
