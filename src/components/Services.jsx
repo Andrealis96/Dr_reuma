@@ -57,16 +57,21 @@ const descargarPDF = async () => {
 
   try {
 
-    // esperar render
-    await new Promise(resolve => setTimeout(resolve, 500));
-
     const canvas = await html2canvas(element, {
-      scale: 2,
+
+      scale: 1, // 🔥 antes 2
+
       useCORS: true,
-      backgroundColor: "#ffffff"
+
+      backgroundColor: "#ffffff",
+
+      logging: false
     });
 
-    const imgData = canvas.toDataURL("image/png");
+    const imgData = canvas.toDataURL(
+      "image/jpeg",
+      0.7 // 🔥 compresión
+    );
 
     const pdf = new jsPDF("p", "mm", "a4");
 
@@ -77,7 +82,7 @@ const descargarPDF = async () => {
 
     pdf.addImage(
       imgData,
-      "PNG",
+      "JPEG", // 🔥 más rápido que PNG
       0,
       0,
       pdfWidth,
@@ -89,8 +94,6 @@ const descargarPDF = async () => {
   } catch (error) {
 
     console.error(error);
-
-    alert("Error generando PDF");
 
   }
 };
