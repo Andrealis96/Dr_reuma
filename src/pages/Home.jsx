@@ -4,7 +4,7 @@ import Services from '../components/Services'
 import HeroCarousel from '../components/HeroCarousel'
 import Testimonials from '../components/Testimonials'
 import Galeria from '../components/Galeria'
-
+import Faq from "../components/Faq"; 
 function Home() {
     return (
         <>
@@ -13,6 +13,7 @@ function Home() {
         <Solutions />
         <Services />
         <Galeria />
+        <Faq />
         <Testimonials />
         </>
     )

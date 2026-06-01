@@ -6,7 +6,7 @@ import Footer from "./components/Footer";
 import FloatingAssistant from "./components/FloatingAssistant";
 import ScrollToTop from "./components/ScrollToTop";
 import ProtectedRoute from "./components/ProtectedRoute";
-
+import Faq from "./components/Faq"; 
 import Home from "./pages/Home";
 import About from "./pages/About";
 import LoginAdmin from "./pages/LoginAdmin";

@@ -936,6 +936,71 @@ small {
 }
 
 /* =========================
+preguntasssss
+========================= */
+.faq-section{
+  background:#008ebe1e;
+}
+
+.faq-container{
+  max-width:900px;
+  margin:auto;
+}
+
+.faq-card{
+  background:white;
+  border-radius:18px;
+  margin-bottom:16px;
+  overflow:hidden;
+  box-shadow:0 5px 18px rgba(0,0,0,0.08);
+  transition:0.3s;
+}
+
+.faq-card:hover{
+  transform:translateY(-2px);
+}
+
+.faq-question{
+  width:100%;
+  border:none;
+  background:white;
+  padding:20px 25px;
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.faq-question svg{
+  color:rgb(9,154,173);
+  font-size:14px;
+}
+
+.faq-answer{
+  max-height:0;
+  overflow:hidden;
+
+  transition:
+    max-height 0.35s ease,
+    padding 0.35s ease;
+}
+
+.faq-answer.open{
+  max-height:300px;
+  padding:0 25px 20px;
+}
+
+.faq-answer p{
+  margin:0;
+  line-height:1.7;
+  color:#4b5563;
+}
+
+/* =========================
 TESTIMONIOS 
 ========================= */
 .boton-comentario {
