@@ -16,7 +16,6 @@ import { onAuthStateChanged } from "firebase/auth";
 
 import { db } from "../firebase";
 import { auth } from "../firebase/Auth";
-
 import AssitenteDoctor from "../assets/AssitenteDoctor.svg";
 
 export default function Testimonials() {
@@ -178,7 +177,6 @@ export default function Testimonials() {
 
 
   return (
-
     <section id="testimonios" className="testimonials-section container py-5">
       <h2 className="text-center subtitle-general mb-3">
         <span className="subtitle-celeste">OPINIONES DE NUESTROS</span>
@@ -408,7 +406,6 @@ export default function Testimonials() {
       )}
 
     </section>
-
   );
 
 }

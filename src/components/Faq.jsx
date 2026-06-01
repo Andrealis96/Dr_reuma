@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import "../styles/App.css";
 import { FaPlus, FaMinus } from "react-icons/fa";
 import { faqData } from "../data/faqData";
-
 function Faq() {
 
   const [openIndex, setOpenIndex] = useState(null);

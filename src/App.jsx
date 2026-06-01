@@ -19,8 +19,12 @@ import HistoriaPaciente from "./pages/HistoriaPaciente";
 import ComentariosPanel from "./pages/ComentariosPanel";
 import Citas from "./pages/Citas";
 import Laboratorios from "./pages/Laboratorios";
-import Faq from "./pages/Faq";
-
+import Faq from "./components/Faq";
+import DiagnosticoPage from "./pages/DiagnosticoPage";
+import ServiciosPage from "./pages/ServiciosPage";
+import GaleriaPage from "./pages/GaleriaPage";
+import TestimoniosPage from "./pages/TestimoniosPage";
+import FaqPage from "./pages/FaqPage";
 import "./styles/App.css";
 
 function App() {
@@ -40,12 +44,12 @@ function App() {
   <div className="routes-container">
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/diagnosticos" element={<Solutions />} />
-      <Route path="/servicios" element={<Services />} />
-      <Route path="/galeria" element={<Galeria />} />
-      <Route path="/testimonios" element={<Testimonials />} />
+      <Route path="/diagnosticos" element={<DiagnosticoPage />} />
+      <Route path="/servicios" element={<ServiciosPage />} />
+      <Route path="/galeria" element={<GaleriaPage />} />
+      <Route path="/testimonios" element={<TestimoniosPage />} />
       <Route path="/nosotros" element={<About />} />
-      <Route path="/preguntas-frecuentes" element={<Faq />} />
+      <Route path="/preguntas-frecuentes" element={<FaqPage />} />
       <Route path="/loginAdmin" element={<LoginAdmin />} />
 
       <Route

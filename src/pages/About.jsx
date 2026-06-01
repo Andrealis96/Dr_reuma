@@ -3,7 +3,7 @@ import expo1 from "../assets/expo1.webp";
 import expo2 from "../assets/expo5.webp";
 import expo3 from "../assets/expo6.webp";
 import expo4 from "../assets/expo4.webp";
-
+import { Helmet } from "react-helmet-async";
 import {
   FaWhatsapp,
   FaUserMd,
@@ -23,6 +23,18 @@ function About() {
   const whatsappLink = `https://wa.me/5492994666559?text=${encodeURIComponent(message)}`;
 
   return (
+    <>
+      <Helmet>
+        <title>
+          Dr. Tony Vélez | Reumatólogo en Neuquén Capital
+        </title>
+
+        <meta
+          name="description"
+          content="Conoce al Dr. Tony Vélez, médico especialista en reumatología. Atención presencial en Neuquén Capital y consultas online para enfermedades reumatológicas y autoinmunes."
+        />
+      </Helmet>
+    
 
     <section className="container about-section py-5" id="nosotros">
 
@@ -270,6 +282,7 @@ function About() {
       </div>
 
     </section>
+    </>
   );
 }
 

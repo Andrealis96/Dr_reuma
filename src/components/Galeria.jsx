@@ -22,7 +22,6 @@ import paciente2 from "../assets/paciente2.webp"
 import paciente3 from "../assets/paciente3.webp"
 import paciente4 from "../assets/paciente4.webp"
 import paciente5 from "../assets/paciente5.webp"
-
 import gotavideo from "../assets/gotavideo.mp4";
 import esclerodermiavideo from "../assets/esclerodermiavideo.mp4";
 import artritisvideo from "../assets/artritisreumavideo.mp4";

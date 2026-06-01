@@ -12,6 +12,7 @@ import dolorrodillas from "../assets/dolorrodillas.webp";
 import hormigueo from "../assets/hormigueo.webp";
 import dermatomiositis from "../assets/dermatomiositis.webp";
 import lupus from "../assets/lupus.webp";
+import { Helmet } from "react-helmet-async";
 import {
   FaHandHoldingMedical,
   FaBone,
@@ -169,93 +170,90 @@ const solutions = [
     };
 
     return (
+        <section className="solutions-section">
+        <div className="container solutions-container py-5 ">
 
-<section className="solutions-section">
+        <h3 className="subtitle-general mb-5 ">
+        <span className="subtitle-celeste"> ¿QUÉ ENFERMEDAD REUMATOLÓGICA</span>
+        <span className="subtitle-negro"> PODRÍAS TENER?</span>
+        </h3>
+        <p className="solutions-description  mb-5">
 
-<div className="container solutions-container py-5 ">
+        El <span className="fw-bold">dolor articular</span>,
+        la <span className="fw-bold">inflamación</span>,
+        el <span className="fw-bold">cansancio </span>
+        y la <span className="fw-bold">rigidez </span>
+        pueden ser señales de una <span className="fw-bold"> enfermedad reumatológica </span>
+        o <span className="fw-bold">autoinmune</span>.
+        Conoce algunas de las patologías que diagnosticamos,
+        tratamos y acompañamos en <span className="fw-bold celeste"> DR. REUMA </span>
+        mediante una atención médica cercana, personalizada y enfocada en mejorar tu <span className="fw-bold"> calidad de vida</span>.
 
-<h3 className="subtitle-general mb-5 ">
-<span className="subtitle-celeste"> ¿QUÉ ENFERMEDAD REUMATOLÓGICA</span>
-<span className="subtitle-negro"> PODRÍAS TENER?</span>
-</h3>
-<p className="solutions-description  mb-5">
+        </p>
 
-El <span className="fw-bold">dolor articular</span>,
-la <span className="fw-bold">inflamación</span>,
-el <span className="fw-bold">cansancio </span>
-y la <span className="fw-bold">rigidez </span>
-pueden ser señales de una <span className="fw-bold"> enfermedad reumatológica </span>
-o <span className="fw-bold">autoinmune</span>.
-Conoce algunas de las patologías que diagnosticamos,
-tratamos y acompañamos en <span className="fw-bold celeste"> DR. REUMA </span>
-mediante una atención médica cercana, personalizada y enfocada en mejorar tu <span className="fw-bold"> calidad de vida</span>.
+        <div className="row g-4">
 
-</p>
+        {solutions.map((sol, index) => (
 
-<div className="row g-4">
+        <div className="col-md-4" key={index}>
 
-{solutions.map((sol, index) => (
+        <div className="solutions-card">
 
-<div className="col-md-4" key={index}>
+        <button
+        className="solutions-header text-uppercase fw-bold"
+        onClick={() => toggleItem(index)}
+        >
 
-<div className="solutions-card">
+        <div className="d-flex align-items-center gap-2">
+        <span className=" fs-2 me-2">
+            {sol.icon}
+        </span>
+        {sol.title}
+        </div>
 
-<button
-className="solutions-header text-uppercase fw-bold"
-onClick={() => toggleItem(index)}
->
+        <span className={`arrow ${openIndex === index ? "open" : ""}`}>
+        ▼
+        </span>
 
-<div className="d-flex align-items-center gap-2">
-  <span className=" fs-2 me-2">
-    {sol.icon}
-  </span>
-  {sol.title}
-</div>
+        </button>
 
-<span className={`arrow ${openIndex === index ? "open" : ""}`}>
-▼
-</span>
+        <div className={`solutions-body ${openIndex === index ? "show" : ""}`}>
 
-</button>
+        {/* IMAGEN */}
+        {sol.image && (
+        <img
+        src={sol.image}
+        alt={sol.title}
+        className="solutions-image"
+        />
+        )}
 
-<div className={`solutions-body ${openIndex === index ? "show" : ""}`}>
+        <ul>
 
-{/* IMAGEN */}
-{sol.image && (
-<img
-src={sol.image}
-alt={sol.title}
-className="solutions-image"
-/>
-)}
+        {sol.items.map((item, i) => (
 
-<ul>
+        <li key={i}>
+        <FaCheckCircle className="icon" />
+        {item}
+        </li>
 
-{sol.items.map((item, i) => (
+        ))}
 
-<li key={i}>
-<FaCheckCircle className="icon" />
-{item}
-</li>
+        </ul>
 
-))}
+        </div>
 
-</ul>
+        </div>
 
-</div>
+        </div>
 
-</div>
+        ))}
 
-</div>
+        </div>
 
-))}
+        </div>
 
-</div>
-
-</div>
-
-</section>
-
+        </section>
 );
 
 }
