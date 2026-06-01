@@ -3,7 +3,6 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase/Auth";
 import { useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import DrReumaLogo from "../assets/DrReumaLogo.svg";
 
 function LoginAdmin() {
 
@@ -54,7 +53,7 @@ function LoginAdmin() {
               <div className="text-center mb-4">
 
                 <img
-                  src={DrReumaLogo}
+                  src="/DrReumaLogo.svg"
                   alt="Dr Reuma"
                   style={{ width: "100px" }}
                 />

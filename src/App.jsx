@@ -6,9 +6,12 @@ import Footer from "./components/Footer";
 import FloatingAssistant from "./components/FloatingAssistant";
 import ScrollToTop from "./components/ScrollToTop";
 import ProtectedRoute from "./components/ProtectedRoute";
-import Faq from "./components/Faq"; 
 import Home from "./pages/Home";
 import About from "./pages/About";
+import Galeria from "./components/Galeria";
+import Testimonials from "./components/Testimonials";
+import Solutions from "./components/Solutions";
+import Services from "./components/Services";
 import LoginAdmin from "./pages/LoginAdmin";
 import AdminPanel from "./pages/AdminPanel";
 import HistoriasClinicas from "./pages/HistoriasClinicas";
@@ -16,6 +19,7 @@ import HistoriaPaciente from "./pages/HistoriaPaciente";
 import ComentariosPanel from "./pages/ComentariosPanel";
 import Citas from "./pages/Citas";
 import Laboratorios from "./pages/Laboratorios";
+import Faq from "./pages/Faq";
 
 import "./styles/App.css";
 
@@ -36,8 +40,12 @@ function App() {
   <div className="routes-container">
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/about" element={<About />} />
-
+      <Route path="/diagnosticos" element={<Solutions />} />
+      <Route path="/servicios" element={<Services />} />
+      <Route path="/galeria" element={<Galeria />} />
+      <Route path="/testimonios" element={<Testimonials />} />
+      <Route path="/nosotros" element={<About />} />
+      <Route path="/preguntas-frecuentes" element={<Faq />} />
       <Route path="/loginAdmin" element={<LoginAdmin />} />
 
       <Route

@@ -3,15 +3,13 @@ import { Navbar, Nav, Container, Badge, Card } from "react-bootstrap";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase/Auth";
-import { FaWhatsapp } from "react-icons/fa";
+import { FaQuestionCircle, FaStethoscope, } from "react-icons/fa";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
 
 import {
-  FaHome, FaBriefcase, FaCommentDots, FaUser, FaImages, FaBell, FaTachometerAlt, FaSignOutAlt, FaSignInAlt
+  FaWhatsapp,  FaHome, FaBriefcase, FaCommentDots, FaUser, FaImages, FaBell, FaTachometerAlt, FaSignOutAlt, FaSignInAlt
 } from "react-icons/fa";
-
-import DrReumaLogo from "../assets/DrReumaLogo.svg";
 import { FaHouseMedicalCircleXmark } from "react-icons/fa6";
 
 function NavbarDrReuma() {
@@ -90,7 +88,7 @@ function NavbarDrReuma() {
           className="brand-drreuma"
         >
           <img
-            src={DrReumaLogo}
+            src="/DrReumaLogo.svg"
             alt="Dr Reuma"
             className="logo-drreuma"
           />
@@ -103,7 +101,7 @@ function NavbarDrReuma() {
               rel="noopener noreferrer"
               className="  navbar-consulta-btn fw-bold ad-flex"
             >
-              <FaWhatsapp className="me-2"/> Solicitar consulta
+              <FaWhatsapp className="me-0"/> Solicitar consulta
             </a>
         <Navbar.Toggle aria-controls="navbar-nav" />
 
@@ -115,19 +113,47 @@ function NavbarDrReuma() {
               <FaHome className="me-1"/> Inicio
             </Nav.Link>
 
-            <Nav.Link onClick={() => goToSection("servicios")}>
+            <Nav.Link
+              as={RouterLink}
+              to="/diagnosticos"
+              onClick={closeNavbar}
+            >
+              <FaStethoscope className="me-1"/> Diagnosticos
+            </Nav.Link>
+
+            <Nav.Link
+              as={RouterLink}
+              to="/servicios"
+              onClick={closeNavbar}
+            >
               <FaBriefcase className="me-1"/> Servicios
             </Nav.Link>
 
-            <Nav.Link onClick={() => goToSection("galeriaa")}>
-              <FaImages className="me-1"/> Galeria
+            <Nav.Link
+              as={RouterLink}
+              to="/galeria"
+              onClick={closeNavbar}
+            >
+              <FaImages className="me-1"/> Galería
             </Nav.Link>
 
-            <Nav.Link onClick={() => goToSection("testimonios")}>
+            <Nav.Link
+              as={RouterLink}
+              to="/preguntas-frecuentes"
+              onClick={closeNavbar}
+            >
+              <FaQuestionCircle className="me-1"/> Preguntas
+            </Nav.Link>
+
+            <Nav.Link
+              as={RouterLink}
+              to="/testimonios"
+              onClick={closeNavbar}
+            >
               <FaCommentDots className="me-1"/> Testimonios
             </Nav.Link>
 
-            <Nav.Link as={RouterLink} to="/about" onClick={closeNavbar}>
+            <Nav.Link as={RouterLink} to="/nosotros" onClick={closeNavbar}>
               <FaUser className="me-1"/> Nosotros
             </Nav.Link>
 
@@ -141,7 +167,7 @@ function NavbarDrReuma() {
                   onClick={() => setShowNotifications(!showNotifications)}
                   style={{ cursor: "pointer", position: "relative" }}
                 >
-                  <FaBell size={20}/> Notificación
+                  <FaBell size={13}/> Notificación
 
                   {unreadReviews.length > 0 && (
                     <Badge

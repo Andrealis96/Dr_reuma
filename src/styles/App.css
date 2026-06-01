@@ -101,6 +101,8 @@ html, body, #root {
 }
 .nav-link {
   cursor: pointer;
+  gap: 10px;
+  margin-left: 0.5px !important;
 }
 
 /* Logo */
@@ -115,9 +117,9 @@ html, body, #root {
 
 /* Links */
 .nav-links .nav-link {
-  color: #ffffff !important;
-  font-weight: 500;
-  font-size: 16px;
+  color: #ffffff;
+  font-weight: 400;
+  font-size: 14px;
   margin-left: 22px;
   position: relative;
   transition: all 0.3s ease;
@@ -132,7 +134,7 @@ html, body, #root {
   bottom: 0px;
   width: 0%;
   height: 3px;
-  background-color: #bbf7d0;
+  background-color: #05a8a8;
   transition: width 0.35s ease;
 }
 
@@ -141,7 +143,7 @@ html, body, #root {
 }
 
 .nav-links .nav-link:hover {
-  color: #bbf7d0 !important;
+  color: #75c0eb !important;
 }
 
 /* Botón hamburguesa */
@@ -176,10 +178,10 @@ height:55px;
 
 /* botón consulta */
 .navbar-consulta-btn{
-font-weight:450;
+font-weight:250px;
 border-radius:50px;
-padding:6px 12px;
-background: rgba(114, 198, 209, 0.322);
+padding:5px 12px;
+background: rgba(73, 210, 228, 0.548);
 color: #ffffff;
 font-size: 14px;
 }

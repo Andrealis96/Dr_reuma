@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { FaInstagram, FaFacebook, FaEnvelope, FaHome, FaBriefcase, FaCommentDots, FaUser, FaImages } from "react-icons/fa";
-import DrReumaLogo from "../assets/DrReumaLogo.svg";
 
 function Footer() {
 
@@ -20,7 +19,7 @@ function Footer() {
 
             {/* LOGO */}
             <img
-              src={DrReumaLogo}
+              src="/DrReumaLogo.svg"
               alt="Dr Reuma"
               height="120"
             />
