@@ -48,6 +48,11 @@ const [citaSeleccionada, setCitaSeleccionada] = useState(null);
   const [vistaActual, setVistaActual] = useState("dayGridMonth");
   const [horariosDisponibles, setHorariosDisponibles] = useState([]);
 
+  const [rangoHoras, setRangoHoras] = useState({
+  min: "09:00:00",
+  max: "19:00:00"
+});
+
   // PARSE FECHA
   // =========================
   const parseFecha = (fecha) => {
@@ -80,6 +85,25 @@ const [citaSeleccionada, setCitaSeleccionada] = useState(null);
     return horarios;
   };
 
+  const obtenerRangoDia = (fecha) => {
+  const [y, m, d] = fecha.split("-").map(Number);
+  const day = new Date(y, m - 1, d).getDay();
+
+  if (day === 1 || day === 2 || day === 3) {
+    return { min: "15:00:00", max: "18:00:00" };
+  }
+
+  if (day === 4) {
+    return { min: "09:00:00", max: "13:30:00" };
+  }
+
+  if (day === 5 || day === 6) {
+    return { min: "09:00:00", max: "18:00:00" };
+  }
+
+  return { min: "09:00:00", max: "18:00:00" };
+};
+
   const obtenerHorariosDisponibles = async (fecha) => {
 
     const [y, m, d] = fecha.split("-").map(Number);
@@ -101,7 +125,7 @@ const [citaSeleccionada, setCitaSeleccionada] = useState(null);
         ];
       }
     else if (day === 5) horariosBase = generarHorarios("09:00", "18:00");
-    else if (day === 6) horariosBase = generarHorarios("08:00", "18:00");
+    else if (day === 6) horariosBase = generarHorarios("09:00", "18:00");
     else if (day === 0) return [];
 
     const q = query(collection(db, "citas"), where("fecha", "==", fecha));
@@ -557,8 +581,10 @@ const guardarCita = async (data) => {
         <FullCalendar
           ref={calendarRef}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          initialView="dayGridMonth"
           nowIndicator={true}
+          initialView="dayGridMonth"
+          showNonCurrentDates={false}
+          fixedWeekCount={false}
           locale={esLocale} 
           events={eventos}
           editable
@@ -567,10 +593,18 @@ const guardarCita = async (data) => {
           eventDrop={handleEventDrop}
           datesSet={handleDatesSet}
           dateClick={(info) => {
-            setFechaSeleccionada(info.dateStr);
-            info.view.calendar.gotoDate(info.dateStr);
-            info.view.calendar.changeView("timeGridDay");
-          }}
+  const fecha = info.dateStr;
+
+  const rango = obtenerRangoDia(fecha);
+  setRangoHoras(rango);
+  setFechaSeleccionada(fecha);
+
+  setTimeout(() => {
+    const calendarApi = info.view.calendar;
+    calendarApi.gotoDate(fecha);
+    calendarApi.changeView("timeGridDay");
+  }, 0);
+}}
             headerToolbar={{
             left: "prev,next today",
             center: "title",
@@ -581,10 +615,8 @@ const guardarCita = async (data) => {
             allDaySlot={false}
 
             // 🔥 EMPEZAR DESDE LAS 08:00
-            slotMinTime="08:00:00"
-
-            // (opcional recomendado)
-            slotMaxTime="20:00:00"
+           slotMinTime="08:00:00"
+slotMaxTime="20:00:00"
 
             eventTimeFormat={{
               hour: "2-digit",
