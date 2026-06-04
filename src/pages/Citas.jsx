@@ -466,7 +466,19 @@ const guardarCita = async (data) => {
 <div className="mb-3">
   <FaWhatsapp className="celeste me-2" />
   <strong className="celeste"> | Teléfono:</strong>{" "}
-  {citaSeleccionada?.telefono || "-"}
+
+  {citaSeleccionada?.telefono ? (
+    <a
+      href={`https://wa.me/${citaSeleccionada.telefono.replace(/\D/g, "")}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-success text-decoration-none fw-semibold"
+    >
+      {citaSeleccionada.telefono} 📲 Enviar mensaje por WhatsApp 
+    </a>
+  ) : (
+    "-"
+  )}
 </div>
 
 <div className="mb-3">
