@@ -99,7 +99,7 @@ function NavbarDrReuma() {
               href={whatsappLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="  navbar-consulta-btn fw-bold ad-flex"
+              className="  navbar-consulta-btn fw-bold"
             >
               <FaWhatsapp className="me-0"/> Solicitar consulta
             </a>

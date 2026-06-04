@@ -117,6 +117,9 @@ html, body, #root {
 
 /* Links */
 .nav-links .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   color: #ffffff;
   font-weight: 400;
   font-size: 14px;
@@ -2225,6 +2228,15 @@ html, body, #root {
 }
 
 /* ................ CITAS .......................*/
+
+.card-header {
+  background:  rgb(9, 154, 173) !important;
+}
+
+.btn-cita {
+  background:  rgb(9, 154, 173) !important;
+}
+
 /* ===== CONTENEDOR GENERAL ===== */
 .fc {
   border: 1px solid rgba(0,0,0,0.1);
@@ -2232,8 +2244,12 @@ html, body, #root {
   overflow: hidden;
   background: #fff;
   font-family: 'Inter', sans-serif;
+  max-width: 100%;
 }
 
+.fc-view-harness {
+  overflow-x: auto;
+}
 /* ===== HEADER (MES Y BOTONES) ===== */
 .fc .fc-toolbar {
   padding: 10px 15px;
@@ -2262,11 +2278,11 @@ html, body, #root {
 
 .fc .fc-button:hover {
   background: #e0f2fe;
-  color: #0d6efd;
+  color:rgb(9, 154, 173);
 }
 
 .fc .fc-button-active {
-  background: #0d6efd !important;
+  background: rgb(9, 154, 173) !important;
   color: white !important;
 }
 
@@ -2302,16 +2318,16 @@ html, body, #root {
 
 /* Hoy */
 .fc-day-today {
-  background: #e0f2fe !important;
+  background: rgba(9, 154, 173, 0.315) !important;
 }
 
 /* ===== FIN DE SEMANA ===== */
 .fc-day-sat {
-  background: #faf5ff !important;
+  background: #eae7ec !important;
 }
 
 .fc-day-sun {
-  background: #fff1f2 !important;
+  background: #ffd2d5 !important;
 }
 
 /* ===== EVENTOS ===== */
@@ -2323,6 +2339,11 @@ html, body, #root {
   font-weight: 500;
 }
 
+.fc-timegrid-now-indicator-arrow {
+  border-color: #0dcaf0 !important;
+}
+
+
 /* 🟢 Presencial */
 .evento-presencial {
   background-color: #22c55e !important;
@@ -2332,20 +2353,20 @@ html, body, #root {
 
 /* 🔵 Virtual */
 .evento-virtual {
-  background-color: #3b82f6 !important;
+  background-color:rgb(9, 154, 173) !important;
   border: none !important;
   color: #fff !important;
 }
 
 /* Sábado (morado) */
 .fc-event[style*="#6f42c1"] {
-  background-color: #a855f7 !important;
+  background-color: #e0beff !important;
 }
 
 /* ===== HORA (VISTA SEMANA) ===== */
 .fc-timegrid-slot-label {
   font-size: 11px;
-  color: #666;
+  color: rgb(9, 154, 173);
 }
 
 /* ===== SCROLL ===== */

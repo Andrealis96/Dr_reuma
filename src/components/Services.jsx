@@ -183,7 +183,16 @@ if (
 
 // 🟡 JUEVES (mañana)
 else if (diaSemana === "jueves") {
-  horariosBase = generarHorarios(9, 11);
+    horariosBase = [
+    "09:00",
+    "09:30",
+    "10:00",
+    "10:30",
+    "11:00",
+    "11:30",
+    "12:00",
+    "13:20"
+  ];
 }
 
 // 🔵 SÁBADO (solo virtual)
