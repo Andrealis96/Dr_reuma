@@ -2318,16 +2318,16 @@ html, body, #root {
 
 /* Hoy */
 .fc-day-today {
-  background: rgba(9, 154, 173, 0.315) !important;
+  background: rgba(9, 154, 173, 0.158) !important;
 }
 
 /* ===== FIN DE SEMANA ===== */
 .fc-day-sat {
-  background: #eae7ec !important;
+  background: #ffe0e2 !important;
 }
 
 .fc-day-sun {
-  background: #ffd2d5 !important;
+  background: #ffe0e2 !important;
 }
 
 /* ===== EVENTOS ===== */
@@ -2344,23 +2344,41 @@ html, body, #root {
 }
 
 
+
 /* 🟢 Presencial */
 .evento-presencial {
-  background-color: #22c55e !important;
+  background-color: #00d84f !important;
   border: none !important;
-  color: #fff !important;
+}
+
+.evento-presencial .fc-event-time {
+  color: #ffffff !important;
+  font-weight: 1000;
+  margin-right: 7% !important;
+}
+
+.evento-presencial .fc-event-title {
+  color: #000000 !important;
 }
 
 /* 🔵 Virtual */
 .evento-virtual {
-  background-color:rgb(9, 154, 173) !important;
+  background-color:rgb(1, 185, 209) !important;
   border: none !important;
-  color: #fff !important;
+}
+
+.evento-virtual .fc-event-time {
+  color: #ffffff !important;
+  font-weight: 1000;
+}
+
+.evento-virtual .fc-event-title {
+  color: #000000 !important;
 }
 
 /* Sábado (morado) */
 .fc-event[style*="#6f42c1"] {
-  background-color: #e0beff !important;
+  background-color: #ead5fd !important;
 }
 
 /* ===== HORA (VISTA SEMANA) ===== */

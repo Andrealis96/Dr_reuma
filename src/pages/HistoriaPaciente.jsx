@@ -69,12 +69,19 @@ function HistoriaPaciente() {
     const diagRef = collection(db, "diagnosticos");
 
     const unsubDiag = onSnapshot(diagRef, (snap) => {
-      const datos = snap.docs.map((d) => ({
-        id: d.id,
-        ...d.data()
-      }));
-      setDiagnosticos(datos);
-    });
+    const datos = snap.docs.map((d) => ({
+      id: d.id,
+      ...d.data()
+    }));
+
+    datos.sort((a, b) =>
+      a.nombre.localeCompare(b.nombre, "es", {
+        sensitivity: "base"
+      })
+    );
+
+    setDiagnosticos(datos);
+  });
 
     return () => {
       unsubConsultas();
@@ -407,7 +414,7 @@ Se extiende el presente certificado a solicitud del interesado/a para ser presen
                 <h6 className="fw-bold celeste ">DIAGNÓSTICO</h6>
 
                 <select
-                  className="form-control mb-3"
+                  className="form-select mb-3"
                   value={diagnosticoSeleccionado}
                   onChange={(e) => setDiagnosticoSeleccionado(e.target.value)}
                   required
@@ -431,7 +438,7 @@ Se extiende el presente certificado a solicitud del interesado/a para ser presen
 
                   <button
                     type="button"
-                    className="btn btn-info"
+                    className="btn btn-cita text-white"
                     onClick={agregarDiagnostico}
                   >
                     <FaPlus />
@@ -460,7 +467,7 @@ Se extiende el presente certificado a solicitud del interesado/a para ser presen
                   Receta médica
                 </button>
 
-                <button className="btn btn-info my-3 fw-bold">
+                <button className="btn btn-cita text-white  my-3 fw-bold">
                   GUARDAR CONSULTA
                 </button>
               </div>
