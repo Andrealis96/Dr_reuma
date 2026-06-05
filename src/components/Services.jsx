@@ -29,6 +29,7 @@ function Services() {
     nombre: "",
     email: "",
     telefono: "",
+    Dni:"",
     tipo: "presencial",
     fecha: "",
     hora: ""
@@ -176,28 +177,21 @@ if (
   horariosBase = [
     "15:00", "15:30",
     "16:00", "16:30",
-    "17:00", "17:30",
-    "18:00"
+    "17:00", "17:30"
   ];
 }
 
 // 🟡 JUEVES (mañana)
 else if (diaSemana === "jueves") {
-    horariosBase = [
-    "09:00",
-    "09:30",
-    "10:00",
-    "10:30",
-    "11:00",
-    "11:30",
-    "12:00",
-    "13:20"
-  ];
+    horariosBase =["09:30","13:20"];
 }
 
 // 🔵 SÁBADO (solo virtual)
 else if (diaSemana === "sábado") {
-  horariosBase = generarHorarios(8, 18);
+  horariosBase = [
+    "10:00", "10:30",
+    "11:30", "12:30"
+  ];
 }
     // 🔥 traer ocupados
     const q = query(
@@ -505,6 +499,18 @@ useEffect(() => {
     </div>
 
     <div className="col-md-6">
+      <input
+        type="text"
+        name="Dni"
+        placeholder="Dni"
+        className="form-control"
+        required
+        value={form.Dni}
+        onChange={handleChange}
+      />
+    </div>
+
+    <div className="col-md-6">
 
       <select
         name="tipo"
@@ -644,6 +650,7 @@ useEffect(() => {
       nombre: "",
       email: "",
       telefono: "",
+      Dni: "",
       tipo: "virtual",
       fecha: "",
       hora: ""

@@ -2228,6 +2228,53 @@ html, body, #root {
 }
 
 /* ................ CITAS .......................*/
+.btn-horario{
+  min-width: 95px;
+  border-radius: 12px;
+  font-weight: 600;
+  background-color:  #8cc5fa48 !important;
+  color: #000000 !important; 
+}
+
+@media (max-width: 768px){
+  .btn-horario{
+    flex: 1 0 45%;
+  }
+}
+
+.horarios-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(90px,1fr));
+  gap:10px;
+}
+
+.detalle-cita p{
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.cabecera-detallecita{
+  background-color: rgb(9, 154, 173);
+  color:rgb(255, 255, 255); 
+}
+
+.horarios-disponibles{
+  background-color: rgb(9, 154, 173);
+  border-radius: 16px;
+  padding: 10px;
+}
+
+.btn-pacientecita {
+  background:  #90fa8c7c !important;
+  border-color:#000; 
+  border-radius: 12px;
+  color:  rgb(9, 154, 173);
+} 
+
+.nombre-paciente {
+  color: #000000; 
+}
 
 .card-header {
   background:  rgb(9, 154, 173) !important;
@@ -2347,7 +2394,7 @@ html, body, #root {
 
 /* 🟢 Presencial */
 .evento-presencial {
-  background-color: #00d84f !important;
+  background-color: #01c248 !important;
   border: none !important;
 }
 

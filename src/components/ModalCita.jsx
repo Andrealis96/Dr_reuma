@@ -1,202 +1,200 @@
 import { useState, useEffect } from "react";
-import { Modal, Button, Form } from "react-bootstrap";
+import { Modal, Button } from "react-bootstrap";
+import { InputGroup, Form } from "react-bootstrap";
 import {
   FaUser,
-  FaPhone,
+  FaIdCard,
   FaCalendarAlt,
+  FaWhatsapp,
   FaClock,
-  FaStethoscope
+  FaLaptopMedical
 } from "react-icons/fa";
+
 function ModalCita({
   show,
   onHide,
   onGuardar,
   citaEditar,
   fechaSeleccionada,
-  horariosDisponibles,
-  obtenerHorariosDisponibles
-}) 
-{
+  horaPreseleccionada,
+  horariosDisponibles
+}) {
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
   const [fecha, setFecha] = useState("");
+  const [Dni, setDni] = useState("");
   const [hora, setHora] = useState("");
   const [tipo, setTipo] = useState("presencial");
-  const [horarios, setHorarios] = useState([]);
 
+  // cargar edición
 useEffect(() => {
-  if (fechaSeleccionada) {
-    setFecha(fechaSeleccionada);
-  }
-}, [fechaSeleccionada]);
-
-useEffect(() => {
-  if (show) {
-    setNombre("");
-    setTelefono("");
-    setHora("");
-    setTipo("presencial");
-
-    if (fechaSeleccionada) {
-      setFecha(fechaSeleccionada);
-    } else {
-      setFecha("");
-    }
-  }
-}, [show, fechaSeleccionada]);
-
-useEffect(() => {
-  const cargarHorarios = async () => {
-    if (!fecha) {
-      setHorarios([]);
-      return;
-    }
-
-    const disponibles =
-      await obtenerHorariosDisponibles(fecha);
-
-    setHorarios(disponibles);
-  };
-
-  cargarHorarios();
-}, [fecha, obtenerHorariosDisponibles]);
-
-
-useEffect(() => {
-
   if (citaEditar) {
-
     setNombre(citaEditar.nombre || "");
     setTelefono(citaEditar.telefono || "");
+    setDni(citaEditar.Dni || "");
     setFecha(citaEditar.fecha || "");
     setHora(citaEditar.hora || "");
     setTipo(citaEditar.tipo || "presencial");
-
+  } else {
+    setNombre("");
+    setTelefono("");
+    setDni("");
+    setHora("");
+    setTipo("presencial");
   }
-
 }, [citaEditar]);
 
-const handleGuardar = () => {
+  // fecha y hora seleccionada
+useEffect(() => {
+  if (fechaSeleccionada) setFecha(fechaSeleccionada);
+}, [fechaSeleccionada]);
 
-  if (!nombre || !fecha || !hora) {
-    alert("Completa los campos obligatorios");
-    return;
+useEffect(() => {
+  if (!show) return;
+
+  if (citaEditar) return;
+
+  setHora(horaPreseleccionada || "");
+}, [show, horaPreseleccionada, citaEditar]);
+
+useEffect(() => {
+  if (show) {
+    if (!citaEditar) {
+      setNombre("");
+      setTelefono("");
+      setDni("");
+      setTipo("presencial");
+
+      // ❌ NO borres hora si viene preseleccionada
+      if (!horaPreseleccionada) {
+        setHora("");
+      }
+    }
   }
+}, [show, citaEditar, horaPreseleccionada]);
 
-  // 🔥 VALIDACIÓN 2: hora obligatoria en formato correcto
-  if (!hora.match(/^([01]\d|2[0-3]):([0-5]\d)$/)) {
-    alert("Hora inválida");
-    return;
-  }
+  const handleGuardar = () => {
+    if (!nombre || !fecha || !hora) return;
 
-  onGuardar({ nombre, telefono, fecha, hora, tipo });
+    onGuardar({ nombre, telefono, Dni, fecha, hora, tipo });
 
-  setNombre("");
-  setTelefono("");
-  setHora("");
-  setTipo("presencial");
-
-  onHide();
-};
+    onHide();
+  };
 
   return (
-    <Modal  show={show} onHide={onHide} centered>
-      <Modal.Header className="celeste" closeButton>
+    <Modal show={show} onHide={onHide} centered>
+
+      <Modal.Header className="cabecera-detallecita" closeButton>
         <Modal.Title>
-            {citaEditar ? (
-                <>
-                <FaUser className="me-2 celeste " />
-                EDITAR CITA
-                </>
-            ) : (
-                <>
-                <FaCalendarAlt className="me-2 celeste" />
-                NUEVA CITA
-                </>
-            )}
+          {citaEditar ? "EDITAR CITA" : "NUEVA CITA"}
         </Modal.Title>
       </Modal.Header>
 
       <Modal.Body>
-        <Form.Group className="mb-3">
-          <Form.Label>
-            <FaUser className="me-2 celeste " />
-            <span className="fw-bold celeste">| Nombre</span>
-            </Form.Label>
-          <Form.Control
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-          />
-        </Form.Group>
 
-        <Form.Group className="mb-3">
-          <Form.Label>
-            <FaPhone className="me-2 celeste" />
-            <span className="fw-bold celeste">| Teléfono</span>
-            </Form.Label>
-          <Form.Control
-            value={telefono}
-            onChange={(e) => setTelefono(e.target.value)}
-          />
-        </Form.Group>
+        <InputGroup className="mb-2 celeste">
+            <InputGroup.Text>
+                <FaUser className="celeste" />
+            </InputGroup.Text>
 
-        <Form.Group className="mb-3">
-           <Form.Label>
-            <FaCalendarAlt className="me-2 celeste" />
-            <span className="fw-bold celeste">| Fecha</span>
-            </Form.Label>
             <Form.Control
-                    type="date"
-                    value={fecha}
-                    onChange={(e) => setFecha(e.target.value)}
-                    />
-        </Form.Group>
+                placeholder="Nombres Completos"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+            />
+        </InputGroup>
 
-        <Form.Group className="mb-3">
-           <Form.Label>
-            <FaClock className="me-2 celeste" />
-            <span className="fw-bold celeste">| Hora</span>
-            </Form.Label>
+        <InputGroup className="mb-2 celeste">
+            <InputGroup.Text>
+                <FaWhatsapp  className="celeste"/>
+            </InputGroup.Text>
+
+            <Form.Control
+                placeholder="Teléfono"
+                value={telefono}
+                onChange={(e) => setTelefono(e.target.value)}
+            />
+        </InputGroup>
+
+        <InputGroup className="mb-2">
+            <InputGroup.Text>
+                <FaIdCard  className="celeste"/>
+            </InputGroup.Text>
+
+            <Form.Control
+                placeholder="DNI"
+                value={Dni}
+                onChange={(e) => setDni(e.target.value)}
+            />
+        </InputGroup>
+
+        <InputGroup className="mb-2">
+            <InputGroup.Text>
+                <FaCalendarAlt  className="celeste"/>
+            </InputGroup.Text>
+
+            <Form.Control
+                type="date"
+                value={fecha}
+                onChange={(e) => setFecha(e.target.value)}
+            />
+            </InputGroup>
+
+        <InputGroup className="mb-2">
+            <InputGroup.Text>
+                <FaClock className="celeste"/>
+            </InputGroup.Text>
+
             <Form.Select
-                    value={hora}
-                    onChange={(e) => setHora(e.target.value)}
-                    >
-                    <option value="">
-                        Selecciona hora
+                value={hora}
+                onChange={(e) => setHora(e.target.value)}
+            >
+                <option value="">Selecciona hora</option>
+
+                {citaEditar?.hora &&
+                !horariosDisponibles.includes(citaEditar.hora) && (
+                    <option value={citaEditar.hora}>
+                    {citaEditar.hora}
                     </option>
+                )}
 
-                    {horarios.map((h, i) => (
-                        <option key={i} value={h}>
-                        {h}
-                        </option>
-                    ))}
-                    </Form.Select>
-        </Form.Group>
+                {horariosDisponibles.map((h, i) => (
+                <option key={i} value={h}>
+                    {h}
+                </option>
+                ))}
+            </Form.Select>
+            </InputGroup>
 
-        <Form.Group>
-           <Form.Label>
-            <FaStethoscope className="me-2 celeste" />
-            <span className="fw-bold celeste">| Tipo de consulta</span>
-            </Form.Label>
-          <Form.Select
+        <InputGroup className="mb-2">
+        <InputGroup.Text>
+            <FaLaptopMedical  className="celeste"/>
+        </InputGroup.Text>
+
+        <Form.Select
             value={tipo}
             onChange={(e) => setTipo(e.target.value)}
-          >
+        >
             <option value="presencial">🟢 Presencial</option>
             <option value="virtual">🔵 Virtual</option>
-          </Form.Select>
-        </Form.Group>
+        </Form.Select>
+        </InputGroup>
+
       </Modal.Body>
 
       <Modal.Footer>
+
         <Button variant="secondary" onClick={onHide}>
-          Cancelar
+          CANCELAR
         </Button>
 
-        <Button className="btn-cita" onClick={handleGuardar}>
-            {citaEditar ? "Actualizar cita" : "Guardar cita"}
-            </Button>
+        <Button 
+            onClick={handleGuardar}>
+          GUARDAR
+        </Button>
+
       </Modal.Footer>
+
     </Modal>
   );
 }
