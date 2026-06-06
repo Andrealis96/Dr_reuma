@@ -2527,3 +2527,31 @@ html, body, #root {
     flex: 0 0 auto;
   }
 }
+
+/*tabla de pacientes del dia*/
+.table th,
+.table td {
+  border: 1px solid rgba(9, 154, 173, 0.25) !important;
+}
+
+.table thead th {
+  border-bottom: 2px solid rgb(9, 154, 173) !important;
+}
+
+/* Solo para celulares */
+@media (max-width: 768px) {
+
+  .table {
+    font-size: 0.80rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.4rem 0.3rem;
+    white-space: nowrap;
+  }
+
+  .table th svg {
+    font-size: 0.75rem;
+  }
+}

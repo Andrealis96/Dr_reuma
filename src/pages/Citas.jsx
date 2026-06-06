@@ -240,47 +240,52 @@ const capitalizarNombre = (texto) => {
 
       {/* TABLA DE HOY (LA TUYA ORIGINAL) */}
       <div className="card shadow-sm mb-4">
-        <div className="card-header  text-white fw-bold">
-          PACIENTES DE HOY
+        <div className="card-header  text-center text-white fw-bold">
+          <h3>  
+            PACIENTES DE HOY
+          </h3>
         </div>
 
-        <div className="card-body p-0">
+        <div className="card-body p-0 table-responsive">
 
           {pacientesHoy.length === 0 ? (
             <div className="p-3 text-center">
               No hay citas programadas
             </div>
           ) : (
-            <table className="table  mb-0">
+            <table className="table table-sm mb-0">
               <thead>
-                <tr>
+                <tr className="text-center">
                   <th>
-                      <FaClock className="me-1 celeste" />
+                      <FaClock className="me-1 celeste text-center" /> <br />
+                       <span className="celeste">
+                        Hora
+                       </span>
                     </th>
 
                     <th>
-                      <FaUser className="me-2 celeste" />
+                      <FaUser className="me-2 celeste" /><br />
                       <span className="celeste">
                       Paciente
                       </span>
                     </th>
 
                     <th>
-                      <FaIdCard className="me-2 celeste" />
+                      <FaIdCard className="me-2 celeste" /> <br />
                       <span className="celeste">
                         Dni
                       </span>
                     </th>
 
                     <th>
-                      <FaWhatsapp className="me-2 celeste" />
+                      <FaWhatsapp className="me-2 celeste" /> <br />
                       <span className="celeste">
-                        Teléf.
+                        Teléfono
                       </span>
                     </th>
 
                     <th>
-                      <FaStethoscope className="me-2 celeste" />
+                      <FaStethoscope className="me-2 celeste" /> <br />
                       <span className="celeste">
                         Tipo
                       </span>
@@ -288,7 +293,7 @@ const capitalizarNombre = (texto) => {
                 </tr>
               </thead>
 
-              <tbody>
+              <tbody className="text-center">
                 {pacientesHoy.map(c => (
                   <tr key={c.id}>
                     <td>{c.hora}</td>
@@ -309,13 +314,11 @@ const capitalizarNombre = (texto) => {
                     <td>
                       {c.tipo === "presencial" ? (
                         <>
-                          🟢 <FaUser className="me-1" />
-                          Presencial
+                          🟢 Presencial
                         </>
                       ) : (
                         <>
-                          🔵 <FaVideo className="me-1" />
-                          Virtual
+                          🔵 Virtual
                         </>
                       )}
                     </td>
