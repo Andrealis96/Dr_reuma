@@ -6,8 +6,9 @@ import interactionPlugin from "@fullcalendar/interaction";
 import esLocale from "@fullcalendar/core/locales/es";
 import ModalCita from "../components/ModalCita";
 import ModalDetalle from "../components/ModalDetalle";
-
 import {
+  FaChevronLeft,
+  FaChevronRight,
   FaPlus,
   FaWhatsapp,
   FaCalendarAlt,
@@ -50,7 +51,7 @@ function Citas() {
   const [horaPreseleccionada, setHoraPreseleccionada] = useState(null);
 
   const [horariosDisponibles, setHorariosDisponibles] = useState([]);
-
+  const detalleDiaRef = useRef(null);
   const [showDetalle, setShowDetalle] = useState(false);
   const [citaSeleccionada, setCitaSeleccionada] = useState(null);
 
@@ -133,6 +134,15 @@ function Citas() {
     return base.filter(h => !ocupados.includes(h));
   };
 
+ useEffect(() => {
+  if (diaSeleccionado && detalleDiaRef.current) {
+    window.scrollTo({
+      top: detalleDiaRef.current.offsetTop - 80,
+      behavior: "smooth"
+    });
+  }
+}, [diaSeleccionado]);
+
   // ================= PACIENTES =================
   const pacientesDelDia = citasDB
     .filter(c => c.fecha === diaSeleccionado)
@@ -197,6 +207,21 @@ const capitalizarNombre = (texto) => {
      .replace(/^./, c => c.toUpperCase())
   : "";
 
+const cambiarDia = (direccion) => {
+  if (!diaSeleccionado) return;
+
+  const fecha = new Date(`${diaSeleccionado}T00:00:00`);
+
+  fecha.setDate(
+    fecha.getDate() + direccion
+  );
+
+  const nuevaFecha = fecha
+    .toISOString()
+    .split("T")[0];
+
+  setDiaSeleccionado(nuevaFecha);
+}; 
 
   return (
     <div className="container py-4">
@@ -343,23 +368,57 @@ const capitalizarNombre = (texto) => {
           initialView="dayGridMonth"
           events={eventos}
           height="auto"
+          headerToolbar={{
+            left: "title",
+            right: "prev,next"
+          }}
           eventTimeFormat={{
             hour: "2-digit",
             minute: "2-digit",
             hour12: false
           }}
-          dateClick={(info) => setDiaSeleccionado(info.dateStr)}
+         dateClick={(info) => {
+            setDiaSeleccionado(info.dateStr);
+          }}
+          eventClick={(info) => {
+            setDiaSeleccionado(
+              info.event.startStr.split("T")[0]
+            );
+          }}
         />
       </div>
 
       {/* BLOQUE DÍA SELECCIONADO */}
       {diaSeleccionado && (
-        <div className="card mt-3 p-3">
+        <div
+            ref={detalleDiaRef}
+            className="card mt-3 p-3"
+          >
 
-          <h5 className="fw-bold celeste">
-          <FaCalendarAlt className="me-3 celeste" />
-            {fechaFormateada}
-          </h5> <br />
+           <div className="d-flex justify-content-between align-items-center mb-3">
+
+            <h5 className="fw-bold celeste mb-0">
+              <FaCalendarAlt className="me-2" />
+              {fechaFormateada}
+            </h5>
+
+            <div>
+              <button
+                className="btn btn-citadias -sm me-2"
+                onClick={() => cambiarDia(-1)}
+              >
+                <FaChevronLeft />
+              </button>
+
+              <button
+                className="btn btn-citadias"
+                onClick={() => cambiarDia(1)}
+              >
+                <FaChevronRight />
+              </button>
+            </div>
+
+          </div>
 
           {pacientesDelDia.length === 0 ? (
             <p>No hay pacientes</p>
