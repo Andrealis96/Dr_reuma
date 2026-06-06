@@ -254,7 +254,7 @@ const cambiarDia = (direccion) => {
           </div>
         </div>
 
-        <div className="col-6 col-md-4">
+        <div className="col-12 col-md-4">
           <div className="stat-card h-100">
             <h6><FaUsers className="me-2 celeste" />Restantes</h6>
             <h4>{pacientesRestantes}</h4>
