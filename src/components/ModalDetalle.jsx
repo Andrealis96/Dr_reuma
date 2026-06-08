@@ -15,7 +15,17 @@ function ModalDetalle({
   onEditar,
   onEliminar
 }) {
+
+  const formatearFecha = (fecha) => {
+    if (!fecha) return "";
+
+    const [anio, mes, dia] = fecha.split("-");
+
+    return `${dia}/${mes}/${anio}`;
+  };
+
   return (
+
     <Modal show={show} onHide={onHide} centered>
 <Modal.Header className="cabecera-detallecita" closeButton>
   <Modal.Title className="titulo-detallecita">
@@ -49,9 +59,9 @@ Hola ${cita.nombre}
 
 • Especialidad: Reumatología
 • Médico: Dr. Reuma (Dr. Tony Vélez)
-• Fecha: ${cita.fecha}
+• Fecha: ${formatearFecha(cita.fecha)}
 • Hora: ${cita.hora}
-• Lugar: San Martín 1355, Consultorios Externos Clínica San Agustín
+• Lugar: San Martín 1355, Consultorios Externos Clínica San Agustín.
 
 Le esperamos.
 
@@ -79,7 +89,7 @@ Muchas gracias.`
     <div className="detalle-linea">
       <FaCalendarAlt className="detalle-icono" />
       <strong>Fecha:</strong>
-      <span>{cita?.fecha}</span>
+      <span>{formatearFecha(cita?.fecha)}</span>
     </div>
 
     <div className="detalle-linea">

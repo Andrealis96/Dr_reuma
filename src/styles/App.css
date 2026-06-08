@@ -2279,6 +2279,75 @@ html, body, #root {
   }
 }
 
+.buscador-citas {
+  border-radius: 12px;
+  border: 1px solid rgb(255, 255, 255);
+}
+
+.buscador-paciente{
+  background: rgba(9, 154, 173, 0.103) !important;
+}
+
+.buscador-citas:focus {
+  border-color: rgb(255, 255, 255);
+  box-shadow: 0 0 0 0.2rem rgb(255, 255, 255);
+}
+
+.buscador-paciente{
+  border-radius: 12px;
+}
+
+.resultado-paciente{
+  border: 1px solid rgb(255, 255, 255);
+  border-left-color:  rgb(9, 154, 173);
+  border-radius: 16px;
+  transition: .2s;
+  background: #fff;
+}
+
+.buscador-wrapper{
+  position: relative;
+}
+
+.buscador-paciente{
+  border-radius: 14px;
+  padding-left: 40px !important;
+  padding-right: 40px !important;
+  height: 45px;
+}
+
+.buscador-icono{
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  color: rgb(9,154,173);
+}
+
+.btn-limpiar{
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: #999;
+  font-size: 18px;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.btn-limpiar:hover{
+  color: #dc3545;
+}
+@media (max-width:768px){
+
+  .resultado-paciente{
+    font-size: .9rem;
+  }
+
+}
 .titulo-detallecita{
   width: 100%;
   text-align: center;

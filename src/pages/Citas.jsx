@@ -14,6 +14,7 @@ import {
   FaCalendarAlt,
   FaStethoscope,
   FaUserClock,
+  FaSearch,
   FaIdCard,
   FaUser,
   FaUsers,
@@ -49,7 +50,7 @@ function Citas() {
   const normalizarHora = (h) => h?.slice(0,5);
   const [fechaSeleccionada, setFechaSeleccionada] = useState(null);
   const [horaPreseleccionada, setHoraPreseleccionada] = useState(null);
-
+  const [busquedaPaciente, setBusquedaPaciente] = useState(""); 
   const [horariosDisponibles, setHorariosDisponibles] = useState([]);
   const detalleDiaRef = useRef(null);
   const [showDetalle, setShowDetalle] = useState(false);
@@ -166,6 +167,24 @@ const obtenerHorariosDisponibles = (fecha) => {
   const pacientesRestantes = pacientesHoy.filter(c => {
     return new Date(`${c.fecha}T${c.hora}`) >= new Date();
   }).length;
+
+  const resultadosBusqueda =
+  busquedaPaciente.trim() === ""
+    ? []
+    : citasDB
+        .filter(c =>
+          c.nombre?.toLowerCase().includes(
+            busquedaPaciente.toLowerCase()
+          ) ||
+          c.Dni?.toString().includes(
+            busquedaPaciente
+          )
+        )
+        .sort((a, b) => {
+          const fechaA = new Date(`${a.fecha}T${a.hora}`);
+          const fechaB = new Date(`${b.fecha}T${b.hora}`);
+          return fechaB - fechaA;
+        });
 
   const abrirDetalle = (cita) => {
   setCitaSeleccionada(cita);
@@ -431,7 +450,78 @@ const cambiarDia = (direccion) => {
             className="card mt-3 p-3"
           >
 
-          <div className="agenda-header mb-3">
+<div className="card buscador-paciente  mt-3 p-3">
+<div className="buscador-wrapper">
+
+  <span className="buscador-icono">
+    <FaSearch />
+  </span>
+
+  <input
+    type="text"
+    className="form-control buscador-paciente"
+    placeholder="Buscar paciente o DNI..."
+    value={busquedaPaciente}
+    onChange={(e) =>
+      setBusquedaPaciente(e.target.value)
+    }
+  />
+
+  {busquedaPaciente && (
+    <button
+      type="button"
+      className="btn-limpiar"
+      onClick={() => setBusquedaPaciente("")}
+    >
+      ✕
+    </button>
+  )}
+
+</div>
+
+  {busquedaPaciente.trim() !== "" && (
+    <div className="mt-3">
+
+      {resultadosBusqueda.length === 0 ? (
+        <p className="text-muted mb-0">
+          No se encontraron pacientes.
+        </p>
+      ) : (
+        resultadosBusqueda.map(c => (
+          <div
+            key={c.id}
+            className="resultado-paciente p-2 mb-2"
+            onClick={() => {
+              setCitaSeleccionada(c);
+              setShowDetalle(true);
+            }}
+            style={{ cursor: "pointer" }}
+          >
+            <strong>
+              {capitalizarNombre(c.nombre)}
+            </strong>
+
+            <br />
+
+            <small>
+              DNI: {c.Dni}
+            </small>
+
+            <br />
+
+            <small>
+              📅 {c.fecha} | 🕒 {c.hora}
+            </small>
+          </div>
+        ))
+      )}
+
+    </div>
+  )}
+
+</div>
+<br />
+<div className="agenda-header mb-3">
 
   <h5 className="fw-bold celeste mb-0">
     <FaCalendarAlt className="me-2" />
