@@ -46,7 +46,7 @@ function Citas() {
   const [citaEditar, setCitaEditar] = useState(null);
 
   const [diaSeleccionado, setDiaSeleccionado] = useState(null);
-
+  const normalizarHora = (h) => h?.slice(0,5);
   const [fechaSeleccionada, setFechaSeleccionada] = useState(null);
   const [horaPreseleccionada, setHoraPreseleccionada] = useState(null);
 
@@ -79,16 +79,13 @@ function Citas() {
     return () => unsub();
   }, []);
 
-  useEffect(() => {
-  const cargar = async () => {
-    if (!diaSeleccionado) return;
+useEffect(() => {
+  if (!diaSeleccionado) return;
 
-    const horarios = await obtenerHorariosDisponibles(diaSeleccionado);
-    setHorariosDisponibles(horarios);
-  };
+  const horarios = obtenerHorariosDisponibles(diaSeleccionado);
+  setHorariosDisponibles(horarios);
+}, [diaSeleccionado, citasDB]);
 
-  cargar();
-}, [diaSeleccionado]);
   // ================= HORARIOS =================
   const generarHorarios = (inicio, fin) => {
     const horarios = [];
@@ -110,29 +107,35 @@ function Citas() {
     return horarios;
   };
 
-  const obtenerHorariosDisponibles = async (fecha) => {
-    const [y, m, d] = fecha.split("-").map(Number);
-    const day = new Date(y, m - 1, d).getDay();
+const obtenerHorariosDisponibles = (fecha) => {
+  const [y, m, d] = fecha.split("-").map(Number);
+  const day = new Date(y, m - 1, d).getDay();
 
-    let base = [];
+  let base = [];
 
-    if (day === 1 || day === 2 || day === 3)
-      base = generarHorarios("15:00", "18:00");
-    else if (day === 4)
-      base = ["09:30","13:20"];
-    else if (day === 5)
-      base = generarHorarios("09:30", "17:00");
-    else if (day === 6)
-      base = generarHorarios("10:00", "12:30");
-    else return [];
+  if (day === 1 || day === 2 || day === 3)
+    base = generarHorarios("15:00", "18:00");
+  else if (day === 4)
+    base = ["09:30", "13:20"];
+  else if (day === 5)
+    base = generarHorarios("09:30", "17:00");
+  else if (day === 6)
+    base = generarHorarios("10:00", "12:30");
+  else
+    return [];
 
-    const q = query(collection(db, "citas"), where("fecha", "==", fecha));
-    const snap = await getDocs(q);
+  const ocupados = citasDB
+    .filter(c => c.fecha === fecha)
+    .map(c => String(c.hora).trim().slice(0, 5));
+ // 👇 PEGA ESTO AQUÍ
+  console.log("FECHA:", fecha);
+  console.log("OCUPADOS:", ocupados);
+  console.log("BASE:", base);
 
-    const ocupados = snap.docs.map(d => d.data().hora);
-
-    return base.filter(h => !ocupados.includes(h));
-  };
+  return base.filter(
+    h => !ocupados.includes(h.trim().slice(0, 5))
+  );
+};
 
  useEffect(() => {
   if (diaSeleccionado && detalleDiaRef.current) {
@@ -181,20 +184,53 @@ const capitalizarNombre = (texto) => {
 };
 
   // ================= GUARDAR =================
-  const guardarCita = async (data) => {
-    if (citaEditar) {
-      await updateDoc(doc(db, "citas", citaEditar.id), data);
-      setCitaEditar(null);
-      return;
-    }
+const guardarCita = async (data) => {
 
-    await addDoc(collection(db, "citas"), {
+  const q = query(
+    collection(db, "citas"),
+    where("fecha", "==", data.fecha),
+    where("hora", "==", data.hora)
+  );
+
+  const snap = await getDocs(q);
+
+  const existe = snap.docs.some(
+    d => d.id !== citaEditar?.id
+  );
+
+  if (existe) {
+    Swal.fire({
+      icon: "warning",
+      title: "Horario ocupado",
+      text: "Ya existe una cita agendada para esa hora."
+    });
+    return;
+  }
+
+  if (citaEditar) {
+    await updateDoc(
+      doc(db, "citas", citaEditar.id),
+      data
+    );
+
+    setCitaEditar(null);
+    setShowModal(false);
+    return;
+  }
+
+  await addDoc(
+    collection(db, "citas"),
+    {
       ...data,
       createdAt: new Date()
-    });
-  };
+    }
+  );
 
-  const fechaFormateada = diaSeleccionado
+  setShowModal(false);
+};
+
+
+const fechaFormateada = diaSeleccionado
   ? new Date(`${diaSeleccionado}T00:00:00`).toLocaleDateString(
       "es-ES",
       {
@@ -395,52 +431,69 @@ const cambiarDia = (direccion) => {
             className="card mt-3 p-3"
           >
 
-           <div className="d-flex justify-content-between align-items-center mb-3">
+          <div className="agenda-header mb-3">
 
-            <h5 className="fw-bold celeste mb-0">
-              <FaCalendarAlt className="me-2" />
-              {fechaFormateada}
-            </h5>
+  <h5 className="fw-bold celeste mb-0">
+    <FaCalendarAlt className="me-2" />
+    {fechaFormateada}
+  </h5>
 
-            <div>
-              <button
-                className="btn btn-citadias -sm me-2"
-                onClick={() => cambiarDia(-1)}
-              >
-                <FaChevronLeft />
-              </button>
+  <div className="agenda-flechas">
+    <button
+      className="btn btn-citadias me-2"
+      onClick={() => cambiarDia(-1)}
+    >
+      <FaChevronLeft />
+    </button>
 
-              <button
-                className="btn btn-citadias"
-                onClick={() => cambiarDia(1)}
-              >
-                <FaChevronRight />
-              </button>
-            </div>
+    <button
+      className="btn btn-citadias"
+      onClick={() => cambiarDia(1)}
+    >
+      <FaChevronRight />
+    </button>
+  </div>
 
-          </div>
+</div>
 
           {pacientesDelDia.length === 0 ? (
             <p>No hay pacientes</p>
           ) : (
             pacientesDelDia.map(c => (
               <div
-                key={c.id}
-                className="btn-pacientecita  p-2 mb-2"
-                style={{ cursor: "pointer" }}
-                onClick={() => {
-                  setCitaSeleccionada(c);
-                  setShowDetalle(true);
-                }}
-              >
-                <strong>{c.hora}</strong> 
-                <span
-                  className="fw-semibold text-black"
-                >
-                  {c.tipo === "presencial" ? " | 🟢  " : " | 🔵  "}
-                  {capitalizarNombre(c.nombre)}
-                </span>
-              </div>
+  key={c.id}
+  className="btn-pacientecita"
+  onClick={() => {
+    setCitaSeleccionada(c);
+    setShowDetalle(true);
+  }}
+>
+  <div className="d-flex justify-content-between align-items-center">
+
+    <div>
+      <div className="hora-paciente">
+        {c.hora}
+      </div>
+
+      <div className="nombre-paciente-dia">
+        {capitalizarNombre(c.nombre)}
+      </div>
+    </div>
+
+    <div>
+      {c.tipo === "presencial" ? (
+        <span className="tipo-presencial">
+          🟢 Presencial
+        </span>
+      ) : (
+        <span className="tipo-virtual">
+          🔵 Virtual
+        </span>
+      )}
+    </div>
+
+  </div>
+</div>
             ))
           )}
 
@@ -479,12 +532,17 @@ const cambiarDia = (direccion) => {
       {/* MODAL cita y modal detalle*/}
       <ModalCita
   show={showModal}
-  onHide={() => setShowModal(false)}
+ onHide={() => {
+    setShowModal(false);
+    setCitaEditar(null);
+  }}
   onGuardar={guardarCita}
   citaEditar={citaEditar}
   fechaSeleccionada={fechaSeleccionada || diaSeleccionado}
   horariosDisponibles={horariosDisponibles}
   horaPreseleccionada={horaPreseleccionada}
+  
+   obtenerHorariosDisponibles={obtenerHorariosDisponibles}
 />
 
 <ModalDetalle

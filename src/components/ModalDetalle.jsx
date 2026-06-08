@@ -17,75 +17,106 @@ function ModalDetalle({
 }) {
   return (
     <Modal show={show} onHide={onHide} centered>
+<Modal.Header className="cabecera-detallecita" closeButton>
+  <Modal.Title className="titulo-detallecita">
+    <FaCalendarAlt className="me-2" />
+    DETALLE DE LA CITA
+  </Modal.Title>
+</Modal.Header>
 
-      <Modal.Header className="cabecera-detallecita" closeButton>
-        <Modal.Title >📋 DETALLE DE CITA  </Modal.Title>
-      </Modal.Header>
+<Modal.Body>
 
-      <Modal.Body className="detalle-cita">
+  <div className="detalle-card">
 
-            <p>
-                <FaUser className="me-2 celeste" />
-                <strong className="me-2 celeste" >Paciente:</strong> {cita?.nombre}
-            </p>
+    <div className="detalle-linea">
+      <FaUser className="detalle-icono" />
+      <strong>Paciente:</strong>
+      <span>{cita?.nombre}</span>
+    </div>
 
-            <p>
-                <FaWhatsapp className="me-2 celeste" />
-                <strong className="me-2 celeste"  >Teléfono:</strong>{" "}
-                {cita?.telefono ? (
-                <a
-                    href={`https://wa.me/${cita.telefono.replace(/\D/g, "")}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-success text-decoration-none ms-1"
-                >
-                    {cita.telefono}
-                </a>
-                ) : (
-                "-"
-                )}
-            </p>
+    <div className="detalle-linea">
+      <FaWhatsapp className="detalle-icono" />
+      <strong>Teléfono:</strong>
 
-            <p>
-                <FaIdCard className="me-2 celeste" />
-                <strong className="me-2 celeste" >DNI:</strong> {cita?.Dni}
-            </p>
+      {cita?.telefono ? (
+        <a
+href={`https://wa.me/${cita.telefono.replace(/\D/g, "")}?text=${encodeURIComponent(
+`━━━━━━━━━━━━━━
+RECORDATORIO DE CITA MÉDICA
+━━━━━━━━━━━━━━
 
-            <p>
-                <FaCalendarAlt className="me-2 celeste" />
-                <strong className="me-2 celeste" >Fecha:</strong> {cita?.fecha}
-            </p>
+Hola ${cita.nombre}
 
-            <p>
-                <FaClock className="me-2 celeste" />
-                <strong className="me-2 celeste" >Hora:</strong> {cita?.hora}
-            </p>
+• Especialidad: Reumatología
+• Médico: Dr. Reuma (Dr. Tony Vélez)
+• Fecha: ${cita.fecha}
+• Hora: ${cita.hora}
+• Lugar: San Martín 1355, Consultorios Externos Clínica San Agustín
 
-            <p>
-                <FaLaptopMedical className="me-2 celeste" />
-                <strong className="me-2 celeste" >Tipo:</strong>{" "}
-                {cita?.tipo === "presencial"
-                ? "🟢 Presencial"
-                : "🔵 Virtual"}
-            </p>
+Le esperamos.
 
-            </Modal.Body>
+Si presenta algún inconveniente para asistir, por favor avísenos con anticipación. Le agradecemos acudir puntualmente a la hora programada.
 
+Muchas gracias.`
+)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="telefono-link"
+        >
+          {cita.telefono}
+        </a>
+      ) : (
+        "-"
+      )}
+    </div>
+
+    <div className="detalle-linea">
+      <FaIdCard className="detalle-icono" />
+      <strong>DNI:</strong>
+      <span>{cita?.Dni}</span>
+    </div>
+
+    <div className="detalle-linea">
+      <FaCalendarAlt className="detalle-icono" />
+      <strong>Fecha:</strong>
+      <span>{cita?.fecha}</span>
+    </div>
+
+    <div className="detalle-linea">
+      <FaClock className="detalle-icono" />
+      <strong>Hora:</strong>
+      <span>{cita?.hora}</span>
+    </div>
+
+    <div className="detalle-linea">
+      <FaLaptopMedical className="detalle-icono" />
+      <strong>Tipo:</strong>
+      <span>
+        {cita?.tipo === "presencial"
+          ? "🟢 Presencial"
+          : "🔵 Virtual"}
+      </span>
+    </div>
+
+  </div>
+
+</Modal.Body>
       <Modal.Footer>
 
-        <Button
-          onClick={() => onEditar(cita)}
-          className="btn-cita"
-        >
-          Editar
-        </Button>
+<Button
+  onClick={() => onEditar(cita)}
+  className="btn-detalle-editar"
+>
+  Editar
+</Button>
 
-        <Button
-          variant="danger"
-          onClick={() => onEliminar(cita)}
-        >
-          Eliminar
-        </Button>
+<Button
+  variant="danger"
+  className="btn-detalle-eliminar"
+  onClick={() => onEliminar(cita)}
+>
+  Eliminar
+</Button>
 
       </Modal.Footer>
 

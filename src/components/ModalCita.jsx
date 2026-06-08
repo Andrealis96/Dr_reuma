@@ -17,7 +17,8 @@ function ModalCita({
   citaEditar,
   fechaSeleccionada,
   horaPreseleccionada,
-  horariosDisponibles
+  horariosDisponibles,
+  obtenerHorariosDisponibles
 }) {
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
@@ -25,6 +26,17 @@ function ModalCita({
   const [Dni, setDni] = useState("");
   const [hora, setHora] = useState("");
   const [tipo, setTipo] = useState("presencial");
+  const [horasDisponibles, setHorasDisponibles] = useState([]);
+
+const handleFechaChange = (e) => {
+  const nuevaFecha = e.target.value;
+
+  if (citaEditar && nuevaFecha !== citaEditar.fecha) {
+    setHora("");
+  }
+
+  setFecha(nuevaFecha);
+};
 
   // cargar edición
 useEffect(() => {
@@ -72,6 +84,22 @@ useEffect(() => {
     }
   }
 }, [show, citaEditar, horaPreseleccionada]);
+
+useEffect(() => {
+  const cargar = async () => {
+    if (!fecha || !obtenerHorariosDisponibles) return;
+
+    const horarios = await obtenerHorariosDisponibles(fecha);
+
+    console.log("FECHA MODAL:", fecha);
+    console.log("HORARIOS DISPONIBLES:", horarios);
+    console.log("CITA EDITAR:", citaEditar);
+
+    setHorasDisponibles(horarios);
+  };
+
+  cargar();
+}, [fecha, obtenerHorariosDisponibles]);
 
   const handleGuardar = () => {
     if (!nombre || !fecha || !hora) return;
@@ -134,9 +162,9 @@ useEffect(() => {
             </InputGroup.Text>
 
             <Form.Control
-                type="date"
-                value={fecha}
-                onChange={(e) => setFecha(e.target.value)}
+              type="date"
+              value={fecha}
+              onChange={handleFechaChange}
             />
             </InputGroup>
 
@@ -151,17 +179,18 @@ useEffect(() => {
             >
                 <option value="">Selecciona hora</option>
 
-                {citaEditar?.hora &&
-                !horariosDisponibles.includes(citaEditar.hora) && (
+                {citaEditar &&
+                fecha === citaEditar.fecha &&
+                !horasDisponibles.includes(citaEditar.hora) && (
                     <option value={citaEditar.hora}>
-                    {citaEditar.hora}
+                      {citaEditar.hora}
                     </option>
                 )}
 
-                {horariosDisponibles.map((h, i) => (
-                <option key={i} value={h}>
+                {horasDisponibles.map((h, i) => (
+                  <option key={i} value={h}>
                     {h}
-                </option>
+                  </option>
                 ))}
             </Form.Select>
             </InputGroup>

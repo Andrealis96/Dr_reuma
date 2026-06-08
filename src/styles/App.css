@@ -2229,14 +2229,41 @@ html, body, #root {
 
 /* ................ CITAS .......................*/
 
+.agenda-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+}
+
+.agenda-flechas{
+  display:flex;
+  flex-shrink:0;
+}
+
+@media (max-width:768px){
+
+  .agenda-header{
+    align-items:center;
+  }
+
+  .agenda-header h5{
+    font-size:0.95rem;
+    line-height:1.2;
+    margin:0;
+  }
+
+  .agenda-flechas .btn{
+    padding:6px 10px;
+  }
+}
+
 .btn-citadias {
   border-radius: 12px;
-  font-weight: 600;
+  font-weight: 400;
   background:  rgb(9, 154, 173) !important;
   color: #ffffff !important; 
 }
-
-
 
 .btn-horario{
   min-width: 95px;
@@ -2252,16 +2279,68 @@ html, body, #root {
   }
 }
 
+.titulo-detallecita{
+  width: 100%;
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: 1px;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+}
 .horarios-grid{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(90px,1fr));
   gap:10px;
 }
 
-.detalle-cita p{
-  padding-bottom: 8px;
-  margin-bottom: 10px;
-  border-bottom: 1px solid #eee;
+.detalle-label {
+  display: block;
+  font-size: 0.80rem;
+  color: #777;
+  margin-bottom: 2px;
+}
+
+.detalle-valor {
+  font-weight: 600;
+  color: #222;
+}
+
+.tipo-presencial-detalle {
+  color: #01c248;
+  font-weight: 700;
+}
+
+.tipo-virtual-detalle {
+  color: rgb(1, 185, 209);
+  font-weight: 700;
+}
+
+.btn-detalle-editar {
+  background: rgb(9, 154, 173) !important;
+  border: none !important;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.btn-detalle-eliminar {
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .detalle-item {
+    padding: 10px;
+  }
+
+  .detalle-icono {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+  }
+
+  .detalle-valor {
+    font-size: 0.95rem;
+  }
 }
 
 .cabecera-detallecita{
@@ -2275,12 +2354,48 @@ html, body, #root {
   padding: 10px;
 }
 
+.titulo-dia-agenda{
+  background: rgb(9, 154, 173);
+  color: white;
+  padding: 12px 18px;
+  border-radius: 14px;
+}
+
 .btn-pacientecita {
-  background:  #90fa8c7c !important;
-  border-color:#000; 
-  border-radius: 12px;
-  color:  rgb(9, 154, 173);
-} 
+  background:rgba(9, 154, 173, 0.103);
+  border-left: 5px solid rgb(9, 154, 173);
+  border-radius: 14px;
+  padding: 12px !important;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  transition: .2s;
+}
+
+.btn-pacientecita:hover{
+  transform: translateY(-2px);
+}
+
+.hora-paciente {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: rgb(9, 154, 173);
+}
+
+.nombre-paciente-dia {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.tipo-presencial {
+  color: #01c248;
+  font-weight: 600;
+}
+
+.tipo-virtual {
+  color: rgb(1,185,209);
+  font-weight: 600;
+}
 
 .nombre-paciente {
   color: #000000; 
@@ -2594,4 +2709,39 @@ html, body, #root {
   .fc-toolbar-title {
     font-size: 0.95rem !important;
   }
+}
+
+/*detalle cita*/
+
+.detalle-card{
+  background: #f8fdff;
+  border: 1px solid rgba(9,154,173,0.2);
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.detalle-linea{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.detalle-linea:last-child{
+  margin-bottom: 0;
+}
+
+.detalle-icono{
+  color: rgb(9,154,173);
+}
+
+.detalle-linea strong{
+  color: rgb(9,154,173);
+}
+
+.telefono-link{
+  color: #198754;
+  text-decoration: none;
+  font-weight: 600;
 }
