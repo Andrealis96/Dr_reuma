@@ -21,7 +21,7 @@ function Faq() {
           <span className="subtitle-celeste">
             PREGUNTAS
           </span>
-
+          <br />
           <span className="subtitle-negro">
             FRECUENTES
           </span>
