@@ -44,21 +44,13 @@ function Welcome() {
           <span className="title-negro"> DR.REUMA</span>
         </h1>
 
-        <h5 className="subtitle text-center fw-bold">
-          Tratamiento • Diagnóstico • Seguimiento
-        </h5>
-
         {/* CONTENIDO PRINCIPAL */}
         <div className="row align-items-start">
 
           {/* IZQUIERDA */}
-          <div className="col-lg-7 text-center text-md-start">
+          <div className="col-lg-7 text-md-start">
 
-            <h4 className="title-negro fw-bold mb-4">
-              <FaMapMarkerAlt className="fs-2 me-1 celeste" />
-                (San Martín 1355 - Neuquén Capital)
-            </h4>
-
+          
             <p className="welcome-text">
             En <span className="fw-bold celeste">Dr. reuma</span> trabajamos para que vuelvas a moverte sin dolor
             y mejores tu calidad de vida mediante una atención
@@ -72,9 +64,12 @@ function Welcome() {
             Fibromialgia, artritis reumatoidea, artritis psoriásica, 
             lupus, artrosis, osteoporosis, dolor articular (rodilla, columnas, manos), Síndrome de Sjögren
             y entre otras.
-
-              <br /><br />
-
+             <br /> <br />
+              <span className="title-negro fw-bold mb-4">
+              <FaMapMarkerAlt className="fs-2 me-3 celeste" />
+                SAN MARTÍN 1355 - NEUQUÉN CAPITAL
+              </span>
+              <br />
               <span className="fw-bold text-uppercase">
                 <FaHeart className="me-3 fs-2 celeste" />
                 Acá no sos un número: sos una persona.
