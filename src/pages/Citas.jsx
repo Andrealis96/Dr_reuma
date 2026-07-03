@@ -19,7 +19,10 @@ import {
   FaUser,
   FaUsers,
   FaClock, 
-  FaVideo
+  FaVideo,
+  FaEye,
+  FaEyeSlash,
+  FaLock
 } from "react-icons/fa";
 
 import {
@@ -52,7 +55,10 @@ function Citas() {
   const [horaPreseleccionada, setHoraPreseleccionada] = useState(null);
   const [busquedaPaciente, setBusquedaPaciente] = useState(""); 
   const [horariosDisponibles, setHorariosDisponibles] = useState([]);
+  const [showModalBloqueo, setShowModalBloqueo] = useState(false);
+  const [motivoBloqueo, setMotivoBloqueo] = useState("");
   const detalleDiaRef = useRef(null);
+  const [bloqueos, setBloqueos] = useState([]);
   const [showDetalle, setShowDetalle] = useState(false);
   const [citaSeleccionada, setCitaSeleccionada] = useState(null);
 
@@ -87,6 +93,19 @@ useEffect(() => {
   setHorariosDisponibles(horarios);
 }, [diaSeleccionado, citasDB]);
 
+useEffect(() => {
+  const unsub = onSnapshot(collection(db, "bloqueosAgenda"), (snap) => {
+    const data = snap.docs.map(d => ({
+      id: d.id,
+      ...d.data()
+    }));
+
+    setBloqueos(data);
+  });
+
+  return () => unsub();
+}, []);
+
   // ================= HORARIOS =================
   const generarHorarios = (inicio, fin) => {
     const horarios = [];
@@ -108,16 +127,61 @@ useEffect(() => {
     return horarios;
   };
 
+  const diaEstaBloqueado = (fecha) => {
+  return bloqueos.some(b => b.fecha === fecha && b.activo);
+};
+
+const toggleBloqueoDia = async () => {
+  if (!diaSeleccionado) return;
+
+  const bloqueoActivo = bloqueos.find(
+    b => b.fecha === diaSeleccionado && b.activo
+  );
+
+  // Si ya está bloqueado: desbloquea directo
+  if (bloqueoActivo) {
+    await updateDoc(
+      doc(db, "bloqueosAgenda", bloqueoActivo.id),
+      {
+        activo: false
+      }
+    );
+
+    return;
+  }
+
+  // Si está disponible: abre modal para escribir motivo
+  setMotivoBloqueo("");
+  setShowModalBloqueo(true);
+};
+
+const guardarBloqueoDia = async () => {
+  await addDoc(collection(db, "bloqueosAgenda"), {
+    fecha: diaSeleccionado,
+    activo: true,
+    motivo: motivoBloqueo || "Sin motivo especificado",
+    createdAt: new Date()
+  });
+
+  setShowModalBloqueo(false);
+  setMotivoBloqueo("");
+};
+
 const obtenerHorariosDisponibles = (fecha) => {
+   if (diaEstaBloqueado(fecha)) {
+    return [];
+  }
   const [y, m, d] = fecha.split("-").map(Number);
   const day = new Date(y, m - 1, d).getDay();
 
   let base = [];
 
-  if (day === 1 || day === 2 || day === 3)
-    base = generarHorarios("15:00", "18:00");
+  if (day === 1 || day === 2 || day === 3) {
+  base = generarHorarios("15:00", "18:00");
+  base.unshift("14:45"); // lo agrega al inicio
+}
   else if (day === 4)
-    base = ["09:30", "13:20"];
+    base = ["09:30","10:00","10:30","13:20"];
   else if (day === 5)
     base = generarHorarios("09:30", "17:00");
   else if (day === 6)
@@ -278,6 +342,10 @@ const cambiarDia = (direccion) => {
   setDiaSeleccionado(nuevaFecha);
 }; 
 
+const bloqueoDelDia = bloqueos.find(
+  b => b.fecha === diaSeleccionado && b.activo
+);
+
   return (
     <div className="container py-4">
 
@@ -415,32 +483,56 @@ const cambiarDia = (direccion) => {
       {/* CALENDARIO (SIN SCROLL FORZADO) */}
       <div className="card p-3">
         <FullCalendar
-          ref={calendarRef}
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          locale={esLocale}
-          showNonCurrentDates={false}
-          fixedWeekCount={false}
-          initialView="dayGridMonth"
-          events={eventos}
-          height="auto"
-          headerToolbar={{
-            left: "title",
-            right: "prev,next"
-          }}
-          eventTimeFormat={{
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false
-          }}
-         dateClick={(info) => {
-            setDiaSeleccionado(info.dateStr);
-          }}
-          eventClick={(info) => {
-            setDiaSeleccionado(
-              info.event.startStr.split("T")[0]
-            );
-          }}
-        />
+  ref={calendarRef}
+  plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+  locale={esLocale}
+  showNonCurrentDates={false}
+  fixedWeekCount={false}
+  initialView="dayGridMonth"
+  events={eventos}
+  height="auto"
+
+  dayCellClassNames={(arg) => {
+    const fecha = arg.date.toISOString().split("T")[0];
+    return diaEstaBloqueado(fecha) ? ["dia-bloqueado"] : [];
+  }}
+
+  dayCellContent={(arg) => {
+    const fecha = arg.date.toISOString().split("T")[0];
+
+    return (
+      <div className="dia-celda-custom">
+        <div className="dia-numero">
+          {arg.dayNumberText}
+        </div>
+
+        {diaEstaBloqueado(fecha) && (
+          <div className="candado-centro">
+            <FaLock />
+          </div>
+        )}
+      </div>
+    );
+  }}
+
+  headerToolbar={{
+    left: "title",
+    right: "prev,next"
+  }}
+  eventTimeFormat={{
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+  }}
+  dateClick={(info) => {
+    setDiaSeleccionado(info.dateStr);
+  }}
+  eventClick={(info) => {
+    setDiaSeleccionado(
+      info.event.startStr.split("T")[0]
+    );
+  }}
+/>
       </div>
 
       {/* BLOQUE DÍA SELECCIONADO */}
@@ -523,6 +615,14 @@ const cambiarDia = (direccion) => {
 <br />
 <div className="agenda-header mb-3">
 
+<button
+  className={`btn ${diaEstaBloqueado(diaSeleccionado) ? "btn-danger" : "btn-outline-secondary"}`}
+  onClick={toggleBloqueoDia}
+  title={diaEstaBloqueado(diaSeleccionado) ? "Desbloquear día" : "Bloquear día"}
+>
+  {diaEstaBloqueado(diaSeleccionado) ? <FaEyeSlash /> : <FaEye />}
+</button>
+
   <h5 className="fw-bold celeste mb-0">
     <FaCalendarAlt className="me-2" />
     {fechaFormateada}
@@ -599,22 +699,32 @@ const cambiarDia = (direccion) => {
           </div>
 
           <div className="d-flex flex-wrap gap-2">
-            {horariosDisponibles.map(h => (
-              <button
-                key={h}
-                className="btn btn-horario"
-                onClick={() => {
-                  setCitaEditar(null);
-                  setFechaSeleccionada(diaSeleccionado);
-                  setHoraPreseleccionada(h);
-                  setShowModal(true);
-                }}
-              >
-                <FaClock className="me-1" />
-                {h}
-              </button>
-            ))}
-          </div>
+
+{diaEstaBloqueado(diaSeleccionado) ? (
+  <div className="alert alert-danger w-100 text-center mb-0">
+    🔒 Agenda bloqueada
+    <br />
+    <strong>Motivo:</strong> {bloqueoDelDia?.motivo}
+  </div>
+) : (
+  horariosDisponibles.map(h => (
+    <button
+      key={h}
+      className="btn btn-horario"
+      onClick={() => {
+        setCitaEditar(null);
+        setFechaSeleccionada(diaSeleccionado);
+        setHoraPreseleccionada(h);
+        setShowModal(true);
+      }}
+    >
+      <FaClock className="me-1" />
+      {h}
+    </button>
+  ))
+)}
+
+</div>
 
         </div>
       )}
@@ -649,7 +759,57 @@ const cambiarDia = (direccion) => {
     setShowDetalle(false);
   }}
 />
+{showModalBloqueo && (
+  <div className="modal d-block" style={{ background: "rgba(0,0,0,0.5)" }}>
+    <div className="modal-dialog modal-dialog-centered">
+      <div className="modal-content">
 
+        <div className="modal-header">
+          <h5 className="modal-title">
+            🔒 Bloquear agenda
+          </h5>
+
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setShowModalBloqueo(false)}
+          />
+        </div>
+
+        <div className="modal-body">
+          <label className="form-label fw-bold">
+            Motivo del bloqueo
+          </label>
+
+          <textarea
+            className="form-control"
+            rows="4"
+            placeholder="Ej: vacaciones, congreso, trámite, licencia médica..."
+            value={motivoBloqueo}
+            onChange={(e) => setMotivoBloqueo(e.target.value)}
+          />
+        </div>
+
+        <div className="modal-footer">
+          <button
+            className="btn btn-secondary"
+            onClick={() => setShowModalBloqueo(false)}
+          >
+            Cancelar
+          </button>
+
+          <button
+            className="btn btn-danger"
+            onClick={guardarBloqueoDia}
+          >
+            Bloquear
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }

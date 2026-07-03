@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRef } from "react";
-import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
+import { collection, addDoc, query, where, getDocs, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
 import ServiceCard from "./ServiceCard";
 import { FaCalendarCheck, FaCheckCircle, FaCalendarAlt, FaSave } from "react-icons/fa";
@@ -36,6 +36,7 @@ function Services() {
   });
 
   const [horariosDisponibles, setHorariosDisponibles] = useState([]);
+  const [bloqueos, setBloqueos] = useState([]);
   const [success, setSuccess] = useState(false);
   const [citaGuardada, setCitaGuardada] = useState(null);
   const FRIDAY_START = new Date("2026-04-10T00:00:00");
@@ -120,11 +121,37 @@ const descargarPDF = async () => {
   // patrón: [0 ❌, 1 ✅, 2 ✅]
   return ciclo === 1 || ciclo === 2;
 };
+
+useEffect(() => {
+  const unsub = onSnapshot(collection(db, "bloqueosAgenda"), (snap) => {
+    const data = snap.docs.map(d => ({
+      id: d.id,
+      ...d.data()
+    }));
+
+    setBloqueos(data);
+  });
+
+  return () => unsub();
+}, []);
+
+const diaEstaBloqueado = (fecha) => {
+  return bloqueos.some(b => b.fecha === fecha && b.activo);
+};
+
   // 🔥 Cargar horarios disponibles
 useEffect(() => {
   if (!form.fecha) return;
 
   const cargarHorarios = async () => {
+    if (diaEstaBloqueado(form.fecha)) {
+  setHorariosDisponibles([]);
+  setForm(prev => ({
+    ...prev,
+    hora: ""
+  }));
+  return;
+}
     const fechaObj = new Date(form.fecha + "T00:00:00");
 
     const diaSemana = fechaObj
@@ -208,7 +235,7 @@ else if (diaSemana === "sábado") {
   };
 
   cargarHorarios();
-}, [form.fecha]);
+}, [form.fecha, bloqueos]);
 
 useEffect(() => {
   if (!form.fecha) return;
