@@ -47,7 +47,7 @@ function Services() {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-
+const [viernesAgenda, setViernesAgenda] = useState([]);
 const codigoTurno =
   `https://drreuma.com/verificacion?paciente=${encodeURIComponent(citaGuardada?.nombre || "")}&fecha=${encodeURIComponent(citaGuardada?.fecha || "")}&hora=${encodeURIComponent(citaGuardada?.hora || "")}`;
 
@@ -135,6 +135,24 @@ useEffect(() => {
   return () => unsub();
 }, []);
 
+useEffect(() => {
+  const unsub = onSnapshot(collection(db, "viernesAgenda"), (snap) => {
+    const data = snap.docs.map(d => ({
+      id: d.id,
+      ...d.data()
+    }));
+
+    setViernesAgenda(data);
+  });
+
+  return () => unsub();
+}, []);
+
+
+const getConfiguracionViernes = (fecha) => {
+  return viernesAgenda.find(v => v.fecha === fecha);
+};
+
 const diaEstaBloqueado = (fecha) => {
   return bloqueos.some(b => b.fecha === fecha && b.activo);
 };
@@ -189,10 +207,22 @@ if (diaSemana === "domingo") {
   return;
 }
 
-// 🔴 VIERNES BLOQUEADO
+// 🔴 VIERNES CAMBIO DE HORARIOS
 if (diaSemana === "viernes") {
-  setHorariosDisponibles([]);
-  return;
+  const configViernes = getConfiguracionViernes(form.fecha);
+
+  if (!configViernes) {
+    setHorariosDisponibles([]);
+    return;
+  }
+
+  if (configViernes.turno === "mañana") {
+    horariosBase = ["09:30", "10:00", "10:30", "11:00", "13:20"];
+  }
+
+  if (configViernes.turno === "tarde") {
+    horariosBase = ["14:45", "15:00", "15:30", "16:30"];
+  }
 }
 
 // 🟢 LUNES - MARTES - MIÉRCOLES
@@ -235,7 +265,7 @@ else if (diaSemana === "sábado") {
   };
 
   cargarHorarios();
-}, [form.fecha, bloqueos]);
+}, [form.fecha, bloqueos, viernesAgenda]);
 
 useEffect(() => {
   if (!form.fecha) return;

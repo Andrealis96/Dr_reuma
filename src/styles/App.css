@@ -2220,6 +2220,18 @@ html, body, #root {
   font-weight: 500;
 }
 
+.fc .fc-daygrid-day-events {
+  margin-top: -9px !important;
+}
+
+.fc-daygrid-day-frame {
+  position: relative;
+}
+
+.fc .fc-daygrid-day-top {
+    height: 58px !important;
+}
+
 .fc-daygrid-day.fc-day-other {
   background-color: #fafafa !important;
 }
@@ -2324,6 +2336,12 @@ html, body, #root {
   border-radius: 12px;
 }
 
+.btn-agenda-icono{
+    width:45px;
+    height:45px;
+    border-radius:12px;
+    font-size:20px;
+}
 .resultado-paciente{
   border: 1px solid rgb(255, 255, 255);
   border-left-color:  rgb(9, 154, 173);
@@ -2503,6 +2521,95 @@ html, body, #root {
 
 .btn-cita {
   background:  rgb(9, 154, 173) !important;
+}
+
+/* color de viernes tarde  */
+
+.btn-tarde {
+  background-color: #fd7e14 !important;
+  border-color: #fd7e14 !important;
+  color: white !important;
+}
+
+.btn-tarde:hover {
+  background-color: #e96b00 !important;
+  border-color: #e96b00 !important;
+  color: white !important;
+}
+
+.btn-outline-tarde {
+  background: transparent !important;
+  border: 1px solid #fd7e14 !important;
+  color: #fd7e14 !important;
+}
+
+.btn-outline-tarde:hover {
+  background: #fd7e14 !important;
+  color: white !important;
+}
+
+/*recuadro de iconos seccion cita*/
+.btn-agenda-icono {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px !important;
+  font-size: 19px;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  padding: 0 !important;
+}
+
+.btn-tarde {
+  background-color: #fd7e14 !important;
+  border-color: #fd7e14 !important;
+  color: white !important;
+}
+
+.btn-tarde:hover {
+  background-color: #e96b00 !important;
+  border-color: #e96b00 !important;
+  color: white !important;
+}
+
+.btn-outline-tarde {
+  background: transparent !important;
+  border: 1px solid #fd7e14 !important;
+  color: #fd7e14 !important;
+}
+
+.btn-outline-tarde:hover {
+  background-color: #fd7e14 !important;
+  color: white !important;
+}
+
+/*palabra viernes*/
+.turno-viernes-label {
+  position: absolute;
+  top: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  font-size: 9px;
+  font-weight: 700;
+
+  padding: 2px 6px;
+  border-radius: 20px;
+
+  color: white;
+  text-transform: uppercase;
+  pointer-events: none;
+  margin-bottom: -1px !important;
+}
+
+.turno-manana {
+  background: #ffc107;   /* amarillo Bootstrap */
+  color: #212529;
+}
+
+.turno-tarde {
+  background: #fd7e14;   /* naranja */
+  color: rgb(0, 0, 0);
 }
 
 /* ===== CONTENEDOR GENERAL ===== */

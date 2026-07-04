@@ -22,7 +22,9 @@ import {
   FaVideo,
   FaEye,
   FaEyeSlash,
-  FaLock
+  FaLock,
+  FaSun,
+  FaCloudSun
 } from "react-icons/fa";
 
 import {
@@ -58,6 +60,8 @@ function Citas() {
   const [showModalBloqueo, setShowModalBloqueo] = useState(false);
   const [motivoBloqueo, setMotivoBloqueo] = useState("");
   const detalleDiaRef = useRef(null);
+  //variable para bloquear viernes
+  const [viernesAgenda, setViernesAgenda] = useState([]);
   const [bloqueos, setBloqueos] = useState([]);
   const [showDetalle, setShowDetalle] = useState(false);
   const [citaSeleccionada, setCitaSeleccionada] = useState(null);
@@ -91,7 +95,7 @@ useEffect(() => {
 
   const horarios = obtenerHorariosDisponibles(diaSeleccionado);
   setHorariosDisponibles(horarios);
-}, [diaSeleccionado, citasDB]);
+}, [diaSeleccionado, citasDB, viernesAgenda, bloqueos]);
 
 useEffect(() => {
   const unsub = onSnapshot(collection(db, "bloqueosAgenda"), (snap) => {
@@ -101,6 +105,20 @@ useEffect(() => {
     }));
 
     setBloqueos(data);
+  });
+
+  return () => unsub();
+}, []);
+
+//useEffect para viernes bloqueado 
+useEffect(() => {
+  const unsub = onSnapshot(collection(db, "viernesAgenda"), (snap) => {
+    const data = snap.docs.map(d => ({
+      id: d.id,
+      ...d.data()
+    }));
+
+    setViernesAgenda(data);
   });
 
   return () => unsub();
@@ -182,8 +200,22 @@ const obtenerHorariosDisponibles = (fecha) => {
 }
   else if (day === 4)
     base = ["09:30","10:00","10:30","13:20"];
-  else if (day === 5)
-    base = generarHorarios("09:30", "17:00");
+  //horarios viernes
+  else if (day === 5) {
+  const configViernes = getConfiguracionViernes(fecha);
+
+  if (!configViernes) {
+    return [];
+  }
+
+  if (configViernes.turno === "mañana") {
+    base = ["09:30", "10:00", "10:30", "11:00", "13:20"];
+  }
+
+  if (configViernes.turno === "tarde") {
+    base = ["14:45", "15:00", "15:30", "16:30"];
+  }
+}
   else if (day === 6)
     base = generarHorarios("10:00", "12:30");
   else
@@ -210,6 +242,29 @@ const obtenerHorariosDisponibles = (fecha) => {
     });
   }
 }, [diaSeleccionado]);
+
+//funcion para viernes bloqueado
+const getConfiguracionViernes = (fecha) => {
+  return viernesAgenda.find(v => v.fecha === fecha);
+};
+
+const cambiarTurnoViernes = async (turno) => {
+  if (!diaSeleccionado) return;
+
+  const existente = getConfiguracionViernes(diaSeleccionado);
+
+  if (existente) {
+    await updateDoc(doc(db, "viernesAgenda", existente.id), {
+      turno
+    });
+  } else {
+    await addDoc(collection(db, "viernesAgenda"), {
+      fecha: diaSeleccionado,
+      turno,
+      createdAt: new Date()
+    });
+  }
+};
 
   // ================= PACIENTES =================
   const pacientesDelDia = citasDB
@@ -497,23 +552,38 @@ const bloqueoDelDia = bloqueos.find(
     return diaEstaBloqueado(fecha) ? ["dia-bloqueado"] : [];
   }}
 
-  dayCellContent={(arg) => {
-    const fecha = arg.date.toISOString().split("T")[0];
+ dayCellContent={(arg) => {
+  const fecha = arg.date.toISOString().split("T")[0];
+  const configViernes = getConfiguracionViernes(fecha);
 
-    return (
-      <div className="dia-celda-custom">
-        <div className="dia-numero">
-          {arg.dayNumberText}
-        </div>
-
-        {diaEstaBloqueado(fecha) && (
-          <div className="candado-centro">
-            <FaLock />
-          </div>
-        )}
+  return (
+    <div className="dia-celda-custom">
+      <div className="dia-numero">
+        {arg.dayNumberText}
       </div>
-    );
-  }}
+
+      {diaEstaBloqueado(fecha) && (
+        <div className="candado-centro">
+          <FaLock />
+        </div>
+      )}
+
+      {configViernes?.turno && (
+        <div
+          className={`turno-viernes-label ${
+            configViernes.turno === "mañana"
+              ? "turno-manana"
+              : "turno-tarde"
+          }`}
+        >
+          {configViernes.turno === "mañana"
+            ? "Mañana"
+            : "Tarde"}
+        </div>
+      )}
+    </div>
+  );
+}}
 
   headerToolbar={{
     left: "title",
@@ -533,11 +603,11 @@ const bloqueoDelDia = bloqueos.find(
     );
   }}
 />
-      </div>
+</div>
 
-      {/* BLOQUE DÍA SELECCIONADO */}
-      {diaSeleccionado && (
-        <div
+{/* BLOQUE DÍA SELECCIONADO */}
+{diaSeleccionado && (
+<div
             ref={detalleDiaRef}
             className="card mt-3 p-3"
           >
@@ -615,14 +685,6 @@ const bloqueoDelDia = bloqueos.find(
 <br />
 <div className="agenda-header mb-3">
 
-<button
-  className={`btn ${diaEstaBloqueado(diaSeleccionado) ? "btn-danger" : "btn-outline-secondary"}`}
-  onClick={toggleBloqueoDia}
-  title={diaEstaBloqueado(diaSeleccionado) ? "Desbloquear día" : "Bloquear día"}
->
-  {diaEstaBloqueado(diaSeleccionado) ? <FaEyeSlash /> : <FaEye />}
-</button>
-
   <h5 className="fw-bold celeste mb-0">
     <FaCalendarAlt className="me-2" />
     {fechaFormateada}
@@ -643,6 +705,50 @@ const bloqueoDelDia = bloqueos.find(
       <FaChevronRight />
     </button>
   </div>
+</div>
+
+<div className="d-flex gap-2 mb-3 align-items-center">
+ 
+ {/* BOTON PARA VIERNES TURNO */}
+
+ <button
+  className={`btn btn-agenda-icono ${diaEstaBloqueado(diaSeleccionado) ? "btn-danger" : "btn-outline-secondary"}`}
+  onClick={toggleBloqueoDia}
+  title={diaEstaBloqueado(diaSeleccionado) ? "Desbloquear día" : "Bloquear día"}
+>
+  {diaEstaBloqueado(diaSeleccionado) ? <FaEyeSlash /> : <FaEye />}
+</button>
+
+{diaSeleccionado &&
+  new Date(`${diaSeleccionado}T00:00:00`).getDay() === 5 && (
+    <div className="d-flex gap-2">
+
+      <button
+        className={`btn btn-agenda-icono ${
+          getConfiguracionViernes(diaSeleccionado)?.turno === "mañana"
+            ? "btn-warning"
+            : "btn-outline-warning"
+        }`}
+        onClick={() => cambiarTurnoViernes("mañana")}
+        title="Consultorio de mañana"
+      >
+        <FaSun />
+      </button>
+
+      <button
+        className={`btn btn-agenda-icono ${
+          getConfiguracionViernes(diaSeleccionado)?.turno === "tarde"
+            ? "btn-tarde"
+            : "btn-outline-tarde"
+        }`}
+        onClick={() => cambiarTurnoViernes("tarde")}
+        title="Consultorio de tarde"
+      >
+        <FaCloudSun/>
+      </button>
+
+    </div>
+)}
 
 </div>
 
