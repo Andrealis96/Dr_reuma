@@ -158,14 +158,14 @@ const toggleBloqueoDia = async () => {
 
   // Si ya está bloqueado: desbloquea directo
   if (bloqueoActivo) {
-    await updateDoc(
-      doc(db, "bloqueosAgenda", bloqueoActivo.id),
-      {
-        activo: false
-      }
-    );
+    updateDoc(
+  doc(db, "bloqueosAgenda", bloqueoActivo.id),
+  {
+    activo: false
+  }
+);
 
-    return;
+return;
   }
 
   // Si está disponible: abre modal para escribir motivo
@@ -174,15 +174,17 @@ const toggleBloqueoDia = async () => {
 };
 
 const guardarBloqueoDia = async () => {
-  await addDoc(collection(db, "bloqueosAgenda"), {
-    fecha: diaSeleccionado,
-    activo: true,
-    motivo: motivoBloqueo || "Sin motivo especificado",
-    createdAt: new Date()
-  });
+  const motivo = motivoBloqueo || "Sin motivo especificado";
 
   setShowModalBloqueo(false);
   setMotivoBloqueo("");
+
+  await addDoc(collection(db, "bloqueosAgenda"), {
+    fecha: diaSeleccionado,
+    activo: true,
+    motivo,
+    createdAt: new Date()
+  });
 };
 
 const obtenerHorariosDisponibles = (fecha) => {
@@ -224,24 +226,12 @@ const obtenerHorariosDisponibles = (fecha) => {
   const ocupados = citasDB
     .filter(c => c.fecha === fecha)
     .map(c => String(c.hora).trim().slice(0, 5));
- // 👇 PEGA ESTO AQUÍ
-  console.log("FECHA:", fecha);
-  console.log("OCUPADOS:", ocupados);
-  console.log("BASE:", base);
 
   return base.filter(
     h => !ocupados.includes(h.trim().slice(0, 5))
   );
 };
 
- useEffect(() => {
-  if (diaSeleccionado && detalleDiaRef.current) {
-    window.scrollTo({
-      top: detalleDiaRef.current.offsetTop - 80,
-      behavior: "smooth"
-    });
-  }
-}, [diaSeleccionado]);
 
 //funcion para viernes bloqueado
 const getConfiguracionViernes = (fecha) => {
@@ -594,14 +584,30 @@ const bloqueoDelDia = bloqueos.find(
     minute: "2-digit",
     hour12: false
   }}
+
   dateClick={(info) => {
-    setDiaSeleccionado(info.dateStr);
-  }}
-  eventClick={(info) => {
-    setDiaSeleccionado(
-      info.event.startStr.split("T")[0]
-    );
-  }}
+  setDiaSeleccionado(info.dateStr);
+
+  setTimeout(() => {
+    detalleDiaRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, 50);
+}}
+
+eventClick={(info) => {
+  setDiaSeleccionado(
+    info.event.startStr.split("T")[0]
+  );
+
+  setTimeout(() => {
+    detalleDiaRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, 50);
+}}
 />
 </div>
 
@@ -861,9 +867,11 @@ const bloqueoDelDia = bloqueos.find(
     setShowModal(true);
   }}
   onEliminar={async (cita) => {
-    await deleteDoc(doc(db, "citas", cita.id));
-    setShowDetalle(false);
-  }}
+  setShowDetalle(false);
+  setCitaSeleccionada(null);
+
+  await deleteDoc(doc(db, "citas", cita.id));
+}}
 />
 {showModalBloqueo && (
   <div className="modal d-block" style={{ background: "rgba(0,0,0,0.5)" }}>
