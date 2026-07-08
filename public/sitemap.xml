@@ -9,7 +9,73 @@
   <url>
       <loc>https://doctor-reuma.com.ar/diagnosticos</loc>
       <priority>0.9</priority>
-    </url>
+  </url>
+
+  <url>
+      <loc>https://doctor-reuma.com.ar/diagnosticos/artritis-reumatoide</loc>
+      <priority>0.9</priority>
+  </url>
+
+  <url>
+      <loc>https://doctor-reuma.com.ar/diagnosticos/artrosis</loc>
+      <priority>0.9</priority>
+  </url>
+
+  <url>
+      <loc>https://doctor-reuma.com.ar/diagnosticos/fibromialgia</loc>
+      <priority>0.9</priority>
+  </url>
+
+  <url>
+      <loc>https://doctor-reuma.com.ar/diagnosticos/lupus</loc>
+      <priority>0.9</priority>
+  </url>
+
+  <url>
+      <loc>https://doctor-reuma.com.ar/diagnosticos/esclerodermia</loc>
+      <priority>0.9</priority>
+  </url>
+
+  <url>
+      <loc>https://doctor-reuma.com.ar/diagnosticos/gota</loc>
+      <priority>0.9</priority>
+  </url>
+
+  <url>
+      <loc>https://doctor-reuma.com.ar/diagnosticos/dolor-columna-cadera</loc>
+      <priority>0.9</priority>
+  </url>
+
+  <url>
+      <loc>https://doctor-reuma.com.ar/diagnosticos/osteoporosis</loc>
+      <priority>0.9</priority>
+  </url>
+
+  <url>
+      <loc>https://doctor-reuma.com.ar/diagnosticos/artritis-psoriasica</loc>
+      <priority>0.9</priority>
+  </url>
+
+  <url>
+      <loc>https://doctor-reuma.com.ar/diagnosticos/dolor-rodillas</loc>
+      <priority>0.9</priority>
+  </url>
+
+  <url>
+      <loc>https://doctor-reuma.com.ar/diagnosticos/hormigueo-adormecimiento</loc>
+      <priority>0.9</priority>
+  </url>
+
+  <url>
+      <loc>https://doctor-reuma.com.ar/diagnosticos/dermatomiositis</loc>
+      <priority>0.9</priority>
+  </url>
+
+  <url>
+      <loc>https://doctor-reuma.com.ar/diagnosticos/no-se-solo-me-duele</loc>
+      <priority>0.9</priority>
+  </url>
+
   <url>
     <loc>https://doctor-reuma.com.ar/servicios</loc>
     <priority>0.9</priority>
