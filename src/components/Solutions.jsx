@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { FaCheckCircle} from "react-icons/fa";
+import { Link } from "react-router-dom";
 import artritis from "../assets/artritis.webp";
 import artrosis from "../assets/artrosis.webp";
 import fibromialgia from "../assets/fibromialgia.webp";
@@ -32,6 +31,7 @@ import {
 const solutions = [
     {
         title: "Artritis Reumatoide",
+        slug: "artritis-reumatoide",
         image: artritis,
         icon: <FaHandHoldingMedical />,
         items: [
@@ -43,6 +43,7 @@ const solutions = [
     },
     {
         title: "Artrosis (Desgaste Articular)",
+        slug: "artrosis",
         image: artrosis,
         icon: <FaBone />,
         items: [
@@ -53,6 +54,7 @@ const solutions = [
     },
     {
         title: "Fibromialgia",
+        slug: "fibromialgia",
         image: fibromialgia,
         icon: <FaBrain />,
         items: [
@@ -63,6 +65,7 @@ const solutions = [
     },
     {
         title: "Lupus",
+        slug: "lupus",
         image: lupus,
         icon: <FaVirus />,
         items: [
@@ -73,6 +76,7 @@ const solutions = [
     },
     {
         title: "Esclerodermia",
+        slug: "esclerodermia",
         image: esclerodermia,
         icon: <FaProcedures />,
         items: [
@@ -83,6 +87,7 @@ const solutions = [
     },
     {
         title: "Gota (Ácido Úrico Elevado)",
+        slug: "gota",
         image: gota,
         icon: <FaTint />,
         items: [
@@ -93,6 +98,7 @@ const solutions = [
     },
     {
         title: "Dolor columna y de cadera",
+        slug: "dolor-columna-cadera",
         image: dolorcolumna,
         icon: <FaWalking />,
         items: [
@@ -103,6 +109,7 @@ const solutions = [
     },
     {
         title: "Osteoporosis",
+        slug: "osteoporosis",
         image: osteoporosis,
         icon: <FaBone />,
         items: [
@@ -113,6 +120,7 @@ const solutions = [
     },
     {
         title: "Artritis Psoriásica",
+        slug: "artritis-psoriasica",
         image: artritispsoriasica,
         icon: < FaHandHoldingMedical />,
         items: [
@@ -123,6 +131,7 @@ const solutions = [
     },
     {
         title: "Dolor en rodillas",
+        slug: "dolor-rodillas",
         image: dolorrodillas,
         icon: <FaWheelchair />,
         items: [
@@ -133,6 +142,7 @@ const solutions = [
     },
     {
         title: "Hormigueo - electricidad - adormecimiento ",
+        slug: "hormigueo-adormecimiento",
         image: hormigueo,
         icon: <FaBolt />,
         items: [
@@ -143,6 +153,7 @@ const solutions = [
     },
     {
         title: "Dermatomiositis",
+        slug: "dermatomiositis",
         image: dermatomiositis,
         icon: <FaRunning />,
         items: [
@@ -153,6 +164,7 @@ const solutions = [
     },
     {
         title: "No sé, solo me duele",
+        slug: "no-se-solo-me-duele",
         icon: <FaQuestionCircle />,
         items: [
             <> <span className="fw-bold celeste">Mi objetivo:</span>{" "} Escucharte y ayudarte a encontrar la causa de lo que estás sintiendo. </>, 
@@ -163,12 +175,6 @@ const solutions = [
     ];
 
     function Solutions() {
-    const [openIndex, setOpenIndex] = useState(null);
-
-    const toggleItem = (index) => {
-        setOpenIndex(openIndex === index ? null : index);
-    };
-
     return (
         <section className="solutions-section">
         <div className="container solutions-container py-5 ">
@@ -197,53 +203,28 @@ const solutions = [
 
         <div className="col-md-4" key={index}>
 
-        <div className="solutions-card">
+<div className="solutions-card">
 
-        <button
-        className="solutions-header text-uppercase fw-bold"
-        onClick={() => toggleItem(index)}
-        >
+  <Link
+    to={`/diagnosticos/${sol.slug}`}
+    className="solutions-header text-uppercase fw-bold text-decoration-none"
+  >
 
-        <div className="d-flex align-items-center gap-2">
-        <span className=" fs-2 me-2">
-            {sol.icon}
-        </span>
-        {sol.title}
-        </div>
+    <div className="d-flex align-items-center gap-2">
+      <span className="fs-2 me-2">
+        {sol.icon}
+      </span>
 
-        <span className={`arrow ${openIndex === index ? "open" : ""}`}>
-        ▼
-        </span>
+      {sol.title}
+    </div>
 
-        </button>
+    <span className="arrow">
+      →
+    </span>
 
-        <div className={`solutions-body ${openIndex === index ? "show" : ""}`}>
+  </Link>
 
-        {/* IMAGEN */}
-        {sol.image && (
-        <img
-        src={sol.image}
-        alt={sol.title}
-        className="solutions-image"
-        />
-        )}
-
-        <ul>
-
-        {sol.items.map((item, i) => (
-
-        <li key={i}>
-        <FaCheckCircle className="icon" />
-        {item}
-        </li>
-
-        ))}
-
-        </ul>
-
-        </div>
-
-        </div>
+</div>
 
         </div>
 
