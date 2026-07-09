@@ -46,7 +46,7 @@ function HeroCarousel() {
     <section className="hero">
       <img
         src={images[index]}
-        alt="Banner"
+        alt="Reumatólogo en Neuquén - Dr. Reuma"
         className="hero-img"
       />
 

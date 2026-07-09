@@ -117,6 +117,22 @@ function Home() {
           content="reumatólogo en Neuquén, reumatologo Neuquen, Dr Reuma, Dr Tony Vélez, artritis reumatoide, lupus, artrosis, fibromialgia, osteoporosis, gota, dolor articular, enfermedades autoinmunes"
         />
 
+        <meta property="og:title" content="Reumatólogo en Neuquén | Dr. Reuma" />
+
+        <meta
+          property="og:description"
+          content="Atención reumatológica en Neuquén Capital. Consulta presencial y online para artritis, lupus, artrosis, fibromialgia, osteoporosis, gota y dolor articular."
+        />
+
+        <meta
+          property="og:image"
+          content="https://doctor-reuma.com.ar/DrReumaLogo.png"
+        />
+
+        <meta property="og:url" content="https://doctor-reuma.com.ar/" />
+
+        <meta property="og:type" content="website" />
+
         <link
           rel="canonical"
           href="https://doctor-reuma.com.ar/"

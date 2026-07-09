@@ -364,11 +364,11 @@ useEffect(() => {
 
         <h3 className="subtitle-general mb-5">
           <span className="subtitle-celeste">CONSULTAS Y SERVICIOS</span>
-          <span className="subtitle-negro"> DE REUMATOLÓGICA </span>
+          <span className="subtitle-negro"> DE REUMATOLOGÍCA </span>
         </h3>
         
         <p className="services-description mb-5">
-          Ofrecemos atención <span className="fw-bold"> (Presencial en Neuquén - Capital y consultas online) </span> desde la comodidad
+          Ofrecemos atención <span className="fw-bold"> Presencial en Neuquén Capital y consultas online </span> desde la comodidad
           de tu hogar por si no puedes venir, para personas con dolor articular, inflamación, cansancio,
           rigidez o síntomas reumatológicos.
         </p>

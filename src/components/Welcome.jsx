@@ -5,9 +5,13 @@ import {
   FaHeartbeat,
   FaUserMd,
   FaClipboardCheck,
-  FaPlayCircle
+  FaPlayCircle, 
+  FaCalendarCheck,
+  FaStethoscope,
+  FaWhatsapp
 } from "react-icons/fa";
 
+import { Link } from "react-router-dom";
 import paciente1 from "../assets/paciente1.webp";
 import paciente2 from "../assets/paciente2.webp";
 import paciente3 from "../assets/paciente3.webp";
@@ -52,29 +56,56 @@ function Welcome() {
 
           
             <p className="welcome-text">
-            En <span className="fw-bold celeste">Dr. reuma</span> trabajamos para que vuelvas a moverte sin dolor
-            y mejores tu calidad de vida mediante una atención
-            médica cercana, humana y personalizada.
-            Nos enfocamos en el diagnóstico temprano,
-            tratamiento y seguimiento de enfermedades
-            reumatológicas y autoinmunes.  <br />
-            <span className="fw-bold celeste">
-              Tratamos patologías como:<br />
-            </span>
-            Fibromialgia, artritis reumatoidea, artritis psoriásica, 
-            lupus, artrosis, osteoporosis, dolor articular (rodilla, columnas, manos), Síndrome de Sjögren
-            y entre otras.
-             <br /> <br />
-              <span className="title-negro fw-bold mb-4">
-              <FaMapMarkerAlt className="fs-2 me-3 celeste" />
-                SAN MARTÍN 1355 - NEUQUÉN CAPITAL
-              </span>
-              <br />
-              <span className="fw-bold text-uppercase">
-                <FaHeart className="me-3 fs-2 celeste" />
-                Acá no sos un número: sos una persona.
-              </span>
-            </p>
+  En <span className="fw-bold celeste">Dr. Reuma</span> ofrecemos atención
+  reumatológica en <strong>Neuquén Capital</strong>, con un enfoque cercano,
+  humano y personalizado para pacientes con dolor articular, inflamación,
+  rigidez, cansancio o sospecha de enfermedades autoinmunes.
+
+  <br /><br />
+
+  Nos enfocamos en el diagnóstico temprano, tratamiento y seguimiento de
+  enfermedades reumatológicas como artritis reumatoide, artritis psoriásica,
+  lupus, artrosis, osteoporosis, gota, fibromialgia, síndrome de Sjögren,
+  dolor de columna, dolor de rodillas y otras enfermedades autoinmunes.
+
+  <br /><br />
+
+  <span className="title-negro fw-bold mb-4">
+    <FaMapMarkerAlt className="fs-2 me-3 celeste" />
+    SAN MARTÍN 1355 - NEUQUÉN CAPITAL
+  </span>
+
+  <br />
+
+  <span className="fw-bold text-uppercase">
+    <FaHeart className="me-3 fs-2 celeste" />
+    Acá no sos un número: sos una persona.
+  </span>
+</p>
+
+<div className="d-flex flex-column flex-sm-row gap-3 mt-4 mb-4">
+
+  <Link to="/servicios" className="btn btn-info fw-bold text-white">
+    <FaCalendarCheck className="me-2" />
+    Solicitar turno con reumatólogo
+  </Link>
+
+  <Link to="/diagnosticos" className="btn btn-dark fw-bold text-white">
+    <FaStethoscope className="me-2" />
+    Ver enfermedades reumatológicas
+  </Link>
+
+  <a
+    href="https://wa.me/5492994666559"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="btn btn-verde fw-bold text-white"
+  >
+    <FaWhatsapp className="me-2" />
+    WhatsApp
+  </a>
+
+</div>
 
             {/* BENEFICIOS */}
             <motion.div
