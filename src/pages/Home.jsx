@@ -81,8 +81,7 @@ function Home() {
       }
     ],
     sameAs: [
-      "https://www.instagram.com/drreuma",
-      "https://doctor-reuma.com.ar"
+      "https://www.instagram.com/drreuma"
     ]
   };
 
