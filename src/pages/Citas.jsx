@@ -24,7 +24,8 @@ import {
   FaEyeSlash,
   FaLock,
   FaSun,
-  FaCloudSun
+  FaCloudSun,
+  FaStickyNote
 } from "react-icons/fa";
 
 import {
@@ -65,6 +66,11 @@ function Citas() {
   const [bloqueos, setBloqueos] = useState([]);
   const [showDetalle, setShowDetalle] = useState(false);
   const [citaSeleccionada, setCitaSeleccionada] = useState(null);
+
+  //notas 
+  const [notasAgenda, setNotasAgenda] = useState([]);
+  const [showModalNota, setShowModalNota] = useState(false);
+  const [notaDia, setNotaDia] = useState("");
 
   // ================= FIRESTORE =================
   useEffect(() => {
@@ -119,6 +125,19 @@ useEffect(() => {
     }));
 
     setViernesAgenda(data);
+  });
+
+  return () => unsub();
+}, []);
+//para notas
+useEffect(() => {
+  const unsub = onSnapshot(collection(db, "notasAgenda"), (snap) => {
+    const data = snap.docs.map(d => ({
+      id: d.id,
+      ...d.data()
+    }));
+
+    setNotasAgenda(data);
   });
 
   return () => unsub();
@@ -391,6 +410,63 @@ const bloqueoDelDia = bloqueos.find(
   b => b.fecha === diaSeleccionado && b.activo
 );
 
+const notaDelDia = notasAgenda.find(
+  n => n.fecha === diaSeleccionado
+);
+
+const abrirModalNota = () => {
+  setNotaDia(notaDelDia?.texto || "");
+  setShowModalNota(true);
+};
+
+const guardarNotaDia = async () => {
+  if (!diaSeleccionado) return;
+
+  const texto = notaDia.trim();
+
+  const existente = notasAgenda.find(
+    n => n.fecha === diaSeleccionado
+  );
+
+  setShowModalNota(false);
+  setNotaDia("");
+
+  if (existente) {
+    if (texto === "") {
+      await deleteDoc(doc(db, "notasAgenda", existente.id));
+      return;
+    }
+
+    await updateDoc(doc(db, "notasAgenda", existente.id), {
+      texto,
+      updatedAt: new Date()
+    });
+
+    return;
+  }
+
+  if (texto !== "") {
+    await addDoc(collection(db, "notasAgenda"), {
+      fecha: diaSeleccionado,
+      texto,
+      createdAt: new Date()
+    });
+  }
+};
+
+const eliminarNotaDia = async () => {
+  const existente = notasAgenda.find(
+    n => n.fecha === diaSeleccionado
+  );
+
+  setShowModalNota(false);
+  setNotaDia("");
+
+  if (existente) {
+    await deleteDoc(doc(db, "notasAgenda", existente.id));
+  }
+};
+
   return (
     <div className="container py-4">
 
@@ -544,10 +620,22 @@ const bloqueoDelDia = bloqueos.find(
 
  dayCellContent={(arg) => {
   const fecha = arg.date.toISOString().split("T")[0];
-  const configViernes = getConfiguracionViernes(fecha);
+const configViernes = getConfiguracionViernes(fecha);
+
+const tieneNota = notasAgenda.some(
+  n => n.fecha === fecha && n.texto?.trim()
+);
 
   return (
     <div className="dia-celda-custom">
+
+      {tieneNota && (
+  <div
+    className="nota-triangulo"
+    title="Este día tiene una nota"
+  />
+)}
+
       <div className="dia-numero">
         {arg.dayNumberText}
       </div>
@@ -683,7 +771,6 @@ eventClick={(info) => {
           </div>
         ))
       )}
-
     </div>
   )}
 
@@ -713,48 +800,75 @@ eventClick={(info) => {
   </div>
 </div>
 
-<div className="d-flex gap-2 mb-3 align-items-center">
- 
- {/* BOTON PARA VIERNES TURNO */}
+<div className="mb-3">
 
- <button
-  className={`btn btn-agenda-icono ${diaEstaBloqueado(diaSeleccionado) ? "btn-danger" : "btn-outline-secondary"}`}
-  onClick={toggleBloqueoDia}
-  title={diaEstaBloqueado(diaSeleccionado) ? "Desbloquear día" : "Bloquear día"}
->
-  {diaEstaBloqueado(diaSeleccionado) ? <FaEyeSlash /> : <FaEye />}
-</button>
+  <div className="d-flex gap-2 align-items-center flex-wrap">
 
-{diaSeleccionado &&
-  new Date(`${diaSeleccionado}T00:00:00`).getDay() === 5 && (
-    <div className="d-flex gap-2">
+    <button
+      className={`btn btn-agenda-icono ${
+        diaEstaBloqueado(diaSeleccionado)
+          ? "btn-danger"
+          : "btn-outline-secondary"
+      }`}
+      onClick={toggleBloqueoDia}
+      title={
+        diaEstaBloqueado(diaSeleccionado)
+          ? "Desbloquear día"
+          : "Bloquear día"
+      }
+    >
+      {diaEstaBloqueado(diaSeleccionado) ? <FaEyeSlash /> : <FaEye />}
+    </button>
 
-      <button
-        className={`btn btn-agenda-icono ${
-          getConfiguracionViernes(diaSeleccionado)?.turno === "mañana"
-            ? "btn-warning"
-            : "btn-outline-warning"
-        }`}
-        onClick={() => cambiarTurnoViernes("mañana")}
-        title="Consultorio de mañana"
-      >
-        <FaSun />
-      </button>
+    <button
+      className={`btn btn-agenda-icono ${
+        notaDelDia ? "btn-info" : "btn-outline-info"
+      }`}
+      onClick={abrirModalNota}
+      title={notaDelDia ? "Ver nota del día" : "Agregar nota"}
+    >
+      <FaStickyNote />
+    </button>
 
-      <button
-        className={`btn btn-agenda-icono ${
-          getConfiguracionViernes(diaSeleccionado)?.turno === "tarde"
-            ? "btn-tarde"
-            : "btn-outline-tarde"
-        }`}
-        onClick={() => cambiarTurnoViernes("tarde")}
-        title="Consultorio de tarde"
-      >
-        <FaCloudSun/>
-      </button>
+    {diaSeleccionado &&
+      new Date(`${diaSeleccionado}T00:00:00`).getDay() === 5 && (
+        <div className="d-flex gap-2">
 
+          <button
+            className={`btn btn-agenda-icono ${
+              getConfiguracionViernes(diaSeleccionado)?.turno === "mañana"
+                ? "btn-warning"
+                : "btn-outline-warning"
+            }`}
+            onClick={() => cambiarTurnoViernes("mañana")}
+            title="Consultorio de mañana"
+          >
+            <FaSun />
+          </button>
+
+          <button
+            className={`btn btn-agenda-icono ${
+              getConfiguracionViernes(diaSeleccionado)?.turno === "tarde"
+                ? "btn-tarde"
+                : "btn-outline-tarde"
+            }`}
+            onClick={() => cambiarTurnoViernes("tarde")}
+            title="Consultorio de tarde"
+          >
+            <FaCloudSun />
+          </button>
+
+        </div>
+      )}
+
+  </div>
+
+  {notaDelDia?.texto && (
+    <div className="alert alert-info py-2 px-3 mt-2 mb-0 nota-dia-alert">
+      <strong className="d-block">📝 NOTA DEL DÍA:</strong>
+      <span className="d-block">{notaDelDia.texto}</span>
     </div>
-)}
+  )}
 
 </div>
 
@@ -873,6 +987,73 @@ eventClick={(info) => {
   await deleteDoc(doc(db, "citas", cita.id));
 }}
 />
+
+      {showModalNota && (
+  <div className="modal d-block" style={{ background: "rgba(0,0,0,0.5)" }}>
+    <div className="modal-dialog modal-dialog-centered">
+      <div className="modal-content">
+
+        <div className="modal-header">
+          <h5 className="modal-title">
+            📝 Nota del día
+          </h5>
+
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setShowModalNota(false)}
+          />
+        </div>
+
+        <div className="modal-body">
+          <label className="form-label fw-bold">
+            Nota para {fechaFormateada}
+          </label>
+
+          <textarea
+            className="form-control"
+            rows="5"
+            placeholder="Ej: llamar paciente, confirmar horario, traer estudios, agenda especial, etc."
+            value={notaDia}
+            onChange={(e) => setNotaDia(e.target.value)}
+          />
+
+          <small className="text-muted d-block mt-2">
+            Si dejas la nota vacía y guardas, se elimina.
+          </small>
+        </div>
+
+        <div className="modal-footer d-flex justify-content-between">
+          <button
+            className="btn btn-outline-danger"
+            onClick={eliminarNotaDia}
+            disabled={!notaDelDia}
+          >
+            Eliminar
+          </button>
+
+          <div>
+            <button
+              className="btn btn-secondary me-2"
+              onClick={() => setShowModalNota(false)}
+            >
+              Cancelar
+            </button>
+
+            <button
+              className="btn btn-info fw-bold"
+              onClick={guardarNotaDia}
+            >
+              Guardar nota
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+)}
+
 {showModalBloqueo && (
   <div className="modal d-block" style={{ background: "rgba(0,0,0,0.5)" }}>
     <div className="modal-dialog modal-dialog-centered">
@@ -880,7 +1061,7 @@ eventClick={(info) => {
 
         <div className="modal-header">
           <h5 className="modal-title">
-            🔒 Bloquear agenda
+            🔒  BLOQUEAR AGENDA
           </h5>
 
           <button
@@ -892,7 +1073,7 @@ eventClick={(info) => {
 
         <div className="modal-body">
           <label className="form-label fw-bold">
-            Motivo del bloqueo
+            Motivo del bloqueo:
           </label>
 
           <textarea

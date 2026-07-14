@@ -2326,7 +2326,7 @@ html, body, #root {
   .fc .fc-daygrid-day.dia-bloqueado .candado-bloqueo {
     top: 50% !important;
     left: 50% !important;
-    transform: translate(-60%, 50%) !important;
+    transform: translate(-45%, 50%) !important;
     font: size 20px;
   }
 }
@@ -3183,5 +3183,29 @@ html, body, #root {
 
   .diagnostico-local-card h2 {
     font-size: 1.25rem;
+  }
+}
+
+/* Triangulito indicador de nota en el calendario */
+.nota-triangulo {
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  width: 0;
+  height: 0;
+
+  border-top: 14px solid #ffc107;
+  border-left: 14px solid transparent;
+
+  z-index: 20;
+  pointer-events: none;
+}
+
+/* En celular más pequeño */
+@media (max-width: 768px) {
+  .nota-triangulo {
+    border-top: 10px solid #ffc107;
+    border-left: 10px solid transparent;
   }
 }
