@@ -2292,8 +2292,43 @@ html, body, #root {
   }
 }
 
-.fc-daygrid-day.dia-bloqueado {
+/* Celda bloqueada */
+.fc .fc-daygrid-day.dia-bloqueado {
   background-color: #e9ecef !important;
+}
+
+/* El marco interno del día debe ser la referencia */
+.fc .fc-daygrid-day.dia-bloqueado .fc-daygrid-day-frame {
+  position: relative !important;
+}
+
+/* Candado perfectamente centrado */
+.fc .fc-daygrid-day.dia-bloqueado .candado-bloqueo {
+  position: absolute !important;
+
+  top: 50% !important;
+  left: 50% !important;
+
+  transform: translate(-70%, 50%) !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  font-size: 22px;
+  color: #6c757d;
+  z-index: 10;
+
+  pointer-events: none;
+}
+
+/* En celular solo achicamos, NO lo movemos */
+@media (max-width: 768px) {
+  .fc .fc-daygrid-day.dia-bloqueado .candado-bloqueo {
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-60%, 50%) !important;
+    font: size 20px;
+  }
 }
 
 .dia-celda-custom {

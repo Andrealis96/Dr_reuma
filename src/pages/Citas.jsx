@@ -554,7 +554,7 @@ const bloqueoDelDia = bloqueos.find(
 
       {diaEstaBloqueado(fecha) && (
         <div className="candado-centro">
-          <FaLock />
+          <FaLock className="candado-bloqueo" />
         </div>
       )}
 
