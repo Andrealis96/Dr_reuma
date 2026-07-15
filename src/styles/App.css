@@ -7,77 +7,98 @@ body {
   z-index: 2;
 }
 
-.welcome-title {
-  font-size: clamp(2.2rem, 6vw, 4rem);
+/* ============================= */
+/* TÍTULOS GLOBALES LIMPIOS */
+/* ============================= */
+
+.title-general {
+  font-size: clamp(2.2rem, 5vw, 4rem);
+  font-weight: 1000;
   line-height: 1.1;
+  margin-top: 0;
+  word-break: normal;
+  overflow-wrap: normal;
+  text-align: center;
+}
+
+.title-celeste {
+  color: #00bcd4 !important;
+  -webkit-text-stroke: 0 !important;
+  text-shadow: none !important;
+}
+
+.title-negro {
+  color: #000000 !important;
+  -webkit-text-stroke: 0 !important;
+  text-shadow: none !important;
+}
+
+/* Subtítulos sin borde negro */
+.subtitle-general {
+  font-size: clamp(2rem, 4vw, 2.5rem);
+  font-weight: 1000;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.subtitle-celeste {
+  color: #00bcd4 !important;
+  -webkit-text-stroke: 0 !important;
+  text-shadow: none !important;
+}
+
+.subtitle-negro {
+  color: #000000 !important;
+  -webkit-text-stroke: 0 !important;
+  text-shadow: none !important;
+}
+
+/* Título principal del Welcome */
+.welcome-title {
+  font-size: clamp(2rem, 6vw, 4rem);
+  line-height: 1.08;
   word-break: normal;
   overflow-wrap: normal;
 }
 
 /* Celular */
 @media (max-width: 768px) {
-  .welcome-title {
-    font-size: 4.2rem !important;
-    line-height: 1.05;
-    margin-top: 0 !important;
-    padding-left: 8px;
-    padding-right: 8px;
-  }
-
-  .welcome-title .title-celeste,
-  .welcome-title .title-negro {
-    display: block;
-  }
-}
-
-/* Celular muy chico */
-@media (max-width: 430px) {
+  .title-general,
   .welcome-title {
     font-size: 2rem !important;
+    line-height: 1.08 !important;
+    padding-left: 10px;
+    padding-right: 10px;
   }
-}
 
-.welcome-title .title-celeste {
-  color: #00bcd4 !important;
-  -webkit-text-stroke: 0 !important;
-  text-shadow: none !important;
-}
-
-.welcome-title .title-negro {
-  color: #000 !important;
-  -webkit-text-stroke: 0 !important;
-  text-shadow: none !important;
-}
-
-/* Celular */
-@media (max-width: 768px) {
-  .welcome-title {
-    font-size: 2rem !important;
+  .subtitle-general {
+    font-size: 1.8rem !important;
     line-height: 1.1 !important;
   }
 
-  .welcome-title .title-celeste,
-  .welcome-title .title-negro {
-    display: block;
+  .title-celeste,
+  .title-negro,
+  .subtitle-celeste,
+  .subtitle-negro {
     -webkit-text-stroke: 0 !important;
     text-shadow: none !important;
   }
+
+  .welcome-title .title-celeste,
+  .welcome-title .title-negro {
+    display: block;
+  }
 }
 
-.title-general{
-  font-size: 4rem;
-  font-weight: 1000;
-  margin-top: -12px;
-}
+@media (max-width: 430px) {
+  .title-general,
+  .welcome-title {
+    font-size: 1.85rem !important;
+  }
 
-.title-celeste {
-  color: #00bcd4;
-  -webkit-text-stroke: 0;
-  text-shadow: none;
-}
-
-.title-negro{
-  color: rgb(0, 0, 0);
+  .subtitle-general {
+    font-size: 1.6rem !important;
+  }
 }
 
 .fly-text {
@@ -310,6 +331,17 @@ font-size: 14px;
   text-align: justify;
 }
 
+@media (max-width: 768px) {
+  .welcome-text,
+  .solutions-description,
+  .services-description,
+  .about-text {
+    text-align: left !important;
+    word-spacing: normal !important;
+    letter-spacing: normal !important;
+  }
+}
+
 /* BENEFICIOS */
 .benefits{
   display:flex;
@@ -410,9 +442,6 @@ font-size: 14px;
 }
 
 @media (max-width:768px){
-  .title-general{
-    font-size:3rem;
-  }
   .slide{
     flex:0 0 140px;
   }
