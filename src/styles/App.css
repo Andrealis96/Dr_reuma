@@ -324,20 +324,25 @@ font-size: 14px;
 .celeste {
   color: rgb(9, 154, 173);
 }
-.welcome-text{
+.welcome-text {
   font-size: 1.05rem;
   font-weight: 550;
   line-height: 1.7;
   text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
+  word-spacing: normal;
+  letter-spacing: normal;
 }
 
 @media (max-width: 768px) {
-  .welcome-text,
-  .solutions-description,
-  .services-description,
-  .about-text {
-    text-align: left !important;
-    word-spacing: normal !important;
+  .welcome-text {
+    text-align: justify !important;
+    text-justify: inter-word;
+    hyphens: auto;
+    line-height: 1.65 !important;
+    font-size: 1rem !important;
+    word-spacing: -0.5px;
     letter-spacing: normal !important;
   }
 }
