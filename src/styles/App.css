@@ -7,8 +7,38 @@ body {
   z-index: 2;
 }
 
+.welcome-title {
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  line-height: 1.1;
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
+/* Celular */
+@media (max-width: 768px) {
+  .welcome-title {
+    font-size: 4.2rem !important;
+    line-height: 1.05;
+    margin-top: 0 !important;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .welcome-title .title-celeste,
+  .welcome-title .title-negro {
+    display: block;
+  }
+}
+
+/* Celular muy chico */
+@media (max-width: 430px) {
+  .welcome-title {
+    font-size: 2rem !important;
+  }
+}
+
 .title-general{
-  font-size: 5rem;
+  font-size: 4rem;
   font-weight: 1000;
   margin-top: -12px;
 }
@@ -255,13 +285,13 @@ font-size: 14px;
 .benefits{
   display:flex;
   flex-direction:column;
-  gap:14px;
+  gap:2px;
 }
 
 .benefit-item{
   display:flex;
   align-items:center;
-  gap:12px;
+  gap:5px;
   font-size:1rem;
   font-weight:700;
   background:  rgba(9, 154, 173, 0.185) ;
@@ -281,7 +311,7 @@ font-size: 14px;
   flex-direction: row;
   justify-content: center;
   align-items: stretch;
-  gap: 14px;
+  gap: 5px;
   flex-wrap: nowrap;
   width: 100%;
 }
@@ -295,16 +325,16 @@ font-size: 14px;
 
 @media (max-width: 768px) {
   .benefits-line {
-    gap: 5px;
+    gap: 2px;
   }
 
   .benefit-item-line {
     padding: 12px 2px;
-    font-size: 11px;
+    font-size: 10px;
   }
 
   .benefit-item-line .benefit-icon {
-    font-size: 30px;
+    font-size: 18px;
   }
 }
 /* SLIDER IMÁGENES */
@@ -397,7 +427,7 @@ font-size: 14px;
 
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 2px;
 
   font-size: .85rem;
   font-weight: 700;
@@ -409,6 +439,7 @@ font-size: 14px;
 
 .video-badge svg{
   color: rgb(9, 154, 173);
+  font-size: 15px;
 }
 
 /* MOBILE */

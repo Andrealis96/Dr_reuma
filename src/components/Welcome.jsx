@@ -43,7 +43,7 @@ function Welcome() {
       <div className="container">
 
         {/* TITULO */}
-        <h1 className="title-general text-center py-3 ly-text text-uppercase">
+        <h1 className="title-general welcome-title text-center py-3 ly-text text-uppercase">
           <span className="title-celeste"> Reumatólogo en Neuquén |</span>
           <span className="title-negro"> DR.REUMA</span>
         </h1>
@@ -71,7 +71,7 @@ function Welcome() {
   <br /><br />
 
   <span className="fw-bold celeste text-center d-flex align-items-center justify-content-center">
-    <FaHeart className="me-3 fs-2 celeste" />
+    <FaHeart className="fs-4 me-1 celeste" />
     Acá no sos un número: sos una persona.
   </span>
 </p>
@@ -143,8 +143,8 @@ function Welcome() {
             <div className="doctor-video-container">
 
               <div className="video-badge">
-                <FaPlayCircle />
-                <span>MENSAJE DEL DR.REUMA</span>
+                <FaPlayCircle className="fs-1 celeste"/>
+                <span>Mensaje del Dr. Reuma</span>
               </div>
 
               <video
