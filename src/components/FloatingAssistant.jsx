@@ -1,216 +1,370 @@
-import { useState, useEffect } from "react"
-import AssitenteDoctor from "../assets/AssitenteDoctor.svg"
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import AssitenteDoctor from "../assets/AssitenteDoctor.svg";
+
+import {
+  FaWhatsapp,
+  FaMapMarkerAlt,
+  FaStethoscope,
+  FaCalendarCheck,
+  FaQuestionCircle,
+  FaArrowLeft,
+  FaTimes,
+  FaLocationArrow,
+  FaBone,
+  FaHandHoldingMedical,
+  FaInstagram,
+  FaFacebookF,
+  FaTiktok
+} from "react-icons/fa";
 
 export default function FloatingAssistant() {
+  const navigate = useNavigate();
 
-  const [open, setOpen] = useState(false)
-  const [step, setStep] = useState("start")
-  const [typing, setTyping] = useState(false)
-
-  /* EFECTO ESCRIBIENDO */
+  const [open, setOpen] = useState(false);
+  const [step, setStep] = useState("start");
+  const [typing, setTyping] = useState(false);
 
   useEffect(() => {
-    setTyping(true)
+    setTyping(true);
+
     const timer = setTimeout(() => {
-      setTyping(false)
-    }, 800)
+      setTyping(false);
+    }, 500);
 
-    return () => clearTimeout(timer)
-  }, [step])
-
-  /* WHATSAPP */
+    return () => clearTimeout(timer);
+  }, [step]);
 
   const goWhatsApp = () => {
-
     const mensaje = encodeURIComponent(
-      "Hola, quiero consultar disponibilidad para una consulta médica."
-    )
+      "Hola Dr. Reuma, quiero consultar disponibilidad para una consulta médica. Mi nombre es "
+    );
 
     window.open(
       `https://wa.me/5492994666559?text=${mensaje}`,
       "_blank"
-    )
-
-  }
-
-  /* MAPS */
+    );
+  };
 
   const goMaps = () => {
-
     window.open(
       "https://maps.app.goo.gl/WgDkBRvfiKK3cP1y7",
       "_blank"
-    )
+    );
+  };
 
-  }
+  const goInstagram = () => {
+  window.open(
+    "https://www.instagram.com/drreuma",
+    "_blank"
+  );
+};
+
+const goFacebook = () => {
+  window.open(
+    "https://www.facebook.com/profile.php?id=61585981370318",
+    "_blank"
+  );
+};
+
+const goTiktok = () => {
+  window.open(
+    "https://vt.tiktok.com/ZSXANC5gg/",
+    "_blank"
+  );
+};
+
+  const goServicios = () => {
+    setOpen(false);
+    navigate("/servicios");
+  };
+
+  const goDiagnosticos = () => {
+    setOpen(false);
+    navigate("/diagnosticos");
+  };
+
+  const OptionButton = ({ icon, text, onClick, variant = "" }) => (
+    <button
+      type="button"
+      className={`assistant-option ${variant}`}
+      onClick={onClick}
+    >
+      <span className="assistant-option-icon">
+        {icon}
+      </span>
+
+      <span>
+        {text}
+      </span>
+    </button>
+  );
+
+  const BackButton = () => (
+    <button
+      type="button"
+      className="assistant-back-btn"
+      onClick={() => setStep("start")}
+    >
+      <FaArrowLeft />
+      Volver
+    </button>
+  );
 
   const renderBot = () => {
-
     if (typing) {
       return (
-        <div className="typing">
+        <div className="assistant-typing">
           <span></span>
           <span></span>
           <span></span>
         </div>
-      )
+      );
     }
 
     switch (step) {
-
       case "start":
         return (
           <>
-            <div className="bot-msg">
-              Hola 👋 Soy el Asistente Médico del consultorio <span className="fw-semibold">Dr.Reuma</span>. <br />
-              Puedo orientarte o ayudarte a solicitar una consulta.<span className="fw-semibold">  A continuación selecciona lo que deseas consultar:</span> 
+            <div className="assistant-message">
+              <strong>Hola 👋 Soy el asistente médico de Dr. Reuma.</strong>
+              <br />
+              Puedo orientarte sobre consultas, enfermedades reumatológicas,
+              dolor articular o ubicación del consultorio.
             </div>
 
-            <div className="options">
+            <div className="assistant-options">
+              <OptionButton
+                icon={<FaBone />}
+                text="Tengo dolor articular"
+                onClick={() => setStep("dolor")}
+              />
 
-              <button onClick={() => setStep("dolor")}>
-                👉 Dolor articular
-              </button>
+              <OptionButton
+                icon={<FaStethoscope />}
+                text="Enfermedades que tratamos"
+                onClick={() => setStep("enfermedades")}
+              />
 
-              <button onClick={() => setStep("enfermedades")}>
-                👉 Enfermedades que tratamos
-              </button>
+              <OptionButton
+                icon={<FaCalendarCheck />}
+                text="Turnos y consultas"
+                onClick={() => setStep("turnos")}
+              />
 
-              <button onClick={() => setStep("turnos")}>
-                👉 Turnos y consultas
-              </button>
+              <OptionButton
+                icon={<FaMapMarkerAlt />}
+                text="Ubicación del consultorio"
+                onClick={() => setStep("ubicacion")}
+              />
 
-              <button onClick={() => setStep("ubicacion")}>
-                👉 Ubicación del consultorio
-              </button>
-
+              <OptionButton
+                icon={<FaInstagram />}
+                text="Redes sociales"
+                onClick={() => setStep("redes")}
+              />
             </div>
           </>
-        )
+        );
 
       case "dolor":
         return (
           <>
-            <div className="bot-msg">
-              <span className="fw-semibold">El dolor articular puede aparecer en distintas zonas del cuerpo.</span> Para un diagnóstico correcto es importante una evaluación médica.
+            <div className="assistant-message">
+              <strong>El dolor articular no siempre es normal.</strong>
+              <br />
+              Puede aparecer por artrosis, artritis, gota, inflamación,
+              lesiones o enfermedades autoinmunes.
             </div>
 
-            <div className="bot-msg">
-              👉 Dolor de rodilla <br />
-              👉 Dolor de manos o dedos <br />
-              👉 Dolor de columna <br />
-              👉 Dolor de cadera <br />
-              👉 <span className="fw-semibold">Otras articulaciones ..... !!!!</span>
+            <div className="assistant-list">
+              <p>🦵 Dolor de rodilla</p>
+              <p>✋ Dolor de manos o dedos</p>
+              <p>🦴 Dolor de columna o cadera</p>
+              <p>🔥 Inflamación o rigidez matinal</p>
             </div>
 
-            <div className="options">
-              <button onClick={() => setStep("start")}>
-                Volver
-              </button>
+            <div className="assistant-options">
+              <OptionButton
+                icon={<FaWhatsapp />}
+                text="Consultar por WhatsApp"
+                onClick={goWhatsApp}
+                variant="whatsapp"
+              />
+
+              <OptionButton
+                icon={<FaCalendarCheck />}
+                text="Agendar consulta"
+                onClick={goServicios}
+              />
+
+              <BackButton />
             </div>
           </>
-        )
+        );
 
       case "enfermedades":
         return (
           <>
-            <div className="bot-msg">
-              <span className="fw-semibold">Estas son algunas de las enfermedades que tratamos:</span>
+            <div className="assistant-message">
+              <strong>Estas son algunas enfermedades que tratamos:</strong>
             </div>
 
-            <div className="bot-msg">
-              👉 Artritis reumatoide <br />
-              👉 Artritis psoriásica <br />
-              👉 Artrosis <br />
-              👉 Lupus <br />
-              👉 Fibromialgia <br />
-              👉 Esclerodermia <br />
-              👉 Gota (ácido úrico elevado) <br />
-              👉 Osteoporosis <br />
-              👉 Dolor de columna <br />
-              👉 Dolor de rodillas <br />
-              👉 Dolor de cadera <br />
-              👉 <span className="fw-semibold">OTRAS CONSULTAS</span>
+            <div className="assistant-list two-columns">
+              <p>Artritis reumatoide</p>
+              <p>Artritis psoriásica</p>
+              <p>Artrosis</p>
+              <p>Lupus</p>
+              <p>Fibromialgia</p>
+              <p>Esclerodermia</p>
+              <p>Gota</p>
+              <p>Osteoporosis</p>
+              <p>Sjögren</p>
+              <p>Dolor articular</p>
             </div>
 
-            <div className="options">
-              <button onClick={() => setStep("start")}>
-                Volver
-              </button>
+            <div className="assistant-options">
+              <OptionButton
+                icon={<FaHandHoldingMedical />}
+                text="Ver diagnósticos"
+                onClick={goDiagnosticos}
+              />
+
+              <OptionButton
+                icon={<FaWhatsapp />}
+                text="Consultar por WhatsApp"
+                onClick={goWhatsApp}
+                variant="whatsapp"
+              />
+
+              <BackButton />
             </div>
           </>
-        )
+        );
 
       case "turnos":
         return (
           <>
-            <div className="bot-msg">
-              <span className="fw-semibold">Podés solicitar distintos tipos de consulta:
-            </span>
-              
+            <div className="assistant-message">
+              <strong>Podés solicitar consulta presencial u online.</strong>
+              <br />
+              La atención presencial se realiza en Neuquén Capital.
             </div>
 
-            <div className="bot-msg">
-              👉 Consulta presencial (Clinica San Agustin )<br />
-              👉 Consulta por videollamada (Atención desde cualquier lugar del país) <br />
+            <div className="assistant-list">
+              <p>🏥 Consulta presencial en Clínica San Agustín</p>
+              <p>💻 Consulta por videollamada</p>
+              <p>📄 Recetas y certificados médicos</p>
             </div>
 
-            <div className="options">
+            <div className="assistant-options">
+              <OptionButton
+                icon={<FaCalendarCheck />}
+                text="Agendar desde la web"
+                onClick={goServicios}
+              />
 
-              <button onClick={goWhatsApp}>
-                Consultar por WhatsApp
-              </button>
+              <OptionButton
+                icon={<FaWhatsapp />}
+                text="Solicitar por WhatsApp"
+                onClick={goWhatsApp}
+                variant="whatsapp"
+              />
 
-              <button onClick={() => setStep("start")}>
-                Volver
-              </button>
-
+              <BackButton />
             </div>
           </>
-        )
+        );
 
       case "ubicacion":
         return (
           <>
-            <div className="bot-msg">
-              <span className="fw-semibold">El consultorio se encuentra en:</span>
+            <div className="assistant-message">
+              <strong>El consultorio se encuentra en:</strong>
+              <br />
+              Clínica San Agustín, San Martín 1355,
+              Consultorios Externos, Neuquén Capital.
             </div>
 
-            <div className="bot-msg">
-              Clínica San Agustín <br />
-              San Martiín 1355 - Consultorios Externos
-              Neuquén Capital
-            </div>
+            <div className="assistant-options">
+              <OptionButton
+                icon={<FaLocationArrow />}
+                text="Ver ubicación en Google Maps"
+                onClick={goMaps}
+              />
 
-            <div className="options">
+              <OptionButton
+                icon={<FaWhatsapp />}
+                text="Solicitar consulta"
+                onClick={goWhatsApp}
+                variant="whatsapp"
+              />
 
-              <button onClick={goMaps}>
-                📍 Ver ubicación
-              </button>
-
-              <button onClick={goWhatsApp}>
-                👉 Solicitar consulta
-              </button>
-
-              <button onClick={() => setStep("start")}>
-                Volver
-              </button>
-
+              <BackButton />
             </div>
           </>
-        )
+        );
+
+        case "redes":
+  return (
+    <>
+      <div className="assistant-message">
+        <strong>También puedes seguir a Dr. Reuma en redes sociales.</strong>
+        <br />
+        Compartimos tips, información médica sencilla, recomendaciones y
+        contenido educativo sobre enfermedades reumatológicas, dolor articular,
+        artritis, lupus, artrosis, fibromialgia, osteoporosis y salud autoinmune.
+      </div>
+
+      <div className="assistant-options">
+
+        <OptionButton
+          icon={<FaInstagram />}
+          text="Instagram"
+          onClick={goInstagram}
+          variant="instagram"
+        />
+
+        <OptionButton
+          icon={<FaFacebookF />}
+          text="Facebook"
+          onClick={goFacebook}
+          variant="facebook"
+        />
+
+        <OptionButton
+          icon={<FaTiktok />}
+          text="TikTok"
+          onClick={goTiktok}
+          variant="tiktok"
+        />
+
+        <OptionButton
+          icon={<FaWhatsapp />}
+          text="Consultar por WhatsApp"
+          onClick={goWhatsApp}
+          variant="whatsapp"
+        />
+
+        <BackButton />
+
+      </div>
+    </>
+  );
 
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   return (
     <>
       <button
         type="button"
-        className="floating-btn"
+        className={`floating-btn ${open ? "floating-btn-open" : ""}`}
         onClick={() => setOpen(!open)}
+        aria-label="Abrir asistente médico"
       >
         <img
           src={AssitenteDoctor}
@@ -220,39 +374,42 @@ export default function FloatingAssistant() {
       </button>
 
       {open && (
-
-        <div className="chat-box">
-
-          <div className="chat-header">
-
-            <div className="header-left">
-
+        <div className="chat-box assistant-modern-box">
+          <div className="assistant-modern-header">
+            <div className="assistant-header-left">
               <img
                 src={AssitenteDoctor}
                 alt="Doctor"
-                className="header-logo"
+                className="assistant-header-logo"
               />
 
-              <span>Asistente médico</span>
-
+              <div>
+                <strong>Asistente Dr. Reuma</strong>
+                <small>Respuesta rápida</small>
+              </div>
             </div>
 
-            <span
-              className="close-btn"
+            <button
+              type="button"
+              className="assistant-close-btn"
               onClick={() => setOpen(false)}
             >
-              ✕
-            </span>
-
+              <FaTimes />
+            </button>
           </div>
 
-          <div className="chat-body">
+          <div className="assistant-modern-body">
             {renderBot()}
           </div>
 
+          <div className="assistant-modern-footer">
+            <FaQuestionCircle />
+            <span>
+              Esta orientación no reemplaza una consulta médica.
+            </span>
+          </div>
         </div>
-
       )}
     </>
-  )
+  );
 }

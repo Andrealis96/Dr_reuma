@@ -60,20 +60,22 @@ function ArtritisReumatoide() {
                 Neuquén Capital - San Martín 1355, Consultorios Externos Clínica San Agustín
             </span>
             </div>
-<div className="d-flex flex-column flex-sm-row gap-3 mt-4 ">
+
+<div className="diagnostico-btn-group mt-4">
+
   <Link
     to="/servicios"
-    className="btn btn-info fw-bold text-white"
+    className="btn btn-info fw-bold text-white diagnostico-btn"
   >
     <FaCalendarCheck className="me-2" />
-    Solicitar consulta
+    Turnos
   </Link>
 
   <a
     href="https://wa.me/5492994666559"
     target="_blank"
     rel="noopener noreferrer"
-    className="btn btn-verde fw-bold text-white"
+    className="btn btn-verde fw-bold text-white diagnostico-btn"
   >
     <FaWhatsapp className="me-2" />
     WhatsApp
@@ -83,11 +85,12 @@ function ArtritisReumatoide() {
     href="https://www.instagram.com/drreuma"
     target="_blank"
     rel="noopener noreferrer"
-    className="btn btn-instagram fw-bold text-white"
+    className="btn btn-instagram fw-bold text-white diagnostico-btn diagnostico-btn-instagram"
   >
     <FaInstagram className="me-2" />
     Instagram
   </a>
+
 </div>
 
           </div>

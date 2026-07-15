@@ -8,6 +8,7 @@ import Testimonials from "../components/Testimonials";
 import Galeria from "../components/Galeria";
 import Faq from "../components/Faq";
 import { faqData } from "../data/faqData";
+import InstagramPreview from "../components/InstagramPreview";
 
 function Home() {
 
@@ -153,6 +154,7 @@ function Home() {
       <HeroCarousel />
       <Welcome />
       <Solutions />
+      <InstagramPreview />
       <Services />
       <Galeria />
       <Faq />

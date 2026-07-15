@@ -260,7 +260,7 @@ function NavbarDrReuma() {
                 as={RouterLink}
                 to="/admin"
                 onClick={closeNavbar}
-                style={{ fontWeight:"600", color:"#198754" }}
+                style={{ fontWeight:"600", color:"#197687" }}
               >
                 <FaTachometerAlt className="me-1"/> Panel Admin
               </Nav.Link>

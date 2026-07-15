@@ -209,6 +209,35 @@ html, body, #root {
   padding: 0.5rem 0;
 }
 
+/* Corrige color negro al seleccionar links del navbar */
+.navbar-drreuma .nav-link,
+.navbar-drreuma .nav-link:visited,
+.navbar-drreuma .nav-link:focus,
+.navbar-drreuma .nav-link:active,
+.navbar-drreuma .nav-link.active,
+.navbar-drreuma .show > .nav-link {
+  color: #ffffff !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Íconos del navbar también blancos */
+.navbar-drreuma .nav-link svg {
+  color: inherit !important;
+}
+
+/* Cuando pasas el mouse */
+.navbar-drreuma .nav-link:hover {
+  color: #75c0eb !important;
+}
+
+/* Si quieres que el activo se marque lindo, no negro */
+.navbar-drreuma .nav-link.active {
+  color: #75c0eb !important;
+  background: rgba(9, 154, 173, 0.18) !important;
+  border-radius: 10px;
+}
+
 /* Línea elegante abajo */
 .nav-links .nav-link::after {
   content: "";
@@ -299,16 +328,23 @@ font-size: 14px;
 }
 
 .dot {
-  width: 30px;
-  height: 4px;
-  background: rgba(255,255,255,0.5);
-  border-radius: 2px;
+  width: 12px;
+  height: 12px;
+
+  background: rgba(156, 156, 156, 0.65);
+  border-radius: 50%;
+
   cursor: pointer;
-  transition: 0.3s;
+  transition: all 0.3s ease;
+
+  border: 2px solid rgba(255, 255, 255, 0.9);
 }
 
 .dot.active {
-  background: black;
+  background: rgb(9, 154, 173);
+  border-color: rgb(9, 154, 173);
+
+  transform: scale(1.25);
 }
 
 /* MOBILE */
@@ -767,6 +803,270 @@ margin-top: 5px;
   margin-bottom:15px;
 }
 
+
+/*insgram dentro de diagnostico */
+
+.instagram-diagnosticos-section {
+  padding: 25px 0 55px;
+}
+
+.instagram-preview-card {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+
+  background: #ffffff;
+  border-radius: 28px;
+
+  padding: 22px;
+
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+
+  overflow: hidden;
+}
+
+.instagram-preview-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  font-weight: 900;
+  font-size: 1.1rem;
+
+  padding-bottom: 16px;
+  margin-bottom: 18px;
+
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.instagram-preview-top svg {
+  font-size: 28px;
+  color: #e1306c;
+}
+
+.instagram-preview-profile {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin-bottom: 18px;
+}
+
+.instagram-preview-avatar {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+
+  padding: 4px;
+
+  background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+
+  flex-shrink: 0;
+}
+
+.instagram-preview-avatar img {
+  width: 100%;
+  height: 100%;
+
+  border-radius: 50%;
+  object-fit: cover;
+
+  background: white;
+  border: 4px solid white;
+}
+
+.instagram-preview-info {
+  flex: 1;
+}
+
+.instagram-preview-info h3 {
+  font-size: 1.5rem;
+  font-weight: 900;
+  margin-bottom: 14px;
+  color: #111;
+}
+
+.instagram-preview-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.instagram-preview-stats div {
+  text-align: center;
+}
+
+.instagram-preview-stats strong {
+  display: block;
+  font-size: 1rem;
+  font-weight: 900;
+  color: #111;
+}
+
+.instagram-preview-stats span {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #666;
+}
+
+.instagram-preview-bio {
+  margin-bottom: 20px;
+}
+
+.instagram-preview-bio h4 {
+  font-size: 1rem;
+  font-weight: 900;
+  margin-bottom: 8px;
+  color: #111;
+}
+
+.instagram-preview-bio p {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  font-weight: 500;
+  color: #444;
+  margin-bottom: 0;
+  text-align: justify;
+}
+
+.instagram-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+
+  margin: 18px 0 22px;
+}
+
+.instagram-preview-post {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.instagram-preview-post img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+
+  transition: transform 0.3s ease;
+}
+
+.instagram-preview-post::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.55),
+    rgba(0, 0, 0, 0.05)
+  );
+}
+
+.instagram-preview-post span {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 10px;
+
+  z-index: 2;
+
+  color: white;
+  font-weight: 900;
+  font-size: 0.75rem;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.instagram-preview-post:hover img {
+  transform: scale(1.08);
+}
+
+@media (max-width: 768px) {
+  .instagram-preview-post span {
+    font-size: 0.6rem;
+    bottom: 7px;
+  }
+}
+
+.instagram-preview-btn {
+  width: 100%;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+  color: white !important;
+
+  padding: 13px 22px;
+  border-radius: 999px;
+
+  text-decoration: none !important;
+  font-weight: 900;
+
+  box-shadow: 0 8px 20px rgba(253, 29, 29, 0.22);
+  transition: all 0.25s ease;
+
+  border: none;
+}
+
+.instagram-preview-btn:hover {
+  transform: translateY(-3px);
+  color: white !important;
+  text-decoration: none !important;
+}
+
+.instagram-preview-btn svg {
+  font-size: 18px;
+}
+
+.diagnostico-btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.diagnostico-btn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px !important;
+  padding: 10px 16px !important;
+  min-width: 155px;
+}
+
+/* Celular: 2 botones arriba y el tercero centrado */
+@media (max-width: 768px) {
+  .diagnostico-btn-group {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    max-width: 360px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .diagnostico-btn {
+    width: 100%;
+    min-width: 0;
+    font-size: 13px;
+    padding: 10px 8px !important;
+  }
+
+  .diagnostico-btn-instagram {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: 55%;
+    min-width: 150px;
+  }
+}
 /* =========================
 SERVICE CARDS PRO STYLE --- servicios
 ========================= */
@@ -1690,6 +1990,366 @@ max-width:100%;
 
 }
 
+/* ===============================
+   ABOUT MODERNO - DR REUMA
+================================ */
+
+.about-modern-section {
+  min-height: 100vh;
+}
+
+.about-modern-hero {
+  background: rgba(255, 255, 255, 0.78);
+  border-radius: 34px;
+  padding: 42px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.10);
+  border: 1px solid rgba(9, 154, 173, 0.12);
+  overflow: hidden;
+  position: relative;
+}
+
+.about-modern-hero::before {
+  content: "";
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: rgba(9, 154, 173, 0.14);
+  top: -90px;
+  right: -90px;
+}
+
+.about-modern-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(9, 154, 173, 0.12);
+  color: rgb(9, 154, 173);
+  padding: 9px 16px;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 0.9rem;
+}
+
+.about-modern-title {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 1000;
+  line-height: 1;
+  color: #111;
+  margin-bottom: 20px;
+}
+
+.about-modern-title span {
+  display: block;
+  color: rgb(9, 154, 173);
+}
+
+.about-modern-subtitle {
+  font-size: 1.1rem;
+  font-weight: 550;
+  line-height: 1.75;
+  color: #333;
+  max-width: 720px;
+}
+
+.about-modern-location {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(9, 154, 173, 0.10);
+  border-radius: 20px;
+  padding: 16px;
+  margin-top: 24px;
+  max-width: 620px;
+}
+
+.about-modern-location svg {
+  font-size: 28px;
+  color: rgb(9, 154, 173);
+  flex-shrink: 0;
+}
+
+.about-modern-location strong {
+  font-weight: 900;
+  color: #111;
+}
+
+.about-modern-location p {
+  margin: 2px 0 0;
+  color: #555;
+  font-weight: 600;
+}
+
+.about-modern-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.about-modern-btn,
+.about-modern-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 13px 22px;
+  border-radius: 999px;
+  font-weight: 900;
+  text-decoration: none !important;
+  transition: all 0.25s ease;
+}
+
+.about-modern-btn {
+  background: linear-gradient(135deg, #25d366, #128c7e);
+  color: white !important;
+  box-shadow: 0 10px 24px rgba(18, 140, 126, 0.20);
+}
+
+.about-modern-btn-outline {
+  background: #111;
+  color: white !important;
+}
+
+.about-modern-btn:hover,
+.about-modern-btn-outline:hover {
+  transform: translateY(-3px);
+  color: white !important;
+}
+
+.about-modern-doctor-card {
+  background: white;
+  border-radius: 30px;
+  padding: 18px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.14);
+  position: relative;
+  z-index: 2;
+}
+
+.about-modern-img-wrapper {
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.about-modern-doctor-img {
+  width: 100%;
+  height: 520px;
+  object-fit: cover;
+  display: block;
+}
+
+.about-modern-doctor-info {
+  padding: 20px 8px 6px;
+  text-align: center;
+}
+
+.about-modern-doctor-info h3 {
+  font-weight: 1000;
+  margin-bottom: 4px;
+  color: #111;
+}
+
+.about-modern-doctor-info p {
+  color: rgb(9, 154, 173);
+  font-weight: 900;
+  margin-bottom: 12px;
+}
+
+.about-modern-mini-badge {
+  display: inline-block;
+  background: rgba(9, 154, 173, 0.12);
+  color: rgb(9, 154, 173);
+  font-weight: 900;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+
+.about-modern-stat {
+  background: rgba(255, 255, 255, 0.82);
+  border-radius: 24px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.07);
+  height: 100%;
+}
+
+.about-modern-stat h2 {
+  color: rgb(9, 154, 173);
+  font-weight: 1000;
+  font-size: 2.2rem;
+  margin-bottom: 4px;
+}
+
+.about-modern-stat p {
+  margin: 0;
+  font-weight: 800;
+  color: #333;
+}
+
+.about-modern-block {
+  background: rgba(255, 255, 255, 0.70);
+  border-radius: 30px;
+  padding: 34px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.07);
+}
+
+.about-modern-center-text {
+  max-width: 760px;
+  margin: 0 auto;
+  color: #444;
+  font-weight: 550;
+  line-height: 1.7;
+}
+
+.about-modern-text {
+  color: #444;
+  font-weight: 550;
+  line-height: 1.75;
+  text-align: justify;
+}
+
+.about-modern-feature {
+  background: rgba(9, 154, 173, 0.10);
+  border-radius: 24px;
+  padding: 24px;
+  height: 100%;
+  transition: 0.25s ease;
+}
+
+.about-modern-feature:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 28px rgba(9, 154, 173, 0.14);
+}
+
+.about-modern-feature svg {
+  font-size: 34px;
+  color: rgb(9, 154, 173);
+  margin-bottom: 16px;
+}
+
+.about-modern-feature h4 {
+  font-weight: 1000;
+  font-size: 1.05rem;
+  margin-bottom: 10px;
+  color: #111;
+}
+
+.about-modern-feature p {
+  color: #555;
+  font-weight: 500;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.about-modern-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.about-modern-timeline-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: rgba(9, 154, 173, 0.10);
+  border-radius: 22px;
+  padding: 18px;
+}
+
+.about-modern-timeline-item svg {
+  font-size: 30px;
+  color: rgb(9, 154, 173);
+  flex-shrink: 0;
+}
+
+.about-modern-timeline-item h4 {
+  font-weight: 1000;
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.about-modern-timeline-item p {
+  margin: 0;
+  color: #555;
+  font-weight: 550;
+  line-height: 1.5;
+}
+
+.about-modern-expo-img {
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.12);
+}
+
+.about-modern-expo-img img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  display: block;
+  transition: 0.35s ease;
+}
+
+.about-modern-expo-img:hover img {
+  transform: scale(1.08);
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .about-modern-hero {
+    padding: 24px;
+    border-radius: 26px;
+  }
+
+  .about-modern-title {
+    font-size: 2.4rem;
+    text-align: center;
+  }
+
+  .about-modern-badge {
+    display: flex;
+    justify-content: center;
+    width: fit-content;
+    margin: 0 auto 14px;
+  }
+
+  .about-modern-subtitle {
+    font-size: 1rem;
+    text-align: justify;
+  }
+
+  .about-modern-location {
+    align-items: flex-start;
+  }
+
+  .about-modern-actions {
+    flex-direction: column;
+  }
+
+  .about-modern-btn,
+  .about-modern-btn-outline {
+    width: 100%;
+  }
+
+  .about-modern-doctor-img {
+    height: 420px;
+  }
+
+  .about-modern-block {
+    padding: 24px;
+    border-radius: 24px;
+  }
+
+  .about-modern-text,
+  .about-modern-center-text {
+    text-align: justify;
+  }
+
+  .about-modern-expo-img img {
+    height: 180px;
+  }
+}
+
 /*---------- GALERIA ---------------------------*/
 
 .expo-img{
@@ -1824,188 +2484,375 @@ transform:scale(1.07);
   font-weight:600;
   border-radius:12px;
 }
-/* ===============================
+/* =============================================================0
   ASISTENTE MÉDICO ELEGANTE
+============================================================= */
+
+/* ===============================
+   ASISTENTE DR REUMA MODERNO
 ================================ */
 
-/* BOTÓN FLOTANTE */
 .floating-btn {
-position:fixed;
-bottom:25px;
-right:25px;
-width:70px;
-height:70px;
-border-radius:50%;
-border:none;
-background:white;
-box-shadow:0 8px 25px rgba(0,0,0,0.25);
-cursor:pointer;
-z-index:9999;
-display:flex;
-align-items:center;
-justify-content:center;
-  animation: pulse 2.2s infinite
-}
-@keyframes pulse{
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
 
-0%{
-transform:scale(1);
-box-shadow:0 0 0 0 #1b90ad88; background: rgba(114, 198, 209, 0.322);
-}
+  width: 72px;
+  height: 72px;
 
-70%{
-transform:scale(1.05);
-box-shadow:0 0 0 14px rgba(15,157,122,0);
+  border-radius: 50%;
+  border: none;
+
+  background: white;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+
+  cursor: pointer;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  animation: pulseAssistant 2.2s infinite;
 }
 
-100%{
-transform:scale(1);
-box-shadow:0 0 0 0 rgba(15,157,122,0);
+.floating-btn-open {
+  transform: scale(0.95);
 }
 
+@keyframes pulseAssistant {
+  0% {
+    box-shadow: 0 0 0 0 rgba(9, 154, 173, 0.45);
+  }
+
+  70% {
+    box-shadow: 0 0 0 15px rgba(9, 154, 173, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(9, 154, 173, 0);
+  }
 }
+
 .assistant-logo {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  transition: transform 0.3s ease;
 }
 
-.floating-btn:hover .assistant-logo {
-  transform: scale(1.08);
-}
-
-/* CAJA CHAT */
-.chat-box {
+.assistant-modern-box {
   position: fixed;
-  bottom: 105px;
+  bottom: 110px;
   right: 25px;
-  width: 340px;
-  max-height: 460px;
-  background: white;
-  border-radius: 18px;
-  box-shadow: 0 18px 40px rgba(0,0,0,0.12);
-  display: flex;
-  flex-direction: column;
+
+  width: 360px;
+  max-height: 520px;
+
+  background: rgba(255, 255, 255, 0.97);
+  border-radius: 24px;
+
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.22);
   overflow: hidden;
+
   z-index: 9999;
-  animation: chatFade 0.25s ease;
+
+  border: 1px solid rgba(9, 154, 173, 0.18);
+
+  animation: assistantFadeUp 0.25s ease;
 }
 
-@keyframes chatFade {
+@keyframes assistantFadeUp {
   from {
     opacity: 0;
-    transform: translateY(15px);
+    transform: translateY(18px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* HEADER */
-.chat-header {
-  background: rgb(87, 163, 182);
+.assistant-modern-header {
+  background: linear-gradient(135deg, rgb(9, 154, 173), #006d77);
   color: white;
+
   padding: 14px 16px;
-  font-weight: 600;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.header-left {
+.assistant-header-left {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.header-logo {
-  width: 28px;
+.assistant-header-logo {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: white;
+  padding: 3px;
 }
 
-.close-btn {
+.assistant-header-left strong {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.assistant-header-left small {
+  display: block;
+  font-size: 0.72rem;
+  opacity: 0.9;
+  margin-top: 2px;
+}
+
+.assistant-close-btn {
+  border: none;
+  background: rgba(255, 255, 255, 0.18);
+  color: white;
+
+  width: 34px;
+  height: 34px;
+
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   cursor: pointer;
-  font-size: 18px;
 }
 
-/* BODY */
-.chat-body {
-  padding: 14px;
-  min-height: 160px;
+.assistant-modern-body {
+  padding: 16px;
+  max-height: 395px;
+  overflow-y: auto;
+}
+
+.assistant-message {
+  background: rgba(9, 154, 173, 0.10);
+  border-left: 4px solid rgb(9, 154, 173);
+
+  padding: 12px 14px;
+  border-radius: 16px;
+
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: #111;
+
+  margin-bottom: 12px;
+}
+
+.assistant-list {
+  background: #f8fafc;
+  border-radius: 16px;
+
+  padding: 12px;
+  margin-bottom: 12px;
+
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.assistant-list p {
+  margin: 0 0 7px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.assistant-list p:last-child {
+  margin-bottom: 0;
+}
+
+.assistant-list.two-columns {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.assistant-list.two-columns p {
+  background: rgba(9, 154, 173, 0.08);
+  padding: 7px 8px;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+.assistant-options {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  gap: 8px;
 }
 
-/* MENSAJES */
-.bot-msg{
-background:rgba(114, 221, 235, 0.123);
-backdrop-filter:blur(6px);
-padding:7px;
-border-radius:12px;
-margin-bottom:10px;
-font-size:14px;
-line-height:1.4;
-border:1px solid rgba(17, 85, 68, 0.2);
+.assistant-option,
+.assistant-back-btn {
+  width: 100%;
+
+  border: none;
+  border-radius: 15px;
+
+  padding: 11px 12px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  background: #111;
+  color: white;
+
+  font-weight: 800;
+  font-size: 0.9rem;
+
+  cursor: pointer;
+  transition: all 0.22s ease;
 }
 
-.options{
-display:flex;
-flex-direction:column;
-gap:8px;
-margin-top:10px;
+.assistant-option:hover,
+.assistant-back-btn:hover {
+  transform: translateY(-2px);
+  background: rgb(9, 154, 173);
 }
 
-.options button{
-background:rgb(152, 202, 214);
-border:none;
-padding:10px;
-border-radius:10px;
-cursor:pointer;
-transition:0.2s;
-font-size:14px;
-color:rgb(0, 0, 0) !important;
+.assistant-option-icon {
+  width: 30px;
+  height: 30px;
+
+  border-radius: 11px;
+
+  background: rgba(255, 255, 255, 0.18);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
 }
 
-.options button:hover{
-background: rgba(140, 209, 133, 0.726);
-transform:translateY(-1px);
+.assistant-option.whatsapp {
+  background: linear-gradient(135deg, #25d366, #128c7e);
 }
 
-/* EFECTO ESCRIBIENDO */
-
-.typing{
-display:flex;
-gap:6px;
-padding:10px;
+.assistant-back-btn {
+  background: rgba(9, 154, 173, 0.12);
+  color: rgb(9, 154, 173);
+  justify-content: center;
 }
 
-.typing span{
-width:8px;
-height:8px;
-background: #1e990e;
-border-radius:50%;
-animation:typing 1s infinite;
+.assistant-back-btn:hover {
+  color: white;
 }
 
-.typing span:nth-child(2){
-animation-delay:0.2s;
+.assistant-typing {
+  display: flex;
+  gap: 6px;
+  padding: 15px;
 }
 
-.typing span:nth-child(3){
-animation-delay:0.4s;
+.assistant-typing span {
+  width: 8px;
+  height: 8px;
+  background: rgb(9, 154, 173);
+  border-radius: 50%;
+  animation: assistantTyping 1s infinite;
 }
 
-@keyframes typing{
-
-0%{opacity:0.3}
-50%{opacity:1}
-100%{opacity:0.3}
+.assistant-typing span:nth-child(2) {
+  animation-delay: 0.2s;
 }
 
-/* galeria de casos  */
-/* GALERÍA */
+.assistant-typing span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes assistantTyping {
+  0% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+
+  100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+}
+
+.assistant-modern-footer {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  padding: 10px 14px;
+
+  background: #f8fafc;
+  color: #666;
+
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.assistant-modern-footer svg {
+  color: rgb(9, 154, 173);
+  flex-shrink: 0;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .floating-btn {
+    width: 66px;
+    height: 66px;
+    right: 18px;
+    bottom: 18px;
+  }
+
+  .assistant-modern-box {
+    width: calc(100vw - 28px);
+    right: 14px;
+    bottom: 92px;
+    max-height: 75vh;
+    border-radius: 22px;
+  }
+
+  .assistant-modern-body {
+    max-height: 55vh;
+  }
+
+  .assistant-message {
+    font-size: 0.88rem;
+  }
+
+  .assistant-option,
+  .assistant-back-btn {
+    font-size: 0.85rem;
+  }
+}
+
+.assistant-option.instagram {
+  background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+}
+
+.assistant-option.facebook {
+  background: linear-gradient(135deg, #1877f2, #0d47a1);
+}
+
+.assistant-option.tiktok {
+  background: linear-gradient(135deg, #000000, #ff0050);
+}
+
+/* BOTÓN FLOTANTE */
+
+/*=================== galeria de casos ========================  */
+/* =====================GALERÍA=============================== */
 
 .galeria {
   padding: 60px 20px;
