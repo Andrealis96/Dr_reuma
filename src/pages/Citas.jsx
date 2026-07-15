@@ -220,7 +220,7 @@ const obtenerHorariosDisponibles = (fecha) => {
   base.unshift("14:45"); // lo agrega al inicio
 }
   else if (day === 4)
-    base = ["09:30","10:00","10:30","11:00","13:20"];
+    base = ["09:00", "09:30","10:00","10:30","11:00","13:20"];
   //horarios viernes
   else if (day === 5) {
   const configViernes = getConfiguracionViernes(fecha);
