@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"; 
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   doc,
@@ -39,17 +39,24 @@ function HistoriaPaciente() {
   const [consultaAbierta, setConsultaAbierta] = useState(null);
   const [mostrarModal, setMostrarModal] = useState(false);
 
-  /* OBTENER DATOS */
   useEffect(() => {
     const obtenerPaciente = async () => {
       const ref = doc(db, "historiasClinicas", id);
       const snap = await getDoc(ref);
-      if (snap.exists()) setPaciente(snap.data());
+
+      if (snap.exists()) {
+        setPaciente(snap.data());
+      }
     };
 
     obtenerPaciente();
 
-    const consultasRef = collection(db, "historiasClinicas", id, "consultas");
+    const consultasRef = collection(
+      db,
+      "historiasClinicas",
+      id,
+      "consultas"
+    );
 
     const unsubConsultas = onSnapshot(consultasRef, (snap) => {
       const datos = snap.docs.map((d) => ({
@@ -58,8 +65,8 @@ function HistoriaPaciente() {
       }));
 
       datos.sort((a, b) => {
-        const fechaA = new Date(a.fecha.split("/").reverse().join("-"));
-        const fechaB = new Date(b.fecha.split("/").reverse().join("-"));
+        const fechaA = new Date(a.fecha?.split("/").reverse().join("-"));
+        const fechaB = new Date(b.fecha?.split("/").reverse().join("-"));
         return fechaB - fechaA;
       });
 
@@ -69,19 +76,19 @@ function HistoriaPaciente() {
     const diagRef = collection(db, "diagnosticos");
 
     const unsubDiag = onSnapshot(diagRef, (snap) => {
-    const datos = snap.docs.map((d) => ({
-      id: d.id,
-      ...d.data()
-    }));
+      const datos = snap.docs.map((d) => ({
+        id: d.id,
+        ...d.data()
+      }));
 
-    datos.sort((a, b) =>
-      a.nombre.localeCompare(b.nombre, "es", {
-        sensitivity: "base"
-      })
-    );
+      datos.sort((a, b) =>
+        a.nombre.localeCompare(b.nombre, "es", {
+          sensitivity: "base"
+        })
+      );
 
-    setDiagnosticos(datos);
-  });
+      setDiagnosticos(datos);
+    });
 
     return () => {
       unsubConsultas();
@@ -89,28 +96,32 @@ function HistoriaPaciente() {
     };
   }, [id]);
 
-  /* CALCULAR EDAD */
   const calcularEdad = (fecha) => {
     if (!fecha) return "";
 
     const hoy = new Date();
-    const nacimiento = new Date(fecha);
+    const nacimiento = new Date(`${fecha}T00:00:00`);
 
     let edad = hoy.getFullYear() - nacimiento.getFullYear();
     const mes = hoy.getMonth() - nacimiento.getMonth();
 
-    if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+    if (
+      mes < 0 ||
+      (mes === 0 && hoy.getDate() < nacimiento.getDate())
+    ) {
       edad--;
     }
 
     return edad;
   };
 
-  /* 🔥 FIX GLOBAL SEXO */
   const obtenerIconoSexo = () => {
     const sexo = paciente?.sexo?.toLowerCase()?.trim();
 
-    if (sexo === "femenino" || sexo === "f") return userFemale;
+    if (sexo === "femenino" || sexo === "f") {
+      return userFemale;
+    }
+
     return userMale;
   };
 
@@ -120,8 +131,7 @@ function HistoriaPaciente() {
     const [anio, mes, dia] = fechaISO.split("-");
     return `${dia}/${mes}/${anio}`;
   };
-  
-  /* 🔒 TUS PLANTILLAS */
+
   const plantillas = {
     aptitudfisica: `
 Por medio de la presente certifico que la Sra./Sr.
@@ -171,26 +181,26 @@ Se extiende el presente certificado a solicitud del interesado/a para ser presen
 `,
 
     receta: `
-    Rp/
-    Ibuprofeno 400 mg  
-    Tomar 1 comprimido cada 8 horas por 5 días  
+Rp/
+Ibuprofeno 400 mg  
+Tomar 1 comprimido cada 8 horas por 5 días  
 
-    Omeprazol 20 mg  
-    Tomar 1 cápsula en ayunas por 7 días  
+Omeprazol 20 mg  
+Tomar 1 cápsula en ayunas por 7 días  
 
-    Indicaciones: Reposo relativo  `
+Indicaciones: Reposo relativo
+`
   };
 
   const usarPlantilla = (nombre) => {
     setHistoria(plantillas[nombre] || "");
   };
 
-  /* CRUD */
   const agregarDiagnostico = async () => {
-    if (!nuevoDiagnostico) return;
+    if (!nuevoDiagnostico.trim()) return;
 
     await addDoc(collection(db, "diagnosticos"), {
-      nombre: nuevoDiagnostico
+      nombre: nuevoDiagnostico.trim()
     });
 
     setNuevoDiagnostico("");
@@ -200,9 +210,10 @@ Se extiende el presente certificado a solicitud del interesado/a para ser presen
     e.preventDefault();
 
     await addDoc(collection(db, "historiasClinicas", id, "consultas"), {
-      fecha: new Date().toLocaleDateString(),
+      fecha: new Date().toLocaleDateString("es-AR"),
       diagnostico: diagnosticoSeleccionado,
-      historia
+      historia,
+      creado: new Date()
     });
 
     setHistoria("");
@@ -216,38 +227,41 @@ Se extiende el presente certificado a solicitud del interesado/a para ser presen
   };
 
   const eliminarConsulta = async (cid) => {
-    if (window.confirm("Eliminar consulta?")) {
-      await deleteDoc(doc(db, "historiasClinicas", id, "consultas", cid));
+    if (window.confirm("¿Eliminar consulta?")) {
+      await deleteDoc(
+        doc(db, "historiasClinicas", id, "consultas", cid)
+      );
     }
   };
 
-  /* PDF */
   const generarPDF = (consulta) => {
     const pdf = new jsPDF();
     const edad = calcularEdad(paciente.fechaNacimiento);
+
     const dibujarHeader = () => {
-        pdf.addImage(logo, "PNG", 14, 10, 26, 26);
+      pdf.addImage(logo, "PNG", 14, 10, 26, 26);
 
-        pdf.setFont("helvetica", "bold");
-        pdf.setFontSize(16);
-        pdf.text("DR. REUMA", 45, 18);
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(16);
+      pdf.text("DR. REUMA", 45, 18);
 
-        pdf.setFont("helvetica", "normal");
-        pdf.setFontSize(10);
-        pdf.text("Dr. Tony Vélez", 45, 24);
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(10);
+      pdf.text("Dr. Tony Vélez", 45, 24);
 
-        pdf.setFont("helvetica", "italic");
-        pdf.setFontSize(9);
-        pdf.text("Especialista en Enfermedades Autoinmunes", 45, 29);
+      pdf.setFont("helvetica", "italic");
+      pdf.setFontSize(9);
+      pdf.text("Especialista en Enfermedades Autoinmunes", 45, 29);
 
-        pdf.setLineWidth(0.5);
-        pdf.line(14, 38, 196, 38);
-        };
+      pdf.setLineWidth(0.5);
+      pdf.line(14, 38, 196, 38);
+    };
 
     dibujarHeader();
+
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(13);
-    pdf.text("DATOS DEL PACIENTE: ", 14, 48);
+    pdf.text("DATOS DEL PACIENTE:", 14, 48);
 
     const iconoUsuario = obtenerIconoSexo();
     pdf.addImage(iconoUsuario, "PNG", 160, 52, 28, 28);
@@ -260,8 +274,10 @@ Se extiende el presente certificado a solicitud del interesado/a para ser presen
     const fila = (label, valor) => {
       pdf.setFont("helvetica", "bold");
       pdf.text(label, 16, y);
+
       pdf.setFont("helvetica", "normal");
       pdf.text(valor || "-", 60, y);
+
       y += 6;
     };
 
@@ -290,7 +306,7 @@ Se extiende el presente certificado a solicitud del interesado/a para ser presen
 
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(13);
-    pdf.text(consulta.diagnostico.toUpperCase(), 105, y, {
+    pdf.text((consulta.diagnostico || "Consulta médica").toUpperCase(), 105, y, {
       align: "center"
     });
 
@@ -299,7 +315,7 @@ Se extiende el presente certificado a solicitud del interesado/a para ser presen
     pdf.setFont("helvetica", "normal");
     pdf.setFontSize(11);
 
-    const texto = pdf.splitTextToSize(consulta.historia, 180);
+    const texto = pdf.splitTextToSize(consulta.historia || "", 180);
 
     texto.forEach((linea) => {
       if (y > 270) {
@@ -307,6 +323,7 @@ Se extiende el presente certificado a solicitud del interesado/a para ser presen
         dibujarHeader();
         y = 45;
       }
+
       pdf.text(linea, 14, y);
       y += 6;
     });
@@ -318,222 +335,352 @@ Se extiende el presente certificado a solicitud del interesado/a para ser presen
     }
 
     pdf.addImage(firma, "PNG", 145, y, 28, 16);
-
     pdf.line(130, y + 18, 185, y + 18);
 
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(10);
-    pdf.text("DR. TONY VÉLEZ", 160, y + 24, { align: "center" });
-
-    pdf.setFontSize(9);
-    pdf.text("REUMATOLOGO", 160, y + 29, { align: "center" });
-    pdf.text("MN 178050", 160, y + 33, { align: "center" });
-    pdf.text("MP 9762", 160, y + 37, { align: "center" });
-
-    const fechaActual = new Date().toLocaleString("es-AR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false
+    pdf.text("DR. TONY VÉLEZ", 160, y + 24, {
+      align: "center"
     });
 
-    pdf.setFontSize(8);
+    pdf.setFontSize(9);
+    pdf.text("REUMATÓLOGO", 160, y + 29, {
+      align: "center"
+    });
+    pdf.text("MN 178050", 160, y + 33, {
+      align: "center"
+    });
+    pdf.text("MP 9762", 160, y + 37, {
+      align: "center"
+    });
+
+    const fechaActual = new Date().toLocaleString("es-AR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false
+    });
+
     const totalPaginas = pdf.getNumberOfPages();
 
     for (let i = 1; i <= totalPaginas; i++) {
-    pdf.setPage(i);
-    pdf.setFontSize(9);
-    pdf.text(`Documento generado: ${fechaActual}`, 14, 285);
-    pdf.text(`Página ${i} de ${totalPaginas}`, 200, 285, {
+      pdf.setPage(i);
+      pdf.setFontSize(9);
+      pdf.text(`Documento generado: ${fechaActual}`, 14, 285);
+      pdf.text(`Página ${i} de ${totalPaginas}`, 200, 285, {
         align: "right"
-    });
+      });
     }
+
     pdf.save(`Consulta-${paciente.nombre}-${consulta.fecha}.pdf`);
   };
 
-  /* ------------------- NUEVO LAYOUT FLEX PARA ALTURA MINIMA ------------------- */
   return (
-    <div className="d-flex flex-column min-vh-100">
+    <div className="historia-paciente-page">
+
       {mostrarModal && (
-        <div style={{
-          position: "fixed",
-          top: "20px",
-          right: "20px",
-          background: "#198754",
-          color: "white",
-          padding: "15px 25px",
-          borderRadius: "10px",
-          zIndex: 9999
-        }}>
+        <div className="historia-toast">
           ✅ Consulta guardada con éxito
         </div>
       )}
 
       {!paciente ? (
-        <div className="d-flex justify-content-center align-items-center flex-grow-1">
-          <h3 className="fw-bold"> CARGANDO PACIENTE ..... </h3>
+        <div className="historia-loading">
+          <h3 className="fw-bold">
+            Cargando paciente...
+          </h3>
         </div>
       ) : (
-        <div className="container-fluid  mt-4 mb-5">
+        <div className="container-fluid historia-paciente-container py-4 mb-5">
 
-          <h2 className="subtitle-general  text-center mb-4">
-            <span className="subtitle-celeste">HISTORIA CLÍNICA </span>
-            <span className="subtitle-negro">DEL PACIENTE</span>
-          </h2>
+          {/* HEADER */}
+          <div className="historia-paciente-header mb-4">
 
-          <div className="card-paciente p-4 mb-4">
-            <div className="d-flex align-items-start">
-              <img
-                src={obtenerIconoSexo()} 
-                alt="usuario"
-                className="usuariohistoria"
-                style={{ width: "150px", opacity: 0.7 }}
-              />
-
-              <div className="ms-4">
-                <h3 className="nombre-paciente fw-bold text-uppercase mb-2">
-                  {paciente.nombre}
-                </h3>
-
-                <div><span className="celeste fw-semibold">Edad:</span> {calcularEdad(paciente.fechaNacimiento)} años</div>
-                <div><span className="celeste fw-semibold">DNI:</span> {paciente.dni}</div>
-                <div><span className="celeste fw-semibold">Nacimiento:</span> {formatearFecha(paciente.fechaNacimiento)}</div>
-                <div><span className="celeste fw-semibold">Obra social:</span> {paciente.obraSocial}</div>
-                <div><span className="celeste fw-semibold">Consultas médicas:</span> {consultas.length}</div>
+            <div>
+              <div className="historia-paciente-badge">
+                <FaFilePdf />
+                Historia clínica digital
               </div>
+
+              <h2 className="subtitle-general text-start mb-2">
+                <span className="subtitle-celeste">HISTORIA CLÍNICA</span>{" "}
+                <span className="subtitle-negro">DEL PACIENTE</span>
+              </h2>
+
+              <p className="historia-paciente-subtitle">
+                Registro evolutivo, plantillas médicas, diagnósticos y generación de PDF.
+              </p>
             </div>
+
+            <div className="historia-paciente-count">
+              <strong>{consultas.length}</strong>
+              <span>Consultas</span>
+            </div>
+
           </div>
 
+          {/* CARD PACIENTE */}
+          <div className="historia-paciente-card mb-4">
+
+            <div className="historia-paciente-info-main">
+
+              <img
+                src={obtenerIconoSexo()}
+                alt="usuario"
+                className="historia-paciente-avatar"
+              />
+
+              <div>
+                <h3>{paciente.nombre}</h3>
+
+                <div className="historia-paciente-grid">
+
+                  <div>
+                    <span>Edad</span>
+                    <strong>{calcularEdad(paciente.fechaNacimiento)} años</strong>
+                  </div>
+
+                  <div>
+                    <span>DNI</span>
+                    <strong>{paciente.dni}</strong>
+                  </div>
+
+                  <div>
+                    <span>Nacimiento</span>
+                    <strong>{formatearFecha(paciente.fechaNacimiento)}</strong>
+                  </div>
+
+                  <div>
+                    <span>Obra social</span>
+                    <strong>{paciente.obraSocial}</strong>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+          {/* NUEVA CONSULTA */}
           <form onSubmit={guardarConsulta}>
-            <div className="row">
 
-              <div className="col-md-3">
-                <h6 className="fw-bold celeste ">DIAGNÓSTICO</h6>
+            <div className="row g-4">
 
-                <select
-                  className="form-select mb-3"
-                  value={diagnosticoSeleccionado}
-                  onChange={(e) => setDiagnosticoSeleccionado(e.target.value)}
-                  required
-                >
-                  <option value="">Seleccionar</option>
+              {/* PANEL IZQUIERDO */}
+              <div className="col-12 col-lg-3">
 
-                  {diagnosticos.map((d) => (
-                    <option key={d.id} value={d.nombre}>
-                      {d.nombre}
-                    </option>
-                  ))}
-                </select>
+                <div className="historia-side-panel">
 
-                <div className="d-flex mb-3">
-                  <input
-                    className="form-control me-2"
-                    placeholder="Nuevo diagnóstico"
-                    value={nuevoDiagnostico}
-                    onChange={(e) => setNuevoDiagnostico(e.target.value)}
+                  <h5 className="historia-panel-title">
+                    Diagnóstico
+                  </h5>
+
+                  <select
+                    className="form-select historia-input mb-3"
+                    value={diagnosticoSeleccionado}
+                    onChange={(e) => setDiagnosticoSeleccionado(e.target.value)}
+                    required
+                  >
+                    <option value="">Seleccionar diagnóstico</option>
+
+                    {diagnosticos.map((d) => (
+                      <option key={d.id} value={d.nombre}>
+                        {d.nombre}
+                      </option>
+                    ))}
+                  </select>
+
+                  <div className="historia-new-diagnostico mb-4">
+                    <input
+                      className="form-control historia-input"
+                      placeholder="Nuevo diagnóstico"
+                      value={nuevoDiagnostico}
+                      onChange={(e) => setNuevoDiagnostico(e.target.value)}
+                    />
+
+                    <button
+                      type="button"
+                      className="historia-add-btn"
+                      onClick={agregarDiagnostico}
+                    >
+                      <FaPlus />
+                    </button>
+                  </div>
+
+                  <h5 className="historia-panel-title">
+                    Plantillas rápidas
+                  </h5>
+
+                  <div className="historia-plantillas">
+
+                    <button
+                      type="button"
+                      onClick={() => usarPlantilla("aptitudfisica")}
+                    >
+                      Certificado aptitud física
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => usarPlantilla("primeravez")}
+                    >
+                      Historia reumatológica
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => usarPlantilla("evolucion")}
+                    >
+                      Evolución clínica
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => usarPlantilla("reposo")}
+                    >
+                      Reposo médico
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => usarPlantilla("receta")}
+                    >
+                      Receta médica
+                    </button>
+
+                  </div>
+
+                  <button className="historia-save-consulta-btn mt-4">
+                    <FaPlus className="me-2" />
+                    Guardar consulta
+                  </button>
+
+                </div>
+
+              </div>
+
+              {/* TEXTAREA */}
+              <div className="col-12 col-lg-9">
+
+                <div className="historia-editor-card">
+
+                  <div className="historia-editor-header">
+                    <div>
+                      <h5>Historia clínica</h5>
+                      <p>
+                        Escribe la evolución, examen físico, conducta y plan terapéutico.
+                      </p>
+                    </div>
+                  </div>
+
+                  <textarea
+                    className="form-control historia-textarea-modern"
+                    value={historia}
+                    onChange={(e) => setHistoria(e.target.value)}
+                    placeholder="Escribe aquí la historia clínica del paciente..."
+                    required
                   />
 
-                  <button
-                    type="button"
-                    className="btn btn-cita text-white"
-                    onClick={agregarDiagnostico}
-                  >
-                    <FaPlus />
-                  </button>
                 </div>
 
-                <h6 className="fw-bold celeste">PLANTILLAS</h6>
-
-                <button type="button" className="btn btn-plantillas btn-sm mb-2 w-100 fw-bold" onClick={()=>usarPlantilla("aptitudfisica")}>
-                  Certificado de aptitud física
-                </button>
-
-                <button type="button" className="btn btn-plantillas btn-sm mb-2 w-100 fw-bold" onClick={()=>usarPlantilla("primeravez")}>
-                  Historia clínica reumatológica
-                </button>
-
-                <button type="button" className="btn btn-plantillas btn-sm mb-2 w-100 fw-bold" onClick={()=>usarPlantilla("evolucion")}>
-                  Evolución clínica
-                </button>
-
-                <button type="button" className="btn btn-plantillas btn-sm mb-2 w-100 fw-bold" onClick={()=>usarPlantilla("reposo")}>
-                  Justificante médico reposo
-                </button>
-
-                <button type="button" className="btn btn-plantillas btn-sm mb-2 w-100 fw-bold" onClick={()=>usarPlantilla("receta")}>
-                  Receta médica
-                </button>
-
-                <button className="btn btn-cita text-white  my-3 fw-bold">
-                  GUARDAR CONSULTA
-                </button>
-              </div>
-
-              <div className="col-md-9 d-flex  historia-container">
-                <h6 className="fw-bold celeste">HISTORIA CLÍNICA</h6>
-
-                <textarea
-                  className="form-control historia-textarea"
-                  value={historia}
-                  onChange={(e) => setHistoria(e.target.value)}
-                  required
-                />
               </div>
 
             </div>
+
           </form>
 
-          <hr className="my-5" />
+          {/* CONSULTAS REGISTRADAS */}
+          <div className="historia-consultas-section mt-5">
 
-          <h4 className=" historia-green celeste fw-bold">CONSULTAS REGISTRADAS</h4> <br />
+            <div className="historia-consultas-header mb-3">
+              <div>
+                <h4>
+                  Consultas registradas
+                </h4>
 
-          {consultas.map((c) => (
-            <div key={c.id} className="card mb-2 ">
-
-              <div
-                className="card-header d-flex justify-content-between header-consulta"
-                style={{ cursor: "pointer" }}
-                onClick={() =>
-                  setConsultaAbierta(
-                    consultaAbierta === c.id ? null : c.id
-                  )
-                }
-              >
-                <span>
-                  <strong>{c.diagnostico}</strong> — {c.fecha}
-                </span>
-
-                {consultaAbierta === c.id ? <FaChevronUp/> : <FaChevronDown/>}
+                <p>
+                  Evoluciones previas ordenadas desde la más reciente.
+                </p>
               </div>
+            </div>
 
-              {consultaAbierta === c.id && (
-                <div className="card-body">
+            {consultas.length === 0 ? (
+              <div className="historia-empty-consultas">
+                <FaFilePdf />
 
-                  <p style={{ whiteSpace: "pre-line" }}>
-                    {c.historia}
-                  </p>
+                <h5>
+                  No hay consultas registradas
+                </h5>
 
-                  <button
-                    className="btn btn-danger btn-sm me-2"
-                    onClick={() => eliminarConsulta(c.id)}
+                <p>
+                  Cuando guardes una evolución aparecerá aquí.
+                </p>
+              </div>
+            ) : (
+              consultas.map((c) => (
+                <div key={c.id} className="historia-consulta-card">
+
+                  <div
+                    className="historia-consulta-header"
+                    onClick={() =>
+                      setConsultaAbierta(
+                        consultaAbierta === c.id ? null : c.id
+                      )
+                    }
                   >
-                    <FaTrash />
-                  </button>
 
-                  <button
-                    className="btn btn-dark btn-sm"
-                    onClick={() => generarPDF(c)}
-                  >
-                    <FaFilePdf /> PDF
-                  </button>
+                    <div>
+                      <h5>{c.diagnostico}</h5>
+                      <span>{c.fecha}</span>
+                    </div>
+
+                    <div className="historia-consulta-arrow">
+                      {consultaAbierta === c.id ? <FaChevronUp /> : <FaChevronDown />}
+                    </div>
+
+                  </div>
+
+                  {consultaAbierta === c.id && (
+                    <div className="historia-consulta-body">
+
+                      <p>
+                        {c.historia}
+                      </p>
+
+                      <div className="historia-consulta-actions">
+
+                        <button
+                          type="button"
+                          className="historia-delete-consulta"
+                          onClick={() => eliminarConsulta(c.id)}
+                        >
+                          <FaTrash />
+                          Eliminar
+                        </button>
+
+                        <button
+                          type="button"
+                          className="historia-pdf-consulta"
+                          onClick={() => generarPDF(c)}
+                        >
+                          <FaFilePdf />
+                          Generar PDF
+                        </button>
+
+                      </div>
+
+                    </div>
+                  )}
 
                 </div>
-              )}
-            </div>
-          ))}
+              ))
+            )}
+
+          </div>
 
         </div>
       )}

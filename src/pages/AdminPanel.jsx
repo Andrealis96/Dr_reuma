@@ -1,75 +1,107 @@
-import React from "react";
 import { Link } from "react-router-dom";
 
 import {
-FaUserInjured,
-FaComments,
-FaFlask,
-FaCalendarAlt
+  FaUserInjured,
+  FaComments,
+  FaFlask,
+  FaCalendarAlt,
+  FaShieldAlt,
+  FaChevronRight,
 } from "react-icons/fa";
 
-function AdminPanel(){
+function AdminPanel() {
+  const adminItems = [
+    {
+      title: "Historias Clínicas",
+      description: "Pacientes, evoluciones médicas y PDF.",
+      icon: <FaUserInjured />,
+      path: "/admin/historias",
+      className: "admin-modern-historias",
+    },
+    {
+      title: "Comentarios",
+      description: "Gestionar testimonios y respuestas.",
+      icon: <FaComments />,
+      path: "/admin/comentarios",
+      className: "admin-modern-comentarios",
+    },
+    {
+      title: "Laboratorios",
+      description: "Órdenes, estudios y solicitudes.",
+      icon: <FaFlask />,
+      path: "/admin/laboratorios",
+      className: "admin-modern-laboratorios",
+    },
+    {
+      title: "Agenda de citas",
+      description: "Turnos, bloqueos y notas del día.",
+      icon: <FaCalendarAlt />,
+      path: "/admin/citas",
+      className: "admin-modern-citas",
+    },
+  ];
 
-return(
+  return (
+    <section className="admin-modern-section">
+      <div className="container py-5">
 
-<div className="container-fluid text-center mt-5">
-  <h2 className="subtitle-general ">
-    <span className="subtitle-celeste">PANEL </span> <br />
-    <span className="subtitle-negro">ADMINISTRATIVO</span>
-  </h2>
+        <div className="admin-modern-header mb-5">
 
-  <div className="row g-4 p-5 justify-content-center">
-    <div className="col-md-5">
-    <Link to="/admin/historias" className="text-decoration-none">
-      <div className="card panel-card text-center p-4 h-100">
-        <div className="icono-panel">
-        <FaUserInjured size={45}/>
+          <div>
+            <div className="admin-modern-badge">
+              <FaShieldAlt />
+              Área privada
+            </div>
+
+            <h2 className="subtitle-general text-start mb-2">
+              <span className="subtitle-celeste">PANEL</span>{" "}
+              <span className="subtitle-negro">ADMINISTRATIVO</span>
+            </h2>
+
+            <p>
+              Gestión interna de pacientes, agenda, comentarios y laboratorios
+              de Dr. Reuma.
+            </p>
+          </div>
+
+          <div className="admin-modern-logo-box">
+            DR. REUMA
+          </div>
+
         </div>
-        <h5 className="fw-bold mt-4">Historias Clínicas</h5>
+
+        <div className="row g-4">
+
+          {adminItems.map((item, index) => (
+            <div className="col-12 col-md-6" key={index}>
+              <Link to={item.path} className="admin-modern-link">
+
+                <div className={`admin-modern-card ${item.className}`}>
+
+                  <div className="admin-modern-icon">
+                    {item.icon}
+                  </div>
+
+                  <div className="admin-modern-content">
+                    <h4>{item.title}</h4>
+                    <p>{item.description}</p>
+                  </div>
+
+                  <div className="admin-modern-arrow">
+                    <FaChevronRight />
+                  </div>
+
+                </div>
+
+              </Link>
+            </div>
+          ))}
+
+        </div>
+
       </div>
-    </Link>
-    </div>
-
-    <div className="col-md-5">
-    <Link to="/admin/comentarios" className="text-decoration-none">
-    <div className="card panel-card text-center p-4 h-100">
-    <div className="icono-panel">
-    <FaComments size={45}/>
-    </div>
-    <h5 className="fw-bold mt-3">Comentarios</h5>
-    </div>
-    </Link>
-    </div>
-
-    <div className="col-md-5">
-    <Link to="/admin/laboratorios" className="text-decoration-none">
-    <div className="card panel-card text-center p-4 h-100">
-    <div className="icono-panel">
-    <FaFlask size={45}/>
-    </div>
-    <h5 className="fw-bold mt-3">Laboratorios</h5>
-    </div>
-    </Link>
-    </div>
-
-    <div className="col-md-5">
-    <Link to="/admin/citas" className="text-decoration-none">
-    <div className="card panel-card text-center p-4 h-100">
-    <div className="icono-panel">
-    <FaCalendarAlt size={45}/>
-    </div>
-    <h5 className="fw-bold mt-3">Agendar citas</h5>
-
-    </div>
-    </Link>
-    </div>
-
-  </div>
-
-</div>
-
-);
-
+    </section>
+  );
 }
 
 export default AdminPanel;
