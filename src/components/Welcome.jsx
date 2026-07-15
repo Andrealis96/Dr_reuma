@@ -70,78 +70,71 @@ function Welcome() {
 
   <br /><br />
 
-  <span className="title-negro fw-bold mb-4">
-    <FaMapMarkerAlt className="fs-2 me-3 celeste" />
-    SAN MARTÍN 1355 - NEUQUÉN CAPITAL
-  </span>
-
-  <br />
-
-  <span className="fw-bold text-uppercase">
+  <span className="fw-bold celeste text-center d-flex align-items-center justify-content-center">
     <FaHeart className="me-3 fs-2 celeste" />
     Acá no sos un número: sos una persona.
   </span>
 </p>
 
-<div className="d-flex flex-column flex-sm-row gap-3 mt-4 mb-4">
+<div className="welcome-cta-group">
 
-  <Link to="/servicios" className="btn btn-info fw-bold text-white">
-    <FaCalendarCheck className="me-2" />
-    Solicitar turno con reumatólogo
+  <Link to="/servicios" className="welcome-cta welcome-cta-primary">
+    <span className="welcome-cta-icon">
+      <FaCalendarCheck />
+    </span>
+
+    <span className="welcome-cta-text">
+      <strong>Solicitar turno</strong>
+      <small>Consulta reumatológica</small>
+    </span>
   </Link>
 
-  <Link to="/diagnosticos" className="btn btn-dark fw-bold text-white">
-    <FaStethoscope className="me-2" />
-    Ver enfermedades reumatológicas
+  <Link to="/diagnosticos" className="welcome-cta welcome-cta-dark">
+    <span className="welcome-cta-icon">
+      <FaStethoscope />
+    </span>
+
+    <span className="welcome-cta-text">
+      <strong>Diagnósticos</strong>
+      <small>Enfermedades reumatológicas</small>
+    </span>
   </Link>
 
   <a
     href="https://wa.me/5492994666559"
     target="_blank"
     rel="noopener noreferrer"
-    className="btn btn-verde fw-bold text-white"
+    className="welcome-cta welcome-cta-whatsapp"
   >
-    <FaWhatsapp className="me-2" />
-    WhatsApp
+    <span className="welcome-cta-icon">
+      <FaWhatsapp />
+    </span>
+
+    <span className="welcome-cta-text">
+      <strong>WhatsApp</strong>
+      <small>Consulta rápida</small>
+    </span>
   </a>
 
+   <a
+    href="https://maps.app.goo.gl/iJ6E4Vr4gTCNvQXw8"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="welcome-cta welcome-cta-primary"
+  >
+    <span className="welcome-cta-icon">
+      <FaMapMarkerAlt/>
+    </span>
+
+    <span className="welcome-cta-text">
+      <strong>UBICACIÓN</strong>
+      <small>Reumatólogo en Neuquén</small>
+    </span>
+  </a>
+
+  
+
 </div>
-
-            {/* BENEFICIOS */}
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-            >
-
-              <div className="benefits mt-4">
-
-                {benefits.map((item, index) => (
-
-                  <motion.div
-                    key={index}
-                    className="benefit-item"
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.15 }}
-                    viewport={{ once: true }}
-                  >
-
-                    <span className="benefit-icon">
-                      {item.icon}
-                    </span>
-
-                    <span>{item.text}</span>
-
-                  </motion.div>
-
-                ))}
-
-              </div>
-
-            </motion.div>
-
           </div>
 
           {/* VIDEO */}
@@ -168,6 +161,43 @@ function Welcome() {
 
           </div>
 
+          <div className="col-12">
+
+  <motion.div
+    initial={{ opacity: 0, y: 40 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.6 }}
+    viewport={{ once: true }}
+  >
+
+    <div className="benefits benefits-line mt-4">
+
+      {benefits.map((item, index) => (
+
+        <motion.div
+          key={index}
+          className="benefit-item benefit-item-line"
+          initial={{ opacity: 0, x: -20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ delay: index * 0.15 }}
+          viewport={{ once: true }}
+        >
+
+          <span className="benefit-icon">
+            {item.icon}
+          </span>
+
+          <span>{item.text}</span>
+
+        </motion.div>
+
+      ))}
+
+    </div>
+
+  </motion.div>
+
+</div>          
         </div>
 
         {/* SLIDER PACIENTES */}

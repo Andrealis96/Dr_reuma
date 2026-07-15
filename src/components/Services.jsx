@@ -368,7 +368,7 @@ useEffect(() => {
         </h3>
         
         <p className="services-description mb-5">
-          Ofrecemos atención <span className="fw-bold"> Presencial en Neuquén Capital y consultas online </span> desde la comodidad
+          Ofrecemos atención <span className="fw-bold"> Presencial en Neuquén Capital, en los consultorios externos de la Clínica San Agustín  y consultas online </span> desde la comodidad
           de tu hogar por si no puedes venir, para personas con dolor articular, inflamación, cansancio,
           rigidez o síntomas reumatológicos.
         </p>
@@ -676,7 +676,7 @@ useEffect(() => {
     <div className="info-item success">
       <FaMoneyBillWave />
       <span>
-        El pago se realizará al finalizar la consulta médica.
+        El pago se realizará al finalizar la consulta médica. (Se acepta Efectivo o Transferencia.)
       </span>
     </div>
 

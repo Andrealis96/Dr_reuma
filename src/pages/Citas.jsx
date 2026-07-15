@@ -234,7 +234,7 @@ const obtenerHorariosDisponibles = (fecha) => {
   }
 
   if (configViernes.turno === "tarde") {
-    base = ["14:45", "15:00", "15:30", "16:30"];
+    base = ["14:45", "15:00", "15:30", "16:00" , "16:30"];
   }
 }
   else if (day === 6)
