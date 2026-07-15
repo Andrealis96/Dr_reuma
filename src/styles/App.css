@@ -3195,8 +3195,8 @@ html, body, #root {
   width: 0;
   height: 0;
 
-  border-top: 14px solid #ffc107;
-  border-left: 14px solid transparent;
+  border-top: 20px solid #ffc10786;
+  border-left: 20px solid transparent;
 
   z-index: 20;
   pointer-events: none;
@@ -3205,7 +3205,7 @@ html, body, #root {
 /* En celular más pequeño */
 @media (max-width: 768px) {
   .nota-triangulo {
-    border-top: 10px solid #ffc107;
-    border-left: 10px solid transparent;
+    border-top: 20px solid #ffc10786;
+    border-left:20px solid transparent;
   }
 }

@@ -364,7 +364,7 @@ useEffect(() => {
 
         <h3 className="subtitle-general mb-5">
           <span className="subtitle-celeste">CONSULTAS Y SERVICIOS</span>
-          <span className="subtitle-negro"> DE REUMATOLOGÍCA </span>
+          <span className="subtitle-negro"> DE REUMATOLOGÍA </span>
         </h3>
         
         <p className="services-description mb-5">
