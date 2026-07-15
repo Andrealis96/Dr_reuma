@@ -20,7 +20,7 @@ function InstagramPreview() {
 
             <div className="instagram-preview-avatar">
               <img
-                src="src/assets/AssitenteDoctor.svg"
+                src="src/assets/DrReuma.webp"
                 alt="Dr. Reuma Instagram"
               />
             </div>
