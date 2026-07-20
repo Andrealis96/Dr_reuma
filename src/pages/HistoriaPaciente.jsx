@@ -599,13 +599,7 @@ const diagnosticosAgrupados = diagnosticosFiltrados.reduce((grupos, d, index) =>
   </div>
 )}
 
-      {!paciente ? (
-        <div className="historia-loading">
-          <h3 className="fw-bold">
-            Cargando paciente...
-          </h3>
-        </div>
-      ) : (
+      {!paciente ? null : (
         <div className="container-fluid historia-paciente-container py-4 mb-5">
 
           {/* HEADER */}
@@ -938,7 +932,7 @@ const diagnosticosAgrupados = diagnosticosFiltrados.reduce((grupos, d, index) =>
                         <div className="historia-consulta-diagnosticos mt-2">
                           {obtenerDiagnosticosConsulta(c).map((diag) => (
                             <small key={diag}>
-                              {diag}
+                              {diag.toUpperCase()}
                             </small>
                           ))}
                         </div>
