@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect,useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   doc,
@@ -36,13 +36,18 @@ function HistoriaPaciente() {
   const [diagnosticos, setDiagnosticos] = useState([]);
 
   const [diagnosticosSeleccionados, setDiagnosticosSeleccionados] = useState([]);
+  const [busquedaDiagnostico, setBusquedaDiagnostico] = useState("");
   const [historia, setHistoria] = useState("");
   const [nuevoDiagnostico, setNuevoDiagnostico] = useState("");
   const [consultaEditando, setConsultaEditando] = useState(null);
+  
+  const [diagnosticoRecienteId, setDiagnosticoRecienteId] = useState(null);
+  const diagnosticosBoxRef = useRef(null);
 
   const [consultaAbierta, setConsultaAbierta] = useState(null);
   const [mostrarModal, setMostrarModal] = useState(false);
-
+  const [mensajeGuardado, setMensajeGuardado] = useState("Consulta guardada");
+  
   useEffect(() => {
     const obtenerPaciente = async () => {
       const ref = doc(db, "historiasClinicas", id);
@@ -241,12 +246,51 @@ const textoDiagnosticosConsulta = (consulta) => {
   return lista.join(" - ");
 };
 
+useEffect(() => {
+  if (!diagnosticoRecienteId) return;
+
+  const timer = setTimeout(() => {
+    const elemento = diagnosticosBoxRef.current?.querySelector(
+      `[data-diagnostico-id="${diagnosticoRecienteId}"]`
+    );
+
+    if (elemento) {
+      elemento.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+    }
+  }, 400);
+
+  return () => clearTimeout(timer);
+}, [diagnosticos, diagnosticoRecienteId]);
+
 const agregarDiagnostico = async () => {
   if (!nuevoDiagnostico.trim()) return;
 
   const nombre = nuevoDiagnostico.trim().toUpperCase();
 
-  await addDoc(collection(db, "diagnosticos"), {
+  const diagnosticoExistente = diagnosticos.find(
+    (d) => d.nombre?.trim().toUpperCase() === nombre
+  );
+
+  if (diagnosticoExistente) {
+    setDiagnosticosSeleccionados((prev) =>
+      prev.includes(nombre) ? prev : [...prev, nombre]
+    );
+
+    setBusquedaDiagnostico("");
+    setNuevoDiagnostico("");
+    setDiagnosticoRecienteId(diagnosticoExistente.id);
+
+    setTimeout(() => {
+      setDiagnosticoRecienteId(null);
+    }, 3000);
+
+    return;
+  }
+
+  const nuevoRef = await addDoc(collection(db, "diagnosticos"), {
     nombre
   });
 
@@ -254,7 +298,32 @@ const agregarDiagnostico = async () => {
     prev.includes(nombre) ? prev : [...prev, nombre]
   );
 
+  setBusquedaDiagnostico("");
+  setDiagnosticoRecienteId(nuevoRef.id);
   setNuevoDiagnostico("");
+
+  setTimeout(() => {
+    setDiagnosticoRecienteId(null);
+  }, 3000);
+};
+
+
+const eliminarDiagnostico = async (diagnostico) => {
+  const nombre = diagnostico.nombre?.toUpperCase() || "";
+
+  if (!nombre) return;
+
+  const confirmar = window.confirm(
+    `¿Eliminar el diagnóstico "${nombre}" de la lista?`
+  );
+
+  if (!confirmar) return;
+
+  await deleteDoc(doc(db, "diagnosticos", diagnostico.id));
+
+  setDiagnosticosSeleccionados((prev) =>
+    prev.filter((d) => d !== nombre)
+  );
 };
 
 const guardarConsulta = async (e) => {
@@ -284,6 +353,7 @@ const guardarConsulta = async (e) => {
     );
 
     limpiarFormularioConsulta();
+    setMensajeGuardado("Consulta actualizada");
     setMostrarModal(true);
 
     setTimeout(() => {
@@ -299,6 +369,7 @@ const guardarConsulta = async (e) => {
   });
 
   limpiarFormularioConsulta();
+  setMensajeGuardado("Consulta guardada");
   setMostrarModal(true);
 
   setTimeout(() => {
@@ -475,14 +546,58 @@ const cancelarEdicionConsulta = () => {
     pdf.save(`Consulta-${paciente.nombre}-${consulta.fecha}.pdf`);
   };
 
+  const obtenerInicialDiagnostico = (nombre = "") => {
+  const inicial = nombre.trim().charAt(0).toUpperCase();
+
+  return inicial
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+};
+
+const diagnosticosFiltrados = diagnosticos.filter((d) => {
+  const nombre = d.nombre?.toUpperCase() || "";
+  const texto = busquedaDiagnostico.trim().toUpperCase();
+
+  return nombre.includes(texto);
+});
+
+const diagnosticosAgrupados = diagnosticosFiltrados.reduce((grupos, d, index) => {
+  const nombre = d.nombre?.toUpperCase() || "";
+  const inicial = obtenerInicialDiagnostico(nombre);
+
+  if (!grupos[inicial]) {
+    grupos[inicial] = [];
+  }
+
+  grupos[inicial].push({
+    ...d,
+    nombreMostrar: nombre,
+    numero: index + 1
+  });
+
+  return grupos;
+}, {});
+
   return (
     <div className="historia-paciente-page">
 
       {mostrarModal && (
-        <div className="historia-toast">
-          ✅ Consulta guardada con éxito
-        </div>
-      )}
+  <div className="historia-save-overlay">
+    <div className="historia-save-card">
+
+      <div className="historia-save-check">
+        <span>✓</span>
+      </div>
+
+      <h4>{mensajeGuardado}</h4>
+
+      <p>
+        Los cambios se registraron correctamente.
+      </p>
+
+    </div>
+  </div>
+)}
 
       {!paciente ? (
         <div className="historia-loading">
@@ -572,37 +687,86 @@ const cancelarEdicionConsulta = () => {
 
                 <div className="historia-side-panel">
 
-                <h5 className="historia-panel-title">
+<h5 className="historia-panel-title">
   Diagnósticos
 </h5>
 
-<div className="historia-diagnosticos-box mb-3">
+<div className="historia-buscador-diagnostico mb-3">
+  <input
+    type="text"
+    className="form-control historia-input"
+    placeholder="Buscar diagnóstico"
+    value={busquedaDiagnostico}
+    onChange={(e) => setBusquedaDiagnostico(e.target.value)}
+  />
 
-  {diagnosticos.map((d, index) => {
-    const nombreDiag = d.nombre?.toUpperCase() || "";
+  {busquedaDiagnostico && (
+    <button
+      type="button"
+      onClick={() => setBusquedaDiagnostico("")}
+    >
+      ×
+    </button>
+  )}
+</div>
 
-    return (
-      <label
+<div ref={diagnosticosBoxRef} className="historia-diagnosticos-box mb-3">
+
+{diagnosticosFiltrados.length === 0 && (
+  <div className="diagnostico-no-encontrado">
+    No se encontraron diagnósticos
+  </div>
+)}
+
+  {Object.keys(diagnosticosAgrupados).map((letra) => (
+    <div key={letra} className="diagnostico-grupo">
+
+      <div className="diagnostico-letra-sticky">
+        {letra}
+      </div>
+
+      {diagnosticosAgrupados[letra].map((d) => (
+      <div
         key={d.id}
-        className={`historia-diagnostico-check ${
-          diagnosticosSeleccionados.includes(nombreDiag) ? "activo" : ""
+        data-diagnostico-id={d.id}
+        className={`historia-diagnostico-row ${
+          diagnosticoRecienteId === d.id ? "diagnostico-reciente" : ""
         }`}
       >
-        <input
-          type="checkbox"
-          checked={diagnosticosSeleccionados.includes(nombreDiag)}
-          onChange={() => toggleDiagnostico(nombreDiag)}
-        />
 
-        <span>
-          <strong className="diag-opcion-num">
-            {index + 1}.
-          </strong>{" "}
-          {nombreDiag}
-        </span>
-      </label>
-    );
-  })}
+  <label
+    className={`historia-diagnostico-check ${
+      diagnosticosSeleccionados.includes(d.nombreMostrar) ? "activo" : ""
+    }`}
+  >
+    <input
+      type="checkbox"
+      checked={diagnosticosSeleccionados.includes(d.nombreMostrar)}
+      onChange={() => toggleDiagnostico(d.nombreMostrar)}
+    />
+
+    <span>
+      <strong className="diag-opcion-num">
+        {d.numero}.
+      </strong>{" "}
+      {d.nombreMostrar}
+    </span>
+  </label>
+
+  <button
+    type="button"
+    className="historia-delete-diagnostico-btn"
+    onClick={() => eliminarDiagnostico(d)}
+    title="Eliminar diagnóstico"
+  >
+    <FaTrash />
+  </button>
+
+</div>
+      ))}
+
+    </div>
+  ))}
 
 </div>
 
