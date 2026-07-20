@@ -7,7 +7,8 @@ import {
   doc,
   updateDoc,
   query,
-  orderBy
+  orderBy,
+  collectionGroup
 } from "firebase/firestore";
 
 import { db } from "../firebase";
@@ -28,7 +29,8 @@ import {
   FaVenusMars,
   FaFolderOpen,
   FaTimes,
-  FaUsers
+  FaUsers,
+  FaStethoscope 
 } from "react-icons/fa";
 
 import maleAvatar from "../assets/user-male.png";
@@ -45,6 +47,8 @@ function HistoriasClinicas() {
   const [sexo, setSexo] = useState("");
 
   const [busqueda, setBusqueda] = useState("");
+  const [filtroDiagnostico, setFiltroDiagnostico] = useState("");
+  const [diagnosticosPorPaciente, setDiagnosticosPorPaciente] = useState({});
   const [pagina, setPagina] = useState(1);
   const pacientesPorPagina = 6;
 
@@ -85,27 +89,84 @@ function HistoriasClinicas() {
     return edad;
   };
 
-  useEffect(() => {
-    const q = query(
-      collection(db, "historiasClinicas"),
-      orderBy("creado", "desc")
-    );
+  const normalizarTexto = (texto = "") => {
+  return texto
+    .toString()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+};
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const datos = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+useEffect(() => {
+  const q = query(
+    collection(db, "historiasClinicas"),
+    orderBy("creado", "desc")
+  );
 
-      setPacientes(datos);
-    });
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+    const datos = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data()
+    }));
 
-    return () => unsubscribe();
-  }, []);
+    setPacientes(datos);
+  });
 
-  useEffect(() => {
-    setPagina(1);
-  }, [busqueda]);
+  return () => unsubscribe();
+}, []);
+
+useEffect(() => {
+  const unsubscribe = onSnapshot(
+    collectionGroup(db, "consultas"),
+    (snapshot) => {
+      const mapa = {};
+
+      snapshot.docs.forEach((consultaDoc) => {
+        const data = consultaDoc.data();
+
+        const pacienteId = consultaDoc.ref.parent.parent?.id;
+
+        if (!pacienteId) return;
+
+        const listaDiagnosticos = Array.isArray(data.diagnosticos)
+          ? data.diagnosticos
+          : data.diagnostico
+            ? data.diagnostico.split(" - ")
+            : [];
+
+        listaDiagnosticos.forEach((diag) => {
+          const diagnosticoLimpio = diag?.toString().trim().toUpperCase();
+
+          if (!diagnosticoLimpio) return;
+
+          if (!mapa[pacienteId]) {
+            mapa[pacienteId] = new Set();
+          }
+
+          mapa[pacienteId].add(diagnosticoLimpio);
+        });
+      });
+
+      const mapaFinal = {};
+
+      Object.entries(mapa).forEach(([pacienteId, diagnosticosSet]) => {
+        mapaFinal[pacienteId] = Array.from(diagnosticosSet).sort((a, b) =>
+          a.localeCompare(b, "es", {
+            sensitivity: "base"
+          })
+        );
+      });
+
+      setDiagnosticosPorPaciente(mapaFinal);
+    }
+  );
+
+  return () => unsubscribe();
+}, []);
+
+useEffect(() => {
+  setPagina(1);
+}, [busqueda, filtroDiagnostico]);
 
   const crearPaciente = async (e) => {
     e.preventDefault();
@@ -170,14 +231,25 @@ function HistoriasClinicas() {
     limpiarFormulario();
   };
 
-  const pacientesFiltrados = pacientes.filter((p) => {
-    const texto = busqueda.toLowerCase();
+const pacientesFiltrados = pacientes.filter((p) => {
+  const textoPaciente = normalizarTexto(busqueda);
+  const textoDiagnostico = normalizarTexto(filtroDiagnostico);
 
-    return (
-      p.nombre?.toLowerCase().includes(texto) ||
-      p.dni?.toString().includes(texto)
+  const coincidePaciente =
+    !textoPaciente ||
+    normalizarTexto(p.nombre).includes(textoPaciente) ||
+    p.dni?.toString().includes(busqueda.trim());
+
+  const diagnosticosPaciente = diagnosticosPorPaciente[p.id] || [];
+
+  const coincideDiagnostico =
+    !textoDiagnostico ||
+    diagnosticosPaciente.some((diag) =>
+      normalizarTexto(diag).includes(textoDiagnostico)
     );
-  });
+
+  return coincidePaciente && coincideDiagnostico;
+});
 
   const indiceFinal = pagina * pacientesPorPagina;
   const indiceInicial = indiceFinal - pacientesPorPagina;
@@ -370,36 +442,79 @@ function HistoriasClinicas() {
 
       </div>
 
-      {/* BUSCADOR */}
-      <div className="historias-search-card mb-4">
+      {/* BUSCADORES */}
+<div className="historias-filtros-row mb-4">
 
-        <FaSearch className="historias-search-icon" />
+  <div className="historias-search-card">
 
-        <input
-          className="form-control historias-search-input"
-          placeholder="Buscar por nombre o DNI..."
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-        />
+    <FaSearch className="historias-search-icon" />
 
-        {busqueda && (
-          <button
-            type="button"
-            className="historias-clear-search"
-            onClick={() => setBusqueda("")}
-          >
-            <FaTimes />
-          </button>
-        )}
+    <input
+      className="form-control historias-search-input"
+      placeholder="Buscar por nombre o DNI..."
+      value={busqueda}
+      onChange={(e) => setBusqueda(e.target.value)}
+    />
 
-      </div>
+    {busqueda && (
+      <button
+        type="button"
+        className="historias-clear-search"
+        onClick={() => setBusqueda("")}
+      >
+        <FaTimes />
+      </button>
+    )}
+
+  </div>
+
+  <div className="historias-search-card">
+
+    <FaStethoscope className="historias-search-icon" />
+
+    <input
+      className="form-control historias-search-input"
+      placeholder="Filtrar por diagnóstico..."
+      value={filtroDiagnostico}
+      onChange={(e) => setFiltroDiagnostico(e.target.value)}
+    />
+
+    {filtroDiagnostico && (
+      <button
+        type="button"
+        className="historias-clear-search"
+        onClick={() => setFiltroDiagnostico("")}
+      >
+        <FaTimes />
+      </button>
+    )}
+
+  </div>
+
+</div>
+
+{(busqueda || filtroDiagnostico) && (
+  <div className="historias-filter-info mb-3">
+    Mostrando <strong>{pacientesFiltrados.length}</strong> resultado(s)
+    {filtroDiagnostico && (
+      <>
+        {" "}con diagnóstico relacionado a{" "}
+        <strong>{filtroDiagnostico.toUpperCase()}</strong>
+      </>
+    )}
+  </div>
+)}
 
       {/* LISTADO */}
       {pacientesPagina.length === 0 ? (
         <div className="historias-empty">
           <FaSearch />
           <h5>No se encontraron pacientes</h5>
-          <p>Prueba con otro nombre o DNI.</p>
+          <p>
+            {filtroDiagnostico
+              ? "No hay historias clínicas con ese diagnóstico."
+              : "Prueba con otro nombre o DNI."}
+          </p>
         </div>
       ) : (
         <div className="historias-list">
@@ -411,6 +526,7 @@ function HistoriasClinicas() {
               sexoTexto === "femenino" ? femaleAvatar : maleAvatar;
 
             const edad = calcularEdad(p.fechaNacimiento);
+            const diagnosticosPaciente = diagnosticosPorPaciente[p.id] || [];
 
             return (
               <div key={p.id} className="historias-paciente-card">
@@ -451,6 +567,16 @@ function HistoriasClinicas() {
                       </span>
 
                     </div>
+
+                    {diagnosticosPaciente.length > 0 && (
+                      <div className="historias-diag-chips">
+                        {diagnosticosPaciente.map((diag) => (
+                          <span key={diag}>
+                            {diag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
 
                   </div>
 

@@ -4024,6 +4024,59 @@ html, body, #root {
 
 /*------ HISTORIA CLINICA ---------------------*/
 
+/* ===============================
+   FILTRO POR DIAGNÓSTICO
+================================ */
+
+.historias-filtros-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.historias-filtros-row .historias-search-card {
+  margin-bottom: 0 !important;
+}
+
+.historias-filter-info {
+  background: rgba(9, 154, 173, 0.10);
+  color: #333;
+  border-left: 5px solid rgb(9, 154, 173);
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-weight: 750;
+}
+
+.historias-diag-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.historias-diag-chips span {
+  background: rgba(9, 154, 173, 0.12);
+  color: rgb(9, 154, 173);
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+@media (max-width: 768px) {
+  .historias-filtros-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .historias-filter-info {
+    font-size: 0.82rem;
+  }
+
+  .historias-diag-chips span {
+    font-size: 0.68rem;
+  }
+}
 .paciente-card {
   transition: all 0.3s ease;
   cursor: pointer;
