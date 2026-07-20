@@ -6,7 +6,8 @@ import {
   collection,
   addDoc,
   onSnapshot,
-  deleteDoc
+  deleteDoc,
+  updateDoc
 } from "firebase/firestore";
 
 import { db } from "../firebase";
@@ -16,7 +17,9 @@ import {
   FaTrash,
   FaChevronDown,
   FaChevronUp,
-  FaFilePdf
+  FaFilePdf,
+  FaPencilAlt,
+  FaTimes
 } from "react-icons/fa";
 
 import jsPDF from "jspdf";
@@ -32,9 +35,10 @@ function HistoriaPaciente() {
   const [consultas, setConsultas] = useState([]);
   const [diagnosticos, setDiagnosticos] = useState([]);
 
-  const [diagnosticoSeleccionado, setDiagnosticoSeleccionado] = useState("");
+  const [diagnosticosSeleccionados, setDiagnosticosSeleccionados] = useState([]);
   const [historia, setHistoria] = useState("");
   const [nuevoDiagnostico, setNuevoDiagnostico] = useState("");
+  const [consultaEditando, setConsultaEditando] = useState(null);
 
   const [consultaAbierta, setConsultaAbierta] = useState(null);
   const [mostrarModal, setMostrarModal] = useState(false);
@@ -196,35 +200,111 @@ Indicaciones: Reposo relativo
     setHistoria(plantillas[nombre] || "");
   };
 
-  const agregarDiagnostico = async () => {
-    if (!nuevoDiagnostico.trim()) return;
+const toggleDiagnostico = (nombre) => {
+  const nombreFormateado = nombre.toUpperCase();
 
-    await addDoc(collection(db, "diagnosticos"), {
-      nombre: nuevoDiagnostico.trim()
-    });
+  setDiagnosticosSeleccionados((prev) =>
+    prev.includes(nombreFormateado)
+      ? prev.filter((d) => d !== nombreFormateado)
+      : [...prev, nombreFormateado]
+  );
+};
 
-    setNuevoDiagnostico("");
+const limpiarFormularioConsulta = () => {
+  setHistoria("");
+  setDiagnosticosSeleccionados([]);
+  setConsultaEditando(null);
+};
+
+const obtenerDiagnosticosConsulta = (consulta) => {
+  if (Array.isArray(consulta.diagnosticos) && consulta.diagnosticos.length > 0) {
+    return consulta.diagnosticos;
+  }
+
+  if (consulta.diagnostico) {
+    return consulta.diagnostico
+      .split(" - ")
+      .map((d) => d.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+};
+
+const textoDiagnosticosConsulta = (consulta) => {
+  const lista = obtenerDiagnosticosConsulta(consulta);
+
+  if (lista.length === 0) {
+    return "Consulta médica";
+  }
+
+  return lista.join(" - ");
+};
+
+const agregarDiagnostico = async () => {
+  if (!nuevoDiagnostico.trim()) return;
+
+  const nombre = nuevoDiagnostico.trim().toUpperCase();
+
+  await addDoc(collection(db, "diagnosticos"), {
+    nombre
+  });
+
+  setDiagnosticosSeleccionados((prev) =>
+    prev.includes(nombre) ? prev : [...prev, nombre]
+  );
+
+  setNuevoDiagnostico("");
+};
+
+const guardarConsulta = async (e) => {
+  e.preventDefault();
+
+  const diagnosticosFinales = diagnosticosSeleccionados.map((d) =>
+    d.toUpperCase()
+  );
+
+  if (diagnosticosFinales.length === 0) {
+    alert("Selecciona al menos un diagnóstico.");
+    return;
+  }
+
+  const dataConsulta = {
+    fecha: consultaEditando?.fecha || new Date().toLocaleDateString("es-AR"),
+    diagnosticos: diagnosticosFinales,
+    diagnostico: diagnosticosFinales.join(" - "),
+    historia,
+    actualizado: new Date()
   };
 
-  const guardarConsulta = async (e) => {
-    e.preventDefault();
+  if (consultaEditando) {
+    await updateDoc(
+      doc(db, "historiasClinicas", id, "consultas", consultaEditando.id),
+      dataConsulta
+    );
 
-    await addDoc(collection(db, "historiasClinicas", id, "consultas"), {
-      fecha: new Date().toLocaleDateString("es-AR"),
-      diagnostico: diagnosticoSeleccionado,
-      historia,
-      creado: new Date()
-    });
-
-    setHistoria("");
-    setDiagnosticoSeleccionado("");
-
+    limpiarFormularioConsulta();
     setMostrarModal(true);
 
     setTimeout(() => {
       setMostrarModal(false);
     }, 2500);
-  };
+
+    return;
+  }
+
+  await addDoc(collection(db, "historiasClinicas", id, "consultas"), {
+    ...dataConsulta,
+    creado: new Date()
+  });
+
+  limpiarFormularioConsulta();
+  setMostrarModal(true);
+
+  setTimeout(() => {
+    setMostrarModal(false);
+  }, 2500);
+};
 
   const eliminarConsulta = async (cid) => {
     if (window.confirm("¿Eliminar consulta?")) {
@@ -233,6 +313,23 @@ Indicaciones: Reposo relativo
       );
     }
   };
+
+const editarConsulta = (consulta) => {
+  setConsultaEditando(consulta);
+  setHistoria(consulta.historia || "");
+  setDiagnosticosSeleccionados(
+    obtenerDiagnosticosConsulta(consulta).map((d) => d.toUpperCase())
+  );
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+};
+
+const cancelarEdicionConsulta = () => {
+  limpiarFormularioConsulta();
+};
 
   const generarPDF = (consulta) => {
     const pdf = new jsPDF();
@@ -306,8 +403,8 @@ Indicaciones: Reposo relativo
 
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(13);
-    pdf.text((consulta.diagnostico || "Consulta médica").toUpperCase(), 105, y, {
-      align: "center"
+    pdf.text(textoDiagnosticosConsulta(consulta).toUpperCase(), 105, y, {
+    align: "center"
     });
 
     y += 10;
@@ -475,24 +572,51 @@ Indicaciones: Reposo relativo
 
                 <div className="historia-side-panel">
 
-                  <h5 className="historia-panel-title">
-                    Diagnóstico
-                  </h5>
+                <h5 className="historia-panel-title">
+  Diagnósticos
+</h5>
 
-                  <select
-                    className="form-select historia-input mb-3"
-                    value={diagnosticoSeleccionado}
-                    onChange={(e) => setDiagnosticoSeleccionado(e.target.value)}
-                    required
-                  >
-                    <option value="">Seleccionar diagnóstico</option>
+<div className="historia-diagnosticos-box mb-3">
 
-                    {diagnosticos.map((d) => (
-                      <option key={d.id} value={d.nombre}>
-                        {d.nombre}
-                      </option>
-                    ))}
-                  </select>
+  {diagnosticos.map((d, index) => {
+    const nombreDiag = d.nombre?.toUpperCase() || "";
+
+    return (
+      <label
+        key={d.id}
+        className={`historia-diagnostico-check ${
+          diagnosticosSeleccionados.includes(nombreDiag) ? "activo" : ""
+        }`}
+      >
+        <input
+          type="checkbox"
+          checked={diagnosticosSeleccionados.includes(nombreDiag)}
+          onChange={() => toggleDiagnostico(nombreDiag)}
+        />
+
+        <span>
+          <strong className="diag-opcion-num">
+            {index + 1}.
+          </strong>{" "}
+          {nombreDiag}
+        </span>
+      </label>
+    );
+  })}
+
+</div>
+
+{diagnosticosSeleccionados.length > 0 && (
+  <div className="historia-diagnosticos-seleccionados mb-3">
+    {diagnosticosSeleccionados.map((d, index) => (
+      <span key={`${d}-${index}`}>
+        <strong className="diag-num">{index + 1}.</strong>
+        {d.toUpperCase()}
+      </span>
+    ))}
+  </div>
+)}
+
 
                   <div className="historia-new-diagnostico mb-4">
                     <input
@@ -556,8 +680,19 @@ Indicaciones: Reposo relativo
 
                   <button className="historia-save-consulta-btn mt-4">
                     <FaPlus className="me-2" />
-                    Guardar consulta
+                    {consultaEditando ? "Actualizar consulta" : "Guardar consulta"}
                   </button>
+
+                  {consultaEditando && (
+                    <button
+                      type="button"
+                      className="historia-cancelar-edicion-btn mt-2"
+                      onClick={cancelarEdicionConsulta}
+                    >
+                      <FaTimes className="me-2" />
+                      Cancelar edición
+                    </button>
+                  )}
 
                 </div>
 
@@ -634,8 +769,15 @@ Indicaciones: Reposo relativo
                   >
 
                     <div>
-                      <h5>{c.diagnostico}</h5>
-                      <span>{c.fecha}</span>
+                    <h5>{c.fecha}</h5>
+
+                        <div className="historia-consulta-diagnosticos mt-2">
+                          {obtenerDiagnosticosConsulta(c).map((diag) => (
+                            <small key={diag}>
+                              {diag}
+                            </small>
+                          ))}
+                        </div>
                     </div>
 
                     <div className="historia-consulta-arrow">
@@ -652,6 +794,15 @@ Indicaciones: Reposo relativo
                       </p>
 
                       <div className="historia-consulta-actions">
+
+                        <button
+                          type="button"
+                          className="historia-edit-consulta"
+                          onClick={() => editarConsulta(c)}
+                        >
+                          <FaPencilAlt />
+                          Editar
+                        </button>
 
                         <button
                           type="button"

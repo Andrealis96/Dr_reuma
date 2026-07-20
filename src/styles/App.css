@@ -3060,6 +3060,141 @@ html, body, #root {
    HISTORIA PACIENTE MODERNO
 ================================ */
 
+.diag-opcion-num {
+  font-weight: 1000;
+  color: rgb(9, 154, 173);
+}
+
+.historia-diagnostico-check.activo .diag-opcion-num {
+  color: white;
+}
+
+.historia-diagnosticos-seleccionados span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.diag-num {
+  font-weight: 1000;
+  color: #ffffff;
+}
+/* Diagnósticos múltiples */
+.historia-diagnosticos-box {
+  max-height: 210px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding-right: 4px;
+}
+
+.historia-diagnostico-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  background: rgba(9, 154, 173, 0.09);
+  border: 1px solid rgba(9, 154, 173, 0.10);
+
+  padding: 9px 10px;
+  border-radius: 13px;
+
+  font-weight: 800;
+  font-size: 0.82rem;
+
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.historia-diagnostico-check input {
+  accent-color: rgb(9, 154, 173);
+}
+
+.historia-diagnostico-check.activo {
+  background: rgb(9, 154, 173);
+  color: white;
+}
+
+.historia-diagnosticos-seleccionados {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.historia-diagnosticos-seleccionados span {
+  background: #111;
+  color: white;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+/* Diagnósticos dentro de consulta guardada */
+.historia-consulta-diagnosticos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 6px;
+}
+
+.historia-consulta-diagnosticos small {
+  background: rgba(9, 154, 173, 0.13);
+  color: rgb(9, 154, 173);
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 900;
+}
+
+/* Botón editar */
+.historia-edit-consulta {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 16px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  font-weight: 900;
+  color: #111;
+  background: #ffc107;
+}
+
+.historia-cancelar-edicion-btn {
+  width: 100%;
+  border: none;
+  border-radius: 999px;
+  padding: 11px 16px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  font-weight: 900;
+  color: white;
+  background: #dc3545;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .historia-diagnosticos-box {
+    max-height: 170px;
+  }
+
+  .historia-diagnostico-check {
+    padding: 7px 9px;
+    font-size: 0.76rem;
+  }
+
+  .historia-edit-consulta {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 .historia-paciente-page {
   min-height: 100vh;
 }
