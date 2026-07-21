@@ -6,26 +6,32 @@ import interactionPlugin from "@fullcalendar/interaction";
 import esLocale from "@fullcalendar/core/locales/es";
 import ModalCita from "../components/ModalCita";
 import ModalDetalle from "../components/ModalDetalle";
+import html2canvas from "html2canvas";
+import logo from "../assets/DrReumaLogo.png";
 import {
   FaChevronLeft,
   FaChevronRight,
   FaPlus,
   FaWhatsapp,
-  FaCalendarAlt,
   FaStethoscope,
   FaUserClock,
   FaSearch,
   FaIdCard,
   FaUser,
-  FaUsers,
-  FaClock, 
+  FaUsers, 
   FaVideo,
   FaEye,
   FaEyeSlash,
   FaLock,
   FaSun,
   FaCloudSun,
-  FaStickyNote
+  FaStickyNote,
+  FaDownload,
+  FaCheckCircle,
+  FaCalendarAlt,
+  FaClock,
+  FaMapMarkerAlt,
+  FaUserMd
 } from "react-icons/fa";
 
 import {
@@ -66,11 +72,15 @@ function Citas() {
   const [bloqueos, setBloqueos] = useState([]);
   const [showDetalle, setShowDetalle] = useState(false);
   const [citaSeleccionada, setCitaSeleccionada] = useState(null);
-
   //notas 
   const [notasAgenda, setNotasAgenda] = useState([]);
   const [showModalNota, setShowModalNota] = useState(false);
   const [notaDia, setNotaDia] = useState("");
+
+  //imagen cita
+  const comprobanteRef = useRef(null);
+  const [citaParaDescargar, setCitaParaDescargar] = useState(null);
+  const [descargandoComprobante, setDescargandoComprobante] = useState(false); 
 
   // ================= FIRESTORE =================
   useEffect(() => {
@@ -230,7 +240,7 @@ const obtenerHorariosDisponibles = (fecha) => {
   }
 
   if (configViernes.turno === "mañana") {
-    base = ["09:30", "10:00", "10:30", "11:00", "13:20"];
+    base = ["13:20"];
   }
 
   if (configViernes.turno === "tarde") {
@@ -467,8 +477,105 @@ const eliminarNotaDia = async () => {
   }
 };
 
-  return (
+const formatearFechaComprobante = (fecha) => {
+  if (!fecha) return "-";
+
+  return new Date(`${fecha}T00:00:00`).toLocaleDateString("es-AR", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+};
+
+const obtenerLugarCita = (cita) => {
+  if (cita.tipo === "virtual") {
+    return "Consulta por videollamada";
+  }
+
+  return "Clínica San Agustín - San Martín 1355, Consultorios Externos, Neuquén Capital";
+};
+
+const descargarComprobanteImagen = (cita) => {
+  if (descargandoComprobante) return;
+
+  setDescargandoComprobante(true);
+  setCitaParaDescargar(cita);
+};
+
+useEffect(() => {
+  if (!citaParaDescargar || !descargandoComprobante) return;
+
+  let cancelado = false;
+
+  const generarImagen = async () => {
+    try {
+      await new Promise((resolve) => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(resolve);
+        });
+      });
+
+      if (!comprobanteRef.current) return;
+
+      const canvas = await html2canvas(comprobanteRef.current, {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+      });
+
+      const link = document.createElement("a");
+
+      const nombreSeguro = (citaParaDescargar.nombre || "paciente")
+        .replace(/\s+/g, "-")
+        .replace(/[^\w-]/g, "");
+
+      link.download = `cita-${nombreSeguro}-${citaParaDescargar.fecha}-${citaParaDescargar.hora}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+
+    } catch (error) {
+      console.error("Error al generar comprobante:", error);
+    } finally {
+      if (!cancelado) {
+        setCitaParaDescargar(null);
+        setDescargandoComprobante(false);
+      }
+    }
+  };
+
+  generarImagen();
+
+  return () => {
+    cancelado = true;
+  };
+}, [citaParaDescargar, descargandoComprobante]);
+
+return (
+
     <div className="container py-4">
+
+      {descargandoComprobante && (
+  <div className="comprobante-loading-overlay">
+    <div className="comprobante-loading-card">
+
+      <div className="comprobante-loading-icon">
+        <FaDownload />
+      </div>
+
+      <h4>Generando comprobante</h4>
+
+      <p>
+        Preparando la imagen de la cita...
+      </p>
+
+      <div className="comprobante-loading-bar">
+        <span />
+      </div>
+
+    </div>
+  </div>
+)}
 
       {/* HEADER */}
       <h3 className="subtitle-general text-center mb-4">
@@ -626,15 +733,17 @@ const tieneNota = notasAgenda.some(
   n => n.fecha === fecha && n.texto?.trim()
 );
 
+
+
   return (
     <div className="dia-celda-custom">
 
       {tieneNota && (
-  <div
-    className="nota-triangulo"
-    title="Este día tiene una nota"
-  />
-)}
+        <div
+          className="nota-triangulo"
+          title="Este día tiene una nota"
+        />
+      )}
 
       <div className="dia-numero">
         {arg.dayNumberText}
@@ -662,6 +771,8 @@ const tieneNota = notasAgenda.some(
     </div>
   );
 }}
+
+
 
   headerToolbar={{
     left: "title",
@@ -884,31 +995,45 @@ eventClick={(info) => {
     setShowDetalle(true);
   }}
 >
-  <div className="d-flex justify-content-between align-items-center">
+  
+<div className="d-flex justify-content-between align-items-center">
 
-    <div>
+  <div className="paciente-cita-info">
+
+    <div className="hora-linea-cita">
+      <span
+        className={`estado-cita-dot ${
+          c.tipo === "presencial" ? "estado-presencial" : "estado-virtual"
+        }`}
+        title={c.tipo === "presencial" ? "Consulta presencial" : "Consulta virtual"}
+      />
+
       <div className="hora-paciente">
         {c.hora}
       </div>
-
-      <div className="nombre-paciente-dia">
-        {capitalizarNombre(c.nombre)}
-      </div>
     </div>
 
-    <div>
-      {c.tipo === "presencial" ? (
-        <span className="tipo-presencial">
-          🟢 Presencial
-        </span>
-      ) : (
-        <span className="tipo-virtual">
-          🔵 Virtual
-        </span>
-      )}
+    <div className="nombre-paciente-dia">
+      {capitalizarNombre(c.nombre)}
     </div>
 
   </div>
+
+  <button
+  type="button"
+  className="btn-comprobante-cita"
+  title="Descargar comprobante"
+  disabled={descargandoComprobante}
+  onClick={(e) => {
+    e.stopPropagation();
+    descargarComprobanteImagen(c);
+  }}
+>
+  <FaDownload />
+</button>
+
+</div>
+
 </div>
             ))
           )}
@@ -1105,8 +1230,99 @@ eventClick={(info) => {
     </div>
   </div>
 )}
+
+{citaParaDescargar && (
+  <div className="comprobante-wrapper">
+  <div className="comprobante-premium" ref={comprobanteRef}>
+    
+    <div className="comprobante-topbar"></div>
+
+    <div className="comprobante-header">
+      <img
+        src={logo}
+        alt="Dr. Reuma"
+        className="comprobante-logo"
+      />
+
+      <div className="comprobante-badge-ok">
+        <FaCheckCircle className="me-2" />
+        Turno confirmado
+      </div>
+
+      <h2>COMPROBANTE DE CITA</h2>
+      <p>Dr. Reuma · Especialista en enfermedades Reumatologías y Autoinmunes</p>
     </div>
-  );
+
+    <div className="comprobante-paciente-box">
+      <span className="comprobante-label-mini">Paciente: </span>
+      <h3>{capitalizarNombre(citaParaDescargar?.nombre || "Paciente")}</h3>
+
+      <div className="comprobante-chips">
+        <div className="comprobante-chip">
+          <FaCalendarAlt className="me-2" />
+          {formatearFechaComprobante(citaParaDescargar?.fecha)}
+        </div>
+
+        <div className="comprobante-chip">
+          <FaClock className="me-2" />
+          {citaParaDescargar?.hora || "--:--"} hs
+        </div>
+      </div>
+    </div>
+
+    <div className="comprobante-info-grid">
+      <div className="comprobante-info-card">
+        <div className="comprobante-info-title">
+          <FaMapMarkerAlt className="me-2" />
+          Lugar:
+        </div>
+        <p>
+          Consultorios Externos de la<br />
+          Clínica San Agustín <br />
+          (San Martín 1355 - Neuquén Capital)
+        </p>
+      </div>
+
+      <div className="comprobante-info-card">
+        <div className="comprobante-info-title">
+          <FaUserMd className="me-2" />
+          Médico Especialista:
+        </div>
+        <p>
+          Dr. Tony Vélez <br />
+          Reumatólogo
+        </p>
+      </div>
+    </div>
+
+    <div className="comprobante-note">
+      <h4>Nota importante</h4>
+      <p>
+        · En caso de cancelación, por favor avisar al médico con anticipación. <br />
+        · Estar con 15 minutos de anticipación a la cita.
+      </p>
+    </div>
+
+    <div className="comprobante-footer">
+      <div className="comprobante-footer-line"></div>
+
+      <div className="comprobante-footer-content">
+        <span>
+          <FaWhatsapp className="me-3" />
+          WhatsApp: +54 9 299 466 6559
+        </span>
+
+        <small>Gracias por confiar en Dr. Reuma</small>
+      </div>
+    </div>
+  </div>
+</div>
+)}
+
+</div>
+  ); 
 }
+
+
 
 export default Citas;
