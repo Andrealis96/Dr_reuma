@@ -5231,6 +5231,120 @@ html, body, #root {
 
 /* ................ CITAS .......................*/
 
+/* Preview moderno comprobante cita */
+.comprobante-preview-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(5px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 18px;
+}
+
+.comprobante-preview-card {
+  position: relative;
+
+  width: 420px;
+  max-width: 100%;
+
+  max-height: 92vh;
+  overflow-y: auto;
+
+  background: white;
+  border-radius: 26px;
+  padding: 18px;
+
+  text-align: center;
+
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
+  animation: comprobantePreviewPop 0.25s ease;
+}
+
+.comprobante-preview-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+
+  width: 32px;
+  height: 32px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: rgba(0, 0, 0, 0.08);
+  color: #222;
+
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.comprobante-preview-card h4 {
+  margin: 8px 0 4px;
+  font-weight: 1000;
+  color: #111;
+}
+
+.comprobante-preview-card p {
+  margin: 0 0 14px;
+  color: #666;
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+
+.comprobante-preview-img {
+  width: 100%;
+  border-radius: 18px;
+  border: 1px solid rgba(9, 154, 173, 0.18);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+}
+
+.comprobante-preview-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.btn-comprobante-share,
+.btn-comprobante-download {
+  border: none;
+  border-radius: 16px;
+  padding: 13px 16px;
+
+  font-weight: 1000;
+}
+
+.btn-comprobante-share {
+  background: linear-gradient(135deg, rgb(9, 154, 173), #00747d);
+  color: white;
+}
+
+.btn-comprobante-download {
+  background: rgba(9, 154, 173, 0.12);
+  color: rgb(9, 154, 173);
+}
+
+@keyframes comprobantePreviewPop {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+
+
 /* =========================
    COMPROBANTE PREMIUM CITA
 ========================= */

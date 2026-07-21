@@ -81,6 +81,8 @@ function Citas() {
   const comprobanteRef = useRef(null);
   const [citaParaDescargar, setCitaParaDescargar] = useState(null);
   const [descargandoComprobante, setDescargandoComprobante] = useState(false); 
+  const [previewComprobanteUrl, setPreviewComprobanteUrl] = useState(null);
+  const [previewComprobanteFile, setPreviewComprobanteFile] = useState(null);
 
   // ================= FIRESTORE =================
   useEffect(() => {
@@ -524,23 +526,33 @@ useEffect(() => {
         backgroundColor: "#ffffff",
       });
 
-      const link = document.createElement("a");
+      canvas.toBlob((blob) => {
+        if (!blob || cancelado) return;
 
-      const nombreSeguro = (citaParaDescargar.nombre || "paciente")
-        .replace(/\s+/g, "-")
-        .replace(/[^\w-]/g, "");
+        const nombreSeguro = (citaParaDescargar.nombre || "paciente")
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/\s+/g, "-")
+          .replace(/[^\w-]/g, "");
 
-      link.download = `cita-${nombreSeguro}-${citaParaDescargar.fecha}-${citaParaDescargar.hora}.png`;
-      link.href = canvas.toDataURL("image/png");
-      link.click();
+        const file = new File(
+          [blob],
+          `cita-${nombreSeguro}-${citaParaDescargar.fecha}-${citaParaDescargar.hora}.png`,
+          { type: "image/png" }
+        );
+
+        const url = URL.createObjectURL(blob);
+
+        setPreviewComprobanteFile(file);
+        setPreviewComprobanteUrl(url);
+        setCitaParaDescargar(null);
+        setDescargandoComprobante(false);
+      }, "image/png");
 
     } catch (error) {
       console.error("Error al generar comprobante:", error);
-    } finally {
-      if (!cancelado) {
-        setCitaParaDescargar(null);
-        setDescargandoComprobante(false);
-      }
+      setCitaParaDescargar(null);
+      setDescargandoComprobante(false);
     }
   };
 
@@ -550,6 +562,49 @@ useEffect(() => {
     cancelado = true;
   };
 }, [citaParaDescargar, descargandoComprobante]);
+
+const compartirComprobante = async () => {
+  if (!previewComprobanteFile) return;
+
+  try {
+    if (
+      navigator.canShare &&
+      navigator.canShare({ files: [previewComprobanteFile] })
+    ) {
+      await navigator.share({
+        files: [previewComprobanteFile],
+        title: "Comprobante de cita - Dr. Reuma",
+        text: "Te envío el comprobante de tu cita con Dr. Reuma.",
+      });
+
+      return;
+    }
+
+    descargarPreviewComprobante();
+  } catch (error) {
+    console.error("No se pudo compartir:", error);
+  }
+};
+
+const descargarPreviewComprobante = () => {
+  if (!previewComprobanteUrl || !previewComprobanteFile) return;
+
+  const link = document.createElement("a");
+  link.href = previewComprobanteUrl;
+  link.download = previewComprobanteFile.name;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
+const cerrarPreviewComprobante = () => {
+  if (previewComprobanteUrl) {
+    URL.revokeObjectURL(previewComprobanteUrl);
+  }
+
+  setPreviewComprobanteUrl(null);
+  setPreviewComprobanteFile(null);
+};
 
 return (
 
@@ -1317,6 +1372,52 @@ eventClick={(info) => {
     </div>
   </div>
 </div>
+)}
+
+{previewComprobanteUrl && (
+  <div className="comprobante-preview-overlay">
+    <div className="comprobante-preview-card">
+
+      <button
+        type="button"
+        className="comprobante-preview-close"
+        onClick={cerrarPreviewComprobante}
+      >
+        ×
+      </button>
+
+      <h4>Comprobante generado</h4>
+
+      <p>
+        Puedes compartirlo por WhatsApp o guardarlo en el celular.
+      </p>
+
+      <img
+        src={previewComprobanteUrl}
+        alt="Comprobante de cita"
+        className="comprobante-preview-img"
+      />
+
+      <div className="comprobante-preview-actions">
+        <button
+          type="button"
+          className="btn-comprobante-share"
+          onClick={compartirComprobante}
+        >
+          Compartir
+        </button>
+
+        <button
+          type="button"
+          className="btn-comprobante-download"
+          onClick={descargarPreviewComprobante}
+        >
+          Descargar
+        </button>
+      </div>
+
+    </div>
+  </div>
 )}
 
 </div>
