@@ -30,7 +30,10 @@ import {
   FaFolderOpen,
   FaTimes,
   FaUsers,
-  FaStethoscope 
+  FaStethoscope,
+  FaCalendarAlt,
+  FaFileMedical,
+  FaUserCheck
 } from "react-icons/fa";
 
 import maleAvatar from "../assets/user-male.png";
@@ -49,11 +52,14 @@ function HistoriasClinicas() {
   const [busqueda, setBusqueda] = useState("");
   const [filtroDiagnostico, setFiltroDiagnostico] = useState("");
   const [diagnosticosPorPaciente, setDiagnosticosPorPaciente] = useState({});
+  const [ultimaConsultaPorPaciente, setUltimaConsultaPorPaciente] = useState({});
+  const [cantidadConsultasPorPaciente, setCantidadConsultasPorPaciente] = useState({}); 
   const [pagina, setPagina] = useState(1);
   const pacientesPorPagina = 6;
 
   const [editando, setEditando] = useState(null);
-  const [mensaje, setMensaje] = useState("");
+  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
+  const [mensajeConfirmacion, setMensajeConfirmacion] = useState("");
 
   const limpiarFormulario = () => {
     setNombre("");
@@ -97,6 +103,53 @@ function HistoriasClinicas() {
     .toLowerCase();
 };
 
+const convertirFechaConsulta = (fecha) => {
+  if (!fecha) return null;
+
+  const partes = fecha.split("/");
+
+  if (partes.length !== 3) return null;
+
+  const [dia, mes, anio] = partes;
+
+  return new Date(`${anio}-${mes}-${dia}T00:00:00`);
+};
+
+const obtenerFechaHoraConsulta = (data) => {
+  let fechaDate = null;
+  let hora = data.hora || "";
+
+  if (data.creado?.toDate) {
+    fechaDate = data.creado.toDate();
+
+    if (!hora) {
+      hora = fechaDate.toLocaleTimeString("es-AR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      });
+    }
+  } else if (data.creado instanceof Date) {
+    fechaDate = data.creado;
+
+    if (!hora) {
+      hora = fechaDate.toLocaleTimeString("es-AR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      });
+    }
+  } else {
+    fechaDate = convertirFechaConsulta(data.fecha);
+  }
+
+  return {
+    fecha: data.fecha || "",
+    hora,
+    fechaDate
+  };
+};
+
 useEffect(() => {
   const q = query(
     collection(db, "historiasClinicas"),
@@ -119,7 +172,9 @@ useEffect(() => {
   const unsubscribe = onSnapshot(
     collectionGroup(db, "consultas"),
     (snapshot) => {
-      const mapa = {};
+      const mapaDiagnosticos = {};
+      const mapaUltimaConsulta = {};
+      const mapaCantidadConsultas = {};
 
       snapshot.docs.forEach((consultaDoc) => {
         const data = consultaDoc.data();
@@ -127,6 +182,7 @@ useEffect(() => {
         const pacienteId = consultaDoc.ref.parent.parent?.id;
 
         if (!pacienteId) return;
+        mapaCantidadConsultas[pacienteId] = (mapaCantidadConsultas[pacienteId] || 0) + 1;
 
         const listaDiagnosticos = Array.isArray(data.diagnosticos)
           ? data.diagnosticos
@@ -139,25 +195,44 @@ useEffect(() => {
 
           if (!diagnosticoLimpio) return;
 
-          if (!mapa[pacienteId]) {
-            mapa[pacienteId] = new Set();
+          if (!mapaDiagnosticos[pacienteId]) {
+            mapaDiagnosticos[pacienteId] = new Set();
           }
 
-          mapa[pacienteId].add(diagnosticoLimpio);
+          mapaDiagnosticos[pacienteId].add(diagnosticoLimpio);
         });
+
+        const fechaHoraConsulta = obtenerFechaHoraConsulta(data);
+
+          if (fechaHoraConsulta.fechaDate) {
+            const ultimaActual = mapaUltimaConsulta[pacienteId]?.fechaDate;
+
+            if (!ultimaActual || fechaHoraConsulta.fechaDate > ultimaActual) {
+              mapaUltimaConsulta[pacienteId] = fechaHoraConsulta;
+            }
+          }
       });
 
-      const mapaFinal = {};
+      const mapaDiagnosticosFinal = {};
+      const mapaUltimaConsultaFinal = {};
 
-      Object.entries(mapa).forEach(([pacienteId, diagnosticosSet]) => {
-        mapaFinal[pacienteId] = Array.from(diagnosticosSet).sort((a, b) =>
+      Object.entries(mapaDiagnosticos).forEach(([pacienteId, diagnosticosSet]) => {
+        mapaDiagnosticosFinal[pacienteId] = Array.from(diagnosticosSet).sort((a, b) =>
           a.localeCompare(b, "es", {
             sensitivity: "base"
           })
         );
       });
 
-      setDiagnosticosPorPaciente(mapaFinal);
+      Object.entries(mapaUltimaConsulta).forEach(([pacienteId, data]) => {
+        mapaUltimaConsultaFinal[pacienteId] = data.hora
+        ? `${data.fecha} - ${data.hora} hs`
+        : data.fecha;
+      });
+
+      setDiagnosticosPorPaciente(mapaDiagnosticosFinal);
+      setUltimaConsultaPorPaciente(mapaUltimaConsultaFinal);
+      setCantidadConsultasPorPaciente(mapaCantidadConsultas);
     }
   );
 
@@ -167,6 +242,15 @@ useEffect(() => {
 useEffect(() => {
   setPagina(1);
 }, [busqueda, filtroDiagnostico]);
+
+const mostrarMensajeGuardado = (texto) => {
+  setMensajeConfirmacion(texto);
+  setMostrarConfirmacion(true);
+
+  setTimeout(() => {
+    setMostrarConfirmacion(false);
+  }, 1800);
+};
 
   const crearPaciente = async (e) => {
     e.preventDefault();
@@ -181,9 +265,7 @@ useEffect(() => {
     });
 
     limpiarFormulario();
-    setMensaje("Paciente creado correctamente");
-
-    setTimeout(() => setMensaje(""), 3000);
+    mostrarMensajeGuardado("Paciente guardado");
   };
 
   const eliminarPaciente = async (id) => {
@@ -220,10 +302,7 @@ useEffect(() => {
 
     setEditando(null);
     limpiarFormulario();
-
-    setMensaje("Paciente actualizado");
-
-    setTimeout(() => setMensaje(""), 3000);
+    mostrarMensajeGuardado("Paciente actualizado");
   };
 
   const cancelarEdicion = () => {
@@ -264,6 +343,18 @@ const pacientesFiltrados = pacientes.filter((p) => {
 
   return (
     <div className="container historias-modern-container py-4 mb-5">
+      {mostrarConfirmacion && (
+  <div className="paciente-save-overlay">
+    <div className="paciente-save-card">
+
+      <div className="paciente-save-icon">
+        <FaUserCheck />
+      </div>
+
+      <h4>{mensajeConfirmacion}</h4>
+    </div>
+  </div>
+)}
 
       {/* HEADER */}
       <div className="historias-hero mb-4">
@@ -302,14 +393,6 @@ const pacientesFiltrados = pacientes.filter((p) => {
         </div>
 
       </div>
-
-      {/* MENSAJE */}
-      {mensaje && (
-        <div className="alert alert-success historias-alert">
-          <FaCheckCircle className="me-2" />
-          {mensaje}
-        </div>
-      )}
 
       {/* FORMULARIO */}
       <div className="historias-form-card mb-4">
@@ -527,9 +610,16 @@ const pacientesFiltrados = pacientes.filter((p) => {
 
             const edad = calcularEdad(p.fechaNacimiento);
             const diagnosticosPaciente = diagnosticosPorPaciente[p.id] || [];
+            const ultimaConsulta = ultimaConsultaPorPaciente[p.id]; 
+            const cantidadConsultas = cantidadConsultasPorPaciente[p.id] || 0; 
 
             return (
               <div key={p.id} className="historias-paciente-card">
+
+                <div className="historias-consultas-badge-card">
+                  <span>Consultas</span>
+                  <strong>{cantidadConsultas}</strong>
+                </div>
 
                 <div className="historias-paciente-main">
 
@@ -564,6 +654,11 @@ const pacientesFiltrados = pacientes.filter((p) => {
                       <span>
                         <FaVenusMars />
                         {p.sexo}
+                      </span>
+
+                      <span>
+                        <FaCalendarAlt />
+                        Última consulta: {ultimaConsulta || "Sin consultas"}
                       </span>
 
                     </div>

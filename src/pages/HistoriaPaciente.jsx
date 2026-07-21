@@ -340,6 +340,11 @@ const guardarConsulta = async (e) => {
 
   const dataConsulta = {
     fecha: consultaEditando?.fecha || new Date().toLocaleDateString("es-AR"),
+    hora: consultaEditando?.hora || new Date().toLocaleTimeString("es-AR", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false
+    }),
     diagnosticos: diagnosticosFinales,
     diagnostico: diagnosticosFinales.join(" - "),
     historia,
