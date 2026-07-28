@@ -574,7 +574,7 @@ const compartirComprobante = async () => {
       await navigator.share({
         files: [previewComprobanteFile],
         title: "Comprobante de cita - Dr. Reuma",
-        text: "Te envío el comprobante de tu cita con Dr. Reuma.",
+        text: "Te envío el comprobante de tu cita.",
       });
 
       return;

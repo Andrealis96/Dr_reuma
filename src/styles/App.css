@@ -1067,116 +1067,404 @@ margin-top: 5px;
     min-width: 150px;
   }
 }
-/* =========================
-SERVICE CARDS PRO STYLE --- servicios
-========================= */
 
-.services-description{
+/* =========================================================
+   SERVICIOS - DR. REUMA MODERNO
+========================================================= */
+
+.services-section {
+  position: relative;
+  padding-top: 30px;
+  padding-bottom: 60px;
+  scroll-margin-top: 110px;
+}
+
+/* Texto introductorio */
+.services-description {
+  max-width: 1080px;
+  margin-left: auto;
+  margin-right: auto;
+
   font-size: 1.05rem;
-  font-weight: 550;
-  line-height: 1.7;
-  text-align: justify;
+  font-weight: 600;
+  line-height: 1.75;
+
+  color: #2b2b2b;
+  text-align: center;
 }
 
-.flags{
-  display:flex;
-  justify-content:center;
-  gap:10px;
-  margin-top:15px;
+.services-description .celeste {
+  color: rgb(9, 154, 173) !important;
 }
 
-.flags img{
-  width:55px;
-  height:40px;
+/* Frase destacada */
+.services-description.text-center .fw-bold.celeste {
+  display: inline-block;
 
-  border-radius:4px;
+  background: rgba(9, 154, 173, 0.09);
+  border: 1px solid rgba(9, 154, 173, 0.14);
 
-  object-fit:cover;
+  padding: 12px 22px;
+  border-radius: 999px;
 
-  box-shadow:0 2px 5px rgba(0,0,0,0.2);
-}
-.service-icon{
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: #e9f8fa;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  font-size: 35px;
-  color:rgb(9, 154, 173);
-
-  margin:auto;
-  margin-bottom:20px;
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
 }
 
-input[type="date"] {
-  cursor: pointer;
+/* =========================================================
+   CARDS DE SERVICIOS
+========================================================= */
+
+.service-card-wrapper {
+  position: relative;
+  height: 100%;
 }
 
-input[type="date"]::-webkit-calendar-picker-indicator {
-  cursor: pointer;
+.service-card {
+  position: relative;
+  overflow: hidden;
+
+  height: 100%;
+
+  border: 1px solid rgba(9, 154, 173, 0.18) !important;
+  border-radius: 24px !important;
+
+  background: rgba(255, 255, 255, 0.78) !important;
+  backdrop-filter: blur(6px);
+
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
+
+  transition: 0.28s ease;
 }
 
-small {
-  display: block;
-  margin-top: 4px;
-}
-
-.info-item.warning {
-  background: #fff17352;
-  color: #596516;
-}
-
-.fake-placeholder {
+/* Fondo celeste suave dentro de las cards */
+.service-card::before {
+  content: "";
   position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #9ca3af;
-  pointer-events: none;
-  font-size: 14px;
+  inset: 0;
+
+  background: linear-gradient(
+    135deg,
+    rgba(9, 154, 173, 0.14),
+    rgba(255, 255, 255, 0.4)
+  );
+
+  z-index: 0;
 }
+
+.service-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.service-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 42px rgba(9, 154, 173, 0.18);
+  border-color: rgba(9, 154, 173, 0.35) !important;
+}
+
+.service-card h5,
+.service-card h4,
+.service-card .card-title {
+  color: #202020;
+  font-weight: 1000;
+  letter-spacing: -0.3px;
+}
+
+.service-card p,
+.service-card .card-text {
+  color: #4c4c4c;
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+/* Icono superior */
+.service-icon {
+  width: 58px;
+  height: 58px;
+
+  border-radius: 50%;
+
+  background: linear-gradient(135deg, rgb(9, 154, 173), #00747d);
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 28px;
+
+  margin: 0 auto 22px;
+
+  box-shadow: 0 12px 26px rgba(9, 154, 173, 0.28);
+}
+
+/* Banderas */
+.flags {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+
+  margin-top: 16px;
+  margin-bottom: 12px;
+}
+
+.flags img {
+  width: 56px;
+  height: 38px;
+
+  border-radius: 8px;
+  object-fit: cover;
+
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.18);
+}
+
+/* Badge no disponible */
+.service-badge {
+  position: absolute;
+  top: -10px;
+  right: 18px;
+
+  background: linear-gradient(135deg, #ff4d4d, #d90429);
+  color: white;
+
+  font-size: 0.68rem;
+  font-weight: 1000;
+  letter-spacing: 0.3px;
+
+  padding: 7px 12px;
+  border-radius: 999px;
+
+  box-shadow: 0 8px 18px rgba(217, 4, 41, 0.28);
+  z-index: 5;
+}
+
+.service-card.disabled {
+  opacity: 0.58;
+  pointer-events: none;
+  filter: grayscale(0.15);
+}
+
+/* Botón WhatsApp dentro de servicios */
+.btn-whatsapp,
+.service-card .btn,
+.service-card a.btn {
+  width: 100%;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  background: #171b1f !important;
+  color: white !important;
+
+  border: none !important;
+  border-radius: 14px !important;
+
+  padding: 11px 18px;
+
+  font-weight: 900;
+  text-decoration: none;
+
+  transition: 0.25s ease;
+}
+
+.btn-whatsapp:hover,
+.service-card .btn:hover,
+.service-card a.btn:hover {
+  background: rgb(9, 154, 173) !important;
+  color: white !important;
+
+  transform: translateY(-2px);
+
+  box-shadow: 0 10px 22px rgba(9, 154, 173, 0.28);
+}
+
+/* Mapa */
+.mini-map-container {
+  margin-top: 12px;
+  border-radius: 18px;
+  overflow: hidden;
+
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+}
+
+/* =========================================================
+   FORMULARIO AGENDA CITA
+========================================================= */
+
+.card.card-general {
+  position: relative;
+  overflow: hidden;
+
+  background: linear-gradient(
+    135deg,
+    rgba(9, 154, 173, 0.88),
+    rgba(0, 116, 125, 0.86)
+  ) !important;
+
+  border: none !important;
+  border-radius: 30px !important;
+
+  box-shadow: 0 22px 50px rgba(9, 154, 173, 0.24) !important;
+}
+
+.card.card-general::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background:
+    radial-gradient(circle at top left, rgba(255,255,255,0.26), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(255,255,255,0.14), transparent 36%);
+
+  pointer-events: none;
+}
+
+.card.card-general > * {
+  position: relative;
+  z-index: 1;
+}
+
+.card.card-general h4 {
+  color: #171b1f;
+  font-weight: 1000;
+  letter-spacing: -0.5px;
+}
+
+.card.card-general .service-icon {
+  background: white;
+  color: rgb(9, 154, 173);
+}
+
+/* Inputs */
+.card.card-general .form-control,
+.card.card-general .form-select {
+  height: 48px;
+
+  border: 1px solid rgba(255, 255, 255, 0.55) !important;
+  border-radius: 14px !important;
+
+  background: rgba(255, 255, 255, 0.94) !important;
+
+  color: #222;
+  font-weight: 650;
+
+  box-shadow: none !important;
+
+  transition: 0.2s ease;
+}
+
+.card.card-general .form-control:focus,
+.card.card-general .form-select:focus {
+  border-color: white !important;
+
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.22) !important;
+
+  transform: translateY(-1px);
+}
+
+.card.card-general .form-control::placeholder {
+  color: #777;
+  font-weight: 600;
+}
+
+.card.card-general .form-label {
+  color: #172026;
+  font-weight: 900;
+}
+
+/* Botón guardar cita */
+.btn-agendar,
+.card.card-general button[type="submit"],
+.card.card-general .btn-dark {
+  background: #171b1f !important;
+  color: #ffffff !important;
+
+  border: none !important;
+  border-radius: 999px !important;
+
+  padding: 12px 26px !important;
+
+  font-weight: 1000 !important;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  transition: 0.25s ease;
+}
+
+.btn-agendar:hover,
+.card.card-general button[type="submit"]:hover,
+.card.card-general .btn-dark:hover {
+  background: white !important;
+  color: rgb(9, 154, 173) !important;
+
+  transform: translateY(-2px);
+
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.18);
+}
+
+/* =========================================================
+   INFO CARD
+========================================================= */
+
 .info-card {
-  background: #f8fafc;
-  border-radius: 16px;
-  padding: 18px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-  border: 1px solid #e5e7eb;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+
+  border-radius: 22px;
+  padding: 20px;
+
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
 }
 
 .info-title {
-  font-weight: 700;
-  margin-bottom: 12px;
+  font-weight: 1000;
+  margin-bottom: 14px;
   color: #111827;
 }
 
 .info-item {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  padding: 10px;
-  border-radius: 10px;
-  font-size: 14px;
-  transition: 0.3s;
+  gap: 11px;
+
+  padding: 12px 14px;
+  border-radius: 14px;
+
+  font-size: 0.9rem;
+  font-weight: 700;
+
+  transition: 0.22s ease;
+}
+
+.info-item + .info-item {
+  margin-top: 9px;
 }
 
 .info-item svg {
   margin-top: 3px;
   font-size: 18px;
+  flex-shrink: 0;
 }
 
-/* colores suaves */
 .info-item.success {
   background: #ecfdf5;
   color: #047857;
 }
 
 .info-item.danger {
-  background: #fef2f2;
-  color: #b91c1c;
+  background: #fff1f2;
+  color: #be123c;
+}
+
+.info-item.warning {
+  background: #fff7ed;
+  color: #c2410c;
 }
 
 .info-item.primary {
@@ -1184,288 +1472,902 @@ small {
   color: #1d4ed8;
 }
 
-/* hover sutil */
 .info-item:hover {
-  transform: translateX(3px);
-}
-.card.card-general{
-  background:  rgba(9, 154, 173, 0.575) !important;
-  border-radius: 18px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  transform: translateX(4px);
 }
 
-.service-card-wrapper {
-  position: relative;
+/* =========================================================
+   SUCCESS CARD
+========================================================= */
+
+.success-card {
+  background: rgba(255, 255, 255, 0.96);
+
+  border-radius: 28px;
+  padding: 28px;
+
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.12);
 }
 
-.service-card {
-  border: none;
-  border-radius: 16px;
-  transition: all 0.35s ease;
-  background: rgba(9, 154, 173, 0.185) !important;
-}
-
-.service-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 18px 35px (114, 198, 209, 0.322);
-}
-
-.service-card.disabled {
-  opacity: 0.6;
-  pointer-events: none;
-}
-
-.service-badge {
-  position: absolute;
-  top: -10px;
-  right: 12px;
-  background:  rgba(9, 173, 45, 0.575) ;
-  color: #ff0202fb;
-  font-size: 0.75rem;
-  padding: 6px 10px;
-  border-radius: 20px;
-  z-index: 2;
-}
-
-.btn.btn-success {
-  background:  rgba(69, 173, 9, 0.822)  !important;
-  color: #000000 !important;
-}
-
-.btn-whatsapp {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  background: #000000;
-  color: white;
-  padding: 12px 20px;
-  border-radius: 50px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.btn-whatsapp:hover {
-  background: #1ebe5d;
-  transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-}
-
-.btn-whatsapp:active {
-  transform: scale(0.98);
-}
-
-.success-card{
-  padding: 20px;
-}
-
-.success-logo{
-  width: 120px;
+.success-logo {
+  width: 116px;
   height: auto;
+  margin-bottom: 14px;
 }
 
-.appointment-summary{
-  background: rgba(255,255,255,0.7);
-  border-radius: 18px;
-  padding: 10px;
+.success-card h4 {
+  color: #111;
+  font-weight: 1000;
+}
+
+.success-card p {
+  color: #4b4b4b;
+  font-weight: 650;
+}
+
+.appointment-summary {
+  background: rgba(9, 154, 173, 0.08);
+
+  border: 1px solid rgba(9, 154, 173, 0.16);
+  border-radius: 20px;
+
+  padding: 18px;
+
   text-align: left;
-  margin-bottom: 25px;
-  margin-bottom: 4px;
-  line-height: 1;
+
+  margin-bottom: 20px;
+
+  line-height: 1.45;
 }
 
-.appointment-summary p{
+.appointment-summary p {
   margin-bottom: 10px;
-  font-size: 15px;
-}
-
-@keyframes fadeIn{
-  from{
-    opacity:0;
-    transform:translateY(20px);
-  }
-
-  to{
-    opacity:1;
-    transform:translateY(0);
-  }
-}
-
-.btn-agendar {
-  background: rgb(0, 0, 0) !important;
-  color: #ffffff !important;
-
-  border: none;
-
-  border-radius: 50px;
-
-  padding: 12px 24px;
-
-  font-weight: 400;
-
-  transition: all 0.3s ease;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: right;
-  gap: 10px;
-}
-
-
-.btn-agendar:hover {
-  background: rgb(9, 154, 173) !important;
-  transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+  font-size: 0.92rem;
+  color: #2b2b2b;
+  font-weight: 650;
 }
 
 .btn-pdf {
-  background: rgb(0, 0, 0) !important;
+  background: #171b1f !important;
   color: #ffffff !important;
-  border: none;
-  border-radius: 50px;
-  font-weight:400;
-  transition: all 0.3s ease;
+
+  border: none !important;
+  border-radius: 999px !important;
+
+  padding: 10px 20px !important;
+
+  font-weight: 900 !important;
+
+  transition: 0.25s ease;
 }
 
 .btn-pdf:hover {
   background: rgb(9, 154, 173) !important;
-  transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+  color: white !important;
+
+  transform: translateY(-2px);
+
+  box-shadow: 0 10px 22px rgba(9, 154, 173, 0.25);
 }
 
-/*parte del pdf de agendar cita*/
+/* =========================================================
+   MOBILE SERVICIOS
+========================================================= */
 
-.pdf-ticket-premium{
-  width: 800px;
-  background: #ffffff;
+@media (max-width: 768px) {
+  .services-section {
+    padding-top: 18px;
+    padding-bottom: 40px;
+  }
 
-  padding: 45px;
+  .services-description {
+    font-size: 0.92rem;
+    line-height: 1.55;
+    text-align: center;
+    padding: 0 6px;
+  }
 
-  font-family: 'Poppins', sans-serif;
+  .services-description.text-center .fw-bold.celeste {
+    font-size: 0.78rem;
+    padding: 10px 14px;
+    border-radius: 18px;
+  }
 
-  color: #1e293b;
+  .service-card {
+    border-radius: 22px !important;
+  }
 
-  position: relative;
+  .service-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+    margin-bottom: 16px;
+  }
+
+  .flags img {
+    width: 48px;
+    height: 33px;
+  }
+
+  .card.card-general {
+    border-radius: 26px !important;
+    padding: 18px !important;
+  }
+
+  .card.card-general .form-control,
+  .card.card-general .form-select {
+    height: 46px;
+    font-size: 0.88rem;
+  }
+
+  .btn-agendar,
+  .card.card-general button[type="submit"],
+  .card.card-general .btn-dark {
+    width: 100%;
+    padding: 12px 16px !important;
+  }
+
+  .info-card {
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .info-item {
+    font-size: 0.82rem;
+  }
+
+  .success-card {
+    padding: 20px;
+    border-radius: 24px;
+  }
+
+  .appointment-summary {
+    padding: 14px;
+  }
+
+  .appointment-summary p {
+    font-size: 0.85rem;
+  }
+}
+
+/* =========================================================
+   AGENDA PACIENTE - OVERLAY MODERNO
+========================================================= */
+
+.servicio-cita-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(5px);
+
+  animation: servicioOverlayFade 0.22s ease;
+}
+
+.servicio-cita-card {
+  width: 310px;
+  max-width: calc(100vw - 40px);
+
+  background: rgba(255, 255, 255, 0.97);
+  border-radius: 28px;
+  padding: 30px 24px;
+
+  text-align: center;
+
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.26);
+  border: 1px solid rgba(9, 154, 173, 0.18);
+
+  animation: servicioCardPop 0.3s ease;
+}
+
+.servicio-cita-icon {
+  width: 82px;
+  height: 82px;
+
+  margin: 0 auto 16px;
+
+  border-radius: 50%;
+
+  background: linear-gradient(135deg, rgb(9, 154, 173), #006d77);
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 38px;
+
+  box-shadow: 0 12px 28px rgba(9, 154, 173, 0.35);
+
+  animation: servicioIconPulse 0.8s ease;
+}
+
+.servicio-cita-card h4 {
+  margin: 0 0 6px;
+  font-weight: 1000;
+  color: #111;
+}
+
+.servicio-cita-card p {
+  margin: 0;
+  color: #666;
+  font-weight: 650;
+  font-size: 0.9rem;
+}
+
+.servicio-loading-bar {
+  width: 100%;
+  height: 8px;
+
+  margin-top: 18px;
+
+  background: rgba(9, 154, 173, 0.12);
+  border-radius: 999px;
 
   overflow: hidden;
-
-  border-radius: 20px;
 }
 
-/* CONTENIDO ENCIMA */
-.pdf-ticket-premium *{
-  position: relative;
-  z-index: 1;
-}
-
-.pdf-header{
-  text-align: center;
-  margin-bottom: 25px;
-}
-
-.pdf-header h2{
-  margin-top: 10px;
-  margin-bottom: 5px;
-
-  font-size: 30px;
-  font-weight: 700;
-
-  color: #111827;
-}
-
-.pdf-header p{
-  color: #6b7280;
-  font-size: 15px;
-}
-
-.pdf-signature{
-  margin-top: 10px;
-}
-
-.pdf-signature img{
-  width: 120px;
-
+.servicio-loading-bar span {
   display: block;
+  width: 45%;
+  height: 100%;
 
-  margin: 0 auto 8px auto;
-}
-.pdf-signature p{
-  font-size: 13px;
-  color: #6b7280;
-  text-align: center;
-}
+  background: linear-gradient(90deg, rgb(9, 154, 173), #00c2d1);
+  border-radius: 999px;
 
-.pdf-doctor{
-  margin-top: 30px;
-  text-align: center;
-  line-height: 1.2;
+  animation: servicioLoadingMove 0.9s ease infinite;
 }
 
-.pdf-doctor p{
-  margin-bottom: 6px;
-  font-size: 16px;
-  line-height: 1;
+@keyframes servicioOverlayFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-.pdf-footer{
-  margin-top: 40px;
-  text-align: center;
-  font-size: 13px;
-  color: #475569;
-  border-top: 1px solid #e5e7eb;
-  padding-top: 20px;
-   line-height: 1;
+@keyframes servicioCardPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.84) translateY(12px);
+  }
+
+  70% {
+    transform: scale(1.04) translateY(0);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
-.pdf-body{
-  background: linear-gradient(
-    135deg,
-    #8fd3dc,
-    #6fc3cf
-  );
+@keyframes servicioIconPulse {
+  0% { transform: scale(0.4); }
+  60% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
 
+@keyframes servicioLoadingMove {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(230%); }
+}
+
+/* =========================================================
+   SUCCESS CARD PREMIUM
+========================================================= */
+
+.success-card-premium {
+  background: rgba(255, 255, 255, 0.97);
+  border-radius: 28px;
   padding: 28px;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.12);
+}
+
+.success-actions-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.success-check-big {
+  width: 64px;
+  height: 64px;
+
+  margin: 0 auto 14px;
+
+  border-radius: 50%;
+
+  background: rgba(9, 154, 173, 0.12);
+  color: rgb(9, 154, 173);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 32px;
+}
+
+.appointment-summary-premium {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  background: rgba(9, 154, 173, 0.08);
+  border: 1px solid rgba(9, 154, 173, 0.16);
+  border-radius: 22px;
+
+  padding: 18px;
+
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.appointment-summary-premium div {
+  background: white;
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.appointment-summary-premium span {
+  display: block;
+  color: rgb(9, 154, 173);
+  font-size: 0.75rem;
+  font-weight: 1000;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.appointment-summary-premium strong {
+  display: block;
+  color: #222;
+  font-size: 0.9rem;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+/* =========================================================
+   COMPROBANTE IMAGEN PACIENTE
+========================================================= */
+
+.servicio-comprobante-hidden {
+  position: fixed;
+  left: -99999px;
+  top: 0;
+  z-index: -1;
+}
+
+.servicio-comprobante-card {
+  width: 620px;
+
+  background: #ffffff;
+  border-radius: 32px;
+  overflow: hidden;
+
+  font-family: Arial, sans-serif;
+  color: #222;
+
+  border: 1px solid rgba(9, 154, 173, 0.18);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.12);
+}
+
+.servicio-comprobante-topbar {
+  height: 14px;
+  background: linear-gradient(90deg, rgb(9, 154, 173), #00747d);
+}
+
+.servicio-comprobante-header {
+  text-align: center;
+  padding: 28px 34px 18px;
+}
+
+.servicio-comprobante-logo {
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+
+.servicio-comprobante-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  background: rgba(9, 154, 173, 0.12);
+  color: rgb(9, 154, 173);
+
+  padding: 8px 15px;
+  border-radius: 999px;
+
+  font-size: 13px;
+  font-weight: 1000;
+
+  margin-bottom: 14px;
+}
+
+.servicio-comprobante-header h2 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 1000;
+  color: rgb(9, 154, 173);
+}
+
+.servicio-comprobante-header p {
+  margin: 8px 0 0;
+  color: #555;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.servicio-comprobante-paciente {
+  margin: 0 30px 16px;
+
+  background: linear-gradient(180deg, #f5fcfd, #eef8fa);
+  border: 1px solid rgba(9, 154, 173, 0.16);
+
+  border-radius: 24px;
+  padding: 22px;
+}
+
+.servicio-comprobante-paciente span {
+  display: block;
+  color: rgb(9, 154, 173);
+  font-size: 13px;
+  font-weight: 1000;
+  margin-bottom: 6px;
+}
+
+.servicio-comprobante-paciente h3 {
+  margin: 0 0 16px;
+  font-size: 28px;
+  font-weight: 1000;
+  color: #222;
+  line-height: 1.15;
+}
+
+.servicio-comprobante-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.servicio-comprobante-chips div {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  background: white;
+  color: rgb(9, 154, 173);
+
+  padding: 10px 14px;
+  border-radius: 999px;
+
+  font-size: 14px;
+  font-weight: 1000;
+
+  box-shadow: 0 8px 18px rgba(9, 154, 173, 0.10);
+}
+
+.servicio-comprobante-box {
+  margin: 0 30px 14px;
+
+  background: #f9fcfd;
+  border: 1px solid rgba(9, 154, 173, 0.14);
+
+  border-radius: 22px;
+  padding: 18px;
+}
+
+.servicio-comprobante-box h4 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin: 0 0 8px;
+
+  color: rgb(9, 154, 173) !important;
+  font-size: 16px;
+  font-weight: 1000;
+}
+
+.servicio-comprobante-box p {
+  margin: 0;
+  color: #333;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.servicio-comprobante-note {
+  margin: 0 30px 18px;
+
+  background: #fff8ef;
+  border-left: 6px solid #f4a63a;
 
   border-radius: 18px;
+  padding: 16px 18px;
+}
 
-  margin: 30px auto;
+.servicio-comprobante-note strong {
+  display: block;
+  color: #d47d00;
+  font-size: 16px;
+  font-weight: 1000;
+  margin-bottom: 6px;
+}
 
-  width: 75%;
+.servicio-comprobante-note p {
+  margin: 0;
+  color: #444;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.servicio-comprobante-footer {
+  padding: 20px 30px 28px;
+
+  text-align: center;
+  border-top: 1px solid rgba(9, 154, 173, 0.14);
+}
+
+.servicio-comprobante-footer strong {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  color: rgb(9, 154, 173);
+  font-size: 15px;
+  font-weight: 1000;
+}
+
+.servicio-comprobante-footer small {
+  display: block;
+  margin-top: 8px;
+  color: #777;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   PREVIEW COMPROBANTE
+========================================================= */
+
+.comprobante-preview-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(5px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 18px;
+}
+
+.comprobante-preview-card {
+  position: relative;
+
+  width: 420px;
+  max-width: 100%;
+
+  max-height: 92vh;
+  overflow-y: auto;
+
+  background: white;
+  border-radius: 26px;
+  padding: 18px;
 
   text-align: center;
 
-  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
+  animation: servicioCardPop 0.25s ease;
 }
 
-.pdf-body div{
-  margin-bottom: 10px;
-  font-size: 18px;
-}
-
-.pdf-watermark{
+.comprobante-preview-close {
   position: absolute;
+  top: 10px;
+  right: 12px;
 
-  width: 500px;
+  width: 32px;
+  height: 32px;
 
-  opacity: 0.04;
+  border: none;
+  border-radius: 50%;
 
-  top: 50%;
-  left: 50%;
+  background: rgba(0, 0, 0, 0.08);
+  color: #222;
 
-  transform: translate(-50%, -50%);
-}
-
-.pdf-logo{
-  width: 130px;
-  margin-bottom: 10px;
-}
-
-.pdf-logo p {
-  margin-bottom: 6px;
-  font-size: 16px;
+  font-size: 22px;
+  font-weight: 900;
   line-height: 1;
 }
+
+.comprobante-preview-card h4 {
+  margin: 8px 0 4px;
+  font-weight: 1000;
+  color: #111;
+}
+
+.comprobante-preview-card p {
+  margin: 0 0 14px;
+  color: #666;
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+
+.comprobante-preview-img {
+  width: 100%;
+  border-radius: 18px;
+  border: 1px solid rgba(9, 154, 173, 0.18);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+}
+
+.comprobante-preview-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.btn-comprobante-share,
+.btn-comprobante-download {
+  border: none;
+  border-radius: 16px;
+  padding: 13px 16px;
+
+  font-weight: 1000;
+}
+
+.btn-comprobante-share {
+  background: linear-gradient(135deg, rgb(9, 154, 173), #00747d);
+  color: white;
+}
+
+.btn-comprobante-download {
+  background: rgba(9, 154, 173, 0.12);
+  color: rgb(9, 154, 173);
+}
+
+@media (max-width: 768px) {
+  .success-actions-top {
+    flex-direction: column;
+  }
+
+  .appointment-summary-premium {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Agenda compacta y separada */
+.agenda-shell {
+  position: relative;
+  overflow: hidden;
+
+  max-width: 1050px;
+  margin-left: auto;
+  margin-right: auto;
+
+  background: linear-gradient(
+    135deg,
+    rgba(9, 154, 173, 0.9),
+    rgba(0, 92, 99, 0.88)
+  );
+
+  border-radius: 30px;
+  padding: 24px;
+
+  box-shadow: 0 18px 45px rgba(9, 154, 173, 0.24);
+}
+
+.agenda-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background:
+    radial-gradient(circle at top left, rgba(255,255,255,0.22), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(255,255,255,0.14), transparent 36%);
+
+  pointer-events: none;
+}
+
+.agenda-inner-card {
+  position: relative;
+  z-index: 1;
+
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 26px;
+
+  padding: 26px;
+
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.13);
+}
+
+.agenda-inner-card h4 {
+  color: #171b1f;
+  font-weight: 1000;
+}
+
+.agenda-inner-card .form-control,
+.agenda-inner-card .form-select {
+  height: 48px;
+
+  border: 1px solid rgba(9, 154, 173, 0.15) !important;
+  border-radius: 14px !important;
+
+  background: #ffffff !important;
+
+  color: #222;
+  font-weight: 650;
+
+  box-shadow: none !important;
+}
+
+.agenda-inner-card .form-control:focus,
+.agenda-inner-card .form-select:focus {
+  border-color: rgb(9, 154, 173) !important;
+  box-shadow: 0 0 0 4px rgba(9, 154, 173, 0.12) !important;
+}
+
+.agenda-inner-card .success-card-premium {
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .agenda-shell {
+    padding: 10px;
+    border-radius: 24px;
+    margin-left: -2px;
+    margin-right: -2px;
+  }
+
+  .agenda-inner-card {
+    padding: 16px;
+    border-radius: 22px;
+  }
+
+  .agenda-inner-card .form-control,
+  .agenda-inner-card .form-select {
+    height: 43px;
+    font-size: 0.84rem;
+    border-radius: 12px !important;
+  }
+
+  .agenda-inner-card .btn-dark,
+  .agenda-inner-card button[type="submit"] {
+    width: 100%;
+  }
+
+  .success-card-premium {
+    padding: 16px !important;
+    border-radius: 22px !important;
+  }
+
+  .appointment-summary-premium {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    padding: 12px !important;
+  }
+
+  .appointment-summary-premium div {
+    padding: 10px !important;
+  }
+}
+
+/* =========================================================
+   MOBILE - CITA AGENDADA MÁS COMPACTA
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .agenda-shell {
+    padding: 7px !important;
+    border-radius: 22px !important;
+    margin-bottom: 24px !important;
+  }
+
+  .agenda-inner-card {
+    padding: 12px !important;
+    border-radius: 20px !important;
+  }
+
+  .success-card-premium {
+    padding: 12px !important;
+    border-radius: 18px !important;
+    box-shadow: none !important;
+  }
+
+  .success-actions-top {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 7px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .success-actions-top .btn {
+    height: 34px !important;
+    font-size: 0.72rem !important;
+    padding: 7px 10px !important;
+    border-radius: 12px !important;
+  }
+
+  .success-logo {
+    width: 58px !important;
+    margin-bottom: 5px !important;
+  }
+
+  .success-check-big {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 18px !important;
+    margin-bottom: 7px !important;
+  }
+
+  .success-card-premium h4 {
+    font-size: 0.88rem !important;
+    margin-bottom: 3px !important;
+    line-height: 1.15 !important;
+  }
+
+  .success-card-premium > p {
+    display: none !important;
+  }
+
+  .appointment-summary-premium {
+    display: flex !important;
+    flex-direction: column !important;
+
+    gap: 5px !important;
+    padding: 8px !important;
+    border-radius: 15px !important;
+
+    margin-bottom: 8px !important;
+  }
+
+  .appointment-summary-premium div {
+    display: grid !important;
+    grid-template-columns: 82px 1fr !important;
+    align-items: center !important;
+
+    padding: 6px 8px !important;
+    border-radius: 10px !important;
+    min-height: auto !important;
+  }
+
+  .appointment-summary-premium span {
+    font-size: 0.56rem !important;
+    margin-bottom: 0 !important;
+    line-height: 1 !important;
+  }
+
+  .appointment-summary-premium strong {
+    font-size: 0.65rem !important;
+    line-height: 1.18 !important;
+  }
+
+  .success-card-premium small {
+    font-size: 0.68rem !important;
+    margin-bottom: 7px !important;
+  }
+
+  .success-card-premium .btn-whatsapp {
+    height: 42px !important;
+    font-size: 0.72rem !important;
+    padding: 8px 12px !important;
+    border-radius: 13px !important;
+  }
+}
+
+
 
 /* =========================
 preguntasssss

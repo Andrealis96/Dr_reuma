@@ -3,31 +3,30 @@ import { useRef } from "react";
 import { collection, addDoc, query, where, getDocs, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
 import ServiceCard from "./ServiceCard";
-import { FaCalendarCheck, FaCheckCircle, FaCalendarAlt, FaSave } from "react-icons/fa";
 import { FaMapMarkerAlt , FaMoneyBillWave, FaExclamationCircle, FaExclamationTriangle  } from "react-icons/fa";
 import DrReumaLogo from "../assets/DrReumaLogo.png";
-import { toast } from "react-toastify";
-import { FaWhatsapp } from "react-icons/fa";
-import "react-toastify/dist/ReactToastify.css";
 import ReactCountryFlag from "react-country-flag";
-import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import { QRCodeCanvas } from "qrcode.react";
-import marcaDeAgua from "../assets/marcaDeAgua.png";
-import FirmaDoctor from "../assets/firma.png";
 import {
+  FaWhatsapp,
   FaVideo,
   FaClinicMedical,
   FaPrescriptionBottleAlt,
   FaDumbbell,
   FaHome,
-  FaChalkboardTeacher
+  FaChalkboardTeacher,
+  FaCalendarCheck,
+  FaCheckCircle,
+  FaCalendarAlt,
+  FaSave, 
+  FaImage,
+  FaClock,
+  FaUserMd
 } from "react-icons/fa";
 function Services() {
 
   const [form, setForm] = useState({
     nombre: "",
-    email: "",
     telefono: "",
     Dni:"",
     tipo: "presencial",
@@ -44,6 +43,14 @@ function Services() {
 
   const horariosBase = ["15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00"];
   const whatsappRef = useRef(null);
+  const comprobantePacienteRef = useRef(null);
+
+const [mostrarCitaAgendada, setMostrarCitaAgendada] = useState(false);
+const [generandoComprobante, setGenerandoComprobante] = useState(false);
+
+const [previewComprobanteUrl, setPreviewComprobanteUrl] = useState(null);
+const [previewComprobanteFile, setPreviewComprobanteFile] = useState(null);
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -51,54 +58,6 @@ const [viernesAgenda, setViernesAgenda] = useState([]);
 const codigoTurno =
   `https://drreuma.com/verificacion?paciente=${encodeURIComponent(citaGuardada?.nombre || "")}&fecha=${encodeURIComponent(citaGuardada?.fecha || "")}&hora=${encodeURIComponent(citaGuardada?.hora || "")}`;
 
-const descargarPDF = async () => {
-
-  const element = document.getElementById("pdf-turno");
-
-  if (!element) return;
-
-  try {
-
-    const canvas = await html2canvas(element, {
-
-      scale: 1.5,
-
-      useCORS: true,
-
-      backgroundColor: "#ffffff",
-
-      logging: false
-    });
-
-    const imgData = canvas.toDataURL(
-      "image/jpeg",
-      0.9// 🔥 compresión
-    );
-
-    const pdf = new jsPDF("p", "mm", "a4");
-
-    const pdfWidth = 210;
-
-    const pdfHeight =
-      (canvas.height * pdfWidth) / canvas.width;
-
-    pdf.addImage(
-      imgData,
-      "JPEG", // 🔥 más rápido que PNG
-      0,
-      0,
-      pdfWidth,
-      pdfHeight
-    );
-
-    pdf.save(`turno-${citaGuardada?.nombre}.pdf`);
-
-  } catch (error) {
-
-    console.error(error);
-
-  }
-};
 
   const esViernesActivo = (fechaObj) => {
   const MS_DIA = 1000 * 60 * 60 * 24;
@@ -217,7 +176,7 @@ if (diaSemana === "viernes") {
   }
 
   if (configViernes.turno === "mañana") {
-    horariosBase = ["09:30", "10:00", "10:30", "11:00", "13:20"];
+    horariosBase = ["13:20"];
   }
 
   if (configViernes.turno === "tarde") {
@@ -303,8 +262,11 @@ useEffect(() => {
       // ✅ guardar datos
       setCitaGuardada(form);
 
-      // ✅ notificación
-      toast.success("✅ Cita agendada correctamente");
+      // ✅ mensaje moderno
+      setMostrarCitaAgendada(true);
+      setTimeout(() => {
+        setMostrarCitaAgendada(false);
+      }, 1800);
 
       // ✅ mostrar botón WhatsApp
       setSuccess(true);
@@ -327,8 +289,8 @@ useEffect(() => {
       // ✅ limpiar form
       setForm({
         nombre: "",
-        email: "",
         telefono: "",
+        Dni:"",
         tipo: "virtual",
         fecha: "",
         hora: ""
@@ -357,10 +319,156 @@ useEffect(() => {
 ¡Gracias!`
       )}`
     : "#";
+    
+const formatearFechaComprobante = (fecha) => {
+  if (!fecha) return "-";
+
+  return new Date(`${fecha}T00:00:00`).toLocaleDateString("es-AR", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+};
+
+const obtenerLugarComprobante = (cita) => {
+  if (cita?.tipo === "virtual") {
+    return "Consulta por videollamada";
+  }
+
+  return "Consultorios Externos de la Clínica San Agustín - San Martín 1355,  Neuquén Capital";
+};
+
+const generarComprobanteImagenPaciente = async () => {
+  if (!citaGuardada || generandoComprobante) return;
+
+  try {
+    setGenerandoComprobante(true);
+
+    await new Promise((resolve) => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(resolve);
+      });
+    });
+
+    if (!comprobantePacienteRef.current) return;
+
+    const canvas = await html2canvas(comprobantePacienteRef.current, {
+      scale: 3,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+    });
+
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+
+      const nombreSeguro = (citaGuardada.nombre || "paciente")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, "-")
+        .replace(/[^\w-]/g, "");
+
+      const file = new File(
+        [blob],
+        `cita-${nombreSeguro}-${citaGuardada.fecha}-${citaGuardada.hora}.png`,
+        { type: "image/png" }
+      );
+
+      const url = URL.createObjectURL(blob);
+
+      setPreviewComprobanteFile(file);
+      setPreviewComprobanteUrl(url);
+      setGenerandoComprobante(false);
+    }, "image/png");
+
+  } catch (error) {
+    console.error("Error al generar comprobante:", error);
+    setGenerandoComprobante(false);
+  }
+};
+
+const compartirComprobantePaciente = async () => {
+  if (!previewComprobanteFile) return;
+
+  try {
+    if (
+      navigator.canShare &&
+      navigator.canShare({ files: [previewComprobanteFile] })
+    ) {
+      await navigator.share({
+        files: [previewComprobanteFile],
+        title: "Comprobante de cita - Dr. Reuma",
+        text: "Te envío el comprobante de tu cita con Dr. Reuma.",
+      });
+
+      return;
+    }
+
+    descargarComprobantePaciente();
+  } catch (error) {
+    console.error("No se pudo compartir:", error);
+  }
+};
+
+const descargarComprobantePaciente = () => {
+  if (!previewComprobanteUrl || !previewComprobanteFile) return;
+
+  const link = document.createElement("a");
+  link.href = previewComprobanteUrl;
+  link.download = previewComprobanteFile.name;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
+const cerrarPreviewComprobantePaciente = () => {
+  if (previewComprobanteUrl) {
+    URL.revokeObjectURL(previewComprobanteUrl);
+  }
+
+  setPreviewComprobanteUrl(null);
+  setPreviewComprobanteFile(null);
+};
 
   return (
     <section id="servicios" className="services-section">
       <div className="container py-5">
+
+        {mostrarCitaAgendada && (
+  <div className="servicio-cita-overlay">
+    <div className="servicio-cita-card">
+      <div className="servicio-cita-icon">
+        <FaCalendarCheck />
+      </div>
+
+      <h4>Cita agendada</h4>
+
+      <p>
+        Tu turno fue reservado correctamente.
+      </p>
+    </div>
+  </div>
+)}
+
+{generandoComprobante && (
+  <div className="servicio-cita-overlay">
+    <div className="servicio-cita-card">
+      <div className="servicio-cita-icon">
+        <FaImage />
+      </div>
+
+      <h4>Generando comprobante</h4>
+
+      <p>
+        Preparando imagen para WhatsApp...
+      </p>
+
+      <div className="servicio-loading-bar">
+        <span />
+      </div>
+    </div>
+  </div>
+)}
 
         <h3 className="subtitle-general mb-5">
           <span className="subtitle-celeste">CONSULTAS Y SERVICIOS</span>
@@ -380,121 +488,10 @@ useEffect(() => {
             UNA ENFERMEDAD REUMATOLÓGICA NO TIENE EDAD." 
           </span>
         </p>
-        {/* CARDS */}
-        <div className="row g-4 mb-5 ">
 
-          <div className="col-12 col-md-6">
-            <ServiceCard 
-              icon={<FaVideo />}
-              title="CONSULTA POR VIDEOLLAMADA $25.000" 
-              message="Hola Dr. Reuma, vengo desde la página web. Quisiera solicitar una consulta por videollamada."
-              description="Consulta reumatológica online por videollamada para pacientes de Argentina, Ecuador y Estados Unidos desde la comodidad de su hogar."
-
-              extra={
-                
-                <div className="flags mb-2">
-                  <img src="https://flagcdn.com/ar.svg" alt="Argentina" />
-                  <img src="https://flagcdn.com/ec.svg" alt="Ecuador" />
-                  <img src="https://flagcdn.com/us.svg" alt="USA" />
-                </div>
-              }
-              
-            />
-          </div>
-
-          <div className="col-12 col-md-6 ">
-            <ServiceCard 
-            icon={<FaPrescriptionBottleAlt />}
-            title="RECETA MÉDICA $10.000" 
-            message="Hola Dr. Reuma, vengo desde la página web. Quisiera solicitar una receta médica."
-            description="Emisión y renovación de recetas médicas, para tratamientos reumatológicos, enfermedades autoinmues o malestar en general para todas las obras sociales." />
-          </div>
-
-          <div className="col-12 col-md-6 ">
-            <ServiceCard 
-            icon={<FaPrescriptionBottleAlt />}
-            title="CERTIFICADO MÉDICO DE TRABAJO $15.000" 
-            message="Hola Dr. Reuma, vengo desde la página web. Quisiera solicitar una receta médica."
-            description="Emisión de certificados médicos de trabajo." />
-          </div>
-
-          <div className="col-12 col-md-6">
-            <ServiceCard 
-            icon={<FaDumbbell />}
-            title="APTITUD FÍSICA $30.000" 
-            message="Hola Dr. Reuma, vengo desde la página web. Quisiera consultar por un certificado de aptitud física."
-            description="Realizamos Aptos físicos en Neuquén, mediante un control clínico." />
-          </div>
-
-          <div className="col-12 col-md-6">
-            <ServiceCard 
-            icon={<FaChalkboardTeacher />}
-            title="CHARLAS Y EDUCACÍON " 
-            message="Hola Dr. Reuma, vengo desde la página web. Quisiera información sobre charlas y educación."
-            description="Charlas sobre salud reumatológica." />
-          </div>
-          <div className="col-12 col-md-6">
-            <ServiceCard 
-            title="CONSULTA A DOMICILIO" 
-            icon={<FaHome />}
-            description="Próximamente..... !!!" 
-            disabled badge="NO DISPONIBLE" />
-          </div>
-
-            <div className="">
-            <ServiceCard 
-            icon={<FaClinicMedical />}
-            title="CONSULTA PRESENCIAL - NEUQUÉN  $50.000" 
-            description="
-            Atención reumatológica presencial en Neuquén Capital, ubicados en la  
-            Clínica San Agustín en Neuquén (Consultorios Externos - San Martín 1355)." 
-            mapLink="https://maps.app.goo.gl/WgDkBRvfiKK3cP1y7"
-            extra={
-                <>
-
-        <div className="flags mb-3">
-          <img
-            src="https://flagcdn.com/ar.svg"
-            alt="Argentina"
-          />
-        </div>
-
-        <div className="mini-map-container">
-
-          <iframe
-            title="Mapa Clínica San Agustín"
-            src="https://www.google.com/maps?q=San+Martín+1355+Neuquén&output=embed"
-            width="100%"
-            height="180"
-            style={{
-              border: 0,
-              borderRadius: "15px"
-            }}
-            allowFullScreen=""
-            loading="lazy"
-          />
-
-        </div>
-      </>
-              }
-            showButton={false} />
-          </div>
-
-            <p className="services-description text-center mb-4">
-
-            Agenda tu consulta presencial o virtual
-            con <span className="fw-bold celeste">Dr. Reuma </span>
-            y recibe atención especializada en <span className="fw-bold">
-            {" "}enfermedades reumatológicas,
-            autoinmunes y dolor articular. </span>
-
-            </p>
-
-
-        </div>
-
-        {/* FORMULARIO */}
-        <div className="card card-general p-4 shadow-sm">
+{/* FORMULARIO */}
+<div id="agenda-cita" className="agenda-shell mb-5">
+  <div className="agenda-inner-card">
         
           {!success ? (
             
@@ -528,21 +525,6 @@ useEffect(() => {
       />
       </div>
      
-      
-    
-
-    <div className="col-md-6">
-      <input
-        type="email"
-        name="email"
-        placeholder="Correo electrónico"
-        className="form-control"
-        required
-        value={form.email}
-        onChange={handleChange}
-      />
-    </div>
-
     <div className="col-md-6">
       <input
         type="text"
@@ -693,94 +675,92 @@ useEffect(() => {
 
 ) : (
 
-<div className="success-card text-center">
-  <div className="d-flex justify-content-between align-items-center mb-3">
+<div className="success-card success-card-premium text-center">
+
+  <div className="success-actions-top">
     <button
-  className="btn btn-agendar fw-semibold "
-  onClick={() => {
+      className="btn btn-agendar fw-semibold"
+      onClick={() => {
+        setSuccess(false);
+        setCitaGuardada(null);
 
-    setSuccess(false);
-
-    setCitaGuardada(null);
-
-    setForm({
-      nombre: "",
-      email: "",
-      telefono: "",
-      Dni: "",
-      tipo: "virtual",
-      fecha: "",
-      hora: ""
-    });
-
-  }}
->
-Nueva cita
-</button>
-
- <button className="btn btn-pdf" onClick={descargarPDF}>
-      PDF turno
+        setForm({
+          nombre: "",
+          telefono: "",
+          Dni: "",
+          tipo: "presencial",
+          fecha: "",
+          hora: ""
+        });
+      }}
+    >
+      Nueva cita
     </button>
-  
+
+    <button
+      type="button"
+      className="btn btn-pdf"
+      onClick={generarComprobanteImagenPaciente}
+    >
+      <FaImage className="me-2" />
+      Comprobante
+    </button>
   </div>
-  <div>
-     <img 
-        src={DrReumaLogo} 
-        alt="Dr. Reuma" 
-        className="success-logo"
-          crossOrigin="anonymous"
-     />
+
+  <img
+    src={DrReumaLogo}
+    alt="Dr. Reuma"
+    className="success-logo"
+    crossOrigin="anonymous"
+  />
+
+  <div className="success-check-big">
+    <FaCheckCircle />
   </div>
 
   <h4 className="fw-bold">
-     <FaCheckCircle /> ¡Cita agendada correctamente!
+    ¡Cita agendada correctamente!
   </h4>
 
-  <p className="">
+  <p>
     Tu turno fue reservado exitosamente.
   </p>
 
-  <div className="row justify-content-center ">
-  <div className="col-md-8"> 
-  <div id="turno-print" className=" appointment-summary">
-    
-    <p>
-      <strong>Paciente:</strong>
-      {" "}
-      {citaGuardada.nombre}
-    </p>
+  <div className="appointment-summary appointment-summary-premium">
 
-    <p>
-      <strong>Fecha:</strong>
-      {" "}
-      {citaGuardada.fecha}
-    </p>
+    <div>
+      <span>Paciente</span>
+      <strong>{citaGuardada.nombre}</strong>
+    </div>
 
-    <p>
-      <strong>Hora:</strong>
-      {" "}
-      {citaGuardada.hora}
-    </p>
+    <div>
+      <span>Fecha</span>
+      <strong>{formatearFechaComprobante(citaGuardada.fecha)}</strong>
+    </div>
 
-    <p>
-      <strong>Tipo:</strong>
-      {" "}
-      {citaGuardada.tipo}
-    </p>
+    <div>
+      <span>Hora</span>
+      <strong>{citaGuardada.hora} hs</strong>
+    </div>
 
-    <p>
-      <strong>Especialidad: </strong>
-      Reumatología - Dr.Tony Vélez (Dr.Reuma)
-    </p>
-    <p>
-      <strong>Ubicación: </strong>
-      San Martín 1355, Neuquén Capital (Consultorios Externos)
-    </p>
-</div>
-  </div>
+    <div>
+      <span>Tipo</span>
+      <strong>{citaGuardada.tipo}</strong>
+    </div>
+
+    <div>
+      <span>Especialidad</span>
+      <strong>Reumatología - Dr. Tony Vélez</strong>
+    </div>
+
+    <div>
+      <span>Ubicación</span>
+      <strong>{obtenerLugarComprobante(citaGuardada)}</strong>
+    </div>
+
   </div>
 
-  <small className="d-block  fw-semibold mb-3">
+  <small className="d-block fw-semibold mb-3">
     📲 Presiona el botón para notificar al médico.
   </small>
 
@@ -790,91 +770,257 @@ Nueva cita
     rel="noopener noreferrer"
     className="btn-whatsapp"
   >
-    <FaWhatsapp /> 
+    <FaWhatsapp />
     NOTIFICAR POR WHATSAPP
   </a>
-<br /> 
 
 </div>
 
 )}
 
-<div
-  id="pdf-turno"
-  style={{
-  position: "fixed",
-  top: "-99999px",
-  left: "-99999px",
+{citaGuardada && (
+  <div className="servicio-comprobante-hidden">
+    <div ref={comprobantePacienteRef} className="servicio-comprobante-card">
 
-  width: "800px",
+      <div className="servicio-comprobante-topbar" />
 
-  background: "#fff",
+      <div className="servicio-comprobante-header">
+        <img
+          src={DrReumaLogo}
+          alt="Dr. Reuma"
+          className="servicio-comprobante-logo"
+          crossOrigin="anonymous"
+        />
 
-  padding: "40px"
-}}
->
-  {/* MARCA DE AGUA */}
-  <img
-  src={marcaDeAgua}
-  className="pdf-watermark"
-  crossOrigin="anonymous"
-/>
+        <div className="servicio-comprobante-badge">
+          <FaCheckCircle />
+          Turno confirmado
+        </div>
 
-  {/* HEADER */}
-  <div className="pdf-header">
+        <h2>COMPROBANTE DE CITA</h2>
+        <p>Dr. Reuma · Especialista en Enfermedades Autoinmunes y Reumatologicas </p>
+      </div>
 
-    <img src={DrReumaLogo} className="pdf-logo" />
-    <h2>Dr. Reuma - Especialista en Reumatología</h2>
-    <p>Turno médico oficial verificado</p>
-    <p>Cita agendada correctamente</p>
+      <div className="servicio-comprobante-paciente">
+        <span>Paciente</span>
+        <h3>{citaGuardada.nombre}</h3>
 
+        <div className="servicio-comprobante-chips">
+          <div>
+            <FaCalendarAlt />
+            {formatearFechaComprobante(citaGuardada.fecha)}
+          </div>
+
+          <div>
+            <FaClock />
+            {citaGuardada.hora} hs
+          </div>
+        </div>
+      </div>
+
+      <div className="servicio-comprobante-box">
+        <h4>
+          <FaMapMarkerAlt />
+          Lugar
+        </h4>
+
+        <p>{obtenerLugarComprobante(citaGuardada)}</p>
+      </div>
+
+      <div className="servicio-comprobante-box">
+        <h4>
+          <FaUserMd />
+          Médico
+        </h4>
+
+        <p>
+          Dr. Tony Vélez <br />
+          Reumatólogo
+        </p>
+      </div>
+
+      <div className="servicio-comprobante-note">
+        <strong>Nota importante</strong>
+
+        <p>
+          En caso de cancelación, por favor avisar con antelación.
+          Presentarse 15 minutos antes del horario asignado.
+        </p>
+      </div>
+
+      <div className="servicio-comprobante-footer">
+        <strong>
+          <FaWhatsapp />
+          WhatsApp: +54 9 299 466 6559
+        </strong>
+
+        <small>
+          Gracias por confiar en Dr. Reuma
+        </small>
+      </div>
+
+    </div>
   </div>
-
-  <hr />
-
-  {/* DATOS PACIENTE */}
-  <div className="pdf-body">
-
-    <div><strong>Paciente:</strong> {citaGuardada?.nombre}</div>
-    <div><strong>Fecha:</strong> {citaGuardada?.fecha}</div>
-    <div><strong>Hora:</strong> {citaGuardada?.hora}</div>
-    <div><strong>Tipo:</strong> {citaGuardada?.tipo}</div>
-
+)}
   </div>
-  {/* FIRMA */}
-  <div className="pdf-signature">
-
-    <img 
-    src={FirmaDoctor} 
-    crossOrigin="anonymous"
-    />
-
-    <p>Firma digital del profesional</p>
-
-  </div>
-{/* DOCTOR */}
-  <div className="pdf-doctor">
-
-    <p><strong>Dr. Tony Vélez</strong></p>
-    <p>MN 178050</p>
-    <p> MP 9762</p>
-  </div>
-
-  {/* FOOTER */}
-  <div className="pdf-footer">
-
-    <p>📍 San Martín 1355 - Neuquén Capital</p>
-    <p>🏥 Clínica San Agustín - Consultorios Externos</p>
-
-    <p className="pdf-note">
-      Documento oficial generado automáticamente
-    </p>
-
-  </div>
-
 </div>
 
+<br />
+
+        {/* CARDS */}
+        <div className="row g-4 mb-5 ">
+
+          <div className="col-12 col-md-6">
+            <ServiceCard 
+              icon={<FaVideo />}
+              title="CONSULTA POR VIDEOLLAMADA $25.000" 
+              message="Hola Dr. Reuma, vengo desde la página web. Quisiera solicitar una consulta por videollamada."
+              description="Consulta reumatológica online por videollamada para pacientes de Argentina, Ecuador y Estados Unidos desde la comodidad de su hogar."
+
+              extra={
+                
+                <div className="flags mb-2">
+                  <img src="https://flagcdn.com/ar.svg" alt="Argentina" />
+                  <img src="https://flagcdn.com/ec.svg" alt="Ecuador" />
+                  <img src="https://flagcdn.com/us.svg" alt="USA" />
+                </div>
+              }
+              
+            />
+          </div>
+
+          <div className="col-12 col-md-6 ">
+            <ServiceCard 
+            icon={<FaPrescriptionBottleAlt />}
+            title="RECETA MÉDICA $10.000" 
+            message="Hola Dr. Reuma, vengo desde la página web. Quisiera solicitar una receta médica."
+            description="Emisión y renovación de recetas médicas, para tratamientos reumatológicos, enfermedades autoinmues o malestar en general para todas las obras sociales." />
+          </div>
+
+          <div className="col-12 col-md-6 ">
+            <ServiceCard 
+            icon={<FaPrescriptionBottleAlt />}
+            title="CERTIFICADO MÉDICO DE TRABAJO $15.000" 
+            message="Hola Dr. Reuma, vengo desde la página web. Quisiera solicitar una receta médica."
+            description="Emisión de certificados médicos de trabajo." />
+          </div>
+
+          <div className="col-12 col-md-6">
+            <ServiceCard 
+            icon={<FaDumbbell />}
+            title="APTITUD FÍSICA $30.000" 
+            message="Hola Dr. Reuma, vengo desde la página web. Quisiera consultar por un certificado de aptitud física."
+            description="Realizamos Aptos físicos en Neuquén, mediante un control clínico." />
+          </div>
+
+          <div className="col-12 col-md-6">
+            <ServiceCard 
+            icon={<FaChalkboardTeacher />}
+            title="CHARLAS Y EDUCACÍON " 
+            message="Hola Dr. Reuma, vengo desde la página web. Quisiera información sobre charlas y educación."
+            description="Charlas sobre salud reumatológica." />
+          </div>
+          <div className="col-12 col-md-6">
+            <ServiceCard 
+            title="CONSULTA A DOMICILIO" 
+            icon={<FaHome />}
+            description="Próximamente..... !!!" 
+            disabled badge="NO DISPONIBLE" />
+          </div>
+
+            <div className="">
+            <ServiceCard 
+            icon={<FaClinicMedical />}
+            title="CONSULTA PRESENCIAL - NEUQUÉN  $50.000" 
+            description="
+            Atención reumatológica presencial en Neuquén Capital, ubicados en la  
+            Clínica San Agustín en Neuquén (Consultorios Externos - San Martín 1355)." 
+            mapLink="https://maps.app.goo.gl/WgDkBRvfiKK3cP1y7"
+            extra={
+                <>
+
+        <div className="flags mb-3">
+          <img
+            src="https://flagcdn.com/ar.svg"
+            alt="Argentina"
+          />
         </div>
+
+        <div className="mini-map-container">
+
+          <iframe
+            title="Mapa Clínica San Agustín"
+            src="https://www.google.com/maps?q=San+Martín+1355+Neuquén&output=embed"
+            width="100%"
+            height="180"
+            style={{
+              border: 0,
+              borderRadius: "15px"
+            }}
+            allowFullScreen=""
+            loading="lazy"
+          />
+
+        </div>
+      </>
+              }
+            showButton={false} />
+          </div>
+
+            <p className="services-description text-center mb-4">
+
+            Agenda tu consulta presencial o virtual
+            con <span className="fw-bold celeste">Dr. Reuma </span>
+            y recibe atención especializada en <span className="fw-bold">
+            {" "}enfermedades reumatológicas,
+            autoinmunes y dolor articular. </span>
+
+            </p>
+
+
+        </div>
+
+{previewComprobanteUrl && (
+  <div className="comprobante-preview-overlay">
+    <div className="comprobante-preview-card">
+
+      <button
+        type="button"
+        className="comprobante-preview-close"
+        onClick={cerrarPreviewComprobantePaciente}
+      >
+        ×
+      </button>
+
+      <h4>Comprobante generado</h4>
+      <img
+        src={previewComprobanteUrl}
+        alt="Comprobante de cita"
+        className="comprobante-preview-img"
+      />
+
+      <div className="comprobante-preview-actions">
+        <button
+          type="button"
+          className="btn-comprobante-share"
+          onClick={compartirComprobantePaciente}
+        >
+          Compartir / Guardar
+        </button>
+
+        <button
+          type="button"
+          className="btn-comprobante-download"
+          onClick={descargarComprobantePaciente}
+        >
+          Descargar
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
+        
       </div>
     </section>
   );
