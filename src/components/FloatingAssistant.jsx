@@ -42,7 +42,7 @@ export default function FloatingAssistant() {
     );
 
     window.open(
-      `https://wa.me/5492994666559?text=${mensaje}`,
+      `https://wa.me/5492995095471?text=${mensaje}`,
       "_blank"
     );
   };

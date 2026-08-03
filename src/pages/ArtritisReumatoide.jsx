@@ -72,7 +72,7 @@ function ArtritisReumatoide() {
   </Link>
 
   <a
-    href="https://wa.me/5492994666559"
+    href="https://wa.me/5492995095471"
     target="_blank"
     rel="noopener noreferrer"
     className="btn btn-verde fw-bold text-white diagnostico-btn"

@@ -101,7 +101,7 @@ function Welcome() {
   </Link>
 
   <a
-    href="https://wa.me/5492994666559"
+    href="https://wa.me/5492995095471"
     target="_blank"
     rel="noopener noreferrer"
     className="welcome-cta welcome-cta-whatsapp"

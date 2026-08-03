@@ -23,7 +23,7 @@ function About() {
   const message =
     "Hola, solicito una consulta con el Dr. Reuma. Escribo desde la página web. Mi nombre es ";
 
-  const whatsappLink = `https://wa.me/5492994666559?text=${encodeURIComponent(message)}`;
+  const whatsappLink = `https://wa.me/5492995095471?text=${encodeURIComponent(message)}`;
 
   const congresos = [expo1, expo2, expo3, expo4];
 

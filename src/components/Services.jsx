@@ -39,7 +39,7 @@ function Services() {
   const [success, setSuccess] = useState(false);
   const [citaGuardada, setCitaGuardada] = useState(null);
   const FRIDAY_START = new Date("2026-04-10T00:00:00");
-  const phoneNumber = "5492994666559";
+  const phoneNumber = "5492995095471"; // Número de WhatsApp del Dr. Reuma
 
   const horariosBase = ["15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00"];
   const whatsappRef = useRef(null);
@@ -851,7 +851,7 @@ const cerrarPreviewComprobantePaciente = () => {
       <div className="servicio-comprobante-footer">
         <strong>
           <FaWhatsapp />
-          WhatsApp: +54 9 299 466 6559
+          WhatsApp: +54 9 299 509 5471
         </strong>
 
         <small>

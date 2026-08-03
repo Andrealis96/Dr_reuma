@@ -1,7 +1,7 @@
 import { FaWhatsapp, FaMapMarkerAlt } from "react-icons/fa";
 
 function ServiceCard({ icon, title, description, message, extra, disabled, badge, mapLink, showButton= true}) {
-  const phoneNumber = "5492994666559";
+  const phoneNumber = "5492995095471"; // Número de teléfono de WhatsApp en formato internacional sin signos ni espacios
 
   const whatsappLink = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
     message

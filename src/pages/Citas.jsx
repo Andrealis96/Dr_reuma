@@ -1364,7 +1364,7 @@ eventClick={(info) => {
       <div className="comprobante-footer-content">
         <span>
           <FaWhatsapp className="me-3" />
-          WhatsApp: +54 9 299 466 6559
+          WhatsApp: +54 9 299 509 5471
         </span>
 
         <small>Gracias por confiar en Dr. Reuma</small>
