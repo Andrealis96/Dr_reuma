@@ -70,6 +70,7 @@ function Citas() {
   //variable para bloquear viernes
   const [viernesAgenda, setViernesAgenda] = useState([]);
   const [bloqueos, setBloqueos] = useState([]);
+  const [bloqueosHora, setBloqueosHora] = useState([]);
   const [showDetalle, setShowDetalle] = useState(false);
   const [citaSeleccionada, setCitaSeleccionada] = useState(null);
   //notas 
@@ -93,27 +94,45 @@ function Citas() {
       }));
 
       setCitasDB(data);
-
-      setEventos(
-        data.map(c => ({
-          id: c.id,
-          title: c.nombre,
-          start: `${c.fecha}T${c.hora}`,
-          classNames: [`evento-${c.tipo}`],
-          extendedProps: c
-        }))
-      );
     });
 
     return () => unsub();
   }, []);
+
+  useEffect(() => {
+  const eventosCitas = citasDB.map(c => ({
+    id: c.id,
+    title: c.nombre,
+    start: `${c.fecha}T${c.hora}`,
+    classNames: [`evento-${c.tipo}`],
+    extendedProps: {
+      ...c,
+      tipoEvento: "cita"
+    }
+  }));
+
+  const eventosHorasBloqueadas = bloqueosHora
+    .filter(b => b.activo)
+    .map(b => ({
+      id: `bloqueo-hora-${b.id}`,
+      title: "Bloqueada",
+      start: `${b.fecha}T${normalizarHora(b.hora)}`,
+      classNames: ["evento-hora-bloqueada"],
+      extendedProps: {
+        ...b,
+        tipoEvento: "bloqueoHora"
+      }
+    }));
+
+  setEventos([...eventosCitas, ...eventosHorasBloqueadas]);
+}, [citasDB, bloqueosHora]);
 
 useEffect(() => {
   if (!diaSeleccionado) return;
 
   const horarios = obtenerHorariosDisponibles(diaSeleccionado);
   setHorariosDisponibles(horarios);
-}, [diaSeleccionado, citasDB, viernesAgenda, bloqueos]);
+}, [diaSeleccionado, citasDB, viernesAgenda, bloqueos, bloqueosHora]);
 
 useEffect(() => {
   const unsub = onSnapshot(collection(db, "bloqueosAgenda"), (snap) => {
@@ -150,6 +169,19 @@ useEffect(() => {
     }));
 
     setNotasAgenda(data);
+  });
+
+  return () => unsub();
+}, []);
+
+useEffect(() => {
+  const unsub = onSnapshot(collection(db, "bloqueosHora"), (snap) => {
+    const data = snap.docs.map(d => ({
+      id: d.id,
+      ...d.data()
+    }));
+
+    setBloqueosHora(data);
   });
 
   return () => unsub();
@@ -257,10 +289,11 @@ const obtenerHorariosDisponibles = (fecha) => {
   const ocupados = citasDB
     .filter(c => c.fecha === fecha)
     .map(c => String(c.hora).trim().slice(0, 5));
-
-  return base.filter(
-    h => !ocupados.includes(h.trim().slice(0, 5))
-  );
+return base.filter(
+  h =>
+    !ocupados.includes(h.trim().slice(0, 5)) &&
+    !horaEstaBloqueada(fecha, h)
+);
 };
 
 
@@ -291,6 +324,28 @@ const cambiarTurnoViernes = async (turno) => {
   const pacientesDelDia = citasDB
     .filter(c => c.fecha === diaSeleccionado)
     .sort((a, b) => a.hora.localeCompare(b.hora));
+  
+  const bloqueosHoraDelDia = bloqueosHora
+  .filter(b => b.fecha === diaSeleccionado && b.activo)
+  .map(b => ({
+    id: b.id,
+    hora: normalizarHora(b.hora),
+    tipo: "bloqueoHora"
+  }));
+
+const agendaDelDia = [
+  ...pacientesDelDia.map(c => ({
+    tipo: "cita",
+    hora: normalizarHora(c.hora),
+    data: c
+  })),
+
+  ...bloqueosHoraDelDia.map(b => ({
+    tipo: "bloqueoHora",
+    hora: normalizarHora(b.hora),
+    data: b
+  }))
+].sort((a, b) => a.hora.localeCompare(b.hora));
 
   const hoy = new Date().toISOString().split("T")[0];
 
@@ -495,7 +550,7 @@ const obtenerLugarCita = (cita) => {
     return "Consulta por videollamada";
   }
 
-  return "Clínica San Agustín - San Martín 1355, Consultorios Externos, Neuquén Capital";
+  return "San Martín 1355, Consultorios Externosde la Clínica San Agustín - Neuquén Capital";
 };
 
 const descargarComprobanteImagen = (cita) => {
@@ -535,9 +590,16 @@ useEffect(() => {
           .replace(/\s+/g, "-")
           .replace(/[^\w-]/g, "");
 
+        const horaSegura = (citaParaDescargar.hora || "")
+          .replace(/:/g, "-")
+          .replace(/[^\w-]/g, "");
+
+        const fechaSegura = (citaParaDescargar.fecha || "")
+          .replace(/[^\w-]/g, "");
+
         const file = new File(
           [blob],
-          `cita-${nombreSeguro}-${citaParaDescargar.fecha}-${citaParaDescargar.hora}.png`,
+          `cita-${nombreSeguro}-${fechaSegura}-${horaSegura}.png`,
           { type: "image/png" }
         );
 
@@ -586,15 +648,55 @@ const compartirComprobante = async () => {
   }
 };
 
-const descargarPreviewComprobante = () => {
-  if (!previewComprobanteUrl || !previewComprobanteFile) return;
+const descargarPreviewComprobante = async () => {
+  if (!previewComprobanteFile) return;
 
-  const link = document.createElement("a");
-  link.href = previewComprobanteUrl;
-  link.download = previewComprobanteFile.name;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  const nombreArchivo = previewComprobanteFile.name
+    .replace(/:/g, "-")
+    .replace(/[^\w.\-]/g, "");
+
+  try {
+    // Mejor opción para PC / Chrome / Edge
+    if (window.showSaveFilePicker) {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: nombreArchivo,
+        types: [
+          {
+            description: "Imagen PNG",
+            accept: {
+              "image/png": [".png"],
+            },
+          },
+        ],
+      });
+
+      const writable = await handle.createWritable();
+      await writable.write(previewComprobanteFile);
+      await writable.close();
+
+      return;
+    }
+
+    // Fallback para navegador común
+    const url = URL.createObjectURL(previewComprobanteFile);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = nombreArchivo;
+    link.style.display = "none";
+
+    document.body.appendChild(link);
+    link.click();
+
+    setTimeout(() => {
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }, 300);
+  } catch (error) {
+    if (error?.name === "AbortError") return;
+
+    console.error("No se pudo descargar el comprobante:", error);
+  }
 };
 
 const cerrarPreviewComprobante = () => {
@@ -604,6 +706,42 @@ const cerrarPreviewComprobante = () => {
 
   setPreviewComprobanteUrl(null);
   setPreviewComprobanteFile(null);
+};
+
+const horaEstaBloqueada = (fecha, hora) => {
+  return bloqueosHora.some(
+    b =>
+      b.fecha === fecha &&
+      normalizarHora(b.hora) === normalizarHora(hora) &&
+      b.activo
+  );
+};
+
+const toggleBloqueoHora = async (hora) => {
+  if (!diaSeleccionado || !hora) return;
+
+  const bloqueoActivo = bloqueosHora.find(
+    b =>
+      b.fecha === diaSeleccionado &&
+      normalizarHora(b.hora) === normalizarHora(hora) &&
+      b.activo
+  );
+
+  if (bloqueoActivo) {
+    await updateDoc(doc(db, "bloqueosHora", bloqueoActivo.id), {
+      activo: false,
+      updatedAt: new Date()
+    });
+
+    return;
+  }
+
+  await addDoc(collection(db, "bloqueosHora"), {
+    fecha: diaSeleccionado,
+    hora: normalizarHora(hora),
+    activo: true,
+    createdAt: new Date()
+  });
 };
 
 return (
@@ -1038,60 +1176,105 @@ eventClick={(info) => {
 
 </div>
 
-          {pacientesDelDia.length === 0 ? (
-            <p>No hay pacientes</p>
-          ) : (
-            pacientesDelDia.map(c => (
-              <div
-  key={c.id}
-  className="btn-pacientecita"
-  onClick={() => {
-    setCitaSeleccionada(c);
-    setShowDetalle(true);
-  }}
->
-  
-<div className="d-flex justify-content-between align-items-center">
+{agendaDelDia.length === 0 ? (
+  <p>No hay pacientes ni horarios bloqueados</p>
+) : (
+  agendaDelDia.map((item) => {
 
-  <div className="paciente-cita-info">
+    if (item.tipo === "bloqueoHora") {
+      return (
+        <div
+          key={`bloqueo-${item.data.id}`}
+          className="btn-pacientecita cita-hora-bloqueada-listado"
+        >
+          <div className="d-flex justify-content-between align-items-center">
 
-    <div className="hora-linea-cita">
-      <span
-        className={`estado-cita-dot ${
-          c.tipo === "presencial" ? "estado-presencial" : "estado-virtual"
-        }`}
-        title={c.tipo === "presencial" ? "Consulta presencial" : "Consulta virtual"}
-      />
+            <div className="paciente-cita-info">
 
-      <div className="hora-paciente">
-        {c.hora}
+              <div className="hora-linea-cita">
+                <span className="estado-cita-dot estado-bloqueado" />
+
+                <div className="hora-paciente">
+                  {item.hora}
+                </div>
+              </div>
+
+              <div className="nombre-paciente-dia">
+                Hora bloqueada
+              </div>
+
+            </div>
+
+            <button
+              type="button"
+              className="btn-bloquear-hora activo"
+              title="Desbloquear hora"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleBloqueoHora(item.hora);
+              }}
+            >
+              <FaLock />
+            </button>
+
+          </div>
+        </div>
+      );
+    }
+
+    const c = item.data;
+
+    return (
+      <div
+        key={c.id}
+        className="btn-pacientecita"
+        onClick={() => {
+          setCitaSeleccionada(c);
+          setShowDetalle(true);
+        }}
+      >
+
+        <div className="d-flex justify-content-between align-items-center">
+
+          <div className="paciente-cita-info">
+
+            <div className="hora-linea-cita">
+              <span
+                className={`estado-cita-dot ${
+                  c.tipo === "presencial" ? "estado-presencial" : "estado-virtual"
+                }`}
+                title={c.tipo === "presencial" ? "Consulta presencial" : "Consulta virtual"}
+              />
+
+              <div className="hora-paciente">
+                {c.hora}
+              </div>
+            </div>
+
+            <div className="nombre-paciente-dia">
+              {capitalizarNombre(c.nombre)}
+            </div>
+
+          </div>
+
+          <button
+            type="button"
+            className="btn-comprobante-cita"
+            title="Descargar comprobante"
+            disabled={descargandoComprobante}
+            onClick={(e) => {
+              e.stopPropagation();
+              descargarComprobanteImagen(c);
+            }}
+          >
+            <FaDownload />
+          </button>
+
+        </div>
       </div>
-    </div>
-
-    <div className="nombre-paciente-dia">
-      {capitalizarNombre(c.nombre)}
-    </div>
-
-  </div>
-
-  <button
-  type="button"
-  className="btn-comprobante-cita"
-  title="Descargar comprobante"
-  disabled={descargandoComprobante}
-  onClick={(e) => {
-    e.stopPropagation();
-    descargarComprobanteImagen(c);
-  }}
->
-  <FaDownload />
-</button>
-
-</div>
-
-</div>
-            ))
-          )}
+    );
+  })
+)}
 
           <hr />
 
@@ -1113,21 +1296,42 @@ eventClick={(info) => {
     <strong>Motivo:</strong> {bloqueoDelDia?.motivo}
   </div>
 ) : (
-  horariosDisponibles.map(h => (
-    <button
-      key={h}
-      className="btn btn-horario"
-      onClick={() => {
-        setCitaEditar(null);
-        setFechaSeleccionada(diaSeleccionado);
-        setHoraPreseleccionada(h);
-        setShowModal(true);
-      }}
-    >
-      <FaClock className="me-1" />
-      {h}
-    </button>
-  ))
+horariosDisponibles.map(h => {
+  const bloqueada = horaEstaBloqueada(diaSeleccionado, h);
+
+  return (
+    <div key={h} className="horario-admin-slot">
+
+      <button
+        type="button"
+        className={`btn btn-horario ${bloqueada ? "hora-bloqueada" : ""}`}
+        disabled={bloqueada}
+        title={bloqueada ? "Hora bloqueada" : "Agendar cita"}
+        onClick={() => {
+          if (bloqueada) return;
+
+          setCitaEditar(null);
+          setFechaSeleccionada(diaSeleccionado);
+          setHoraPreseleccionada(h);
+          setShowModal(true);
+        }}
+      >
+        <FaClock className="me-1" />
+        {h}
+      </button>
+
+      <button
+        type="button"
+        className={`btn-bloquear-hora ${bloqueada ? "activo" : ""}`}
+        title={bloqueada ? "Desbloquear hora" : "Bloquear hora"}
+        onClick={() => toggleBloqueoHora(h)}
+      >
+        <FaLock />
+      </button>
+
+    </div>
+  );
+})
 )}
 
 </div>
@@ -1287,91 +1491,95 @@ eventClick={(info) => {
 )}
 
 {citaParaDescargar && (
-  <div className="comprobante-wrapper">
-  <div className="comprobante-premium" ref={comprobanteRef}>
-    
-    <div className="comprobante-topbar"></div>
+  <div className="servicio-comprobante-hidden">
+    <div ref={comprobanteRef} className="servicio-comprobante-card">
 
-    <div className="comprobante-header">
-      <img
-        src={logo}
-        alt="Dr. Reuma"
-        className="comprobante-logo"
-      />
+      <div className="servicio-comprobante-topbar" />
 
-      <div className="comprobante-badge-ok">
-        <FaCheckCircle className="me-2" />
-        Turno confirmado
-      </div>
+      <div className="servicio-comprobante-header">
+        <img
+          src={logo}
+          alt="Dr. Reuma"
+          className="servicio-comprobante-logo"
+          crossOrigin="anonymous"
+        />
 
-      <h2>COMPROBANTE DE CITA</h2>
-      <p>Dr. Reuma · Especialista en enfermedades Reumatologías y Autoinmunes</p>
-    </div>
-
-    <div className="comprobante-paciente-box">
-      <span className="comprobante-label-mini">Paciente: </span>
-      <h3>{capitalizarNombre(citaParaDescargar?.nombre || "Paciente")}</h3>
-
-      <div className="comprobante-chips">
-        <div className="comprobante-chip">
-          <FaCalendarAlt className="me-2" />
-          {formatearFechaComprobante(citaParaDescargar?.fecha)}
+        <div className="servicio-comprobante-badge">
+          <FaCheckCircle />
+          Turno confirmado
         </div>
 
-        <div className="comprobante-chip">
-          <FaClock className="me-2" />
-          {citaParaDescargar?.hora || "--:--"} hs
+        <h2>COMPROBANTE DE CITA</h2>
+
+        <p>
+          Dr. Reuma · Especialista en enfermedades Autoinmunes y Reumatológicas
+        </p>
+      </div>
+
+      <div className="servicio-comprobante-paciente">
+        <span>Paciente</span>
+
+        <h3>
+          {capitalizarNombre(citaParaDescargar?.nombre || "Paciente")}
+        </h3>
+
+        <div className="servicio-comprobante-chips">
+          <div>
+            <FaCalendarAlt />
+            {formatearFechaComprobante(citaParaDescargar?.fecha)}
+          </div>
+
+          <div>
+            <FaClock />
+            {citaParaDescargar?.hora || "--:--"} hs
+          </div>
         </div>
       </div>
-    </div>
 
-    <div className="comprobante-info-grid">
-      <div className="comprobante-info-card">
-        <div className="comprobante-info-title">
-          <FaMapMarkerAlt className="me-2" />
+      <div className="servicio-comprobante-box">
+        <h4>
+          <FaMapMarkerAlt />
           Lugar:
-        </div>
+        </h4>
+
         <p>
-          Consultorios Externos de la<br />
-          Clínica San Agustín <br />
-          (San Martín 1355 - Neuquén Capital)
+          {obtenerLugarCita(citaParaDescargar)}
         </p>
       </div>
 
-      <div className="comprobante-info-card">
-        <div className="comprobante-info-title">
-          <FaUserMd className="me-2" />
+      <div className="servicio-comprobante-box">
+        <h4>
+          <FaUserMd />
           Médico Especialista:
-        </div>
+        </h4>
+
         <p>
-          Dr. Tony Vélez <br />
-          Reumatólogo
+          Dr. Tony Vélez - Reumatólogo
         </p>
       </div>
-    </div>
 
-    <div className="comprobante-note">
-      <h4>Nota importante</h4>
-      <p>
-        · En caso de cancelación, por favor avisar al médico con anticipación. <br />
-        · Estar con 15 minutos de anticipación a la cita.
-      </p>
-    </div>
+      <div className="servicio-comprobante-note">
+        <strong>Nota importante</strong>
 
-    <div className="comprobante-footer">
-      <div className="comprobante-footer-line"></div>
-
-      <div className="comprobante-footer-content">
-        <span>
-          <FaWhatsapp className="me-3" />
-          WhatsApp: +54 9 299 509 5471
-        </span>
-
-        <small>Gracias por confiar en Dr. Reuma</small>
+        <p>
+          En caso de cancelación, por favor avisar al médico con antelación. <br />
+          Presentarse 15 minutos antes del horario asignado.
+        </p>
       </div>
+
+      <div className="servicio-comprobante-footer">
+        <strong>
+          <FaWhatsapp />
+          WhatsApp: +54 9 299 509 5471
+        </strong>
+
+        <small>
+          Gracias por confiar en Dr. Reuma
+        </small>
+      </div>
+
     </div>
   </div>
-</div>
 )}
 
 {previewComprobanteUrl && (
@@ -1385,12 +1593,6 @@ eventClick={(info) => {
       >
         ×
       </button>
-
-      <h4>Comprobante generado</h4>
-
-      <p>
-        Puedes compartirlo por WhatsApp o guardarlo en el celular.
-      </p>
 
       <img
         src={previewComprobanteUrl}

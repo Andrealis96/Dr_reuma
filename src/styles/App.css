@@ -6133,6 +6133,113 @@ html, body, #root {
 
 /* ................ CITAS .......................*/
 
+/* Hora bloqueada en listado del día */
+.cita-hora-bloqueada-listado {
+  background: rgba(220, 53, 69, 0.10) !important;
+  border-left: 5px solid #dc3545 !important;
+  color: #9f1f2a !important;
+}
+
+.cita-hora-bloqueada-listado .hora-paciente,
+.cita-hora-bloqueada-listado .nombre-paciente-dia {
+  color: #9f1f2a !important;
+  text-decoration: line-through;
+  text-decoration-thickness: 1.4px;
+  text-decoration-color: rgba(159, 31, 42, 0.65);
+}
+
+.estado-bloqueado {
+  background: #dc3545 !important;
+  border: 1px solid #a71925 !important;
+}
+
+/* Hora bloqueada en FullCalendar */
+.fc .evento-hora-bloqueada {
+  background: rgba(220, 53, 69, 0.82) !important;
+  border: 1px solid rgba(160, 25, 37, 0.8) !important;
+  color: white !important;
+  border-radius: 7px !important;
+  font-weight: 900 !important;
+  text-decoration: line-through;
+  text-decoration-thickness: 1.2px;
+}
+
+.fc .evento-hora-bloqueada .fc-event-title,
+.fc .evento-hora-bloqueada .fc-event-time {
+  color: white !important;
+}
+
+/* =========================================================
+   BLOQUEO DE HORA INDIVIDUAL
+========================================================= */
+
+.horario-admin-slot {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.horario-admin-slot .btn-horario.hora-bloqueada {
+  background: rgba(220, 53, 69, 0.12) !important;
+  color: #b4232c !important;
+
+  border: 1px solid rgba(220, 53, 69, 0.35) !important;
+
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+  text-decoration-color: rgba(180, 35, 44, 0.65);
+
+  opacity: 0.85;
+  cursor: not-allowed;
+}
+
+.btn-bloquear-hora {
+  width: 34px;
+  height: 34px;
+
+  border: none;
+  border-radius: 12px;
+
+  background: rgba(0, 0, 0, 0.08);
+  color: #333;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: 0.22s ease;
+}
+
+.btn-bloquear-hora:hover {
+  background: rgba(220, 53, 69, 0.14);
+  color: #dc3545;
+  transform: translateY(-1px);
+}
+
+.btn-bloquear-hora.activo {
+  background: #dc3545;
+  color: white;
+  box-shadow: 0 8px 18px rgba(220, 53, 69, 0.28);
+}
+
+@media (max-width: 768px) {
+  .horario-admin-slot {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 36px;
+    gap: 6px;
+  }
+
+  .horario-admin-slot .btn-horario {
+    width: 100%;
+  }
+
+  .btn-bloquear-hora {
+    width: 36px;
+    height: 36px;
+  }
+}
+
 /* Preview moderno comprobante cita */
 .comprobante-preview-overlay {
   position: fixed;
