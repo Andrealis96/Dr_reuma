@@ -987,10 +987,25 @@ return (
   events={eventos}
   height="auto"
 
-  dayCellClassNames={(arg) => {
-    const fecha = arg.date.toISOString().split("T")[0];
-    return diaEstaBloqueado(fecha) ? ["dia-bloqueado"] : [];
-  }}
+dayCellClassNames={(arg) => {
+  const fecha = arg.date.toISOString().split("T")[0];
+
+  const clases = [];
+
+  if (diaEstaBloqueado(fecha)) {
+    clases.push("dia-bloqueado");
+  }
+
+  const tieneNota = notasAgenda.some(
+    n => n.fecha === fecha && n.texto?.trim()
+  );
+
+  if (tieneNota) {
+    clases.push("dia-con-nota");
+  }
+
+  return clases;
+}}
 
  dayCellContent={(arg) => {
   const fecha = arg.date.toISOString().split("T")[0];
@@ -1005,13 +1020,6 @@ const tieneNota = notasAgenda.some(
 
   return (
     <div className="dia-celda-custom">
-
-      {tieneNota && (
-        <div
-          className="nota-triangulo"
-          title="Este día tiene una nota"
-        />
-      )}
 
       <div className="dia-numero">
         {arg.dayNumberText}
@@ -1084,77 +1092,6 @@ eventClick={(info) => {
             ref={detalleDiaRef}
             className="card mt-3 p-3"
           >
-
-<div className="card buscador-paciente  mt-3 p-3">
-<div className="buscador-wrapper">
-
-  <span className="buscador-icono">
-    <FaSearch />
-  </span>
-
-  <input
-    type="text"
-    className="form-control buscador-paciente"
-    placeholder="Buscar paciente o DNI..."
-    value={busquedaPaciente}
-    onChange={(e) =>
-      setBusquedaPaciente(e.target.value)
-    }
-  />
-
-  {busquedaPaciente && (
-    <button
-      type="button"
-      className="btn-limpiar"
-      onClick={() => setBusquedaPaciente("")}
-    >
-      ✕
-    </button>
-  )}
-
-</div>
-
-  {busquedaPaciente.trim() !== "" && (
-    <div className="mt-3">
-
-      {resultadosBusqueda.length === 0 ? (
-        <p className="text-muted mb-0">
-          No se encontraron pacientes.
-        </p>
-      ) : (
-        resultadosBusqueda.map(c => (
-  <div
-    key={c.id}
-    className="resultado-paciente p-2 mb-2"
-    onClick={() => {
-      setCitaSeleccionada(c);
-      setShowDetalle(true);
-    }}
-    style={{ cursor: "pointer" }}
-  >
-    <strong>
-      {capitalizarNombre(c.nombre)}
-    </strong>
-
-    <br />
-
-    <small>
-      DNI: {c.Dni}
-    </small>
-
-    <br />
-
-    <small>
-      📅 {c.fecha} | 🕒 {c.hora}
-    </small>
-  </div>
-))
-      )}
-    </div>
-  )}
-
-</div>
-<br />
 <div className="agenda-header mb-3">
 
   <h5 className="fw-bold celeste mb-0">
@@ -1201,7 +1138,7 @@ eventClick={(info) => {
 
     <button
       className={`btn btn-agenda-icono ${
-        notaDelDia ? "btn-info" : "btn-outline-info"
+        notaDelDia ? "btn-warning" : "btn-outline-warning"
       }`}
       onClick={abrirModalNota}
       title={notaDelDia ? "Ver nota del día" : "Agregar nota"}
@@ -1243,7 +1180,7 @@ eventClick={(info) => {
   </div>
 
   {notaDelDia?.texto && (
-    <div className="alert alert-info py-2 px-3 mt-2 mb-0 nota-dia-alert">
+    <div className="alert alert-warning py-2 px-3 mt-2 mb-0 nota-dia-alert">
       <strong className="d-block">📝 NOTA DEL DÍA:</strong>
       <span className="d-block">{notaDelDia.texto}</span>
     </div>

@@ -7159,7 +7159,7 @@ html, body, #root {
   padding: 0 !important;
 
   font-size: 22px;
-  color: #6c757d;
+  color: #000;
   z-index: 10;
 
   pointer-events: none;
@@ -7460,6 +7460,33 @@ html, body, #root {
 .btn-outline-tarde:hover {
   background-color: #fd7e14 !important;
   color: white !important;
+}
+
+/* Triángulo de nota en la esquina real de la celda */
+.fc .fc-daygrid-day.dia-con-nota {
+  position: relative !important;
+}
+
+.fc .fc-daygrid-day.dia-con-nota::before {
+  content: "" !important;
+
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+
+  width: 0 !important;
+  height: 0 !important;
+
+  border-top: 30px solid #ffc107 !important;
+  border-right: 30px solid transparent !important;
+
+  z-index: 50 !important;
+  pointer-events: none !important;
+}
+
+/* Por si quedó algún triángulo viejo en el JSX */
+.fc .nota-triangulo {
+  display: none !important;
 }
 
 /*palabra viernes*/
