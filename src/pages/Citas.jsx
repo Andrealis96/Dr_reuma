@@ -564,7 +564,7 @@ const obtenerLugarCita = (cita) => {
     return "Consulta por videollamada";
   }
 
-  return "San Martín 1355, Consultorios Externosde la Clínica San Agustín - Neuquén Capital";
+  return "San Martín 1355, Consultorios Externos de la Clínica San Agustín - Neuquén Capital";
 };
 
 const descargarComprobanteImagen = (cita) => {
@@ -613,8 +613,8 @@ useEffect(() => {
 
         const file = new File(
           [blob],
-          `cita-${nombreSeguro}-${fechaSegura}-${horaSegura}.png`,
-          { type: "image/png" }
+          `cita-${nombreSeguro}-${fechaSegura}-${horaSegura}.jpg`,
+          { type: "image/jpeg" }
         );
 
         const url = URL.createObjectURL(blob);
@@ -625,7 +625,7 @@ useEffect(() => {
 
         setCitaParaDescargar(null);
         setDescargandoComprobante(false);
-              }, "image/png");
+              }, "image/jpeg", 0.95);
 
     } catch (error) {
       console.error("Error al generar comprobante:", error);
@@ -678,9 +678,9 @@ const descargarPreviewComprobante = async () => {
         suggestedName: nombreArchivo,
         types: [
           {
-            description: "Imagen PNG",
+            description: "Imagen PJP",
             accept: {
-              "image/png": [".png"],
+              "image/jpeg": [".jpg", ".jpeg"],
             },
           },
         ],
