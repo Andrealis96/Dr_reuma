@@ -58,6 +58,9 @@ function Citas() {
   const [showModal, setShowModal] = useState(false);
   const [citaEditar, setCitaEditar] = useState(null);
 
+  const [mostrarCitaGuardada, setMostrarCitaGuardada] = useState(false);
+  const [mensajeCitaGuardada, setMensajeCitaGuardada] = useState("CITA AGENDADA");
+
   const [diaSeleccionado, setDiaSeleccionado] = useState(null);
   const normalizarHora = (h) => h?.slice(0,5);
   const [fechaSeleccionada, setFechaSeleccionada] = useState(null);
@@ -84,6 +87,7 @@ function Citas() {
   const [descargandoComprobante, setDescargandoComprobante] = useState(false); 
   const [previewComprobanteUrl, setPreviewComprobanteUrl] = useState(null);
   const [previewComprobanteFile, setPreviewComprobanteFile] = useState(null);
+  const [citaComprobanteActual, setCitaComprobanteActual] = useState(null);
 
   // ================= FIRESTORE =================
   useEffect(() => {
@@ -397,6 +401,15 @@ const capitalizarNombre = (texto) => {
     .join(" ");
 };
 
+const mostrarMensajeGuardadoCita = (mensaje) => {
+  setMensajeCitaGuardada(mensaje);
+  setMostrarCitaGuardada(true);
+
+  setTimeout(() => {
+    setMostrarCitaGuardada(false);
+  }, 1600);
+};
+
   // ================= GUARDAR =================
 const guardarCita = async (data) => {
 
@@ -429,6 +442,7 @@ const guardarCita = async (data) => {
 
     setCitaEditar(null);
     setShowModal(false);
+    mostrarMensajeGuardadoCita("Cita actualizada");
     return;
   }
 
@@ -439,8 +453,8 @@ const guardarCita = async (data) => {
       createdAt: new Date()
     }
   );
-
   setShowModal(false);
+  mostrarMensajeGuardadoCita("CITA AGENDADA");
 };
 
 
@@ -607,9 +621,11 @@ useEffect(() => {
 
         setPreviewComprobanteFile(file);
         setPreviewComprobanteUrl(url);
+        setCitaComprobanteActual(citaParaDescargar);
+
         setCitaParaDescargar(null);
         setDescargandoComprobante(false);
-      }, "image/png");
+              }, "image/png");
 
     } catch (error) {
       console.error("Error al generar comprobante:", error);
@@ -706,6 +722,51 @@ const cerrarPreviewComprobante = () => {
 
   setPreviewComprobanteUrl(null);
   setPreviewComprobanteFile(null);
+  setCitaComprobanteActual(null);
+};
+
+const normalizarTelefonoWhatsapp = (telefono = "") => {
+  let numero = telefono.toString().replace(/\D/g, "");
+
+  if (!numero) return "";
+
+  if (numero.startsWith("0")) {
+    numero = numero.slice(1);
+  }
+
+  if (numero.startsWith("299")) {
+    numero = `549${numero}`;
+  }
+
+  return numero;
+};
+
+const abrirWhatsappBusinessPaciente = () => {
+  if (!citaComprobanteActual?.telefono) {
+    alert("Esta cita no tiene teléfono registrado.");
+    return;
+  }
+
+  const numero = normalizarTelefonoWhatsapp(citaComprobanteActual.telefono);
+
+  const mensaje = encodeURIComponent(
+    `Hola ${capitalizarNombre(citaComprobanteActual.nombre || "")}, te enviamos el comprobante de tu cita con Dr. Reuma. Te esperamos.\n\n` +
+    `Fecha: ${formatearFechaComprobante(citaComprobanteActual.fecha)}\n` +
+    `Hora: ${citaComprobanteActual.hora} hs\n` +
+    `Lugar: ${obtenerLugarCita(citaComprobanteActual)}`
+  );
+
+  const esAndroid = /Android/i.test(navigator.userAgent);
+
+  if (esAndroid) {
+    window.location.href =
+      `intent://send?phone=${numero}&text=${mensaje}` +
+      `#Intent;scheme=whatsapp;package=com.whatsapp.w4b;end`;
+
+    return;
+  }
+
+  window.open(`https://wa.me/${numero}?text=${mensaje}`, "_blank");
 };
 
 const horaEstaBloqueada = (fecha, hora) => {
@@ -747,6 +808,19 @@ const toggleBloqueoHora = async (hora) => {
 return (
 
     <div className="container py-4">
+
+      {mostrarCitaGuardada && (
+  <div className="cita-save-overlay">
+    <div className="cita-save-card">
+
+      <div className="cita-save-icon">
+        <FaCheckCircle />
+      </div>
+
+      <h4>{mensajeCitaGuardada}</h4>
+    </div>
+  </div>
+)}
 
       {descargandoComprobante && (
   <div className="comprobante-loading-overlay">
@@ -928,6 +1002,7 @@ const tieneNota = notasAgenda.some(
 
 
 
+
   return (
     <div className="dia-celda-custom">
 
@@ -1048,32 +1123,32 @@ eventClick={(info) => {
         </p>
       ) : (
         resultadosBusqueda.map(c => (
-          <div
-            key={c.id}
-            className="resultado-paciente p-2 mb-2"
-            onClick={() => {
-              setCitaSeleccionada(c);
-              setShowDetalle(true);
-            }}
-            style={{ cursor: "pointer" }}
-          >
-            <strong>
-              {capitalizarNombre(c.nombre)}
-            </strong>
+  <div
+    key={c.id}
+    className="resultado-paciente p-2 mb-2"
+    onClick={() => {
+      setCitaSeleccionada(c);
+      setShowDetalle(true);
+    }}
+    style={{ cursor: "pointer" }}
+  >
+    <strong>
+      {capitalizarNombre(c.nombre)}
+    </strong>
 
-            <br />
+    <br />
 
-            <small>
-              DNI: {c.Dni}
-            </small>
+    <small>
+      DNI: {c.Dni}
+    </small>
 
-            <br />
+    <br />
 
-            <small>
-              📅 {c.fecha} | 🕒 {c.hora}
-            </small>
-          </div>
-        ))
+    <small>
+      📅 {c.fecha} | 🕒 {c.hora}
+    </small>
+  </div>
+))
       )}
     </div>
   )}
@@ -1562,8 +1637,7 @@ horariosDisponibles.map(h => {
         <strong>Nota importante</strong>
 
         <p>
-          En caso de cancelación, por favor avisar al médico con antelación. <br />
-          Presentarse 15 minutos antes del horario asignado.
+          En caso de cancelación, por favor avisar al médico con antelación. 
         </p>
       </div>
 
@@ -1600,23 +1674,23 @@ horariosDisponibles.map(h => {
         className="comprobante-preview-img"
       />
 
-      <div className="comprobante-preview-actions">
-        <button
-          type="button"
-          className="btn-comprobante-share"
-          onClick={compartirComprobante}
-        >
-          Compartir
-        </button>
+<div className="comprobante-preview-actions">
+  <button
+    type="button"
+    className="btn-comprobante-download"
+    onClick={descargarPreviewComprobante}
+  >
+    Descargar imagen
+  </button>
 
-        <button
-          type="button"
-          className="btn-comprobante-download"
-          onClick={descargarPreviewComprobante}
-        >
-          Descargar
-        </button>
-      </div>
+  <button
+    type="button"
+    className="btn-comprobante-whatsapp-business"
+    onClick={abrirWhatsappBusinessPaciente}
+  >
+    Abrir WhatsApp Business
+  </button>
+</div>
 
     </div>
   </div>
