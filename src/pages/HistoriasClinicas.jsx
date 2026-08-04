@@ -49,8 +49,12 @@ function HistoriasClinicas() {
   const [obraSocial, setObraSocial] = useState("");
   const [sexo, setSexo] = useState("");
 
+  const [busquedaPacienteAgenda, setBusquedaPacienteAgenda] = useState("");
+  const [citasPrevias, setCitasPrevias] = useState([]);
+
   const [busqueda, setBusqueda] = useState("");
   const [filtroDiagnostico, setFiltroDiagnostico] = useState("");
+  const [filtroSexo, setFiltroSexo] = useState("");
   const [diagnosticosPorPaciente, setDiagnosticosPorPaciente] = useState({});
   const [ultimaConsultaPorPaciente, setUltimaConsultaPorPaciente] = useState({});
   const [cantidadConsultasPorPaciente, setCantidadConsultasPorPaciente] = useState({}); 
@@ -240,8 +244,21 @@ useEffect(() => {
 }, []);
 
 useEffect(() => {
+  const unsubscribe = onSnapshot(collection(db, "citas"), (snapshot) => {
+    const datos = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    setCitasPrevias(datos);
+  });
+
+  return () => unsubscribe();
+}, []);
+
+useEffect(() => {
   setPagina(1);
-}, [busqueda, filtroDiagnostico]);
+}, [busqueda, filtroDiagnostico, filtroSexo]);
 
 const mostrarMensajeGuardado = (texto) => {
   setMensajeConfirmacion(texto);
@@ -250,6 +267,53 @@ const mostrarMensajeGuardado = (texto) => {
   setTimeout(() => {
     setMostrarConfirmacion(false);
   }, 1800);
+};
+
+const citasPreviasUnicas = Object.values(
+  citasPrevias.reduce((acc, cita) => {
+    const clave =
+      cita.Dni?.toString().trim() ||
+      cita.dni?.toString().trim() ||
+      normalizarTexto(cita.nombre);
+
+    if (!clave) return acc;
+
+    const actual = acc[clave];
+
+    const fechaActual = actual
+      ? new Date(`${actual.fecha}T${actual.hora || "00:00"}`)
+      : null;
+
+    const fechaNueva = new Date(`${cita.fecha}T${cita.hora || "00:00"}`);
+
+    if (!actual || fechaNueva > fechaActual) {
+      acc[clave] = cita;
+    }
+
+    return acc;
+  }, {})
+);
+
+const pacientesAgendaFiltrados =
+  busquedaPacienteAgenda.trim() === ""
+    ? []
+    : citasPreviasUnicas
+        .filter((cita) => {
+          const texto = normalizarTexto(busquedaPacienteAgenda);
+
+          return (
+            normalizarTexto(cita.nombre).includes(texto) ||
+            cita.Dni?.toString().includes(busquedaPacienteAgenda.trim()) ||
+            cita.dni?.toString().includes(busquedaPacienteAgenda.trim())
+          );
+        })
+        .slice(0, 6);
+
+const seleccionarPacienteDesdeAgenda = (cita) => {
+  setNombre(cita.nombre || "");
+  setDni(cita.Dni || cita.dni || "");
+
+  setBusquedaPacienteAgenda("");
 };
 
   const crearPaciente = async (e) => {
@@ -327,7 +391,11 @@ const pacientesFiltrados = pacientes.filter((p) => {
       normalizarTexto(diag).includes(textoDiagnostico)
     );
 
-  return coincidePaciente && coincideDiagnostico;
+  const coincideSexo =
+    !filtroSexo ||
+    normalizarTexto(p.sexo) === normalizarTexto(filtroSexo);
+
+  return coincidePaciente && coincideDiagnostico && coincideSexo;
 });
 
   const indiceFinal = pagina * pacientesPorPagina;
@@ -408,14 +476,72 @@ const pacientesFiltrados = pacientes.filter((p) => {
             </h4>
 
             <p>
-              Completa los datos básicos para crear o actualizar la historia clínica.
+              Completa los datos para la historia clínica.
             </p>
           </div>
         </div>
 
-        <form onSubmit={editando ? guardarEdicion : crearPaciente}>
+            <form onSubmit={editando ? guardarEdicion : crearPaciente}>
 
-          <div className="row g-3">
+  {!editando && (
+    <div className="historia-agenda-search mb-3">
+
+      <div className="historias-search-card historias-search-card-form">
+
+        <FaSearch className="historias-search-icon" />
+
+        <input
+          className="form-control historias-search-input"
+          placeholder="Buscar por nombre de pacientes agendados."
+          value={busquedaPacienteAgenda}
+          onChange={(e) => setBusquedaPacienteAgenda(e.target.value)}
+        />
+
+        {busquedaPacienteAgenda && (
+          <button
+            type="button"
+            className="historias-clear-search"
+            onClick={() => setBusquedaPacienteAgenda("")}
+          >
+            <FaTimes />
+          </button>
+        )}
+
+      </div>
+
+      {pacientesAgendaFiltrados.length > 0 && (
+        <div className="historia-agenda-results">
+          {pacientesAgendaFiltrados.map((cita) => (
+            <button
+              key={cita.id}
+              type="button"
+              className="historia-agenda-result"
+              onClick={() => seleccionarPacienteDesdeAgenda(cita)}
+            >
+              <div>
+                <strong>
+                  {cita.nombre}
+                </strong>
+
+                <span>
+                  DNI: {cita.Dni || cita.dni || "Sin DNI"}
+                </span>
+
+                <small>
+                  Última cita: {cita.fecha || "-"} · {cita.hora || "-"}
+                </small>
+              </div>
+
+              <FaUserCheck />
+            </button>
+          ))}
+        </div>
+      )}
+
+    </div>
+  )}
+
+  <div className="row g-3">
 
             <div className="col-12 col-md-6">
               <label className="historias-label">
@@ -571,12 +697,36 @@ const pacientesFiltrados = pacientes.filter((p) => {
         <FaTimes />
       </button>
     )}
+ </div>
+
+<div className="historias-search-card">
+ <FaVenusMars className="historias-search-icon" />
+
+  <select
+    className="form-select historias-search-input"
+    value={filtroSexo}
+    onChange={(e) => setFiltroSexo(e.target.value)}
+  >
+    <option value="">Filtrar por sexo...</option>
+    <option value="Masculino">Masculino</option>
+    <option value="Femenino">Femenino</option>
+  </select>
+
+  {filtroSexo && (
+    <button
+      type="button"
+      className="historias-clear-search"
+      onClick={() => setFiltroSexo("")}
+    >
+      <FaTimes />
+    </button>
+  )}
 
   </div>
 
 </div>
 
-{(busqueda || filtroDiagnostico) && (
+{(busqueda || filtroDiagnostico || filtroSexo) && (
   <div className="historias-filter-info mb-3">
     Mostrando <strong>{pacientesFiltrados.length}</strong> resultado(s)
     {filtroDiagnostico && (
@@ -585,6 +735,14 @@ const pacientesFiltrados = pacientes.filter((p) => {
         <strong>{filtroDiagnostico.toUpperCase()}</strong>
       </>
     )}
+
+{filtroSexo && (
+      <>
+        {" "}y sexo{" "}
+        <strong>{filtroSexo.toUpperCase()}</strong>
+      </>
+    )}
+
   </div>
 )}
 

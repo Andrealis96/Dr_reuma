@@ -3962,6 +3962,125 @@ html, body, #root {
    HISTORIA PACIENTE MODERNO
 ================================ */
 
+/* =========================================================
+   BUSCADOR DESDE AGENDA - HISTORIAS CLÍNICAS
+========================================================= */
+
+.historia-agenda-search {
+  background: rgba(9, 154, 173, 0.07);
+  border: 1px solid rgba(9, 154, 173, 0.16);
+  border-radius: 22px;
+  padding: 14px;
+}
+
+.historias-search-card-form {
+  margin-bottom: 0 !important;
+}
+
+.historia-agenda-results {
+  margin-top: 10px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  max-height: 230px;
+  overflow-y: auto;
+}
+
+.historia-agenda-result {
+  width: 100%;
+
+  border: none;
+  border-left: 5px solid rgb(9, 154, 173);
+  border-radius: 16px;
+
+  background: white;
+
+  padding: 11px 13px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  text-align: left;
+
+  transition: 0.22s ease;
+  cursor: pointer;
+}
+
+.historia-agenda-result:hover {
+  background: rgba(9, 154, 173, 0.09);
+  transform: translateY(-1px);
+}
+
+.historia-agenda-result strong {
+  display: block;
+
+  color: #111;
+  font-weight: 1000;
+  font-size: 0.92rem;
+}
+
+.historia-agenda-result span {
+  display: block;
+
+  color: #333;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.historia-agenda-result small {
+  display: block;
+
+  color: #777;
+  font-size: 0.72rem;
+  font-weight: 650;
+}
+
+.historia-agenda-result > svg {
+  color: rgb(9, 154, 173);
+  font-size: 23px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .historia-agenda-search {
+    padding: 11px;
+    border-radius: 18px;
+  }
+
+  .historia-agenda-result {
+    padding: 10px 11px;
+    border-radius: 14px;
+  }
+
+  .historia-agenda-result strong {
+    font-size: 0.84rem;
+  }
+
+  .historia-agenda-result span,
+  .historia-agenda-result small {
+    font-size: 0.68rem;
+  }
+}
+
+/* Tres filtros en historias clínicas */
+.historias-filtros-row {
+  grid-template-columns: 1fr 1fr 1fr !important;
+}
+
+.historias-search-card select.historias-search-input {
+  cursor: pointer;
+  appearance: none;
+}
+
+@media (max-width: 992px) {
+  .historias-filtros-row {
+    grid-template-columns: 1fr !important;
+  }
+}
 
 
 /* Fila diagnóstico con tachito flotante */
