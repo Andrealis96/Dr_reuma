@@ -1574,7 +1574,8 @@ horariosDisponibles.map(h => {
         <strong>Nota importante</strong>
 
         <p>
-          En caso de cancelación, por favor avisar al médico con antelación. 
+          En caso de cancelación, por favor avisar al médico con antelación.  <br />
+          Presentarse 15 minutos antes del horario asignado.
         </p>
       </div>
 
