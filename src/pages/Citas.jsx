@@ -730,14 +730,59 @@ const normalizarTelefonoWhatsapp = (telefono = "") => {
 
   if (!numero) return "";
 
+  // Si viene como 0054...
+  if (numero.startsWith("00")) {
+    numero = numero.slice(2);
+  }
+
+  // Normaliza Argentina si ya viene con 54
+  if (numero.startsWith("54")) {
+    let nacional = numero.slice(2);
+
+    // Quita 9 si ya venía
+    if (nacional.startsWith("9")) {
+      nacional = nacional.slice(1);
+    }
+
+    // Quita 0 de característica
+    if (nacional.startsWith("0")) {
+      nacional = nacional.slice(1);
+    }
+
+    // Neuquén: 29915xxxxxxx -> 299xxxxxxx
+    if (nacional.startsWith("29915")) {
+      nacional = `299${nacional.slice(5)}`;
+    }
+
+    return `549${nacional}`;
+  }
+
+  // Si viene como 0299...
   if (numero.startsWith("0")) {
     numero = numero.slice(1);
   }
 
-  if (numero.startsWith("299")) {
-    numero = `549${numero}`;
+  // Si viene como 9 299...
+  if (numero.startsWith("9299")) {
+    numero = numero.slice(1);
   }
 
+  // Si viene como 29915xxxxxxx
+  if (numero.startsWith("29915")) {
+    numero = `299${numero.slice(5)}`;
+  }
+
+  // Si viene como 15xxxxxxx, asumimos Neuquén
+  if (numero.startsWith("15")) {
+    numero = `299${numero.slice(2)}`;
+  }
+
+  // Neuquén sin código país
+  if (numero.startsWith("299")) {
+    return `549${numero}`;
+  }
+
+  // Si ya parece internacional de otro país, lo deja como está
   return numero;
 };
 
@@ -749,6 +794,11 @@ const abrirWhatsappBusinessPaciente = () => {
 
   const numero = normalizarTelefonoWhatsapp(citaComprobanteActual.telefono);
 
+  if (!numero || numero.length < 10) {
+    alert("El número de teléfono no parece válido para WhatsApp.");
+    return;
+  }
+
   const mensaje = encodeURIComponent(
     `Hola ${capitalizarNombre(citaComprobanteActual.nombre || "")}, te enviamos el comprobante de tu cita con Dr. Reuma. Te esperamos.\n\n` +
     `Fecha: ${formatearFechaComprobante(citaComprobanteActual.fecha)}\n` +
@@ -756,17 +806,19 @@ const abrirWhatsappBusinessPaciente = () => {
     `Lugar: ${obtenerLugarCita(citaComprobanteActual)}`
   );
 
+  const urlWeb = `https://api.whatsapp.com/send?phone=${numero}&text=${mensaje}`;
   const esAndroid = /Android/i.test(navigator.userAgent);
 
   if (esAndroid) {
     window.location.href =
-      `intent://send?phone=${numero}&text=${mensaje}` +
-      `#Intent;scheme=whatsapp;package=com.whatsapp.w4b;end`;
+      `intent://send/?phone=${numero}&text=${mensaje}` +
+      `#Intent;scheme=whatsapp;package=com.whatsapp.w4b;` +
+      `S.browser_fallback_url=${encodeURIComponent(urlWeb)};end`;
 
     return;
   }
 
-  window.open(`https://wa.me/${numero}?text=${mensaje}`, "_blank");
+  window.open(urlWeb, "_blank");
 };
 
 const horaEstaBloqueada = (fecha, hora) => {
