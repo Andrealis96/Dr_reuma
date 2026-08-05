@@ -725,79 +725,48 @@ const cerrarPreviewComprobante = () => {
   setCitaComprobanteActual(null);
 };
 
-const normalizarTelefonoWhatsapp = (telefono = "") => {
+const normalizarTelefonoWhatsapp = (telefono = "", usarNueve = true) => {
   let numero = telefono.toString().replace(/\D/g, "");
 
   if (!numero) return "";
 
-  // Si viene como 0054...
   if (numero.startsWith("00")) {
     numero = numero.slice(2);
   }
 
-  // Normaliza Argentina si ya viene con 54
-  if (numero.startsWith("54")) {
-    let nacional = numero.slice(2);
-
-    // Quita 9 si ya venía
-    if (nacional.startsWith("9")) {
-      nacional = nacional.slice(1);
-    }
-
-    // Quita 0 de característica
-    if (nacional.startsWith("0")) {
-      nacional = nacional.slice(1);
-    }
-
-    // Neuquén: 29915xxxxxxx -> 299xxxxxxx
-    if (nacional.startsWith("29915")) {
-      nacional = `299${nacional.slice(5)}`;
-    }
-
-    return `549${nacional}`;
+  // Si pones siempre 10 dígitos argentinos
+  if (numero.length === 10) {
+    return usarNueve ? `549${numero}` : `54${numero}`;
   }
 
-  // Si viene como 0299...
-  if (numero.startsWith("0")) {
-    numero = numero.slice(1);
+  // Si viene 54 + 10 dígitos
+  if (numero.startsWith("54") && numero.length === 12) {
+    const nacional = numero.slice(2);
+    return usarNueve ? `549${nacional}` : `54${nacional}`;
   }
 
-  // Si viene como 9 299...
-  if (numero.startsWith("9299")) {
-    numero = numero.slice(1);
+  // Si viene 549 + 10 dígitos
+  if (numero.startsWith("549") && numero.length === 13) {
+    const nacional = numero.slice(3);
+    return usarNueve ? `549${nacional}` : `54${nacional}`;
   }
 
-  // Si viene como 29915xxxxxxx
-  if (numero.startsWith("29915")) {
-    numero = `299${numero.slice(5)}`;
-  }
-
-  // Si viene como 15xxxxxxx, asumimos Neuquén
-  if (numero.startsWith("15")) {
-    numero = `299${numero.slice(2)}`;
-  }
-
-  // Neuquén sin código país
-  if (numero.startsWith("299")) {
-    return `549${numero}`;
-  }
-
-  // Si ya parece internacional de otro país, lo deja como está
   return numero;
 };
 
-const abrirWhatsappBusinessPaciente = () => {
+const abrirWhatsappBusinessPaciente = (usarNueve = true) => {
   if (!citaComprobanteActual?.telefono) {
     alert("Esta cita no tiene teléfono registrado.");
     return;
   }
 
-  const numero = normalizarTelefonoWhatsapp(citaComprobanteActual.telefono);
+  const numero = normalizarTelefonoWhatsapp(
+    citaComprobanteActual.telefono,
+    usarNueve
+  );
 
-  if (!numero || numero.length < 10) {
-    alert("El número de teléfono no parece válido para WhatsApp.");
-    return;
-  }
+  console.log("TELÉFONO ORIGINAL:", citaComprobanteActual.telefono);
+  console.log("TELÉFONO WHATSAPP:", numero);
 
   const mensaje = encodeURIComponent(
     `Hola ${capitalizarNombre(citaComprobanteActual.nombre || "")}, te enviamos el comprobante de tu cita con Dr. Reuma. Te esperamos.\n\n` +
@@ -806,12 +775,12 @@ const abrirWhatsappBusinessPaciente = () => {
     `Lugar: ${obtenerLugarCita(citaComprobanteActual)}`
   );
 
-  const urlWeb = `https://api.whatsapp.com/send?phone=${numero}&text=${mensaje}`;
+  const urlWeb = `https://wa.me/${numero}?text=${mensaje}`;
   const esAndroid = /Android/i.test(navigator.userAgent);
 
   if (esAndroid) {
     window.location.href =
-      `intent://send/?phone=${numero}&text=${mensaje}` +
+      `intent://send?phone=${numero}&text=${mensaje}` +
       `#Intent;scheme=whatsapp;package=com.whatsapp.w4b;` +
       `S.browser_fallback_url=${encodeURIComponent(urlWeb)};end`;
 
@@ -1673,13 +1642,22 @@ horariosDisponibles.map(h => {
     Descargar imagen
   </button>
 
-  <button
-    type="button"
-    className="btn-comprobante-whatsapp-business"
-    onClick={abrirWhatsappBusinessPaciente}
-  >
-    Abrir WhatsApp Business
-  </button>
+<button
+  type="button"
+  className="btn-comprobante-whatsapp-business"
+  onClick={() => abrirWhatsappBusinessPaciente(true)}
+>
+  Abrir WhatsApp Business
+</button>
+
+<button
+  type="button"
+  className="btn-comprobante-whatsapp-alt"
+  onClick={() => abrirWhatsappBusinessPaciente(false)}
+>
+  Abrir sin 9
+</button>
+
 </div>
 
     </div>
