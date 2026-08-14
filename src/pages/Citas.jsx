@@ -790,6 +790,52 @@ const abrirWhatsappBusinessPaciente = (usarNueve = true) => {
   window.open(urlWeb, "_blank");
 };
 
+const abrirWhatsappCita = (cita, usarNueve = true, tipoMensaje = "recordatorio") => {
+  if (!cita?.telefono) {
+    alert("Esta cita no tiene teléfono registrado.");
+    return;
+  }
+
+  const numero = normalizarTelefonoWhatsapp(cita.telefono, usarNueve);
+
+  console.log("TELÉFONO ORIGINAL:", cita.telefono);
+  console.log("TELÉFONO WHATSAPP:", numero);
+
+  let texto = "";
+
+  if (tipoMensaje === "recordatorio") {
+    texto =
+      `Hola ${capitalizarNombre(cita.nombre || "")}, te recordamos tu cita con Dr. Reuma.\n\n` +
+      `Fecha: ${formatearFechaComprobante(cita.fecha)}\n` +
+      `Hora: ${cita.hora} hs\n` +
+      `Lugar: ${obtenerLugarCita(cita)}\n\n` +
+      `Te esperamos.`;
+  }
+
+  if (tipoMensaje === "comprobante") {
+    texto =
+      `Hola ${capitalizarNombre(cita.nombre || "")}, te enviamos el comprobante de tu cita con Dr. Reuma. Te esperamos.\n\n` +
+      `Fecha: ${formatearFechaComprobante(cita.fecha)}\n` +
+      `Hora: ${cita.hora} hs\n` +
+      `Lugar: ${obtenerLugarCita(cita)}`;
+  }
+
+  const mensaje = encodeURIComponent(texto);
+  const urlWeb = `https://wa.me/${numero}?text=${mensaje}`;
+  const esAndroid = /Android/i.test(navigator.userAgent);
+
+  if (esAndroid) {
+    window.location.href =
+      `intent://send?phone=${numero}&text=${mensaje}` +
+      `#Intent;scheme=whatsapp;package=com.whatsapp.w4b;` +
+      `S.browser_fallback_url=${encodeURIComponent(urlWeb)};end`;
+
+    return;
+  }
+
+  window.open(urlWeb, "_blank");
+};
+
 const horaEstaBloqueada = (fecha, hora) => {
   return bloqueosHora.some(
     b =>
@@ -963,17 +1009,20 @@ return (
                     <td>{c.hora}</td>
                     <td>{capitalizarNombre(c.nombre)}</td>
                     <td>{c.Dni}</td>
-                    <td> 
+                    <td>
                       {c.telefono ? (
-                        <a
-                          href={`https://wa.me/${c.telefono.replace(/\D/g,"")}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-success text-decoration-none"
+                        <button
+                          type="button"
+                          className="btn-whatsapp-tabla"
+                          onClick={() => abrirWhatsappCita(c, true, "recordatorio")}
+                          title="Enviar recordatorio por WhatsApp Business"
                         >
-                        {c.telefono}
-                        </a>
-                      ) : "-"}
+                          <FaWhatsapp />
+                          {c.telefono}
+                        </button>
+                      ) : (
+                        "-"
+                      )}
                     </td>
                     <td>
                       {c.tipo === "presencial" ? (
@@ -1105,6 +1154,85 @@ eventClick={(info) => {
   }, 50);
 }}
 />
+</div>
+
+{/* BUSCADOR DE PACIENTES */}
+<div className="buscador-citas-card mt-4 mb-4">
+
+  <div className="buscador-citas-title">
+    <FaSearch />
+    <span>Buscar paciente en agenda</span>
+  </div>
+
+  <div className="buscador-citas-input-wrap">
+    <FaSearch className="buscador-citas-icon" />
+
+    <input
+      type="text"
+      className="form-control buscador-citas-input"
+      placeholder="Buscar por nombre o DNI..."
+      value={busquedaPaciente}
+      onChange={(e) => setBusquedaPaciente(e.target.value)}
+    />
+
+    {busquedaPaciente && (
+      <button
+        type="button"
+        className="buscador-citas-clear"
+        onClick={() => setBusquedaPaciente("")}
+      >
+        ×
+      </button>
+    )}
+  </div>
+
+  {busquedaPaciente.trim() !== "" && (
+    <div className="buscador-citas-resultados">
+
+      {resultadosBusqueda.length === 0 ? (
+        <div className="buscador-citas-vacio">
+          No se encontraron pacientes
+        </div>
+      ) : (
+        resultadosBusqueda.slice(0, 8).map((c) => (
+          <div
+            key={c.id}
+            className="buscador-citas-item"
+            onClick={() => {
+              setCitaSeleccionada(c);
+              setShowDetalle(true);
+            }}
+          >
+            <div>
+              <strong>{capitalizarNombre(c.nombre)}</strong>
+
+              <span>
+                DNI: {c.Dni || "Sin DNI"}
+              </span>
+
+              <small>
+                {c.fecha} · {c.hora} hs · {c.tipo === "presencial" ? "Presencial" : "Virtual"}
+              </small>
+            </div>
+
+            <button
+              type="button"
+              className="buscador-citas-whatsapp"
+              onClick={(e) => {
+                e.stopPropagation();
+                abrirWhatsappCita(c, true, "recordatorio");
+              }}
+              title="Enviar WhatsApp"
+            >
+              <FaWhatsapp />
+            </button>
+          </div>
+        ))
+      )}
+
+    </div>
+  )}
+
 </div>
 
 {/* BLOQUE DÍA SELECCIONADO */}
@@ -1392,17 +1520,18 @@ horariosDisponibles.map(h => {
   show={showDetalle}
   onHide={() => setShowDetalle(false)}
   cita={citaSeleccionada}
+  onWhatsapp={(cita) => abrirWhatsappCita(cita, true, "recordatorio")}
   onEditar={(cita) => {
     setCitaEditar(cita);
     setShowDetalle(false);
     setShowModal(true);
   }}
   onEliminar={async (cita) => {
-  setShowDetalle(false);
-  setCitaSeleccionada(null);
+    setShowDetalle(false);
+    setCitaSeleccionada(null);
 
-  await deleteDoc(doc(db, "citas", cita.id));
-}}
+    await deleteDoc(doc(db, "citas", cita.id));
+  }}
 />
 
       {showModalNota && (
