@@ -367,6 +367,48 @@ const agendaDelDia = [
     return new Date(`${c.fecha}T${c.hora}`) >= new Date();
   }).length;
 
+  const obtenerClavePaciente = (cita) => {
+  const dniPaciente = cita?.Dni || cita?.dni || "";
+
+  if (dniPaciente.toString().trim()) {
+    return `dni-${dniPaciente.toString().replace(/\D/g, "")}`;
+  }
+
+  return `nombre-${(cita?.nombre || "")
+    .toString()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()}`;
+};
+
+const obtenerNumeroCitaPaciente = (cita) => {
+  if (!cita) return 1;
+
+  const clavePaciente = obtenerClavePaciente(cita);
+
+  const citasPaciente = citasDB
+    .filter((c) => obtenerClavePaciente(c) === clavePaciente)
+    .sort((a, b) => {
+      const fechaA = new Date(`${a.fecha}T${a.hora || "00:00"}`);
+      const fechaB = new Date(`${b.fecha}T${b.hora || "00:00"}`);
+
+      return fechaA - fechaB;
+    });
+
+  const posicion = citasPaciente.findIndex((c) => c.id === cita.id);
+
+  return posicion === -1 ? 1 : posicion + 1;
+};
+
+const textoNumeroCitaPaciente = (numero) => {
+  if (numero === 1) return "Primera vez";
+  if (numero === 2) return "Segunda vez";
+  if (numero === 3) return "Tercera vez";
+
+  return `${numero}ª vez`;
+};
+
   const resultadosBusqueda =
   busquedaPaciente.trim() === ""
     ? []
@@ -995,9 +1037,9 @@ return (
                     </th>
 
                     <th>
-                      <FaStethoscope className="me-2 celeste" /> <br />
+                      <FaUserClock className="me-2 celeste" /> <br />
                       <span className="celeste">
-                        Tipo
+                        Vez
                       </span>
                     </th>
                 </tr>
@@ -1025,15 +1067,9 @@ return (
                       )}
                     </td>
                     <td>
-                      {c.tipo === "presencial" ? (
-                        <>
-                          🟢 Presencial
-                        </>
-                      ) : (
-                        <>
-                          🔵 Virtual
-                        </>
-                      )}
+                      <span className="badge-vez-paciente">
+                        {textoNumeroCitaPaciente(obtenerNumeroCitaPaciente(c))}
+                      </span>
                     </td>
                   </tr>
                 ))}

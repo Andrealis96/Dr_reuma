@@ -13,7 +13,8 @@ function ModalDetalle({
   onHide,
   cita,
   onEditar,
-  onEliminar
+  onEliminar,
+  onWhatsapp 
 }) {
 
   const formatearFecha = (fecha) => {
@@ -48,36 +49,19 @@ function ModalDetalle({
       <FaWhatsapp className="detalle-icono" />
       <strong>Teléfono:</strong>
 
-      {cita?.telefono ? (
-        <a
-href={`https://wa.me/${cita.telefono.replace(/\D/g, "")}?text=${encodeURIComponent(
-`━━━━━━━━━━━━━━
-RECORDATORIO DE CITA MÉDICA
-━━━━━━━━━━━━━━
+ {cita?.telefono ? (
+  <button
+    type="button"
+    className="telefono-link btn-recordatorio-detalle"
+    onClick={() => onWhatsapp(cita)}
+  >
+    <FaWhatsapp />
+    {cita.telefono}
+  </button>
+) : (
+  "-"
+)}
 
-Hola ${cita.nombre}
-
-• Especialidad: Reumatología
-• Médico: Dr. Reuma (Dr. Tony Vélez)
-• Fecha: ${formatearFecha(cita.fecha)}
-• Hora: ${cita.hora}
-• Lugar: San Martín 1355, Consultorios Externos Clínica San Agustín.
-
-Le esperamos.
-
-Si presenta algún inconveniente para asistir, por favor avísenos con anticipación. Le agradecemos acudir puntualmente a la hora programada.
-
-Muchas gracias.`
-)}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="telefono-link"
-        >
-          {cita.telefono}
-        </a>
-      ) : (
-        "-"
-      )}
     </div>
 
     <div className="detalle-linea">

@@ -6482,6 +6482,45 @@ html, body, #root {
   color: white;
   transform: translateY(-1px);
 }
+
+.btn-recordatorio-detalle {
+  border: none !important;
+  background: rgba(37, 211, 102, 0.13) !important;
+  color: #128c4a !important;
+  border-radius: 999px !important;
+  padding: 6px 12px !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+
+  font-weight: 900 !important;
+  cursor: pointer !important;
+}
+
+.btn-recordatorio-detalle:hover {
+  background: #25d366 !important;
+  color: white !important;
+}
+
+.badge-vez-paciente {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(9, 154, 173, 0.12);
+  color: rgb(9, 154, 173);
+
+  border: 1px solid rgba(9, 154, 173, 0.22);
+  border-radius: 999px;
+
+  padding: 6px 10px;
+
+  font-size: 0.78rem;
+  font-weight: 1000;
+  white-space: nowrap;
+}
+
 /* =========================================================
    CITA GUARDADA - MENSAJE MODERNO
 ========================================================= */
