@@ -286,7 +286,7 @@ const obtenerHorariosDisponibles = (fecha) => {
   }
 }
   else if (day === 6)
-    base = generarHorarios("10:00", "12:30");
+    base = generarHorarios("09:30", "13:00");
   else
     return [];
 
