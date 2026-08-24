@@ -30,10 +30,46 @@ function ModalCita({
   const [Dni, setDni] = useState("");
   const [hora, setHora] = useState("");
   const [tipo, setTipo] = useState("presencial");
+  const [fechaNacimiento, setFechaNacimiento] = useState("");
+  const [obraSocial, setObraSocial] = useState("");
+  const [sexo, setSexo] = useState("");
+  const [motivoConsulta, setMotivoConsulta] = useState("");
   const [horasDisponibles, setHorasDisponibles] = useState([]);
 
   const [busquedaPacienteModal, setBusquedaPacienteModal] = useState("");
   const [citasPrevias, setCitasPrevias] = useState([]);
+
+const limpiarTelefono10 = (telefono = "") => {
+  let numero = telefono.toString().replace(/\D/g, "");
+
+  if (!numero) return "";
+
+  if (numero.startsWith("00")) {
+    numero = numero.slice(2);
+  }
+
+  if (numero.startsWith("549") && numero.length >= 13) {
+    numero = numero.slice(3);
+  }
+
+  if (numero.startsWith("54") && numero.length >= 12) {
+    numero = numero.slice(2);
+  }
+
+  if (numero.startsWith("9") && numero.length === 11) {
+    numero = numero.slice(1);
+  }
+
+  if (numero.startsWith("0") && numero.length === 11) {
+    numero = numero.slice(1);
+  }
+
+  if (numero.length > 10) {
+    numero = numero.slice(-10);
+  }
+
+  return numero;
+};
 
 const handleFechaChange = (e) => {
   const nuevaFecha = e.target.value;
@@ -45,7 +81,6 @@ const handleFechaChange = (e) => {
   setFecha(nuevaFecha);
 };
 
-  // cargar edición
 useEffect(() => {
   if (citaEditar) {
     setNombre(citaEditar.nombre || "");
@@ -54,12 +89,22 @@ useEffect(() => {
     setFecha(citaEditar.fecha || "");
     setHora(citaEditar.hora || "");
     setTipo(citaEditar.tipo || "presencial");
+
+    setFechaNacimiento(citaEditar.fechaNacimiento || "");
+    setObraSocial(citaEditar.obraSocial || "");
+    setSexo(citaEditar.sexo || "");
+    setMotivoConsulta(citaEditar.motivoConsulta || "");
   } else {
     setNombre("");
     setTelefono("");
     setDni("");
     setHora("");
     setTipo("presencial");
+
+    setFechaNacimiento("");
+    setObraSocial("");
+    setSexo("");
+    setMotivoConsulta("");
   }
 }, [citaEditar]);
 
@@ -83,6 +128,11 @@ useEffect(() => {
       setTelefono("");
       setDni("");
       setTipo("presencial");
+
+      setFechaNacimiento("");
+      setObraSocial("");
+      setSexo("");
+      setMotivoConsulta("");
 
       // ❌ NO borres hora si viene preseleccionada
       if (!horaPreseleccionada) {
@@ -121,13 +171,26 @@ useEffect(() => {
   return () => unsub();
 }, []);
 
-  const handleGuardar = () => {
-    if (!nombre || !fecha || !hora) return;
+const handleGuardar = async () => {
+  if (!nombre || !fecha || !hora) return;
 
-    onGuardar({ nombre, telefono, Dni, fecha, hora, tipo });
+  const ok = await onGuardar({
+    nombre,
+    telefono,
+    Dni,
+    fecha,
+    hora,
+    tipo,
+    fechaNacimiento,
+    obraSocial: obraSocial.trim(),
+    sexo,
+    motivoConsulta: motivoConsulta.trim()
+  });
 
+  if (ok !== false) {
     onHide();
-  };
+  }
+};
 
   const normalizarTexto = (texto = "") =>
   texto
@@ -155,10 +218,15 @@ const pacientesFiltradosModal =
           return fechaB - fechaA;
         })
         .slice(0, 6);
+
 const seleccionarPacientePrevio = (cita) => {
   setNombre(cita.nombre || "");
   setTelefono(cita.telefono || "");
   setDni(cita.Dni || cita.dni || "");
+
+  setFechaNacimiento(cita.fechaNacimiento || "");
+  setObraSocial(cita.obraSocial || "");
+  setSexo(cita.sexo || "");
 
   setBusquedaPacienteModal("");
 };
@@ -244,10 +312,12 @@ const seleccionarPacientePrevio = (cita) => {
                 <FaWhatsapp  className="celeste"/>
             </InputGroup.Text>
 
-            <Form.Control
-                placeholder="Teléfono"
-                value={telefono}
-                onChange={(e) => setTelefono(e.target.value)}
+            <Form.Control 
+              placeholder="Teléfono"
+              inputMode="numeric"
+              maxLength={10}
+              value={telefono}
+              onChange={(e) => setTelefono(limpiarTelefono10(e.target.value))}
             />
         </InputGroup>
 
@@ -261,6 +331,59 @@ const seleccionarPacientePrevio = (cita) => {
                 value={Dni}
                 onChange={(e) => setDni(e.target.value)}
             />
+        </InputGroup>
+
+        <InputGroup className="mb-2">
+          <InputGroup.Text>
+            🎂
+          </InputGroup.Text>
+
+          <Form.Control
+            type="date"
+            value={fechaNacimiento}
+            onChange={(e) => setFechaNacimiento(e.target.value)}
+          />
+        </InputGroup>
+
+        <InputGroup className="mb-2">
+          <InputGroup.Text>
+            🛡️
+          </InputGroup.Text>
+
+          <Form.Control
+            placeholder="Obra social"
+            value={obraSocial}
+            onChange={(e) => setObraSocial(e.target.value)}
+          />
+        </InputGroup>
+
+        <InputGroup className="mb-2">
+          <InputGroup.Text>
+            ⚧️
+          </InputGroup.Text>
+
+          <Form.Select
+            value={sexo}
+            onChange={(e) => setSexo(e.target.value)}
+          >
+            <option value="">Seleccione sexo</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Femenino">Femenino</option>
+          </Form.Select>
+        </InputGroup>
+
+        <InputGroup className="mb-2">
+          <InputGroup.Text>
+            📝
+          </InputGroup.Text>
+
+          <Form.Control
+            as="textarea"
+            rows={2}
+            placeholder="Motivo de consulta"
+            value={motivoConsulta}
+            onChange={(e) => setMotivoConsulta(e.target.value)}
+          />
         </InputGroup>
 
         <InputGroup className="mb-2">

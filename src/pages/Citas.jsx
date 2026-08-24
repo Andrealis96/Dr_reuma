@@ -443,6 +443,44 @@ const capitalizarNombre = (texto) => {
     .join(" ");
 };
 
+const limpiarTelefono10 = (telefono = "") => {
+  let numero = telefono.toString().replace(/\D/g, "");
+
+  if (!numero) return "";
+
+  // 0054...
+  if (numero.startsWith("00")) {
+    numero = numero.slice(2);
+  }
+
+  // +54 9 2942...
+  if (numero.startsWith("549") && numero.length >= 13) {
+    numero = numero.slice(3);
+  }
+
+  // +54 2942...
+  if (numero.startsWith("54") && numero.length >= 12) {
+    numero = numero.slice(2);
+  }
+
+  // 9 + número nacional
+  if (numero.startsWith("9") && numero.length === 11) {
+    numero = numero.slice(1);
+  }
+
+  // 0 + número nacional
+  if (numero.startsWith("0") && numero.length === 11) {
+    numero = numero.slice(1);
+  }
+
+  // Si quedó más largo, toma los últimos 10 dígitos
+  if (numero.length > 10) {
+    numero = numero.slice(-10);
+  }
+
+  return numero;
+};
+
 const mostrarMensajeGuardadoCita = (mensaje) => {
   setMensajeCitaGuardada(mensaje);
   setMostrarCitaGuardada(true);
@@ -454,11 +492,15 @@ const mostrarMensajeGuardadoCita = (mensaje) => {
 
   // ================= GUARDAR =================
 const guardarCita = async (data) => {
+  const dataLimpia = {
+    ...data,
+    telefono: limpiarTelefono10(data.telefono)
+  };
 
   const q = query(
     collection(db, "citas"),
-    where("fecha", "==", data.fecha),
-    where("hora", "==", data.hora)
+    where("fecha", "==", dataLimpia.fecha),
+    where("hora", "==", dataLimpia.hora)
   );
 
   const snap = await getDocs(q);
@@ -473,30 +515,35 @@ const guardarCita = async (data) => {
       title: "Horario ocupado",
       text: "Ya existe una cita agendada para esa hora."
     });
-    return;
+
+    return false;
   }
 
   if (citaEditar) {
     await updateDoc(
       doc(db, "citas", citaEditar.id),
-      data
+      dataLimpia
     );
 
     setCitaEditar(null);
     setShowModal(false);
     mostrarMensajeGuardadoCita("Cita actualizada");
-    return;
+
+    return true;
   }
 
   await addDoc(
     collection(db, "citas"),
     {
-      ...data,
+      ...dataLimpia,
       createdAt: new Date()
     }
   );
+
   setShowModal(false);
   mostrarMensajeGuardadoCita("CITA AGENDADA");
+
+  return true;
 };
 
 
@@ -768,32 +815,11 @@ const cerrarPreviewComprobante = () => {
 };
 
 const normalizarTelefonoWhatsapp = (telefono = "", usarNueve = true) => {
-  let numero = telefono.toString().replace(/\D/g, "");
+  const numero10 = limpiarTelefono10(telefono);
 
-  if (!numero) return "";
+  if (!numero10) return "";
 
-  if (numero.startsWith("00")) {
-    numero = numero.slice(2);
-  }
-
-  // Si pones siempre 10 dígitos argentinos
-  if (numero.length === 10) {
-    return usarNueve ? `549${numero}` : `54${numero}`;
-  }
-
-  // Si viene 54 + 10 dígitos
-  if (numero.startsWith("54") && numero.length === 12) {
-    const nacional = numero.slice(2);
-    return usarNueve ? `549${nacional}` : `54${nacional}`;
-  }
-
-  // Si viene 549 + 10 dígitos
-  if (numero.startsWith("549") && numero.length === 13) {
-    const nacional = numero.slice(3);
-    return usarNueve ? `549${nacional}` : `54${nacional}`;
-  }
-
-  return numero;
+  return usarNueve ? `549${numero10}` : `54${numero10}`;
 };
 
 const abrirWhatsappBusinessPaciente = (usarNueve = true) => {
@@ -1005,7 +1031,7 @@ return (
               No hay citas programadas
             </div>
           ) : (
-            <table className="table table-sm mb-0">
+            <table className="table table-sm mb-0 tabla-pacientes-hoy">
               <thead>
                 <tr className="text-center">
                   <th>
@@ -1042,6 +1068,13 @@ return (
                         Vez
                       </span>
                     </th>
+
+                    <th>
+                      <FaStethoscope className="me-2 celeste" /> <br />
+                      <span className="celeste">
+                        Motivo
+                      </span>
+                    </th>
                 </tr>
               </thead>
 
@@ -1060,17 +1093,38 @@ return (
                           title="Enviar recordatorio por WhatsApp Business"
                         >
                           <FaWhatsapp />
-                          {c.telefono}
+                          {limpiarTelefono10(c.telefono)}
                         </button>
                       ) : (
                         "-"
                       )}
                     </td>
-                    <td>
-                      <span className="badge-vez-paciente">
-                        {textoNumeroCitaPaciente(obtenerNumeroCitaPaciente(c))}
+
+                  <td>
+                    {(() => {
+                      const numeroCita = obtenerNumeroCitaPaciente(c);
+
+                      return (
+                        <span
+                          className={`badge-vez-paciente ${
+                            numeroCita === 1 ? "badge-primera-vez" : "badge-repetido"
+                          }`}
+                        >
+                          {textoNumeroCitaPaciente(numeroCita)}
+                        </span>
+                      );
+                    })()}
+                  </td>
+
+                      <td>
+                      <span
+                        className="motivo-tabla-cita"
+                        title={c.motivoConsulta || "Sin motivo"}
+                      >
+                        {c.motivoConsulta || "Sin motivo"}
                       </span>
                     </td>
+
                   </tr>
                 ))}
               </tbody>

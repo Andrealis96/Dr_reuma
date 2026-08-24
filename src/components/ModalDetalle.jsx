@@ -5,7 +5,11 @@ import {
   FaIdCard,
   FaCalendarAlt,
   FaClock,
-  FaLaptopMedical
+  FaLaptopMedical,
+  FaBirthdayCake,
+  FaShieldAlt,
+  FaVenusMars,
+  FaStethoscope
 } from "react-icons/fa";
 
 function ModalDetalle({
@@ -24,6 +28,26 @@ function ModalDetalle({
 
     return `${dia}/${mes}/${anio}`;
   };
+
+  const limpiarTelefono10 = (telefono = "") => {
+  let numero = telefono.toString().replace(/\D/g, "");
+
+  if (!numero) return "";
+
+  if (numero.startsWith("549") && numero.length >= 13) {
+    numero = numero.slice(3);
+  }
+
+  if (numero.startsWith("54") && numero.length >= 12) {
+    numero = numero.slice(2);
+  }
+
+  if (numero.length > 10) {
+    numero = numero.slice(-10);
+  }
+
+  return numero;
+};
 
   return (
 
@@ -56,7 +80,7 @@ function ModalDetalle({
     onClick={() => onWhatsapp(cita)}
   >
     <FaWhatsapp />
-    {cita.telefono}
+    {limpiarTelefono10(cita.telefono)}
   </button>
 ) : (
   "-"
@@ -69,6 +93,30 @@ function ModalDetalle({
       <strong>DNI:</strong>
       <span>{cita?.Dni}</span>
     </div>
+
+    <div className="detalle-linea">
+  <FaBirthdayCake className="detalle-icono" />
+  <strong>Fecha nacimiento:</strong>
+  <span>{cita?.fechaNacimiento ? formatearFecha(cita.fechaNacimiento) : "Sin registrar"}</span>
+</div>
+
+<div className="detalle-linea">
+  <FaShieldAlt className="detalle-icono" />
+  <strong>Obra social:</strong>
+  <span>{cita?.obraSocial || "Sin registrar"}</span>
+</div>
+
+<div className="detalle-linea">
+  <FaVenusMars className="detalle-icono" />
+  <strong>Sexo:</strong>
+  <span>{cita?.sexo || "Sin registrar"}</span>
+</div>
+
+<div className="detalle-linea detalle-linea-motivo">
+  <FaStethoscope className="detalle-icono" />
+  <strong>Motivo:</strong>
+  <span>{cita?.motivoConsulta || "Sin motivo registrado"}</span>
+</div>
 
     <div className="detalle-linea">
       <FaCalendarAlt className="detalle-icono" />

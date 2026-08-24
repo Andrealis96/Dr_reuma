@@ -4138,6 +4138,162 @@ html, body, #root {
 ================================ */
 
 /* =========================================================
+   TABLA PACIENTES DE HOY EN HISTORIAS CLÍNICAS
+========================================================= */
+
+.historias-tabla-hoy-card {
+  border: 1px solid rgba(9, 154, 173, 0.18) !important;
+  border-radius: 16px !important;
+  overflow: hidden;
+}
+
+.tabla-pacientes-hoy th,
+.tabla-pacientes-hoy td {
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+.tabla-pacientes-hoy th {
+  font-weight: 1000 !important;
+}
+
+.tabla-pacientes-hoy td {
+  font-weight: 800 !important;
+}
+
+.fila-cita-historia {
+  cursor: pointer;
+  transition: 0.22s ease;
+}
+
+.fila-cita-historia:hover {
+  background: rgba(9, 154, 173, 0.08) !important;
+}
+
+.telefono-tabla-hoy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  background: rgba(37, 211, 102, 0.14);
+  color: #087c3d;
+
+  border-radius: 999px;
+  padding: 6px 11px;
+
+  font-size: 0.78rem;
+  font-weight: 1000;
+  white-space: nowrap;
+}
+
+.badge-vez-paciente {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 999px;
+  padding: 6px 11px;
+
+  font-size: 0.78rem;
+  font-weight: 1000;
+  white-space: nowrap;
+}
+
+.badge-primera-vez {
+  background: #ffc107 !important;
+  color: #3b2a00 !important;
+  border: 1px solid #e0a800 !important;
+  box-shadow: 0 3px 8px rgba(255, 193, 7, 0.35);
+}
+
+.badge-repetido {
+  background: rgba(9, 154, 173, 0.12) !important;
+  color: rgb(9, 154, 173) !important;
+  border: 1px solid rgba(9, 154, 173, 0.22) !important;
+}
+
+.motivo-tabla-cita {
+  display: inline-block;
+  max-width: 210px;
+  padding: 6px 11px;
+  font-size: 0.78rem;
+  font-weight: 900;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 768px) {
+  .tabla-pacientes-hoy th,
+  .tabla-pacientes-hoy td {
+    font-size: 0.72rem !important;
+  }
+
+  .telefono-tabla-hoy,
+  .badge-vez-paciente,
+  .motivo-tabla-cita {
+    font-size: 0.68rem;
+    padding: 5px 8px;
+  }
+}
+
+.fila-cita-historia {
+  cursor: pointer !important;
+}
+
+.fila-cita-historia:hover {
+  background: rgba(9, 154, 173, 0.10) !important;
+  transform: scale(1.003);
+}
+
+.fila-cita-historia {
+  cursor: pointer !important;
+  transition: 0.22s ease;
+}
+
+.fila-cita-historia:hover {
+  background: rgba(9, 154, 173, 0.10) !important;
+}
+
+.fila-cita-seleccionada td {
+  background: rgba(255, 193, 7, 0.28) !important;
+  border-top: 2px solid #ffc107 !important;
+  border-bottom: 2px solid #ffc107 !important;
+}
+
+.fila-cita-seleccionada td:first-child {
+  border-left: 4px solid #ffc107 !important;
+}
+
+.fila-cita-seleccionada {
+  box-shadow: inset 0 0 0 9999px rgba(255, 193, 7, 0.08);
+}
+.fila-cita-historia {
+  cursor: pointer !important;
+  transition: 0.22s ease !important;
+}
+
+/* Al pasar el mouse */
+.fila-cita-historia:hover td {
+  background: rgba(9, 154, 173, 0.13) !important;
+  color: #062f36 !important;
+}
+
+/* Línea izquierda al pasar el mouse */
+.fila-cita-historia:hover td:first-child {
+  border-left: 4px solid rgb(9, 154, 173) !important;
+}
+
+/* Si ya está seleccionada, que siga resaltada más fuerte */
+.fila-cita-seleccionada:hover td {
+  background: rgba(255, 193, 7, 0.36) !important;
+}
+
+.historias-form-card {
+  scroll-margin-top: 130px !important;
+}
+/* =========================================================
    BUSCADOR DESDE AGENDA - HISTORIAS CLÍNICAS
 ========================================================= */
 
@@ -6508,19 +6664,42 @@ html, body, #root {
   align-items: center;
   justify-content: center;
 
-  background: rgba(9, 154, 173, 0.12);
-  color: rgb(9, 154, 173);
-
-  border: 1px solid rgba(9, 154, 173, 0.22);
   border-radius: 999px;
-
-  padding: 6px 10px;
+  padding: 6px 11px;
 
   font-size: 0.78rem;
   font-weight: 1000;
   white-space: nowrap;
 }
 
+/* Solo primera vez amarillo */
+.badge-primera-vez {
+  background: #ffc107 !important;
+  color: #3b2a00 !important;
+  border: 1px solid #e0a800 !important;
+  box-shadow: 0 3px 8px rgba(255, 193, 7, 0.35);
+}
+
+/* Segunda vez, tercera vez, etc. normal */
+.badge-repetido {
+  background: rgba(9, 154, 173, 0.12) !important;
+  color: rgb(9, 154, 173) !important;
+  border: 1px solid rgba(9, 154, 173, 0.22) !important;
+}
+
+.tabla-pacientes-hoy th,
+.tabla-pacientes-hoy td {
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+.tabla-pacientes-hoy td {
+  font-weight: 700;
+}
+
+.tabla-pacientes-hoy th {
+  font-weight: 1000;
+}
 /* =========================================================
    CITA GUARDADA - MENSAJE MODERNO
 ========================================================= */

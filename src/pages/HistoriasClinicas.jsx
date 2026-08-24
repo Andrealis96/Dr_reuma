@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef} from "react";
 import {
   collection,
   addDoc,
@@ -33,7 +33,9 @@ import {
   FaStethoscope,
   FaCalendarAlt,
   FaFileMedical,
-  FaUserCheck
+  FaUserCheck,
+  FaClock,
+FaWhatsapp
 } from "react-icons/fa";
 
 import maleAvatar from "../assets/user-male.png";
@@ -42,15 +44,14 @@ import "../styles/App.css";
 
 function HistoriasClinicas() {
   const [pacientes, setPacientes] = useState([]);
-
+  const [citasAgenda, setCitasAgenda] = useState([]);
+  const [citaHoySeleccionadaId, setCitaHoySeleccionadaId] = useState(null);
+  const nuevoPacienteRef = useRef(null);
   const [nombre, setNombre] = useState("");
   const [dni, setDni] = useState("");
   const [fechaNacimiento, setFechaNacimiento] = useState("");
   const [obraSocial, setObraSocial] = useState("");
   const [sexo, setSexo] = useState("");
-
-  const [busquedaPacienteAgenda, setBusquedaPacienteAgenda] = useState("");
-  const [citasPrevias, setCitasPrevias] = useState([]);
 
   const [busqueda, setBusqueda] = useState("");
   const [filtroDiagnostico, setFiltroDiagnostico] = useState("");
@@ -105,6 +106,16 @@ function HistoriasClinicas() {
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase();
+};
+
+const capitalizarNombre = (nombre = "") => {
+  return nombre
+    .toString()
+    .toLowerCase()
+    .split(" ")
+    .filter(Boolean)
+    .map((palabra) => palabra.charAt(0).toUpperCase() + palabra.slice(1))
+    .join(" ");
 };
 
 const convertirFechaConsulta = (fecha) => {
@@ -171,6 +182,21 @@ useEffect(() => {
 
   return () => unsubscribe();
 }, []);
+
+
+useEffect(() => {
+  const unsubscribe = onSnapshot(collection(db, "citas"), (snapshot) => {
+    const datos = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    setCitasAgenda(datos);
+  });
+
+  return () => unsubscribe();
+}, []);
+
 
 useEffect(() => {
   const unsubscribe = onSnapshot(
@@ -243,18 +269,6 @@ useEffect(() => {
   return () => unsubscribe();
 }, []);
 
-useEffect(() => {
-  const unsubscribe = onSnapshot(collection(db, "citas"), (snapshot) => {
-    const datos = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-
-    setCitasPrevias(datos);
-  });
-
-  return () => unsubscribe();
-}, []);
 
 useEffect(() => {
   setPagina(1);
@@ -267,53 +281,6 @@ const mostrarMensajeGuardado = (texto) => {
   setTimeout(() => {
     setMostrarConfirmacion(false);
   }, 1800);
-};
-
-const citasPreviasUnicas = Object.values(
-  citasPrevias.reduce((acc, cita) => {
-    const clave =
-      cita.Dni?.toString().trim() ||
-      cita.dni?.toString().trim() ||
-      normalizarTexto(cita.nombre);
-
-    if (!clave) return acc;
-
-    const actual = acc[clave];
-
-    const fechaActual = actual
-      ? new Date(`${actual.fecha}T${actual.hora || "00:00"}`)
-      : null;
-
-    const fechaNueva = new Date(`${cita.fecha}T${cita.hora || "00:00"}`);
-
-    if (!actual || fechaNueva > fechaActual) {
-      acc[clave] = cita;
-    }
-
-    return acc;
-  }, {})
-);
-
-const pacientesAgendaFiltrados =
-  busquedaPacienteAgenda.trim() === ""
-    ? []
-    : citasPreviasUnicas
-        .filter((cita) => {
-          const texto = normalizarTexto(busquedaPacienteAgenda);
-
-          return (
-            normalizarTexto(cita.nombre).includes(texto) ||
-            cita.Dni?.toString().includes(busquedaPacienteAgenda.trim()) ||
-            cita.dni?.toString().includes(busquedaPacienteAgenda.trim())
-          );
-        })
-        .slice(0, 6);
-
-const seleccionarPacienteDesdeAgenda = (cita) => {
-  setNombre(cita.nombre || "");
-  setDni(cita.Dni || cita.dni || "");
-
-  setBusquedaPacienteAgenda("");
 };
 
   const crearPaciente = async (e) => {
@@ -409,6 +376,94 @@ const pacientesFiltrados = pacientes.filter((p) => {
   const totalPaginas =
     Math.ceil(pacientesFiltrados.length / pacientesPorPagina) || 1;
 
+  const obtenerFechaHoyLocal = () => {
+  const ahora = new Date();
+  const offset = ahora.getTimezoneOffset();
+
+  return new Date(ahora.getTime() - offset * 60000)
+    .toISOString()
+    .split("T")[0];
+};
+
+const limpiarTelefono10 = (telefono = "") => {
+  let numero = telefono.toString().replace(/\D/g, "");
+
+  if (!numero) return "";
+
+  if (numero.startsWith("549") && numero.length >= 13) {
+    numero = numero.slice(3);
+  }
+
+  if (numero.startsWith("54") && numero.length >= 12) {
+    numero = numero.slice(2);
+  }
+
+  if (numero.length > 10) {
+    numero = numero.slice(-10);
+  }
+
+  return numero;
+};
+
+const obtenerClavePacienteAgenda = (cita) => {
+  const dniPaciente = cita?.Dni || cita?.dni || "";
+
+  if (dniPaciente.toString().trim()) {
+    return `dni-${dniPaciente.toString().replace(/\D/g, "")}`;
+  }
+
+  return `nombre-${normalizarTexto(cita?.nombre || "")}`;
+};
+
+const obtenerNumeroCitaPacienteAgenda = (cita) => {
+  if (!cita) return 1;
+
+  const clavePaciente = obtenerClavePacienteAgenda(cita);
+
+  const citasPaciente = citasAgenda
+    .filter((c) => obtenerClavePacienteAgenda(c) === clavePaciente)
+    .sort((a, b) => {
+      const fechaA = new Date(`${a.fecha}T${a.hora || "00:00"}`);
+      const fechaB = new Date(`${b.fecha}T${b.hora || "00:00"}`);
+
+      return fechaA - fechaB;
+    });
+
+  const posicion = citasPaciente.findIndex((c) => c.id === cita.id);
+
+  return posicion === -1 ? 1 : posicion + 1;
+};
+
+const textoNumeroCitaPacienteAgenda = (numero) => {
+  if (numero === 1) return "Primera vez";
+  if (numero === 2) return "Segunda vez";
+  if (numero === 3) return "Tercera vez";
+
+  return `${numero}ª vez`;
+};
+
+const citasHoyAgenda = citasAgenda
+  .filter((c) => c.fecha === obtenerFechaHoyLocal())
+  .sort((a, b) => (a.hora || "").localeCompare(b.hora || ""));
+
+const cargarPacienteDesdeCitaHoy = (cita) => {
+  setEditando(null);
+  setCitaHoySeleccionadaId(cita.id);
+
+  setNombre(cita.nombre || "");
+  setDni(cita.Dni || cita.dni || "");
+  setFechaNacimiento(cita.fechaNacimiento || "");
+  setObraSocial(cita.obraSocial || "");
+  setSexo(cita.sexo || "");
+
+  setTimeout(() => {
+    nuevoPacienteRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }, 100);
+};
+
   return (
     <div className="container historias-modern-container py-4 mb-5">
       {mostrarConfirmacion && (
@@ -462,8 +517,125 @@ const pacientesFiltrados = pacientes.filter((p) => {
 
       </div>
 
+      {/* TABLA PACIENTES DE HOY DESDE AGENDA */}
+<div className="card shadow-sm mb-4 historias-tabla-hoy-card">
+
+  <div className="card-header text-center text-white fw-bold">
+    <h3 className="mb-0">
+      PACIENTES DE HOY
+    </h3>
+  </div>
+
+  <div className="card-body p-0 table-responsive">
+
+    {citasHoyAgenda.length === 0 ? (
+      <div className="p-3 text-center fw-bold">
+        No hay citas programadas para hoy
+      </div>
+    ) : (
+      <table className="table table-sm mb-0 tabla-pacientes-hoy">
+        <thead>
+          <tr className="text-center">
+            <th>
+              <FaClock className="me-1 celeste" /> <br />
+              <span className="celeste">Hora</span>
+            </th>
+
+            <th>
+              <FaUserCheck className="me-2 celeste" /> <br />
+              <span className="celeste">Paciente</span>
+            </th>
+
+            <th>
+              <FaIdCard className="me-2 celeste" /> <br />
+              <span className="celeste">DNI</span>
+            </th>
+
+            <th>
+              <FaWhatsapp className="me-2 celeste" /> <br />
+              <span className="celeste">Teléfono</span>
+            </th>
+
+            <th>
+              <FaUsers className="me-2 celeste" /> <br />
+              <span className="celeste">Vez</span>
+            </th>
+
+            <th>
+              <FaStethoscope className="me-2 celeste" /> <br />
+              <span className="celeste">Motivo</span>
+            </th>
+          </tr>
+        </thead>
+
+        <tbody className="text-center">
+          {citasHoyAgenda.map((c) => {
+            const numeroCita = obtenerNumeroCitaPacienteAgenda(c);
+
+            return (
+              <tr
+                  key={c.id}
+                  className={`fila-cita-historia ${
+                    citaHoySeleccionadaId === c.id ? "fila-cita-seleccionada" : ""
+                  }`}
+                  title="Clic para cargar en Nuevo paciente"
+                  onClick={() => cargarPacienteDesdeCitaHoy(c)}
+                >
+                <td>
+                  {c.hora || "-"}
+                </td>
+
+                <td>
+                  {capitalizarNombre(c.nombre || "")}
+                </td>
+
+                <td>
+                  {c.Dni || c.dni || "-"}
+                </td>
+
+                <td>
+                  {c.telefono ? (
+                    <span className="telefono-tabla-hoy">
+                      <FaWhatsapp />
+                      {limpiarTelefono10(c.telefono)}
+                    </span>
+                  ) : (
+                    "-"
+                  )}
+                </td>
+
+                <td>
+                  <span
+                    className={`badge-vez-paciente ${
+                      numeroCita === 1 ? "badge-primera-vez" : "badge-repetido"
+                    }`}
+                  >
+                    {textoNumeroCitaPacienteAgenda(numeroCita)}
+                  </span>
+                </td>
+
+                <td>
+                  <span
+                    className="motivo-tabla-cita"
+                    title={c.motivoConsulta || "Sin motivo"}
+                  >
+                    {c.motivoConsulta || "Sin motivo"}
+                  </span>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    )}
+
+  </div>
+</div>
+
+<br />
+
       {/* FORMULARIO */}
-      <div className="historias-form-card mb-4">
+      <div ref={nuevoPacienteRef} className="historias-form-card mb-4">
 
         <div className="historias-form-title">
           <div className="historias-form-icon">
@@ -483,63 +655,6 @@ const pacientesFiltrados = pacientes.filter((p) => {
 
             <form onSubmit={editando ? guardarEdicion : crearPaciente}>
 
-  {!editando && (
-    <div className="historia-agenda-search mb-3">
-
-      <div className="historias-search-card historias-search-card-form">
-
-        <FaSearch className="historias-search-icon" />
-
-        <input
-          className="form-control historias-search-input"
-          placeholder="Buscar por nombre de pacientes agendados."
-          value={busquedaPacienteAgenda}
-          onChange={(e) => setBusquedaPacienteAgenda(e.target.value)}
-        />
-
-        {busquedaPacienteAgenda && (
-          <button
-            type="button"
-            className="historias-clear-search"
-            onClick={() => setBusquedaPacienteAgenda("")}
-          >
-            <FaTimes />
-          </button>
-        )}
-
-      </div>
-
-      {pacientesAgendaFiltrados.length > 0 && (
-        <div className="historia-agenda-results">
-          {pacientesAgendaFiltrados.map((cita) => (
-            <button
-              key={cita.id}
-              type="button"
-              className="historia-agenda-result"
-              onClick={() => seleccionarPacienteDesdeAgenda(cita)}
-            >
-              <div>
-                <strong>
-                  {cita.nombre}
-                </strong>
-
-                <span>
-                  DNI: {cita.Dni || cita.dni || "Sin DNI"}
-                </span>
-
-                <small>
-                  Última cita: {cita.fecha || "-"} · {cita.hora || "-"}
-                </small>
-              </div>
-
-              <FaUserCheck />
-            </button>
-          ))}
-        </div>
-      )}
-
-    </div>
-  )}
 
   <div className="row g-3">
 
