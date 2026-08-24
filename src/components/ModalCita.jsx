@@ -312,13 +312,20 @@ const seleccionarPacientePrevio = (cita) => {
                 <FaWhatsapp  className="celeste"/>
             </InputGroup.Text>
 
-            <Form.Control 
-              placeholder="Teléfono"
-              inputMode="numeric"
-              maxLength={10}
-              value={telefono}
-              onChange={(e) => setTelefono(limpiarTelefono10(e.target.value))}
-            />
+            <Form.Control
+                placeholder="Teléfono"
+                inputMode="numeric"
+                value={telefono}
+                onChange={(e) => setTelefono(limpiarTelefono10(e.target.value))}
+                onPaste={(e) => {
+                  e.preventDefault();
+
+                  const textoPegado = e.clipboardData.getData("text");
+                  const telefonoLimpio = limpiarTelefono10(textoPegado);
+
+                  setTelefono(telefonoLimpio);
+                }}
+              />
         </InputGroup>
 
         <InputGroup className="mb-2">

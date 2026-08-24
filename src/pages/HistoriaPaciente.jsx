@@ -1,5 +1,5 @@
 import { useEffect,useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import {
   doc,
   getDoc,
@@ -30,6 +30,9 @@ import userFemale from "../assets/user-female.png";
 
 function HistoriaPaciente() {
   const { id } = useParams();
+const [searchParams] = useSearchParams();
+
+const citaIdAgenda = searchParams.get("citaId");
 
   const [paciente, setPaciente] = useState(null);
   const [consultas, setConsultas] = useState([]);
@@ -372,6 +375,19 @@ const guardarConsulta = async (e) => {
     ...dataConsulta,
     creado: new Date()
   });
+
+  if (citaIdAgenda) {
+    await updateDoc(doc(db, "citas", citaIdAgenda), {
+      estadoCita: "asistio",
+
+      // Compatibilidad con lo anterior si ya lo habías agregado
+      estadoAsistencia: "asistio",
+      estadoConfirmacion: "confirmado",
+
+      asistenciaActualizadaAt: new Date(),
+      historiaClinicaId: id
+    });
+  }
 
   limpiarFormularioConsulta();
   setMensajeGuardado("Consulta guardada");

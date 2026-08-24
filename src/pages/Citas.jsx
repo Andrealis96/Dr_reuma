@@ -60,6 +60,8 @@ function Citas() {
 
   const [mostrarCitaGuardada, setMostrarCitaGuardada] = useState(false);
   const [mensajeCitaGuardada, setMensajeCitaGuardada] = useState("CITA AGENDADA");
+  const [mostrarConfirmacionEstado, setMostrarConfirmacionEstado] = useState(false);
+  const [mensajeConfirmacionEstado, setMensajeConfirmacionEstado] = useState("");
 
   const [diaSeleccionado, setDiaSeleccionado] = useState(null);
   const normalizarHora = (h) => h?.slice(0,5);
@@ -401,12 +403,89 @@ const obtenerNumeroCitaPaciente = (cita) => {
   return posicion === -1 ? 1 : posicion + 1;
 };
 
+const confirmarCita = async (cita) => {
+  if (!cita?.id) return;
+
+  await updateDoc(doc(db, "citas", cita.id), {
+    estadoCita: "confirmado",
+
+    // Compatibilidad con lo anterior
+    estadoConfirmacion: "confirmado",
+    estadoAsistencia: "pendiente"
+  });
+
+  setCitaSeleccionada((prev) =>
+    prev?.id === cita.id
+      ? {
+          ...prev,
+          estadoCita: "confirmado",
+          estadoConfirmacion: "confirmado",
+          estadoAsistencia: "pendiente"
+        }
+      : prev
+  );
+};
+
+const confirmarCitaDesdeDetalle = async (cita) => {
+  if (!cita?.id) return;
+
+  await confirmarCita(cita);
+
+  setShowDetalle(false);
+  setMensajeConfirmacionEstado("CITA CONFIRMADA");
+  setMostrarConfirmacionEstado(true);
+
+  setTimeout(() => {
+    setMostrarConfirmacionEstado(false);
+    setMensajeConfirmacionEstado("");
+  }, 1800);
+};
+
 const textoNumeroCitaPaciente = (numero) => {
   if (numero === 1) return "Primera vez";
   if (numero === 2) return "Segunda vez";
   if (numero === 3) return "Tercera vez";
 
   return `${numero}ª vez`;
+};
+
+const obtenerHoyLocal = () => {
+  const ahora = new Date();
+  const offset = ahora.getTimezoneOffset();
+
+  return new Date(ahora.getTime() - offset * 60000)
+    .toISOString()
+    .split("T")[0];
+};
+
+const obtenerEstadoCitaTexto = (cita) => {
+  if (cita.estadoCita === "asistio" || cita.estadoAsistencia === "asistio") {
+    return "Asistió";
+  }
+
+  if (cita.estadoCita === "noAsistio" || cita.estadoAsistencia === "noAsistio") {
+    return "No asistió";
+  }
+
+  if (cita.estadoCita === "confirmado" || cita.estadoConfirmacion === "confirmado") {
+    return "Confirmado";
+  }
+
+  if (cita.fecha < obtenerHoyLocal()) {
+    return "No asistió";
+  }
+
+  return "Pendiente";
+};
+
+const obtenerEstadoCitaClase = (cita) => {
+  const estado = obtenerEstadoCitaTexto(cita);
+
+  if (estado === "Asistió") return "estado-asistio";
+  if (estado === "No asistió") return "estado-no-asistio";
+  if (estado === "Confirmado") return "estado-confirmado";
+
+  return "estado-pendiente";
 };
 
   const resultadosBusqueda =
@@ -493,9 +572,15 @@ const mostrarMensajeGuardadoCita = (mensaje) => {
   // ================= GUARDAR =================
 const guardarCita = async (data) => {
   const dataLimpia = {
-    ...data,
-    telefono: limpiarTelefono10(data.telefono)
-  };
+  ...data,
+  telefono: limpiarTelefono10(data.telefono),
+
+  estadoConfirmacion:
+    data.estadoConfirmacion || citaEditar?.estadoConfirmacion || "pendiente",
+
+  estadoAsistencia:
+    data.estadoAsistencia || citaEditar?.estadoAsistencia || "pendiente"
+};
 
   const q = query(
     collection(db, "citas"),
@@ -940,6 +1025,25 @@ const toggleBloqueoHora = async (hora) => {
   });
 };
 
+const cambiarConfirmacionCita = async (cita) => {
+  if (!cita?.id) return;
+
+  const nuevoEstado =
+    cita.estadoConfirmacion === "confirmado" ? "pendiente" : "confirmado";
+
+  await updateDoc(doc(db, "citas", cita.id), {
+    estadoConfirmacion: nuevoEstado
+  });
+};
+
+const cambiarAsistenciaCita = async (cita, estadoAsistencia) => {
+  if (!cita?.id) return;
+
+  await updateDoc(doc(db, "citas", cita.id), {
+    estadoAsistencia
+  });
+};
+
 return (
 
     <div className="container py-4">
@@ -953,6 +1057,19 @@ return (
       </div>
 
       <h4>{mensajeCitaGuardada}</h4>
+    </div>
+  </div>
+)}
+
+{mostrarConfirmacionEstado && (
+  <div className="cita-save-overlay">
+    <div className="cita-save-card">
+
+      <div className="cita-save-icon">
+        <FaCheckCircle />
+      </div>
+
+      <h4>{mensajeConfirmacionEstado}</h4>
     </div>
   </div>
 )}
@@ -1075,6 +1192,13 @@ return (
                         Motivo
                       </span>
                     </th>
+
+                    <th>
+                      <FaCheckCircle className="me-2 celeste" /> <br />
+                      <span className="celeste">
+                        Estado
+                      </span>
+                    </th>
                 </tr>
               </thead>
 
@@ -1122,6 +1246,12 @@ return (
                         title={c.motivoConsulta || "Sin motivo"}
                       >
                         {c.motivoConsulta || "Sin motivo"}
+                      </span>
+                    </td>
+
+                    <td>
+                      <span className={`estado-cita-simple ${obtenerEstadoCitaClase(c)}`}>
+                        {obtenerEstadoCitaTexto(c)}
                       </span>
                     </td>
 
@@ -1177,6 +1307,40 @@ const tieneNota = notasAgenda.some(
 
 
 
+const obtenerHoyLocal = () => {
+  const ahora = new Date();
+  const offset = ahora.getTimezoneOffset();
+
+  return new Date(ahora.getTime() - offset * 60000)
+    .toISOString()
+    .split("T")[0];
+};
+
+const obtenerEstadoCitaTexto = (cita) => {
+  if (cita.estadoCita === "asistio" || cita.estadoAsistencia === "asistio") {
+    return "Asistió";
+  }
+
+  if (cita.estadoCita === "confirmado" || cita.estadoConfirmacion === "confirmado") {
+    return "Confirmado";
+  }
+
+  if (cita.fecha < obtenerHoyLocal()) {
+    return "No asistió";
+  }
+
+  return "Pendiente";
+};
+
+const obtenerEstadoCitaClase = (cita) => {
+  const estado = obtenerEstadoCitaTexto(cita);
+
+  if (estado === "Asistió") return "estado-asistio";
+  if (estado === "No asistió") return "estado-no-asistio";
+  if (estado === "Confirmado") return "estado-confirmado";
+
+  return "estado-pendiente";
+};
 
   return (
     <div className="dia-celda-custom">
@@ -1611,6 +1775,7 @@ horariosDisponibles.map(h => {
   onHide={() => setShowDetalle(false)}
   cita={citaSeleccionada}
   onWhatsapp={(cita) => abrirWhatsappCita(cita, true, "recordatorio")}
+  onConfirmar={confirmarCitaDesdeDetalle}
   onEditar={(cita) => {
     setCitaEditar(cita);
     setShowDetalle(false);
@@ -1623,6 +1788,7 @@ horariosDisponibles.map(h => {
     await deleteDoc(doc(db, "citas", cita.id));
   }}
 />
+
 
       {showModalNota && (
   <div className="modal d-block" style={{ background: "rgba(0,0,0,0.5)" }}>

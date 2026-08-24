@@ -4214,14 +4214,64 @@ html, body, #root {
 }
 
 .motivo-tabla-cita {
-  display: inline-block;
-  max-width: 210px;
-  padding: 6px 11px;
+  display: block;
+  max-width: 260px;
+
+  padding: 7px 11px;
+
   font-size: 0.78rem;
   font-weight: 900;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+
+  line-height: 1.25;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+
+  margin: 0 auto;
+}
+
+/* MOTIVO EN CELULAR - NO CORTAR TEXTO */
+@media (max-width: 768px) {
+  .motivo-tabla-cita {
+    display: block !important;
+
+    max-width: 170px !important;
+    min-width: 140px !important;
+
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+
+    line-height: 1.25 !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+
+    font-size: 0.68rem !important;
+    padding: 6px 8px !important;
+    border-radius: 12px !important;
+
+    margin: 0 auto !important;
+  }
+
+  .tabla-pacientes-hoy th:last-child,
+  .tabla-pacientes-hoy td:last-child {
+    min-width: 180px !important;
+    max-width: 190px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .table-responsive {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .tabla-pacientes-hoy {
+    min-width: 760px !important;
+  }
 }
 
 @media (max-width: 768px) {
@@ -4292,6 +4342,143 @@ html, body, #root {
 
 .historias-form-card {
   scroll-margin-top: 130px !important;
+
+}
+
+.estado-cita-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.estado-chip,
+.estado-mini-chip {
+  border: none;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.72rem;
+  font-weight: 1000;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: 0.2s ease;
+}
+
+.estado-chip:hover,
+.estado-mini-chip:hover {
+  transform: translateY(-1px);
+}
+
+.estado-pendiente {
+  background: rgba(255, 193, 7, 0.22) !important;
+  color: #6b4b00 !important;
+  border: 1px solid rgba(255, 193, 7, 0.5) !important;
+}
+
+.estado-confirmado {
+  background: rgba(25, 135, 84, 0.15) !important;
+  color: #198754 !important;
+  border: 1px solid rgba(25, 135, 84, 0.35) !important;
+}
+
+.estado-asistencia-row {
+  display: flex;
+  gap: 5px;
+}
+
+.estado-mini-chip {
+  background: rgba(108, 117, 125, 0.12);
+  color: #495057;
+  border: 1px solid rgba(108, 117, 125, 0.25);
+}
+
+.estado-asistio {
+  background: #198754 !important;
+  color: white !important;
+}
+
+.estado-no-asistio {
+  background: #dc3545 !important;
+  color: white !important;
+}
+
+@media (max-width: 768px) {
+  .estado-cita-box {
+    min-width: 145px;
+  }
+
+  .estado-chip,
+  .estado-mini-chip {
+    font-size: 0.66rem;
+    padding: 5px 8px;
+  }
+}
+
+.estado-cita-simple {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 105px;
+
+  border-radius: 999px;
+  padding: 7px 12px;
+
+  font-size: 0.74rem;
+  font-weight: 1000;
+  white-space: nowrap;
+
+  border: 1px solid transparent;
+}
+
+.estado-pendiente {
+  background: #fff3cd !important;
+  color: #6b4b00 !important;
+  border-color: #ffc107 !important;
+}
+
+.estado-confirmado {
+  background: #d1f7df !important;
+  color: #087c3d !important;
+  border-color: #25d366 !important;
+}
+
+.estado-asistio {
+  background: #198754 !important;
+  color: white !important;
+  border-color: #146c43 !important;
+}
+
+.estado-no-asistio {
+  background: #f8d7da !important;
+  color: #842029 !important;
+  border-color: #dc3545 !important;
+}
+
+.btn-confirmar-cita {
+  background: #198754 !important;
+  border: none !important;
+  color: white !important;
+
+  border-radius: 999px !important;
+  padding: 8px 15px !important;
+
+  font-weight: 1000 !important;
+}
+
+.btn-confirmar-cita:hover {
+  background: #146c43 !important;
+}
+
+.historias-form-card {
+  background: rgba(25, 180, 180, 0.082) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+
+  border: 1px solid rgba(9, 154, 173, 0.18) !important;
+  border-radius: 26px !important;
+
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.05) !important;
 }
 /* =========================================================
    BUSCADOR DESDE AGENDA - HISTORIAS CLÍNICAS

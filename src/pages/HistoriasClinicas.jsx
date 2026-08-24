@@ -12,7 +12,7 @@ import {
 } from "firebase/firestore";
 
 import { db } from "../firebase";
-import { Link } from "react-router-dom";
+import { Link, useNavigate} from "react-router-dom";
 
 import {
   FaPlus,
@@ -43,6 +43,8 @@ import femaleAvatar from "../assets/user-female.png";
 import "../styles/App.css";
 
 function HistoriasClinicas() {
+
+  const navigate = useNavigate();
   const [pacientes, setPacientes] = useState([]);
   const [citasAgenda, setCitasAgenda] = useState([]);
   const [citaHoySeleccionadaId, setCitaHoySeleccionadaId] = useState(null);
@@ -283,21 +285,36 @@ const mostrarMensajeGuardado = (texto) => {
   }, 1800);
 };
 
-  const crearPaciente = async (e) => {
-    e.preventDefault();
+const crearPaciente = async (e) => {
+  e.preventDefault();
 
-    await addDoc(collection(db, "historiasClinicas"), {
-      nombre: nombre.trim(),
-      dni: dni.trim(),
-      fechaNacimiento,
-      obraSocial: obraSocial.trim(),
-      sexo,
-      creado: new Date()
+  const pacienteCreado = await addDoc(collection(db, "historiasClinicas"), {
+    nombre: nombre.trim(),
+    dni: dni.trim(),
+    fechaNacimiento,
+    obraSocial: obraSocial.trim(),
+    sexo,
+    creado: new Date()
+  });
+
+  if (citaHoySeleccionadaId) {
+    await updateDoc(doc(db, "citas", citaHoySeleccionadaId), {
+      estadoCita: "asistio",
+
+      // Compatibilidad con lo anterior si ya lo habías agregado
+      estadoAsistencia: "asistio",
+      estadoConfirmacion: "confirmado",
+
+      asistenciaActualizadaAt: new Date(),
+      historiaClinicaId: pacienteCreado.id
     });
 
-    limpiarFormulario();
-    mostrarMensajeGuardado("Paciente guardado");
-  };
+    setCitaHoySeleccionadaId(null);
+  }
+
+  limpiarFormulario();
+  mostrarMensajeGuardado("Paciente guardado");
+};
 
   const eliminarPaciente = async (id) => {
     if (window.confirm("¿Eliminar paciente?")) {
@@ -376,13 +393,39 @@ const pacientesFiltrados = pacientes.filter((p) => {
   const totalPaginas =
     Math.ceil(pacientesFiltrados.length / pacientesPorPagina) || 1;
 
-  const obtenerFechaHoyLocal = () => {
+const obtenerFechaHoyLocal = () => {
   const ahora = new Date();
   const offset = ahora.getTimezoneOffset();
 
   return new Date(ahora.getTime() - offset * 60000)
     .toISOString()
     .split("T")[0];
+};
+
+const obtenerEstadoCitaTexto = (cita) => {
+  if (cita.estadoCita === "asistio" || cita.estadoAsistencia === "asistio") {
+    return "Asistió";
+  }
+
+  if (cita.estadoCita === "confirmado" || cita.estadoConfirmacion === "confirmado") {
+    return "Confirmado";
+  }
+
+  if (cita.fecha < obtenerFechaHoyLocal()) {
+    return "No asistió";
+  }
+
+  return "Pendiente";
+};
+
+const obtenerEstadoCitaClase = (cita) => {
+  const estado = obtenerEstadoCitaTexto(cita);
+
+  if (estado === "Asistió") return "estado-asistio";
+  if (estado === "No asistió") return "estado-no-asistio";
+  if (estado === "Confirmado") return "estado-confirmado";
+
+  return "estado-pendiente";
 };
 
 const limpiarTelefono10 = (telefono = "") => {
@@ -446,9 +489,32 @@ const citasHoyAgenda = citasAgenda
   .filter((c) => c.fecha === obtenerFechaHoyLocal())
   .sort((a, b) => (a.hora || "").localeCompare(b.hora || ""));
 
+const buscarPacienteGuardadoPorCita = (cita) => {
+  const dniCita = (cita?.Dni || cita?.dni || "")
+    .toString()
+    .replace(/\D/g, "");
+
+  if (dniCita) {
+    return pacientes.find(
+      (p) => p.dni?.toString().replace(/\D/g, "") === dniCita
+    );
+  }
+
+  return pacientes.find(
+    (p) => normalizarTexto(p.nombre) === normalizarTexto(cita.nombre)
+  );
+};
+
 const cargarPacienteDesdeCitaHoy = (cita) => {
   setEditando(null);
   setCitaHoySeleccionadaId(cita.id);
+
+  const pacienteGuardado = buscarPacienteGuardadoPorCita(cita);
+
+  if (pacienteGuardado) {
+    navigate(`/admin/historia/${pacienteGuardado.id}?citaId=${cita.id}`);
+    return;
+  }
 
   setNombre(cita.nombre || "");
   setDni(cita.Dni || cita.dni || "");
@@ -622,6 +688,13 @@ const cargarPacienteDesdeCitaHoy = (cita) => {
                     {c.motivoConsulta || "Sin motivo"}
                   </span>
                 </td>
+
+                <td>
+                  <span className={`estado-cita-simple ${obtenerEstadoCitaClase(c)}`}>
+                    {obtenerEstadoCitaTexto(c)}
+                  </span>
+                </td>
+
               </tr>
             );
           })}
