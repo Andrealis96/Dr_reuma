@@ -1379,6 +1379,7 @@ return (
   initialView="dayGridMonth"
   events={eventos}
   height="auto"
+  hiddenDays={[0]}
 
 dayCellClassNames={(arg) => {
   const fecha = arg.date.toISOString().split("T")[0];

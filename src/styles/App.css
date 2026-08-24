@@ -6947,6 +6947,47 @@ html, body, #root {
   color: #aaa !important;
 }
 
+/* DÍA ACTUAL EN EL CALENDARIO */
+.fc .fc-daygrid-day.fc-day-today {
+  background: #ffc107 !important;
+}
+
+/* Número del día actual */
+.fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number,
+.fc .fc-daygrid-day.fc-day-today .dia-numero {
+  background: rgba(0, 0, 0) !important;
+  color: white !important;
+
+  border-radius: 999px !important;
+  padding: 4px 10px !important;
+
+  font-weight: 1000 !important;
+}
+
+/* Para que los eventos dentro de hoy resalten un poquito */
+.fc .fc-daygrid-day.fc-day-today .fc-event {
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.22) !important;
+}
+
+/* QUITAR COLOR ROJO DEL FIN DE SEMANA */
+.fc .fc-day-sat,
+.fc .fc-day-sun {
+  background: transparent !important;
+}
+
+/* Si tenías sábados/domingo con fondo rosado */
+.fc .fc-daygrid-day.fc-day-sat,
+.fc .fc-daygrid-day.fc-day-sun {
+  background: transparent !important;
+}
+
+/* Encabezado del sábado normal */
+.fc .fc-col-header-cell.fc-day-sat,
+.fc .fc-col-header-cell.fc-day-sun {
+  background: rgb(9, 154, 173) !important;
+  color: white !important;
+}
+
 /* ................ CITAS PANEL DOCTOR.......................*/
 
 
