@@ -1220,7 +1220,15 @@ return (
               <tbody className="text-center">
                 {pacientesHoy.map(c => (
                   <tr key={c.id}>
-                    <td>{c.hora}</td>
+                    <td>
+                      {c.sinAgenda ? (
+                        <span className="hora-sin-agenda">
+                          Sin hora
+                        </span>
+                      ) : (
+                        c.hora
+                      )}
+                    </td>
                     <td>{capitalizarNombre(c.nombre)}</td>
                     <td>{c.Dni}</td>
                     <td>

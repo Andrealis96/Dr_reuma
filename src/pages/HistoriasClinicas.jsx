@@ -698,8 +698,15 @@ const cargarPacienteDesdeCitaHoy = (cita) => {
                   title="Clic para cargar en Nuevo paciente"
                   onClick={() => cargarPacienteDesdeCitaHoy(c)}
                 >
+                
                 <td>
-                  {c.hora || "-"}
+                  {c.sinAgenda ? (
+                    <span className="hora-sin-agenda">
+                      Sin hora
+                    </span>
+                  ) : (
+                    c.hora || "-"
+                  )}
                 </td>
 
                 <td>
