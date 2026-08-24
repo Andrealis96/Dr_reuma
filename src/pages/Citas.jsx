@@ -31,9 +31,11 @@ import {
   FaCalendarAlt,
   FaClock,
   FaMapMarkerAlt,
-  FaUserMd
+  FaUserMd, 
+  FaFolderOpen
 } from "react-icons/fa";
 
+import { Link } from "react-router-dom";
 import {
   collection,
   onSnapshot,
@@ -1097,11 +1099,24 @@ return (
 )}
 
       {/* HEADER */}
-      <h3 className="subtitle-general text-center mb-4">
-        <span className="subtitle-celeste">CALENDARIO DE</span>
-        <span className="subtitle-negro"> CITAS</span>
-      </h3>
+     <div className="citas-header-top mb-4">
 
+  <div></div>
+
+  <h3 className="subtitle-general text-center mb-0">
+    <span className="subtitle-celeste">CALENDARIO DE</span>
+    <span className="subtitle-negro"> CITAS</span>
+  </h3>
+
+  <Link
+    to="/admin/historias"
+    className="citas-ir-historias-btn"
+  >
+    <FaFolderOpen />
+    Historias clínicas
+  </Link>
+
+</div>
       {/* CARDS */}
       <div className="row g-3 mb-4">
 
@@ -1265,6 +1280,86 @@ return (
       </div>
 
 
+{/* BUSCADOR DE PACIENTES */}
+<div className="buscador-citas-card mt-4 mb-4">
+
+  <div className="buscador-citas-title">
+    <FaSearch />
+    <span>Buscar paciente en agenda</span>
+  </div>
+
+  <div className="buscador-citas-input-wrap">
+    <FaSearch className="buscador-citas-icon" />
+
+    <input
+      type="text"
+      className="form-control buscador-citas-input"
+      placeholder="Buscar por nombre o DNI..."
+      value={busquedaPaciente}
+      onChange={(e) => setBusquedaPaciente(e.target.value)}
+    />
+
+    {busquedaPaciente && (
+      <button
+        type="button"
+        className="buscador-citas-clear"
+        onClick={() => setBusquedaPaciente("")}
+      >
+        ×
+      </button>
+    )}
+  </div>
+
+  {busquedaPaciente.trim() !== "" && (
+    <div className="buscador-citas-resultados">
+
+      {resultadosBusqueda.length === 0 ? (
+        <div className="buscador-citas-vacio">
+          No se encontraron pacientes
+        </div>
+      ) : (
+        resultadosBusqueda.slice(0, 8).map((c) => (
+          <div
+            key={c.id}
+            className="buscador-citas-item"
+            onClick={() => {
+              setCitaSeleccionada(c);
+              setShowDetalle(true);
+            }}
+          >
+            <div>
+              <strong>{capitalizarNombre(c.nombre)}</strong>
+
+              <span>
+                DNI: {c.Dni || "Sin DNI"}
+              </span>
+
+              <small>
+                {c.fecha} · {c.hora} hs · {c.tipo === "presencial" ? "Presencial" : "Virtual"}
+              </small>
+            </div>
+
+            <button
+              type="button"
+              className="buscador-citas-whatsapp"
+              onClick={(e) => {
+                e.stopPropagation();
+                abrirWhatsappCita(c, true, "recordatorio");
+              }}
+              title="Enviar WhatsApp"
+            >
+              <FaWhatsapp />
+            </button>
+          </div>
+        ))
+      )}
+
+    </div>
+  )}
+
+</div>
+
+
       {/* CALENDARIO (SIN SCROLL FORZADO) */}
       <div className="card p-3">
         <FullCalendar
@@ -1410,84 +1505,6 @@ eventClick={(info) => {
 />
 </div>
 
-{/* BUSCADOR DE PACIENTES */}
-<div className="buscador-citas-card mt-4 mb-4">
-
-  <div className="buscador-citas-title">
-    <FaSearch />
-    <span>Buscar paciente en agenda</span>
-  </div>
-
-  <div className="buscador-citas-input-wrap">
-    <FaSearch className="buscador-citas-icon" />
-
-    <input
-      type="text"
-      className="form-control buscador-citas-input"
-      placeholder="Buscar por nombre o DNI..."
-      value={busquedaPaciente}
-      onChange={(e) => setBusquedaPaciente(e.target.value)}
-    />
-
-    {busquedaPaciente && (
-      <button
-        type="button"
-        className="buscador-citas-clear"
-        onClick={() => setBusquedaPaciente("")}
-      >
-        ×
-      </button>
-    )}
-  </div>
-
-  {busquedaPaciente.trim() !== "" && (
-    <div className="buscador-citas-resultados">
-
-      {resultadosBusqueda.length === 0 ? (
-        <div className="buscador-citas-vacio">
-          No se encontraron pacientes
-        </div>
-      ) : (
-        resultadosBusqueda.slice(0, 8).map((c) => (
-          <div
-            key={c.id}
-            className="buscador-citas-item"
-            onClick={() => {
-              setCitaSeleccionada(c);
-              setShowDetalle(true);
-            }}
-          >
-            <div>
-              <strong>{capitalizarNombre(c.nombre)}</strong>
-
-              <span>
-                DNI: {c.Dni || "Sin DNI"}
-              </span>
-
-              <small>
-                {c.fecha} · {c.hora} hs · {c.tipo === "presencial" ? "Presencial" : "Virtual"}
-              </small>
-            </div>
-
-            <button
-              type="button"
-              className="buscador-citas-whatsapp"
-              onClick={(e) => {
-                e.stopPropagation();
-                abrirWhatsappCita(c, true, "recordatorio");
-              }}
-              title="Enviar WhatsApp"
-            >
-              <FaWhatsapp />
-            </button>
-          </div>
-        ))
-      )}
-
-    </div>
-  )}
-
-</div>
 
 {/* BLOQUE DÍA SELECCIONADO */}
 {diaSeleccionado && (

@@ -573,13 +573,25 @@ const cargarPacienteDesdeCitaHoy = (cita) => {
           </p>
         </div>
 
-        <div className="historias-total-card">
-          <FaUsers />
-          <div>
-            <strong>{pacientes.length}</strong>
-            <span>Pacientes</span>
-          </div>
-        </div>
+        <div className="historias-hero-actions">
+
+  <Link
+    to="/admin/citas"
+    className="historias-agenda-btn"
+  >
+    <FaCalendarAlt />
+    Agendar cita
+  </Link>
+
+  <div className="historias-total-card">
+    <FaUsers />
+    <div>
+      <strong>{pacientes.length}</strong>
+      <span>Pacientes</span>
+    </div>
+  </div>
+
+</div>
 
       </div>
 
@@ -631,6 +643,13 @@ const cargarPacienteDesdeCitaHoy = (cita) => {
               <FaStethoscope className="me-2 celeste" /> <br />
               <span className="celeste">Motivo</span>
             </th>
+
+            <th>
+                                  <FaCheckCircle className="me-2 celeste" /> <br />
+                                  <span className="celeste">
+                                    Estado
+                                  </span>
+           </th>
           </tr>
         </thead>
 

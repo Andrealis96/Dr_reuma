@@ -1,5 +1,5 @@
 import { useEffect,useRef, useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import {
   doc,
   getDoc,
@@ -19,7 +19,9 @@ import {
   FaChevronUp,
   FaFilePdf,
   FaPencilAlt,
-  FaTimes
+  FaTimes,
+  FaCalendarAlt,
+  FaFolderOpen
 } from "react-icons/fa";
 
 import jsPDF from "jspdf";
@@ -642,10 +644,30 @@ const diagnosticosAgrupados = diagnosticosFiltrados.reduce((grupos, d, index) =>
               </p>
             </div>
 
-            <div className="historia-paciente-count">
-              <strong>{consultas.length}</strong>
-              <span>Consultas</span>
-            </div>
+            <div className="historia-paciente-header-actions">
+
+  <Link
+    to="/admin/citas"
+    className="historia-header-action historia-header-agenda"
+  >
+    <FaCalendarAlt />
+    Agendar cita
+  </Link>
+
+  <Link
+    to="/admin/historias"
+    className="historia-header-action historia-header-volver"
+  >
+    <FaFolderOpen />
+    Historias clínicas
+  </Link>
+
+  <div className="historia-paciente-count">
+    <strong>{consultas.length}</strong>
+    <span>Consultas</span>
+  </div>
+
+</div>
 
           </div>
 
