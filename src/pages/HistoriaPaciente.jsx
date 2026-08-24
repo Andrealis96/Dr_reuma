@@ -43,6 +43,7 @@ const citaIdAgenda = searchParams.get("citaId");
   const [diagnosticosSeleccionados, setDiagnosticosSeleccionados] = useState([]);
   const [busquedaDiagnostico, setBusquedaDiagnostico] = useState("");
   const [historia, setHistoria] = useState("");
+
   const [nuevoDiagnostico, setNuevoDiagnostico] = useState("");
   const [consultaEditando, setConsultaEditando] = useState(null);
   
@@ -156,36 +157,35 @@ Se extiende el presente certificado a solicitud del interesado/a para ser presen
 `,
 
     primeravez: `
-Antecedentes :
-Medicacion habitual reumatologica : 
-Enfermedad actual :
-Examen fisico :
--Musculoesqueletico : 
-    Rigidez matinal: NO
-    Deformidades: NO
-    Limitacion articular :NO
-    Artralgias o Artritis :NO
-    Lasegue : negativo
-    Fabere :negativo
-    Otras manifestaciones Musculoesqueleticas : NO
--Lesiones cutaneas : NO
--Respiratorio : Bmv , beab , sra , sat 98 % 
--Cardiovascular : R1 R2 4 focos , silencios libres 
--Abdomen: Blando, depresible , diuresis y catarsis conservada
--Neurologico : Sin foco neurologico aparente
-Examenes complementarios de relevancia reumatologica:
-Impresion diagnostica y nota evolutiva:
-Conducta :
-Medidas Generales 
-Pautas de Alarma 
-Actividad Fisica 
-Dieta mediterranea 
-Si dolor Paracetamol 1g
+VIVE EN NEUQUEN
+
+OCUPACION : 
+APF: 
+APP :
+HTA : 
+FUMA : 
+HIJOS :
+ABORTOS :
+CIRUGIAS : 
+FRACTURAS : 
+FUM : 
+GIMNASIA : 
+ANTECEDENTES:
+
+MEDICACIÓN HABITUAL :
+
+ENFERMEDAD ACTUAL :
+
+EXAMEN FISICO:
+
+IDX :
+
+CONDUCTA:
 `,
 
     evolucion: `
 Paciente en mención el día de la fecha acudió a consultorios de reumatología para valoración médica .
-`,
+    `,
 
     reposo: `
 Certifico que la paciente en mención fue evaluada/o en el día de la fecha, cursando un cuadro clínico compatible con 
@@ -209,6 +209,13 @@ Indicaciones: Reposo relativo
   const usarPlantilla = (nombre) => {
     setHistoria(plantillas[nombre] || "");
   };
+
+  useEffect(() => {
+  if (consultaEditando) return;
+  if (historia.trim()) return;
+
+  setHistoria(plantillas.primeravez.trim());
+}, [consultaEditando]);
 
 const toggleDiagnostico = (nombre) => {
   const nombreFormateado = nombre.toUpperCase();
@@ -440,9 +447,13 @@ const cancelarEdicionConsulta = () => {
       pdf.setFontSize(10);
       pdf.text("Dr. Tony Vélez", 45, 24);
 
-      pdf.setFont("helvetica", "italic");
+      pdf.setFont("helvetica", "normal");
       pdf.setFontSize(9);
-      pdf.text("Especialista en Enfermedades Autoinmunes", 45, 29);
+      pdf.text("Especialista en Reumatología y Enfermedades Autoinmunes", 45, 29);
+
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(9);
+      pdf.text("San Martín 1355 - Consultorios Externos de la Clínica San Agustín", 45, 34);
 
       pdf.setLineWidth(0.5);
       pdf.line(14, 38, 196, 38);
@@ -544,6 +555,30 @@ const cancelarEdicionConsulta = () => {
     pdf.text("MP 9762", 160, y + 37, {
       align: "center"
     });
+    pdf.text("ME 5655", 160, y + 41, {
+      align: "center"
+    });
+
+    /* Texto de contacto a la izquierda */
+pdf.setFont("helvetica", "normal");
+pdf.setFontSize(8);
+pdf.setTextColor(80, 80, 80);
+
+pdf.text(
+  "Para consultas sobre este documento:",
+  14,
+  y + 26
+);
+
+pdf.setFont("helvetica", "bold");
+pdf.text(
+  "tonygregoryvelez@gmail.com",
+  14,
+  y + 32
+);
+
+/* Volver a color negro normal */
+pdf.setTextColor(0, 0, 0);
 
     const fechaActual = new Date().toLocaleString("es-AR", {
       day: "2-digit",
@@ -724,6 +759,49 @@ const diagnosticosAgrupados = diagnosticosFiltrados.reduce((grupos, d, index) =>
 
                 <div className="historia-side-panel">
 
+                <h5 className="historia-panel-title">
+  Plantillas rápidas
+</h5>
+
+<div className="historia-plantillas mb-4">
+
+  <button
+    type="button"
+    onClick={() => usarPlantilla("primeravez")}
+  >
+    Historia Clínica
+  </button>
+
+  <button
+    type="button"
+    onClick={() => usarPlantilla("evolucion")}
+  >
+    Evolución Clínica
+  </button>
+
+  <button
+    type="button"
+    onClick={() => usarPlantilla("aptitudfisica")}
+  >
+    Certificado aptitud física
+  </button>
+
+  <button
+    type="button"
+    onClick={() => usarPlantilla("reposo")}
+  >
+    Reposo médico
+  </button>
+
+  <button
+    type="button"
+    onClick={() => usarPlantilla("receta")}
+  >
+    Receta médica
+  </button>
+
+</div>
+
 <h5 className="historia-panel-title">
   Diagnósticos
 </h5>
@@ -836,49 +914,6 @@ const diagnosticosAgrupados = diagnosticosFiltrados.reduce((grupos, d, index) =>
                     </button>
                   </div>
 
-                  <h5 className="historia-panel-title">
-                    Plantillas rápidas
-                  </h5>
-
-                  <div className="historia-plantillas">
-
-                    <button
-                      type="button"
-                      onClick={() => usarPlantilla("aptitudfisica")}
-                    >
-                      Certificado aptitud física
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => usarPlantilla("primeravez")}
-                    >
-                      Historia reumatológica
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => usarPlantilla("evolucion")}
-                    >
-                      Evolución clínica
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => usarPlantilla("reposo")}
-                    >
-                      Reposo médico
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => usarPlantilla("receta")}
-                    >
-                      Receta médica
-                    </button>
-
-                  </div>
-
                   <button className="historia-save-consulta-btn mt-4">
                     <FaPlus className="me-2" />
                     {consultaEditando ? "Actualizar consulta" : "Guardar consulta"}
@@ -908,7 +943,6 @@ const diagnosticosAgrupados = diagnosticosFiltrados.reduce((grupos, d, index) =>
                     <div>
                       <h5>Historia clínica</h5>
                       <p>
-                        Escribe la evolución, examen físico, conducta y plan terapéutico.
                       </p>
                     </div>
                   </div>
