@@ -7,7 +7,10 @@ import {
   addDoc,
   onSnapshot,
   deleteDoc,
-  updateDoc
+  updateDoc,
+  query,
+  where,
+  getDocs
 } from "firebase/firestore";
 
 import { db } from "../firebase";
@@ -162,6 +165,8 @@ VIVE EN NEUQUEN
 OCUPACION : 
 APF: 
 APP :
+PESO:
+
 HTA : 
 FUMA : 
 HIJOS :
@@ -177,6 +182,8 @@ MEDICACIÓN HABITUAL :
 ENFERMEDAD ACTUAL :
 
 EXAMEN FISICO:
+
+
 
 IDX :
 
@@ -228,7 +235,7 @@ const toggleDiagnostico = (nombre) => {
 };
 
 const limpiarFormularioConsulta = () => {
-  setHistoria("");
+  setHistoria(plantillas.primeravez.trim());
   setDiagnosticosSeleccionados([]);
   setConsultaEditando(null);
 };
@@ -338,6 +345,70 @@ const eliminarDiagnostico = async (diagnostico) => {
   );
 };
 
+const obtenerFechaHoyLocal = () => {
+  const ahora = new Date();
+  const offset = ahora.getTimezoneOffset();
+
+  return new Date(ahora.getTime() - offset * 60000)
+    .toISOString()
+    .split("T")[0];
+};
+
+const limpiarDni = (valor = "") => {
+  return valor.toString().replace(/\D/g, "");
+};
+
+const marcarCitaComoAsistio = async () => {
+  if (!paciente) return;
+
+  // Caso ideal: la historia vino desde la tabla Pacientes de Hoy con ?citaId=
+  if (citaIdAgenda) {
+    await updateDoc(doc(db, "citas", citaIdAgenda), {
+      estadoCita: "asistio",
+      estadoAsistencia: "asistio",
+      estadoConfirmacion: "confirmado",
+      asistenciaActualizadaAt: new Date(),
+      historiaClinicaId: id
+    });
+
+    return;
+  }
+
+  // Caso alternativo: abriste la historia desde el listado normal
+  // Entonces buscamos una cita de hoy por DNI.
+  const hoy = obtenerFechaHoyLocal();
+
+  const q = query(
+    collection(db, "citas"),
+    where("fecha", "==", hoy)
+  );
+
+  const snap = await getDocs(q);
+
+  const dniPaciente = limpiarDni(paciente.dni);
+
+  const citaDeHoy = snap.docs
+    .map((d) => ({
+      id: d.id,
+      ...d.data()
+    }))
+    .find((cita) => {
+      const dniCita = limpiarDni(cita.Dni || cita.dni);
+
+      return dniPaciente && dniCita === dniPaciente;
+    });
+
+  if (!citaDeHoy) return;
+
+  await updateDoc(doc(db, "citas", citaDeHoy.id), {
+    estadoCita: "asistio",
+    estadoAsistencia: "asistio",
+    estadoConfirmacion: "confirmado",
+    asistenciaActualizadaAt: new Date(),
+    historiaClinicaId: id
+  });
+};
+
 const guardarConsulta = async (e) => {
   e.preventDefault();
 
@@ -380,23 +451,12 @@ const guardarConsulta = async (e) => {
     return;
   }
 
-  await addDoc(collection(db, "historiasClinicas", id, "consultas"), {
-    ...dataConsulta,
-    creado: new Date()
-  });
+await addDoc(collection(db, "historiasClinicas", id, "consultas"), {
+  ...dataConsulta,
+  creado: new Date()
+});
 
-  if (citaIdAgenda) {
-    await updateDoc(doc(db, "citas", citaIdAgenda), {
-      estadoCita: "asistio",
-
-      // Compatibilidad con lo anterior si ya lo habías agregado
-      estadoAsistencia: "asistio",
-      estadoConfirmacion: "confirmado",
-
-      asistenciaActualizadaAt: new Date(),
-      historiaClinicaId: id
-    });
-  }
+await marcarCitaComoAsistio();
 
   limpiarFormularioConsulta();
   setMensajeGuardado("Consulta guardada");

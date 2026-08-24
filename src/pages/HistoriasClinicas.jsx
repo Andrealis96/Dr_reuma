@@ -60,6 +60,7 @@ function HistoriasClinicas() {
   const [filtroSexo, setFiltroSexo] = useState("");
   const [diagnosticosPorPaciente, setDiagnosticosPorPaciente] = useState({});
   const [ultimaConsultaPorPaciente, setUltimaConsultaPorPaciente] = useState({});
+  const [ultimaConsultaFechaPorPaciente, setUltimaConsultaFechaPorPaciente] = useState({});
   const [cantidadConsultasPorPaciente, setCantidadConsultasPorPaciente] = useState({}); 
   const [pagina, setPagina] = useState(1);
   const pacientesPorPagina = 6;
@@ -199,7 +200,6 @@ useEffect(() => {
   return () => unsubscribe();
 }, []);
 
-
 useEffect(() => {
   const unsubscribe = onSnapshot(
     collectionGroup(db, "consultas"),
@@ -214,7 +214,9 @@ useEffect(() => {
         const pacienteId = consultaDoc.ref.parent.parent?.id;
 
         if (!pacienteId) return;
-        mapaCantidadConsultas[pacienteId] = (mapaCantidadConsultas[pacienteId] || 0) + 1;
+
+        mapaCantidadConsultas[pacienteId] =
+          (mapaCantidadConsultas[pacienteId] || 0) + 1;
 
         const listaDiagnosticos = Array.isArray(data.diagnosticos)
           ? data.diagnosticos
@@ -236,41 +238,48 @@ useEffect(() => {
 
         const fechaHoraConsulta = obtenerFechaHoraConsulta(data);
 
-          if (fechaHoraConsulta.fechaDate) {
-            const ultimaActual = mapaUltimaConsulta[pacienteId]?.fechaDate;
+        if (fechaHoraConsulta.fechaDate) {
+          const ultimaActual = mapaUltimaConsulta[pacienteId]?.fechaDate;
 
-            if (!ultimaActual || fechaHoraConsulta.fechaDate > ultimaActual) {
-              mapaUltimaConsulta[pacienteId] = fechaHoraConsulta;
-            }
+          if (!ultimaActual || fechaHoraConsulta.fechaDate > ultimaActual) {
+            mapaUltimaConsulta[pacienteId] = fechaHoraConsulta;
           }
+        }
       });
 
       const mapaDiagnosticosFinal = {};
       const mapaUltimaConsultaFinal = {};
+      const mapaUltimaConsultaFechaFinal = {};
 
-      Object.entries(mapaDiagnosticos).forEach(([pacienteId, diagnosticosSet]) => {
-        mapaDiagnosticosFinal[pacienteId] = Array.from(diagnosticosSet).sort((a, b) =>
-          a.localeCompare(b, "es", {
-            sensitivity: "base"
-          })
-        );
-      });
+      Object.entries(mapaDiagnosticos).forEach(
+        ([pacienteId, diagnosticosSet]) => {
+          mapaDiagnosticosFinal[pacienteId] = Array.from(diagnosticosSet).sort(
+            (a, b) =>
+              a.localeCompare(b, "es", {
+                sensitivity: "base"
+              })
+          );
+        }
+      );
 
       Object.entries(mapaUltimaConsulta).forEach(([pacienteId, data]) => {
         mapaUltimaConsultaFinal[pacienteId] = data.hora
-        ? `${data.fecha} - ${data.hora} hs`
-        : data.fecha;
+          ? `${data.fecha} - ${data.hora} hs`
+          : data.fecha;
+
+        mapaUltimaConsultaFechaFinal[pacienteId] =
+          data.fechaDate?.getTime ? data.fechaDate.getTime() : 0;
       });
 
       setDiagnosticosPorPaciente(mapaDiagnosticosFinal);
       setUltimaConsultaPorPaciente(mapaUltimaConsultaFinal);
+      setUltimaConsultaFechaPorPaciente(mapaUltimaConsultaFechaFinal);
       setCantidadConsultasPorPaciente(mapaCantidadConsultas);
     }
   );
 
   return () => unsubscribe();
 }, []);
-
 
 useEffect(() => {
   setPagina(1);
@@ -358,29 +367,52 @@ const crearPaciente = async (e) => {
     limpiarFormulario();
   };
 
-const pacientesFiltrados = pacientes.filter((p) => {
-  const textoPaciente = normalizarTexto(busqueda);
-  const textoDiagnostico = normalizarTexto(filtroDiagnostico);
+const obtenerCreadoPaciente = (p) => {
+  if (p.creado?.toDate) {
+    return p.creado.toDate().getTime();
+  }
 
-  const coincidePaciente =
-    !textoPaciente ||
-    normalizarTexto(p.nombre).includes(textoPaciente) ||
-    p.dni?.toString().includes(busqueda.trim());
+  if (p.creado instanceof Date) {
+    return p.creado.getTime();
+  }
 
-  const diagnosticosPaciente = diagnosticosPorPaciente[p.id] || [];
+  return 0;
+};
 
-  const coincideDiagnostico =
-    !textoDiagnostico ||
-    diagnosticosPaciente.some((diag) =>
-      normalizarTexto(diag).includes(textoDiagnostico)
-    );
+const pacientesFiltrados = pacientes
+  .filter((p) => {
+    const textoPaciente = normalizarTexto(busqueda);
+    const textoDiagnostico = normalizarTexto(filtroDiagnostico);
 
-  const coincideSexo =
-    !filtroSexo ||
-    normalizarTexto(p.sexo) === normalizarTexto(filtroSexo);
+    const coincidePaciente =
+      !textoPaciente ||
+      normalizarTexto(p.nombre).includes(textoPaciente) ||
+      p.dni?.toString().includes(busqueda.trim());
 
-  return coincidePaciente && coincideDiagnostico && coincideSexo;
-});
+    const diagnosticosPaciente = diagnosticosPorPaciente[p.id] || [];
+
+    const coincideDiagnostico =
+      !textoDiagnostico ||
+      diagnosticosPaciente.some((diag) =>
+        normalizarTexto(diag).includes(textoDiagnostico)
+      );
+
+    const coincideSexo =
+      !filtroSexo ||
+      normalizarTexto(p.sexo) === normalizarTexto(filtroSexo);
+
+    return coincidePaciente && coincideDiagnostico && coincideSexo;
+  })
+  .sort((a, b) => {
+    const ultimaB = ultimaConsultaFechaPorPaciente[b.id] || 0;
+    const ultimaA = ultimaConsultaFechaPorPaciente[a.id] || 0;
+
+    if (ultimaB !== ultimaA) {
+      return ultimaB - ultimaA;
+    }
+
+    return obtenerCreadoPaciente(b) - obtenerCreadoPaciente(a);
+  });
 
   const indiceFinal = pagina * pacientesPorPagina;
   const indiceInicial = indiceFinal - pacientesPorPagina;
