@@ -1046,6 +1046,16 @@ const cambiarAsistenciaCita = async (cita, estadoAsistencia) => {
   });
 };
 
+const fechaHoyAgendaTexto = new Date()
+  .toLocaleDateString("es-AR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  })
+  .replace(",", "")
+  .replace(/^./, (letra) => letra.toUpperCase());
+
 return (
 
     <div className="container py-4">
@@ -1103,10 +1113,16 @@ return (
 
   <div></div>
 
-  <h3 className="subtitle-general text-center mb-0">
+  <div className="citas-titulo-fecha mb-4">
+  <h3 className="subtitle-general text-center mb-1">
     <span className="subtitle-celeste">CALENDARIO DE</span>
-    <span className="subtitle-negro"> CITAS</span>
+    <span className="subtitle-celeste"> CITAS</span>
   </h3>
+
+  <div className="citas-fecha-hoy">
+  {fechaHoyAgendaTexto.toUpperCase()}
+  </div>
+</div>
 
   <Link
     to="/admin/historias"
@@ -1230,6 +1246,7 @@ return (
                       )}
                     </td>
                     <td>{capitalizarNombre(c.nombre)}</td>
+                    
                     <td>{c.Dni}</td>
                     <td>
                       {c.telefono ? (
@@ -1687,13 +1704,22 @@ eventClick={(info) => {
                 title={c.tipo === "presencial" ? "Consulta presencial" : "Consulta virtual"}
               />
 
-              <div className="hora-paciente">
-                {c.hora}
-              </div>
+              <div className="hora-estado-dia">
+  <span className="hora-listado-dia">
+    {c.hora}
+  </span>
+
+  <span className={`estado-listado-dia ${obtenerEstadoCitaClase(c)}`}>
+    {obtenerEstadoCitaTexto(c) === "Confirmado"
+      ? "CONFIRMADA"
+      : obtenerEstadoCitaTexto(c).toUpperCase()}
+  </span>
+</div>
             </div>
 
             <div className="nombre-paciente-dia">
-              {capitalizarNombre(c.nombre)}
+              {capitalizarNombre(c.nombre)} 
+              
             </div>
 
           </div>

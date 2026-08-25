@@ -2293,11 +2293,88 @@ margin-top: 5px;
 }
 
 .buscador-citas-card {
-  background: white;
+  background: rgba(9, 154, 173, 0.16);
   border: 1px solid rgba(9, 154, 173, 0.16);
   border-radius: 24px;
   padding: 18px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+}
+
+.citas-titulo-fecha {
+  text-align: center;
+}
+
+.citas-fecha-hoy {
+  margin-top: 6px !important;
+
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+
+  color: #030303 !important;
+  font-size: 3rem !important;
+  font-weight: 1000 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+
+  text-align: center !important;
+}
+
+@media (max-width: 768px) {
+  .citas-fecha-hoy {
+    font-size: 1.45rem !important;
+    line-height: 1.15 !important;
+    letter-spacing: 0.5px !important;
+    margin-top: 4px !important;
+    padding: 0 10px !important;
+  }
+}
+
+
+.estado-listado-dia {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: fit-content;
+  margin-top: 6px;
+  padding: 4px 10px;
+
+  border-radius: 999px;
+
+  font-size: 0.68rem;
+  font-weight: 1000;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+/* Confirmada */
+.estado-listado-dia.estado-confirmado {
+  background: #00a83e !important;
+  color: hsl(0, 0%, 100%) !important;
+  border: 1px solid #00b341 !important;
+}
+
+/* Asistió */
+.estado-listado-dia.estado-asistio {
+  background: #00703c !important;
+  color: white !important;
+  border: 1px solid #00b35f !important;
+}
+
+/* Pendiente */
+.estado-listado-dia.estado-pendiente {
+  background: #ff0000 !important;
+  color: #ffffff !important;
+  border: 1px solid #ff0707 !important;
+}
+
+/* No asistió */
+.estado-listado-dia.estado-no-asistio {
+  background: #f8d7da !important;
+  color: #842029 !important;
+  border: 1px solid #dc3545 !important;
 }
 
 .buscador-citas-title {
@@ -2326,6 +2403,33 @@ margin-top: 5px;
   font-size: 17px;
 }
 
+.hora-estado-dia {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.hora-listado-dia {
+  font-size: 0.95rem;
+  font-weight: 1000;
+  color: #009aad;
+}
+
+@media (max-width: 768px) {
+  .estado-listado-dia {
+    font-size: 0.58rem !important;
+    padding: 3px 7px !important;
+  }
+
+  .hora-listado-dia {
+    font-size: 0.9rem !important;
+  }
+
+  .hora-estado-dia {
+    gap: 5px !important;
+  }
+}
 .buscador-citas-input {
   border-radius: 18px !important;
   padding: 13px 45px !important;
@@ -6987,6 +7091,7 @@ html, body, #root {
   background: rgb(9, 154, 173) !important;
   color: white !important;
 }
+
 
 /* ................ CITAS PANEL DOCTOR.......................*/
 
