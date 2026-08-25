@@ -25,14 +25,20 @@ import {
 } from "react-icons/fa";
 function Services() {
 
-  const [form, setForm] = useState({
-    nombre: "",
-    telefono: "",
-    Dni:"",
-    tipo: "presencial",
-    fecha: "",
-    hora: ""
-  });
+const [form, setForm] = useState({
+  nombre: "",
+  telefono: "",
+  Dni: "",
+
+  fechaNacimiento: "",
+  sexo: "",
+  obraSocial: "",
+  motivoConsulta: "",
+
+  tipo: "presencial",
+  fecha: "",
+  hora: ""
+});
 
   const [horariosDisponibles, setHorariosDisponibles] = useState([]);
   const [bloqueos, setBloqueos] = useState([]);
@@ -199,14 +205,14 @@ if (
 
 // 🟡 JUEVES (mañana)
 else if (diaSemana === "jueves") {
-    horariosBase =["09:30","13:20"];
+    horariosBase =["10:00","10:30","11:00"];
 }
 
 // 🔵 SÁBADO (solo virtual)
 else if (diaSemana === "sábado") {
   horariosBase = [
-    "10:00", "10:30",
-    "11:30", "12:30"
+    "10:00", "10:30","11:00",
+    "11:30", "12:00"
   ];
 }
     // 🔥 traer ocupados
@@ -290,8 +296,14 @@ useEffect(() => {
       setForm({
         nombre: "",
         telefono: "",
-        Dni:"",
-        tipo: "virtual",
+        Dni: "",
+
+        fechaNacimiento: "",
+        sexo: "",
+        obraSocial: "",
+        motivoConsulta: "",
+
+        tipo: "presencial",
         fecha: "",
         hora: ""
       });
@@ -550,6 +562,59 @@ const cerrarPreviewComprobantePaciente = () => {
     </div>
 
     <div className="col-md-6">
+  <label className="form-label fw-semibold">
+    🎂 Fecha de nacimiento
+  </label>
+
+  <input
+    type="date"
+    name="fechaNacimiento"
+    className="form-control"
+    required
+    value={form.fechaNacimiento}
+    onChange={handleChange}
+  />
+</div>
+
+<div className="col-md-6">
+  <select
+    name="sexo"
+    className="form-select"
+    required
+    value={form.sexo}
+    onChange={handleChange}
+  >
+    <option value="">Sexo</option>
+    <option value="Femenino">Femenino</option>
+    <option value="Masculino">Masculino</option>
+    <option value="Otro">Otro</option>
+  </select>
+</div>
+
+<div className="col-md-6">
+  <input
+    type="text"
+    name="obraSocial"
+    placeholder="Obra social / Prepaga / Particular"
+    className="form-control"
+    value={form.obraSocial}
+    onChange={handleChange}
+  />
+</div>
+
+<div className="col-12">
+  <textarea
+    name="motivoConsulta"
+    placeholder="Motivo de consulta"
+    className="form-control"
+    rows="3"
+    required
+    value={form.motivoConsulta}
+    onChange={handleChange}
+  />
+</div>
+
+    <div className="col-md-6">
 
       <select
         name="tipo"
@@ -688,6 +753,12 @@ const cerrarPreviewComprobantePaciente = () => {
           nombre: "",
           telefono: "",
           Dni: "",
+
+          fechaNacimiento: "",
+          sexo: "",
+          obraSocial: "",
+          motivoConsulta: "",
+
           tipo: "presencial",
           fecha: "",
           hora: ""
