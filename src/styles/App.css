@@ -7533,6 +7533,53 @@ html, body, #root {
   color: white !important;
 }
 
+/* DATOS CARGADOS EN NUEVO PACIENTE EN NEGRITA */
+.historias-form-card input,
+.historias-form-card select,
+.historias-form-card textarea,
+.historias-form-card .form-control,
+.historias-form-card .form-select {
+  font-weight: 900 !important;
+  color: #111 !important;
+}
+
+/*fecha en historia clinica  */
+.historias-fecha-hoy {
+  margin-top: 4px !important;
+  margin-bottom: 8px !important;
+  margin-left:65px !important;
+
+  color: #000 !important;
+  font-size: 1.6rem !important;
+  font-weight: 1000 !important;
+
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  line-height: 1.1 !important;
+}
+
+@media (max-width: 768px) {
+  .historias-fecha-hoy {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+
+    width: 100% !important;
+    display: block !important;
+
+    text-align: center !important;
+    font-size: 1.35rem !important;
+    line-height: 1.15 !important;
+    letter-spacing: 0.5px !important;
+  }
+
+  .historias-hero-text {
+    text-align: center !important;
+  }
+
+  .subtitle-general {
+    text-align: center !important;
+  }
+}
 /* =========================================================
    BLOQUEO DE HORA INDIVIDUAL
 ========================================================= */

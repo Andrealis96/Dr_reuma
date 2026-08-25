@@ -562,6 +562,17 @@ const cargarPacienteDesdeCitaHoy = (cita) => {
   }, 100);
 };
 
+const fechaHoyHistoriasTexto = new Date()
+  .toLocaleDateString("es-AR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  })
+  .replace(",", "")
+  .replace(/^./, (letra) => letra.toUpperCase());
+
+
   return (
     <div className="container historias-modern-container py-4 mb-5">
       {mostrarConfirmacion && (
@@ -590,15 +601,19 @@ const cargarPacienteDesdeCitaHoy = (cita) => {
             {editando ? (
               <>
                 <span className="subtitle-celeste">EDITAR</span>{" "}
-                <span className="subtitle-negro">PACIENTE</span>
+                <span className="subtitle-celeste">PACIENTE</span>
               </>
             ) : (
               <>
                 <span className="subtitle-celeste">HISTORIAS</span>{" "}
-                <span className="subtitle-negro">CLÍNICAS</span>
+                <span className="subtitle-celeste">CLÍNICAS</span>
               </>
             )}
           </h2>
+
+          <div className="historias-fecha-hoy mb-2">
+            {fechaHoyHistoriasTexto.toUpperCase()}
+          </div>
 
           <p className="historias-hero-text">
             Registro de pacientes, búsqueda rápida y acceso directo a la historia clínica.
