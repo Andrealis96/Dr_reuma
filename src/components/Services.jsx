@@ -253,6 +253,29 @@ useEffect(() => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const camposObligatorios = [
+    "nombre",
+    "telefono",
+    "Dni",
+    "fechaNacimiento",
+    "sexo",
+    "obraSocial",
+    "motivoConsulta",
+    "tipo",
+    "fecha",
+    "hora"
+  ];
+
+  const hayCamposVacios = camposObligatorios.some(
+    (campo) => !form[campo]?.toString().trim()
+  );
+
+  if (hayCamposVacios) {
+    alert("Por favor completa todos los campos obligatorios.");
+    return;
+  }
+
+
     if (!form.hora) {
       alert("Selecciona un horario");
       return;
@@ -595,8 +618,9 @@ const cerrarPreviewComprobantePaciente = () => {
   <input
     type="text"
     name="obraSocial"
-    placeholder="Obra social / Prepaga / Particular"
+    placeholder="Escribir nombre de obra social"
     className="form-control"
+    required
     value={form.obraSocial}
     onChange={handleChange}
   />
