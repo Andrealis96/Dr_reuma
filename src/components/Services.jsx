@@ -968,7 +968,7 @@ const cerrarPreviewComprobantePaciente = () => {
           <div className="col-12 col-md-6">
             <ServiceCard 
               icon={<FaVideo />}
-              title="CONSULTA POR VIDEOLLAMADA $25.000" 
+              title="CONSULTA POR VIDEOLLAMADA $30.000" 
               message="Hola Dr. Reuma, vengo desde la página web. Quisiera solicitar una consulta por videollamada."
               description="Consulta reumatológica online por videollamada para pacientes de Argentina, Ecuador y Estados Unidos desde la comodidad de su hogar."
 
@@ -1026,7 +1026,7 @@ const cerrarPreviewComprobantePaciente = () => {
             <div className="">
             <ServiceCard 
             icon={<FaClinicMedical />}
-            title="CONSULTA PRESENCIAL - NEUQUÉN  $50.000" 
+            title="CONSULTA PRESENCIAL - NEUQUÉN  $60.000" 
             description="
             Atención reumatológica presencial en Neuquén Capital, ubicados en la  
             Clínica San Agustín en Neuquén (Consultorios Externos - San Martín 1355)." 

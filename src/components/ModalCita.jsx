@@ -4,13 +4,17 @@ import { useEffect, useState } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
 import {
-  FaSearch, 
-  FaUserCheck,
   FaUser,
-  FaIdCard,
-  FaCalendarAlt,
+  FaUserCheck,
   FaWhatsapp,
+  FaIdCard,
+  FaBirthdayCake,
+  FaShieldAlt,
+  FaVenusMars,
+  FaStethoscope,
+  FaCalendarAlt,
   FaClock,
+  FaSearch,
   FaLaptopMedical
 } from "react-icons/fa";
 
@@ -232,7 +236,7 @@ const seleccionarPacientePrevio = (cita) => {
 };
 
   return (
-    <Modal show={show} onHide={onHide} centered>
+    <Modal show={show} onHide={onHide} centered className="modal-cita-form">
 
       <Modal.Header className="cabecera-detallecita" closeButton>
         <Modal.Title>
@@ -250,7 +254,7 @@ const seleccionarPacientePrevio = (cita) => {
       <input
         type="text"
         className="form-control"
-        placeholder="Buscar nombre de paciente ya registrado.."
+        placeholder="DNI O NOMBRE YA REGISTRADO ANTES...."
         value={busquedaPacienteModal}
         onChange={(e) => setBusquedaPacienteModal(e.target.value)}
       />
@@ -342,7 +346,7 @@ const seleccionarPacientePrevio = (cita) => {
 
         <InputGroup className="mb-2">
           <InputGroup.Text>
-            🎂
+            <FaBirthdayCake  className="celeste"/>
           </InputGroup.Text>
 
           <Form.Control
@@ -354,7 +358,7 @@ const seleccionarPacientePrevio = (cita) => {
 
         <InputGroup className="mb-2">
           <InputGroup.Text>
-            🛡️
+            <FaShieldAlt  className="celeste"/>
           </InputGroup.Text>
 
           <Form.Control
@@ -366,7 +370,7 @@ const seleccionarPacientePrevio = (cita) => {
 
         <InputGroup className="mb-2">
           <InputGroup.Text>
-            ⚧️
+            <FaVenusMars className="celeste"/>
           </InputGroup.Text>
 
           <Form.Select
@@ -381,7 +385,7 @@ const seleccionarPacientePrevio = (cita) => {
 
         <InputGroup className="mb-2">
           <InputGroup.Text>
-            📝
+            <FaStethoscope className="celeste"/>
           </InputGroup.Text>
 
           <Form.Control

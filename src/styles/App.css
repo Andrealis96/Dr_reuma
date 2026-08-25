@@ -2542,6 +2542,69 @@ margin-top: 5px;
   color: #777;
   font-weight: 800;
 }
+
+/*modal editar citas agenda*/
+/* MODAL EDITAR CITA - MISMA ARMONÍA QUE DETALLE */
+.modal-cita-form .input-group {
+  margin-bottom: 11px;
+  border-radius: 13px;
+  overflow: hidden;
+  border: 1px solid rgba(9, 154, 173, 0.22);
+  background: white;
+}
+
+.modal-cita-form .input-group-text {
+  width: 44px;
+  justify-content: center;
+
+  background: rgba(9, 154, 173, 0.08) !important;
+  color: #009aad !important;
+
+  border: none !important;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.modal-cita-form .form-control,
+.modal-cita-form .form-select {
+  border: none !important;
+  box-shadow: none !important;
+
+  min-height: 46px;
+  font-weight: 600;
+  color: #222;
+}
+
+.modal-cita-form textarea.form-control {
+  min-height: 52px;
+  resize: vertical;
+}
+
+.modal-cita-form .form-control:focus,
+.modal-cita-form .form-select:focus {
+  box-shadow: 0 0 0 3px rgba(9, 154, 173, 0.13) !important;
+}
+
+.modal-cita-form .modal-body {
+  background: #f8fdff;
+}
+
+.modal-cita-form .modal-header {
+  background: #0a9aad !important;
+  color: white !important;
+  border-bottom: none !important;
+}
+
+.modal-cita-form .modal-title {
+  color: white !important;
+  font-weight: 1000 !important;
+  text-transform: uppercase;
+}
+
+.modal-cita-form .btn-close {
+  filter: invert(1);
+}
+
 /* =========================================================
    MOBILE - CITA AGENDADA MÁS COMPACTA
 ========================================================= */
@@ -7333,7 +7396,7 @@ html, body, #root {
 
 .modal-paciente-label {
   display: block;
-  color: rgb(9, 154, 173);
+  color: rgb(255, 255, 255);
   font-size: 0.78rem;
   font-weight: 1000;
   text-transform: uppercase;
@@ -7344,28 +7407,34 @@ html, body, #root {
   position: relative;
   display: flex;
   align-items: center;
+  color: rgb(255, 255, 255);
 }
 
+/* icono de lupa */
 .modal-paciente-search svg {
   position: absolute;
   left: 13px;
-  color: rgb(9, 154, 173);
+  color: rgb(255, 255, 255);
+  font-size: 20px;
   z-index: 2;
 }
-
+/*fondo  del input */
 .modal-paciente-search input {
   padding-left: 40px !important;
   padding-right: 38px !important;
   border-radius: 14px !important;
   font-weight: 700;
+  background-color: #006d77 !important;
+  color: rgb(255, 255, 255) !important;
+  border: 1px solid rgba(255, 255, 255, 0 );
 }
-
+/* x */
 .modal-paciente-search button {
   position: absolute;
   right: 10px;
   border: none;
   background: transparent;
-  color: #777;
+  color: rgb(255, 255, 255);
   font-size: 22px;
   font-weight: 900;
 }
