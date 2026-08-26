@@ -63,6 +63,15 @@ function HistoriasClinicas() {
   const [ultimaConsultaFechaPorPaciente, setUltimaConsultaFechaPorPaciente] = useState({});
   const [cantidadConsultasPorPaciente, setCantidadConsultasPorPaciente] = useState({}); 
   const [pagina, setPagina] = useState(1);
+  const [fechaTablaAgenda, setFechaTablaAgenda] = useState(() => {
+  const hoy = new Date();
+
+  const anio = hoy.getFullYear();
+  const mes = String(hoy.getMonth() + 1).padStart(2, "0");
+  const dia = String(hoy.getDate()).padStart(2, "0");
+
+  return `${anio}-${mes}-${dia}`;
+});
   const pacientesPorPagina = 6;
 
   const [editando, setEditando] = useState(null);
@@ -544,8 +553,52 @@ const textoNumeroCitaPacienteAgenda = (numero) => {
   return `${numero}ª vez`;
 };
 
+const fechaISODesdeDate = (fecha) => {
+  const anio = fecha.getFullYear();
+  const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+  const dia = String(fecha.getDate()).padStart(2, "0");
+
+  return `${anio}-${mes}-${dia}`;
+};
+
+const convertirISOADateLocal = (fechaISO) => {
+  const [anio, mes, dia] = fechaISO.split("-").map(Number);
+  return new Date(anio, mes - 1, dia);
+};
+
+const cambiarDiaTablaAgenda = (dias) => {
+  const fechaActual = convertirISOADateLocal(fechaTablaAgenda);
+  fechaActual.setDate(fechaActual.getDate() + dias);
+
+  setFechaTablaAgenda(fechaISODesdeDate(fechaActual));
+  setCitaHoySeleccionadaId(null);
+};
+
+const irAHoyTablaAgenda = () => {
+  setFechaTablaAgenda(obtenerFechaHoyLocal());
+  setCitaHoySeleccionadaId(null);
+};
+
+const formatearFechaTablaAgenda = (fechaISO) => {
+  return convertirISOADateLocal(fechaISO)
+    .toLocaleDateString("es-AR", {
+      weekday: "long",
+      day: "numeric",
+      month: "numeric",
+      year: "numeric"
+    })
+    .replace(",", "")
+    .replace(/^./, (letra) => letra.toUpperCase());
+};
+
+const esTablaDeHoy = fechaTablaAgenda === obtenerFechaHoyLocal();
+
+const tituloTablaAgenda = esTablaDeHoy
+  ? "PACIENTES DE HOY"
+  : `PACIENTES DEL ${formatearFechaTablaAgenda(fechaTablaAgenda).toUpperCase()}`;
+
 const citasHoyAgenda = citasAgenda
-  .filter((c) => c.fecha === obtenerFechaHoyLocal())
+  .filter((c) => c.fecha === fechaTablaAgenda)
   .sort((a, b) => (a.hora || "").localeCompare(b.hora || ""));
 
 const buscarPacienteGuardadoPorCita = (cita) => {
@@ -672,17 +725,47 @@ const fechaHoyHistoriasTexto = new Date()
       {/* TABLA PACIENTES DE HOY DESDE AGENDA */}
 <div className="card shadow-sm mb-4 historias-tabla-hoy-card">
 
-  <div className="card-header text-center text-white fw-bold">
+<div className="card-header text-center text-white fw-bold pacientes-dia-header">
+  <button
+    type="button"
+    className="pacientes-dia-nav-btn"
+    onClick={() => cambiarDiaTablaAgenda(-1)}
+    title="Ver día anterior"
+  >
+    <FaChevronLeft />
+  </button>
+
+  <div className="pacientes-dia-title">
     <h3 className="mb-0">
-      PACIENTES DE HOY
+      {tituloTablaAgenda}
     </h3>
+
+    {!esTablaDeHoy && (
+      <button
+        type="button"
+        className="pacientes-dia-hoy-btn"
+        onClick={irAHoyTablaAgenda}
+      >
+        Volver a hoy
+      </button>
+    )}
   </div>
+
+  <button
+    type="button"
+    className="pacientes-dia-nav-btn"
+    onClick={() => cambiarDiaTablaAgenda(1)}
+    title="Ver día siguiente"
+  >
+    <FaChevronRight />
+  </button>
+</div>
 
   <div className="card-body p-0 table-responsive">
 
     {citasHoyAgenda.length === 0 ? (
       <div className="p-3 text-center fw-bold">
-        No hay citas programadas para hoy
+        No hay citas programadas para esta fecha
       </div>
     ) : (
       <table className="table table-sm mb-0 tabla-pacientes-hoy">

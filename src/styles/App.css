@@ -7886,6 +7886,94 @@ html, body, #root {
   box-shadow: 0 14px 28px rgba(9, 154, 173, 0.35) !important;
 }
 
+/* tabla pacientes historia clinica */
+/* NAVEGACIÓN TABLA PACIENTES POR DÍA */
+.pacientes-dia-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+  padding: 14px 18px !important;
+}
+
+.pacientes-dia-title {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+}
+
+.pacientes-dia-title h3 {
+  font-size: 1.55rem !important;
+  font-weight: 1000 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.pacientes-dia-nav-btn {
+  width: 42px !important;
+  height: 42px !important;
+
+  border: none !important;
+  border-radius: 14px !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  background: rgba(255, 255, 255, 0.22) !important;
+  color: white !important;
+
+  font-size: 1.1rem !important;
+  font-weight: 1000 !important;
+
+  cursor: pointer !important;
+  transition: 0.2s ease !important;
+}
+
+.pacientes-dia-nav-btn:hover {
+  background: white !important;
+  color: #009aad !important;
+  transform: translateY(-1px) !important;
+}
+
+.pacientes-dia-hoy-btn {
+  border: none !important;
+  background: white !important;
+  color: #007c89 !important;
+
+  border-radius: 999px !important;
+  padding: 5px 12px !important;
+
+  font-size: 0.72rem !important;
+  font-weight: 1000 !important;
+  text-transform: uppercase !important;
+}
+
+@media (max-width: 768px) {
+  .pacientes-dia-header {
+    gap: 8px !important;
+    padding: 12px 10px !important;
+  }
+
+  .pacientes-dia-title h3 {
+    font-size: 1.05rem !important;
+    line-height: 1.15 !important;
+  }
+
+  .pacientes-dia-nav-btn {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 12px !important;
+  }
+
+  .pacientes-dia-hoy-btn {
+    font-size: 0.66rem !important;
+    padding: 4px 10px !important;
+  }
+}
+
 /* =========================================================
    BLOQUEO DE HORA INDIVIDUAL
 ========================================================= */

@@ -60,6 +60,16 @@ function Citas() {
   const [showModal, setShowModal] = useState(false);
   const [citaEditar, setCitaEditar] = useState(null);
 
+  const [fechaTablaCitas, setFechaTablaCitas] = useState(() => {
+  const hoy = new Date();
+
+  const anio = hoy.getFullYear();
+  const mes = String(hoy.getMonth() + 1).padStart(2, "0");
+  const dia = String(hoy.getDate()).padStart(2, "0");
+
+  return `${anio}-${mes}-${dia}`;
+});
+
   const [mostrarCitaGuardada, setMostrarCitaGuardada] = useState(false);
   const [mensajeCitaGuardada, setMensajeCitaGuardada] = useState("CITA AGENDADA");
   const [mostrarConfirmacionEstado, setMostrarConfirmacionEstado] = useState(false);
@@ -355,11 +365,51 @@ const agendaDelDia = [
   }))
 ].sort((a, b) => a.hora.localeCompare(b.hora));
 
-  const hoy = new Date().toISOString().split("T")[0];
+const fechaISODesdeDate = (fecha) => {
+  const anio = fecha.getFullYear();
+  const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+  const dia = String(fecha.getDate()).padStart(2, "0");
 
-  const pacientesHoy = citasDB
-    .filter(c => c.fecha === hoy)
-    .sort((a, b) => a.hora.localeCompare(b.hora));
+  return `${anio}-${mes}-${dia}`;
+};
+
+const convertirISOADateLocal = (fechaISO) => {
+  const [anio, mes, dia] = fechaISO.split("-").map(Number);
+  return new Date(anio, mes - 1, dia);
+};
+
+const cambiarDiaTablaCitas = (dias) => {
+  const fechaActual = convertirISOADateLocal(fechaTablaCitas);
+  fechaActual.setDate(fechaActual.getDate() + dias);
+
+  setFechaTablaCitas(fechaISODesdeDate(fechaActual));
+};
+
+const irAHoyTablaCitas = () => {
+  setFechaTablaCitas(fechaISODesdeDate(new Date()));
+};
+
+const formatearFechaTablaCitas = (fechaISO) => {
+  return convertirISOADateLocal(fechaISO)
+    .toLocaleDateString("es-AR", {
+      weekday: "long",
+      day: "numeric",
+      month: "numeric",
+      year: "numeric"
+    })
+    .replace(",", "")
+    .replace(/^./, (letra) => letra.toUpperCase());
+};
+
+const esTablaCitasDeHoy = fechaTablaCitas === fechaISODesdeDate(new Date());
+
+const tituloTablaCitas = esTablaCitasDeHoy
+  ? "PACIENTES DE HOY"
+  : `PACIENTES DEL ${formatearFechaTablaCitas(fechaTablaCitas).toUpperCase()}`;
+
+const pacientesHoy = citasDB
+  .filter((c) => c.fecha === fechaTablaCitas)
+  .sort((a, b) => (a.hora || "").localeCompare(b.hora || ""));
 
   const citasHoy = pacientesHoy.length;
 
@@ -1167,9 +1217,41 @@ return (
       {/* TABLA DE HOY (LA TUYA ORIGINAL) */}
       <div className="card shadow-sm mb-4">
         <div className="card-header  text-center text-white fw-bold">
-          <h3>  
-            PACIENTES DE HOY
-          </h3>
+          <div className="card-header text-center text-white fw-bold pacientes-dia-header">
+  <button
+    type="button"
+    className="pacientes-dia-nav-btn"
+    onClick={() => cambiarDiaTablaCitas(-1)}
+    title="Ver día anterior"
+  >
+    <FaChevronLeft />
+  </button>
+
+  <div className="pacientes-dia-title">
+    <h3 className="mb-0">
+      {tituloTablaCitas}
+    </h3>
+
+    {!esTablaCitasDeHoy && (
+      <button
+        type="button"
+        className="pacientes-dia-hoy-btn"
+        onClick={irAHoyTablaCitas}
+      >
+        Volver a hoy
+      </button>
+    )}
+  </div>
+
+  <button
+    type="button"
+    className="pacientes-dia-nav-btn"
+    onClick={() => cambiarDiaTablaCitas(1)}
+    title="Ver día siguiente"
+  >
+    <FaChevronRight />
+  </button>
+</div>
         </div>
 
         <div className="card-body p-0 table-responsive">
