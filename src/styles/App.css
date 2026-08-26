@@ -7974,6 +7974,50 @@ html, body, #root {
   }
 }
 
+/* TÍTULO PACIENTES DE HOY COMO BOTÓN */
+.pacientes-dia-title-btn {
+  border: 2px solid rgba(255, 255, 255, 0.75) !important;
+  background: rgba(255, 255, 255, 0.18) !important;
+  color: white !important;
+
+  border-radius: 999px !important;
+  padding: 10px 24px !important;
+
+  font-size: 1.45rem !important;
+  font-weight: 1000 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.6px !important;
+  line-height: 1.1 !important;
+
+  cursor: pointer !important;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.16) !important;
+  transition: 0.2s ease !important;
+}
+
+.pacientes-dia-title-btn:hover {
+  background: white !important;
+  color: #009aad !important;
+  transform: translateY(-2px) scale(1.02) !important;
+}
+
+@media (max-width: 768px) {
+  .pacientes-dia-title-btn {
+    font-size: 0.95rem !important;
+    padding: 8px 14px !important;
+    line-height: 1.15 !important;
+  }
+}
+
+
+.fila-cita-clickable {
+  cursor: pointer !important;
+  transition: 0.18s ease !important;
+}
+
+.fila-cita-clickable:hover {
+  background: rgb(9, 154, 173, 0.08) !important;
+    transform: scale(1.003);
+}
 /* =========================================================
    BLOQUEO DE HORA INDIVIDUAL
 ========================================================= */

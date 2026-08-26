@@ -1010,7 +1010,7 @@ const abrirWhatsappCita = (cita, usarNueve = true, tipoMensaje = "recordatorio")
 
   if (tipoMensaje === "recordatorio") {
     texto =
-      `Hola ${capitalizarNombre(cita.nombre || "")}, te recordamos tu cita con Dr. Reuma.\n\n` +
+      `Hola ${capitalizarNombre(cita.nombre || "")}, te recordamos tu cita con el Dr. Tony Velez (Reumatologo). Por favor, responde a este mensaje si confirmas tu asistencia o si necesitas reprogramar.\n` +
       `Fecha: ${formatearFechaComprobante(cita.fecha)}\n` +
       `Hora: ${cita.hora} hs\n` +
       `Lugar: ${obtenerLugarCita(cita)}\n\n` +
@@ -1105,6 +1105,19 @@ const fechaHoyAgendaTexto = new Date()
   })
   .replace(",", "")
   .replace(/^./, (letra) => letra.toUpperCase());
+
+const irAListadoDelDiaTabla = () => {
+  setDiaSeleccionado(fechaTablaCitas);
+
+  setTimeout(() => {
+    detalleDiaRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }, 250);
+};
+
+
 
 return (
 
@@ -1227,21 +1240,16 @@ return (
     <FaChevronLeft />
   </button>
 
-  <div className="pacientes-dia-title">
-    <h3 className="mb-0">
-      {tituloTablaCitas}
-    </h3>
-
-    {!esTablaCitasDeHoy && (
-      <button
-        type="button"
-        className="pacientes-dia-hoy-btn"
-        onClick={irAHoyTablaCitas}
-      >
-        Volver a hoy
-      </button>
-    )}
-  </div>
+<div className="pacientes-dia-title">
+  <button
+    type="button"
+    className="pacientes-dia-title-btn"
+    onClick={irAListadoDelDiaTabla}
+    title="Ir al listado de este día"
+  >
+    {tituloTablaCitas}
+  </button>
+</div>
 
   <button
     type="button"
@@ -1317,7 +1325,12 @@ return (
 
               <tbody className="text-center">
                 {pacientesHoy.map(c => (
-                  <tr key={c.id}>
+                    <tr
+                      key={c.id}
+                      className="fila-cita-clickable"
+                      onClick={() => abrirDetalle(c)}
+                      title="Ver detalle de la cita"
+                    >
                     <td>
                       {c.sinAgenda ? (
                         <span className="hora-sin-agenda">
@@ -1335,7 +1348,10 @@ return (
                         <button
                           type="button"
                           className="btn-whatsapp-tabla"
-                          onClick={() => abrirWhatsappCita(c, true, "recordatorio")}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            abrirWhatsappCita(c, true, "recordatorio");
+                          }}
                           title="Enviar recordatorio por WhatsApp Business"
                         >
                           <FaWhatsapp />
@@ -1847,6 +1863,17 @@ eventClick={(info) => {
 ) : (
 horariosDisponibles.map(h => {
   const bloqueada = horaEstaBloqueada(diaSeleccionado, h);
+
+const irAListadoDelDiaTabla = () => {
+  setDiaSeleccionado(fechaTablaCitas);
+
+  setTimeout(() => {
+    detalleDiaRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }, 150);
+};
 
   return (
     <div key={h} className="horario-admin-slot">
