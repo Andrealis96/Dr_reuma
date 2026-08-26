@@ -376,10 +376,12 @@ const crearPaciente = async (e) => {
     setObraSocial(p.obraSocial || "");
     setSexo(p.sexo || "");
 
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
+    setTimeout(() => {
+  nuevoPacienteRef.current?.scrollIntoView({
+    behavior: "smooth",
+    block: "center"
+  });
+}, 100);
   };
 
   const guardarEdicion = async (e) => {
