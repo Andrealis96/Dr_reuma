@@ -121,49 +121,76 @@ const capitalizarNombre = (nombre = "") => {
     .join(" ");
 };
 
-const convertirFechaConsulta = (fecha) => {
-  if (!fecha) return null;
+const convertirFechaFlexible = (valor, hora = "") => {
+  if (!valor) return null;
 
-  const partes = fecha.split("/");
+  let fecha = null;
 
-  if (partes.length !== 3) return null;
-
-  const [dia, mes, anio] = partes;
-
-  return new Date(`${anio}-${mes}-${dia}T00:00:00`);
-};
-
-const obtenerFechaHoraConsulta = (data) => {
-  let fechaDate = null;
-  let hora = data.hora || "";
-
-  if (data.creado?.toDate) {
-    fechaDate = data.creado.toDate();
-
-    if (!hora) {
-      hora = fechaDate.toLocaleTimeString("es-AR", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false
-      });
-    }
-  } else if (data.creado instanceof Date) {
-    fechaDate = data.creado;
-
-    if (!hora) {
-      hora = fechaDate.toLocaleTimeString("es-AR", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false
-      });
-    }
-  } else {
-    fechaDate = convertirFechaConsulta(data.fecha);
+  // Firestore Timestamp
+  if (valor?.toDate) {
+    fecha = valor.toDate();
   }
 
+  // Date normal
+  else if (valor instanceof Date) {
+    fecha = valor;
+  }
+
+  // Texto: 26/8/2026 o 26/08/2026 o 2026-08-26
+  else if (typeof valor === "string") {
+    const limpio = valor.trim();
+
+    if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(limpio)) {
+      const [anio, mes, dia] = limpio.split("-").map(Number);
+      fecha = new Date(anio, mes - 1, dia);
+    } else if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(limpio)) {
+      const [dia, mes, anio] = limpio.split("/").map(Number);
+      fecha = new Date(anio, mes - 1, dia);
+    } else {
+      const fechaTemporal = new Date(limpio);
+
+      if (!isNaN(fechaTemporal.getTime())) {
+        fecha = fechaTemporal;
+      }
+    }
+  }
+
+  if (!fecha || isNaN(fecha.getTime())) return null;
+
+  const horaLimpia = hora?.toString().trim();
+  const matchHora = horaLimpia.match(/^(\d{1,2}):(\d{2})/);
+
+  if (matchHora) {
+    fecha.setHours(Number(matchHora[1]), Number(matchHora[2]), 0, 0);
+  } else {
+    fecha.setHours(12, 0, 0, 0);
+  }
+
+  return fecha;
+};
+
+const formatearFechaCorta = (fecha) => {
+  return fecha
+    .toLocaleDateString("es-AR", {
+      weekday: "long",
+      day: "numeric",
+      month: "numeric",
+      year: "numeric"
+    })
+    .replace(",", "")
+    .replace(/^./, (letra) => letra.toUpperCase());
+};
+
+const obtenerFechaHoraConsulta = (consulta) => {
+  const fechaDate =
+    convertirFechaFlexible(consulta.fecha, consulta.hora) ||
+    convertirFechaFlexible(consulta.fechaConsulta, consulta.hora) ||
+    convertirFechaFlexible(consulta.creado, consulta.hora) ||
+    convertirFechaFlexible(consulta.createdAt, consulta.hora);
+
   return {
-    fecha: data.fecha || "",
-    hora,
+    fecha: fechaDate ? formatearFechaCorta(fechaDate) : "Sin fecha",
+    hora: consulta.hora || "",
     fechaDate
   };
 };
@@ -1007,8 +1034,38 @@ const fechaHoyHistoriasTexto = new Date()
   </div>
 )}
 
-      {/* LISTADO */}
-      {pacientesPagina.length === 0 ? (
+{(busqueda || filtroDiagnostico || filtroSexo) && (
+  <div className="historias-filter-info mb-3">
+    Mostrando <strong>{pacientesFiltrados.length}</strong> resultado(s)
+    {filtroDiagnostico && (
+      <>
+        {" "}con diagnóstico relacionado a{" "}
+        <strong>{filtroDiagnostico.toUpperCase()}</strong>
+      </>
+    )}
+
+    {filtroSexo && (
+      <>
+        {" "}y sexo{" "}
+        <strong>{filtroSexo.toUpperCase()}</strong>
+      </>
+    )}
+  </div>
+)}
+
+{/* TÍTULO LISTADO DE PACIENTES */}
+<div className="historias-listado-header">
+  <h3>
+    <span>PACIENTES</span> REGISTRADOS
+  </h3>
+
+  <p>
+    Historias clínicas guardadas en el sistema.
+  </p>
+</div>
+
+{/* LISTADO */}
+{pacientesPagina.length === 0 ? (
         <div className="historias-empty">
           <FaSearch />
           <h5>No se encontraron pacientes</h5>

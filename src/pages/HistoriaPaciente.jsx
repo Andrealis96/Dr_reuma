@@ -43,6 +43,9 @@ const citaIdAgenda = searchParams.get("citaId");
   const [consultas, setConsultas] = useState([]);
   const [diagnosticos, setDiagnosticos] = useState([]);
 
+  const inicioAtencionRef = useRef(new Date());
+  const [segundosAtencion, setSegundosAtencion] = useState(0);
+
   const [diagnosticosSeleccionados, setDiagnosticosSeleccionados] = useState([]);
   const [busquedaDiagnostico, setBusquedaDiagnostico] = useState("");
   const [historia, setHistoria] = useState("");
@@ -52,6 +55,7 @@ const citaIdAgenda = searchParams.get("citaId");
   
   const [diagnosticoRecienteId, setDiagnosticoRecienteId] = useState(null);
   const diagnosticosBoxRef = useRef(null);
+  const consultasRegistradasRef = useRef(null);
 
   const [consultaAbierta, setConsultaAbierta] = useState(null);
   const [mostrarModal, setMostrarModal] = useState(false);
@@ -756,6 +760,100 @@ const diagnosticosAgrupados = diagnosticosFiltrados.reduce((grupos, d, index) =>
   return grupos;
 }, {});
 
+const formatearFechaHoraConsultaPaciente = (consulta) => {
+  const convertirFecha = (valor) => {
+    if (!valor) return null;
+
+    if (valor?.toDate) return valor.toDate();
+
+    if (valor instanceof Date) return valor;
+
+    if (typeof valor === "string") {
+      const limpio = valor.trim();
+
+      if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(limpio)) {
+        const [anio, mes, dia] = limpio.split("-").map(Number);
+        return new Date(anio, mes - 1, dia);
+      }
+
+      if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(limpio)) {
+        const [dia, mes, anio] = limpio.split("/").map(Number);
+        return new Date(anio, mes - 1, dia);
+      }
+    }
+
+    return null;
+  };
+
+  const fechaDate =
+    convertirFecha(consulta.fecha) ||
+    convertirFecha(consulta.fechaConsulta) ||
+    convertirFecha(consulta.creado) ||
+    convertirFecha(consulta.createdAt);
+
+  if (!fechaDate) return consulta.fecha || "Sin fecha";
+
+  const fechaTexto = fechaDate
+    .toLocaleDateString("es-AR", {
+      weekday: "long",
+      day: "numeric",
+      month: "numeric",
+      year: "numeric"
+    })
+    .replace(",", "")
+    .replace(/^./, (letra) => letra.toUpperCase());
+
+  const horaTexto = consulta.hora ? ` - ${consulta.hora} hs` : "";
+
+  return `${fechaTexto}${horaTexto}`.toUpperCase();
+};
+
+const fechaHoyHistoriaPacienteTexto = new Date()
+  .toLocaleDateString("es-AR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  })
+  .replace(",", "")
+  .replace(/^./, (letra) => letra.toUpperCase());
+
+
+  useEffect(() => {
+  const intervalo = setInterval(() => {
+    const segundos = Math.floor(
+      (new Date() - inicioAtencionRef.current) / 1000
+    );
+
+    setSegundosAtencion(segundos);
+  }, 1000);
+
+  return () => clearInterval(intervalo);
+}, []);
+
+const formatearTiempoAtencion = (segundos) => {
+  const horas = Math.floor(segundos / 3600);
+  const minutos = Math.floor((segundos % 3600) / 60);
+  const seg = segundos % 60;
+
+  return `${String(horas).padStart(2, "0")}:${String(minutos).padStart(
+    2,
+    "0"
+  )}:${String(seg).padStart(2, "0")}`;
+};
+
+const reiniciarContadorAtencion = () => {
+  inicioAtencionRef.current = new Date();
+  setSegundosAtencion(0);
+};
+
+const irAConsultasRegistradas = () => {
+  consultasRegistradasRef.current?.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+};
+
   return (
     <div className="historia-paciente-page">
 
@@ -791,8 +889,12 @@ const diagnosticosAgrupados = diagnosticosFiltrados.reduce((grupos, d, index) =>
 
               <h2 className="subtitle-general text-start mb-2">
                 <span className="subtitle-celeste">HISTORIA CLÍNICA</span>{" "}
-                <span className="subtitle-negro">DEL PACIENTE</span>
+                <span className="subtitle-celeste">DEL PACIENTE</span>
               </h2>
+
+              <div className="historia-paciente-fecha-hoy">
+                {fechaHoyHistoriaPacienteTexto.toUpperCase()}
+              </div>
 
               <p className="historia-paciente-subtitle">
                 Registro evolutivo, plantillas médicas, diagnósticos y generación de PDF.
@@ -817,10 +919,15 @@ const diagnosticosAgrupados = diagnosticosFiltrados.reduce((grupos, d, index) =>
     Historias clínicas
   </Link>
 
-  <div className="historia-paciente-count">
+  <button
+    type="button"
+    className="historia-paciente-count historia-paciente-count-btn"
+    onClick={irAConsultasRegistradas}
+    title="Ver consultas registradas"
+  >
     <strong>{consultas.length}</strong>
     <span>Consultas</span>
-  </div>
+  </button>
 
 </div>
 
@@ -1059,11 +1166,27 @@ const diagnosticosAgrupados = diagnosticosFiltrados.reduce((grupos, d, index) =>
 
                 <div className="historia-editor-card">
 
-                  <div className="historia-editor-header">
+                  <div className="historia-editor-header historia-editor-header-con-tiempo">
                     <div>
                       <h5>Historia clínica</h5>
                       <p>
+                        Escribe la evolución médica del paciente.
                       </p>
+                    </div>
+
+                    <div className="historia-tiempo-atencion historia-tiempo-editor">
+                      <span>Tiempo con paciente</span>
+
+                      <strong>
+                        {formatearTiempoAtencion(segundosAtencion)}
+                      </strong>
+
+                      <button
+                        type="button"
+                        onClick={reiniciarContadorAtencion}
+                      >
+                        Reiniciar
+                      </button>
                     </div>
                   </div>
 
@@ -1084,8 +1207,10 @@ const diagnosticosAgrupados = diagnosticosFiltrados.reduce((grupos, d, index) =>
           </form>
 
           {/* CONSULTAS REGISTRADAS */}
-          <div className="historia-consultas-section mt-5">
-
+          <div
+            ref={consultasRegistradasRef}
+            className="historia-consultas-section mt-5"
+          >
             <div className="historia-consultas-header mb-3">
               <div>
                 <h4>
@@ -1124,7 +1249,9 @@ const diagnosticosAgrupados = diagnosticosFiltrados.reduce((grupos, d, index) =>
                   >
 
                     <div>
-                    <h5>{c.fecha}</h5>
+                    <h5 className="consulta-fecha-titulo">
+                      {formatearFechaHoraConsultaPaciente(c)}
+                    </h5>
 
                         <div className="historia-consulta-diagnosticos mt-2">
                           {obtenerDiagnosticosConsulta(c).map((diag) => (
