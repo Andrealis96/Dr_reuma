@@ -282,7 +282,7 @@ const obtenerHorariosDisponibles = (fecha) => {
   base.unshift("14:45"); // lo agrega al inicio
 }
   else if (day === 4)
-    base = ["08:00","08:30","09:00","09:30","10:00","10:30","11:00","13:20"];
+    base = ["09:00","09:30","10:00","10:30","11:00","13:20"];
   //horarios viernes
   else if (day === 5) {
   const configViernes = getConfiguracionViernes(fecha);
@@ -1229,8 +1229,7 @@ return (
 
       {/* TABLA DE HOY (LA TUYA ORIGINAL) */}
       <div className="card shadow-sm mb-4">
-        <div className="card-header  text-center text-white fw-bold">
-          <div className="card-header text-center text-white fw-bold pacientes-dia-header">
+        <div className="card-header text-center text-white fw-bold pacientes-dia-header">
   <button
     type="button"
     className="pacientes-dia-nav-btn"
@@ -1240,16 +1239,16 @@ return (
     <FaChevronLeft />
   </button>
 
-<div className="pacientes-dia-title">
-  <button
-    type="button"
-    className="pacientes-dia-title-btn"
-    onClick={irAListadoDelDiaTabla}
-    title="Ir al listado de este día"
-  >
-    {tituloTablaCitas}
-  </button>
-</div>
+  <div className="pacientes-dia-title">
+    <button
+      type="button"
+      className="pacientes-dia-title-btn"
+      onClick={irAListadoDelDiaTabla}
+      title="Ir al listado de este día"
+    >
+      {tituloTablaCitas}
+    </button>
+  </div>
 
   <button
     type="button"
@@ -1260,7 +1259,6 @@ return (
     <FaChevronRight />
   </button>
 </div>
-        </div>
 
         <div className="card-body p-0 table-responsive">
 
@@ -1523,43 +1521,6 @@ const configViernes = getConfiguracionViernes(fecha);
 const tieneNota = notasAgenda.some(
   n => n.fecha === fecha && n.texto?.trim()
 );
-
-
-
-const obtenerHoyLocal = () => {
-  const ahora = new Date();
-  const offset = ahora.getTimezoneOffset();
-
-  return new Date(ahora.getTime() - offset * 60000)
-    .toISOString()
-    .split("T")[0];
-};
-
-const obtenerEstadoCitaTexto = (cita) => {
-  if (cita.estadoCita === "asistio" || cita.estadoAsistencia === "asistio") {
-    return "Asistió";
-  }
-
-  if (cita.estadoCita === "confirmado" || cita.estadoConfirmacion === "confirmado") {
-    return "Confirmado";
-  }
-
-  if (cita.fecha < obtenerHoyLocal()) {
-    return "No asistió";
-  }
-
-  return "Pendiente";
-};
-
-const obtenerEstadoCitaClase = (cita) => {
-  const estado = obtenerEstadoCitaTexto(cita);
-
-  if (estado === "Asistió") return "estado-asistio";
-  if (estado === "No asistió") return "estado-no-asistio";
-  if (estado === "Confirmado") return "estado-confirmado";
-
-  return "estado-pendiente";
-};
 
   return (
     <div className="dia-celda-custom">
@@ -1864,17 +1825,6 @@ eventClick={(info) => {
 horariosDisponibles.map(h => {
   const bloqueada = horaEstaBloqueada(diaSeleccionado, h);
 
-const irAListadoDelDiaTabla = () => {
-  setDiaSeleccionado(fechaTablaCitas);
-
-  setTimeout(() => {
-    detalleDiaRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
-  }, 150);
-};
-
   return (
     <div key={h} className="horario-admin-slot">
 
@@ -2126,16 +2076,24 @@ const irAListadoDelDiaTabla = () => {
         </p>
       </div>
 
-      <div className="servicio-comprobante-box">
-        <h4>
-          <FaUserMd />
-          Médico Especialista:
-        </h4>
+      <div className="servicio-comprobante-box servicio-comprobante-medico-unico">
+  <div className="servicio-comprobante-medico-info">
+    <h4>
+      <FaUserMd />
+      Médico Especialista:
+    </h4>
 
-        <p>
-          Dr. Tony Vélez - Reumatólogo
-        </p>
-      </div>
+    <p>
+      Dr. Tony Vélez - Reumatólogo
+    </p>
+  </div>
+
+  <div className="servicio-comprobante-valor-inline">
+    <span> Consulta</span>
+    <strong>  $60.000  </strong>
+    <small> Efectivo / Transferencia  </small>
+  </div>
+</div>
 
       <div className="servicio-comprobante-note">
         <strong>Nota importante</strong>

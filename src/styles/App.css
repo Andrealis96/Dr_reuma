@@ -8142,11 +8142,70 @@ html, body, #root {
   box-shadow: 0 0 0 5px rgba(0, 154, 173, 0.14),
               0 14px 30px rgba(0, 154, 173, 0.2) !important;
 }
+
+/* MÉDICO + VALOR EN UNA SOLA CAJA */
+.servicio-comprobante-medico-unico {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+}
+
+.servicio-comprobante-medico-info {
+  flex: 1 !important;
+}
+
+.servicio-comprobante-medico-info h4 {
+  margin-bottom: 6px !important;
+}
+
+.servicio-comprobante-medico-info p {
+  margin-bottom: 0 !important;
+}
+
+.servicio-comprobante-valor-inline {
+  min-width: 132px !important;
+  background: linear-gradient(135deg, #fff0b8, #fff9e8) !important;
+  border: 2px solid #f4b400 !important;
+  border-radius: 14px !important;
+  padding: 9px 10px !important;
+  text-align: center !important;
+}
+
+.servicio-comprobante-valor-inline span {
+  display: block !important;
+  color: #9a6400 !important;
+  font-size: 0.68rem !important;
+  font-weight: 1000 !important;
+  margin-bottom: 3px !important;
+}
+
+.servicio-comprobante-valor-inline strong {
+  display: block !important;
+  color: #111 !important;
+  font-size: 1.22rem !important;
+  font-weight: 1000 !important;
+  line-height: 1 !important;
+}
+
+.servicio-comprobante-valor-inline small {
+  display: block !important;
+  color: #7a5600 !important;
+  font-size: 0.58rem !important;
+  font-weight: 900 !important;
+  line-height: 1.1 !important;
+  margin-top: 4px !important;
+}
+
+
+
 /* oculta el buscador */
 /* OCULTAR BUSCADOR DE PACIENTES EN AGENDA DE CITAS */
 .buscador-citas-card {
   display: none !important;
 }
+
+
 /* =========================================================
    BLOQUEO DE HORA INDIVIDUAL
 ========================================================= */
