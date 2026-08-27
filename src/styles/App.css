@@ -8018,6 +8018,131 @@ html, body, #root {
   background: rgb(9, 154, 173, 0.08) !important;
     transform: scale(1.003);
 }
+
+/* cargar historia clinica paciente */
+
+.historia-loading-page {
+  min-height: calc(100vh - 90px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 40px 18px !important;
+}
+
+.historia-loading-card {
+  width: min(420px, 92vw) !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  border: 1px solid rgba(9, 154, 173, 0.22) !important;
+  border-radius: 30px !important;
+  padding: 34px 28px !important;
+  text-align: center !important;
+  box-shadow: 0 18px 45px rgba(9, 154, 173, 0.18) !important;
+}
+
+.historia-loading-logo {
+  width: 98px !important;
+  height: 98px !important;
+  object-fit: contain !important;
+  border-radius: 50% !important;
+  margin-bottom: 18px !important;
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.14)) !important;
+}
+
+.historia-loading-spinner {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 50% !important;
+  border: 5px solid rgba(9, 154, 173, 0.18) !important;
+  border-top-color: #009aad !important;
+  margin: 0 auto 18px auto !important;
+  animation: historiaSpin 0.8s linear infinite !important;
+}
+
+.historia-loading-card h3 {
+  color: #009aad !important;
+  font-size: 1.4rem !important;
+  font-weight: 1000 !important;
+  text-transform: uppercase !important;
+  margin-bottom: 8px !important;
+}
+
+.historia-loading-card p {
+  color: #555 !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  margin: 0 !important;
+}
+
+@keyframes historiaSpin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* BUSCADOR DE HISTORIAS MÁS LARGO Y VISIBLE */
+.historias-filtros-row {
+  width: 100% !important;
+  display: block !important;
+  margin-top: 18px !important;
+  margin-bottom: 28px !important;
+}
+
+.historias-search-card {
+  width: 100% !important;
+  max-width: none !important;
+
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+
+  background: linear-gradient(135deg, #e5fbff, #ffffff) !important;
+  border: 2px solid #00a8bd !important;
+  border-radius: 22px !important;
+
+  padding: 18px 22px !important;
+  box-shadow: 0 12px 28px rgba(0, 154, 173, 0.16) !important;
+}
+
+.historias-search-icon {
+  color: #009aad !important;
+  font-size: 1.35rem !important;
+  flex-shrink: 0 !important;
+}
+
+.historias-search-input {
+  width: 100% !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+  color: #102f35 !important;
+}
+
+.historias-search-input:focus {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.historias-search-input::placeholder {
+  color: #5b7d84 !important;
+  font-weight: 700 !important;
+}
+
+.historias-search-card:focus-within {
+  border-color: #007c89 !important;
+  background: #f0fcff !important;
+  box-shadow: 0 0 0 5px rgba(0, 154, 173, 0.14),
+              0 14px 30px rgba(0, 154, 173, 0.2) !important;
+}
+
 /* =========================================================
    BLOQUEO DE HORA INDIVIDUAL
 ========================================================= */

@@ -875,9 +875,23 @@ const irAConsultasRegistradas = () => {
   </div>
 )}
 
-      {!paciente ? null : (
-        <div className="container-fluid historia-paciente-container py-4 mb-5">
+{!paciente ? (
+  <div className="historia-loading-page">
+    <div className="historia-loading-card">
+      <img
+        src={logo}
+        alt="Dr. Reuma"
+        className="historia-loading-logo"
+      />
 
+      <div className="historia-loading-spinner"></div>
+
+      <h3>Cargando historia clínica</h3>
+      <p>Preparando los datos del paciente...</p>
+    </div>
+  </div>
+) : (
+  <div className="container-fluid historia-paciente-container py-4 mb-5">
           {/* HEADER */}
           <div className="historia-paciente-header mb-4">
 

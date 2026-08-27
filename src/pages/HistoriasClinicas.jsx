@@ -56,9 +56,7 @@ function HistoriasClinicas() {
   const [sexo, setSexo] = useState("");
 
   const [busqueda, setBusqueda] = useState("");
-  const [filtroDiagnostico, setFiltroDiagnostico] = useState("");
-  const [filtroSexo, setFiltroSexo] = useState("");
-  const [diagnosticosPorPaciente, setDiagnosticosPorPaciente] = useState({});
+   const [diagnosticosPorPaciente, setDiagnosticosPorPaciente] = useState({});
   const [ultimaConsultaPorPaciente, setUltimaConsultaPorPaciente] = useState({});
   const [ultimaConsultaFechaPorPaciente, setUltimaConsultaFechaPorPaciente] = useState({});
   const [cantidadConsultasPorPaciente, setCantidadConsultasPorPaciente] = useState({}); 
@@ -319,7 +317,7 @@ useEffect(() => {
 
 useEffect(() => {
   setPagina(1);
-}, [busqueda, filtroDiagnostico, filtroSexo]);
+}, [busqueda]);
 
 const mostrarMensajeGuardado = (texto) => {
   setMensajeConfirmacion(texto);
@@ -417,29 +415,15 @@ const obtenerCreadoPaciente = (p) => {
   return 0;
 };
 
-const pacientesFiltrados = pacientes
+  const pacientesFiltrados = pacientes
   .filter((p) => {
     const textoPaciente = normalizarTexto(busqueda);
-    const textoDiagnostico = normalizarTexto(filtroDiagnostico);
 
-    const coincidePaciente =
+    return (
       !textoPaciente ||
       normalizarTexto(p.nombre).includes(textoPaciente) ||
-      p.dni?.toString().includes(busqueda.trim());
-
-    const diagnosticosPaciente = diagnosticosPorPaciente[p.id] || [];
-
-    const coincideDiagnostico =
-      !textoDiagnostico ||
-      diagnosticosPaciente.some((diag) =>
-        normalizarTexto(diag).includes(textoDiagnostico)
-      );
-
-    const coincideSexo =
-      !filtroSexo ||
-      normalizarTexto(p.sexo) === normalizarTexto(filtroSexo);
-
-    return coincidePaciente && coincideDiagnostico && coincideSexo;
+      p.dni?.toString().includes(busqueda.trim())
+    );
   })
   .sort((a, b) => {
     const ultimaB = ultimaConsultaFechaPorPaciente[b.id] || 0;
@@ -1024,6 +1008,17 @@ const fechaHoyHistoriasTexto = new Date()
 
       </div>
 
+{/* TÍTULO LISTADO DE PACIENTES */}
+<div className="historias-listado-header">
+  <h3>
+    <span>HISTORIA CLÍNICA</span> REGISTRADAS
+  </h3>
+
+  <p>
+    Historias clínicas de pacientes en el sistema. 
+  </p>
+</div>
+
       {/* BUSCADORES */}
 <div className="historias-filtros-row mb-4">
 
@@ -1050,103 +1045,6 @@ const fechaHoyHistoriasTexto = new Date()
 
   </div>
 
-  <div className="historias-search-card">
-
-    <FaStethoscope className="historias-search-icon" />
-
-    <input
-      className="form-control historias-search-input"
-      placeholder="Filtrar por diagnóstico..."
-      value={filtroDiagnostico}
-      onChange={(e) => setFiltroDiagnostico(e.target.value)}
-    />
-
-    {filtroDiagnostico && (
-      <button
-        type="button"
-        className="historias-clear-search"
-        onClick={() => setFiltroDiagnostico("")}
-      >
-        <FaTimes />
-      </button>
-    )}
- </div>
-
-<div className="historias-search-card">
- <FaVenusMars className="historias-search-icon" />
-
-  <select
-    className="form-select historias-search-input"
-    value={filtroSexo}
-    onChange={(e) => setFiltroSexo(e.target.value)}
-  >
-    <option value="">Filtrar por sexo...</option>
-    <option value="Masculino">Masculino</option>
-    <option value="Femenino">Femenino</option>
-  </select>
-
-  {filtroSexo && (
-    <button
-      type="button"
-      className="historias-clear-search"
-      onClick={() => setFiltroSexo("")}
-    >
-      <FaTimes />
-    </button>
-  )}
-
-  </div>
-
-</div>
-
-{(busqueda || filtroDiagnostico || filtroSexo) && (
-  <div className="historias-filter-info mb-3">
-    Mostrando <strong>{pacientesFiltrados.length}</strong> resultado(s)
-    {filtroDiagnostico && (
-      <>
-        {" "}con diagnóstico relacionado a{" "}
-        <strong>{filtroDiagnostico.toUpperCase()}</strong>
-      </>
-    )}
-
-{filtroSexo && (
-      <>
-        {" "}y sexo{" "}
-        <strong>{filtroSexo.toUpperCase()}</strong>
-      </>
-    )}
-
-  </div>
-)}
-
-{(busqueda || filtroDiagnostico || filtroSexo) && (
-  <div className="historias-filter-info mb-3">
-    Mostrando <strong>{pacientesFiltrados.length}</strong> resultado(s)
-    {filtroDiagnostico && (
-      <>
-        {" "}con diagnóstico relacionado a{" "}
-        <strong>{filtroDiagnostico.toUpperCase()}</strong>
-      </>
-    )}
-
-    {filtroSexo && (
-      <>
-        {" "}y sexo{" "}
-        <strong>{filtroSexo.toUpperCase()}</strong>
-      </>
-    )}
-  </div>
-)}
-
-{/* TÍTULO LISTADO DE PACIENTES */}
-<div className="historias-listado-header">
-  <h3>
-    <span>PACIENTES</span> REGISTRADOS
-  </h3>
-
-  <p>
-    Historias clínicas guardadas en el sistema.
-  </p>
 </div>
 
 {/* LISTADO */}
@@ -1155,9 +1053,7 @@ const fechaHoyHistoriasTexto = new Date()
           <FaSearch />
           <h5>No se encontraron pacientes</h5>
           <p>
-            {filtroDiagnostico
-              ? "No hay historias clínicas con ese diagnóstico."
-              : "Prueba con otro nombre o DNI."}
+            Prueba con otro nombre o DNI.
           </p>
         </div>
       ) : (
