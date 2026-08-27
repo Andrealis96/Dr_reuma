@@ -8142,7 +8142,11 @@ html, body, #root {
   box-shadow: 0 0 0 5px rgba(0, 154, 173, 0.14),
               0 14px 30px rgba(0, 154, 173, 0.2) !important;
 }
-
+/* oculta el buscador */
+/* OCULTAR BUSCADOR DE PACIENTES EN AGENDA DE CITAS */
+.buscador-citas-card {
+  display: none !important;
+}
 /* =========================================================
    BLOQUEO DE HORA INDIVIDUAL
 ========================================================= */
