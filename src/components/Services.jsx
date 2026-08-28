@@ -42,6 +42,7 @@ const [form, setForm] = useState({
 
   const [horariosDisponibles, setHorariosDisponibles] = useState([]);
   const [bloqueos, setBloqueos] = useState([]);
+  const [bloqueosHora, setBloqueosHora] = useState([]);
   const [success, setSuccess] = useState(false);
   const [citaGuardada, setCitaGuardada] = useState(null);
   const FRIDAY_START = new Date("2026-04-10T00:00:00");
@@ -113,6 +114,18 @@ useEffect(() => {
   return () => unsub();
 }, []);
 
+useEffect(() => {
+  const unsub = onSnapshot(collection(db, "bloqueosHora"), (snap) => {
+    const data = snap.docs.map((d) => ({
+      id: d.id,
+      ...d.data()
+    }));
+
+    setBloqueosHora(data);
+  });
+
+  return () => unsub();
+}, []);
 
 const getConfiguracionViernes = (fecha) => {
   return viernesAgenda.find(v => v.fecha === fecha);
@@ -120,6 +133,19 @@ const getConfiguracionViernes = (fecha) => {
 
 const diaEstaBloqueado = (fecha) => {
   return bloqueos.some(b => b.fecha === fecha && b.activo);
+};
+
+const normalizarHora = (hora = "") => {
+  return hora.toString().trim().slice(0, 5);
+};
+
+const horaEstaBloqueada = (fecha, hora) => {
+  return bloqueosHora.some(
+    (b) =>
+      b.fecha === fecha &&
+      normalizarHora(b.hora) === normalizarHora(hora) &&
+      b.activo
+  );
 };
 
   // 🔥 Cargar horarios disponibles
@@ -134,6 +160,7 @@ useEffect(() => {
     hora: ""
   }));
   return;
+
 }
     const fechaObj = new Date(form.fecha + "T00:00:00");
 
@@ -221,16 +248,29 @@ else if (diaSemana === "sábado") {
       where("fecha", "==", form.fecha)
     );
 
-    const snapshot = await getDocs(q);
-    const ocupados = snapshot.docs.map(doc => doc.data().hora);
+const snapshot = await getDocs(q);
 
-    const disponibles = horariosBase.filter(h => !ocupados.includes(h));
+const ocupados = snapshot.docs.map((doc) =>
+  normalizarHora(doc.data().hora)
+);
 
-    setHorariosDisponibles(disponibles);
-  };
+const bloqueadas = bloqueosHora
+  .filter((b) => b.fecha === form.fecha && b.activo)
+  .map((b) => normalizarHora(b.hora));
 
+const disponibles = horariosBase.filter((h) => {
+  const hora = normalizarHora(h);
+
+  return (
+    !ocupados.includes(hora) &&
+    !bloqueadas.includes(hora)
+  );
+});
+
+setHorariosDisponibles(disponibles);
+};
   cargarHorarios();
-}, [form.fecha, bloqueos, viernesAgenda]);
+}, [form.fecha, bloqueos, viernesAgenda, bloqueosHora]);
 
 useEffect(() => {
   if (!form.fecha) return;
@@ -280,6 +320,56 @@ useEffect(() => {
       alert("Selecciona un horario");
       return;
     }
+
+    const bloqueosHoraSnap = await getDocs(
+  query(
+    collection(db, "bloqueosHora"),
+    where("fecha", "==", form.fecha)
+  )
+);
+
+const horaBloqueada = bloqueosHoraSnap.docs.some((doc) => {
+  const data = doc.data();
+
+  return (
+    data.activo &&
+    normalizarHora(data.hora) === normalizarHora(form.hora)
+  );
+});
+
+if (horaBloqueada) {
+  alert("Ese horario ya no está disponible. Por favor selecciona otro horario.");
+
+  setForm((prev) => ({
+    ...prev,
+    hora: ""
+  }));
+
+  return;
+}
+
+const citasSnap = await getDocs(
+  query(
+    collection(db, "citas"),
+    where("fecha", "==", form.fecha)
+  )
+);
+
+const citaYaExiste = citasSnap.docs.some((doc) => {
+  const data = doc.data();
+  return normalizarHora(data.hora) === normalizarHora(form.hora);
+});
+
+if (citaYaExiste) {
+  alert("Ese horario acaba de ser reservado. Por favor selecciona otro horario.");
+
+  setForm((prev) => ({
+    ...prev,
+    hora: ""
+  }));
+
+  return;
+}
 
     try {
       await addDoc(collection(db, "citas"), {
