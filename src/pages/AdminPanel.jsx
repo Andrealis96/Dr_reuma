@@ -18,6 +18,15 @@ function AdminPanel() {
       path: "/admin/historias",
       className: "admin-modern-historias",
     },
+
+    {
+      title: "Agenda de citas",
+      description: "Turnos, bloqueos y notas del día.",
+      icon: <FaCalendarAlt />,
+      path: "/admin/citas",
+      className: "admin-modern-citas",
+    },
+    
     {
       title: "Comentarios",
       description: "Gestionar testimonios y respuestas.",
@@ -32,13 +41,7 @@ function AdminPanel() {
       path: "/admin/laboratorios",
       className: "admin-modern-laboratorios",
     },
-    {
-      title: "Agenda de citas",
-      description: "Turnos, bloqueos y notas del día.",
-      icon: <FaCalendarAlt />,
-      path: "/admin/citas",
-      className: "admin-modern-citas",
-    },
+    
   ];
 
   return (
