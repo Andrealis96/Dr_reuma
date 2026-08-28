@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef} from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import {
   collection,
   addDoc,
@@ -55,15 +55,17 @@ function HistoriasClinicas() {
   const [obraSocial, setObraSocial] = useState("");
   const [sexo, setSexo] = useState("");
 
-  const [busqueda, setBusqueda] = useState("");
+  const [busqueda, setBusqueda] = useState(() => {
+  return sessionStorage.getItem("busquedaHistorias") || "";
+});
    const [diagnosticosPorPaciente, setDiagnosticosPorPaciente] = useState({});
   const [ultimaConsultaPorPaciente, setUltimaConsultaPorPaciente] = useState({});
   const [ultimaConsultaFechaPorPaciente, setUltimaConsultaFechaPorPaciente] = useState({});
   const [cantidadConsultasPorPaciente, setCantidadConsultasPorPaciente] = useState({}); 
   const [pagina, setPagina] = useState(1);
+  const [cargandoPacientes, setCargandoPacientes] = useState(true);
   const [fechaTablaAgenda, setFechaTablaAgenda] = useState(() => {
   const hoy = new Date();
-
   const anio = hoy.getFullYear();
   const mes = String(hoy.getMonth() + 1).padStart(2, "0");
   const dia = String(hoy.getDate()).padStart(2, "0");
@@ -75,6 +77,10 @@ function HistoriasClinicas() {
   const [editando, setEditando] = useState(null);
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
   const [mensajeConfirmacion, setMensajeConfirmacion] = useState("");
+
+  useEffect(() => {
+  sessionStorage.setItem("busquedaHistorias", busqueda);
+}, [busqueda]);
 
   const limpiarFormulario = () => {
     setNombre("");
@@ -215,6 +221,7 @@ useEffect(() => {
     }));
 
     setPacientes(datos);
+    setCargandoPacientes(false);
   });
 
   return () => unsubscribe();
@@ -415,26 +422,28 @@ const obtenerCreadoPaciente = (p) => {
   return 0;
 };
 
-  const pacientesFiltrados = pacientes
-  .filter((p) => {
-    const textoPaciente = normalizarTexto(busqueda);
+const pacientesFiltrados = useMemo(() => {
+  const textoPaciente = normalizarTexto(busqueda);
 
-    return (
-      !textoPaciente ||
-      normalizarTexto(p.nombre).includes(textoPaciente) ||
-      p.dni?.toString().includes(busqueda.trim())
-    );
-  })
-  .sort((a, b) => {
-    const ultimaB = ultimaConsultaFechaPorPaciente[b.id] || 0;
-    const ultimaA = ultimaConsultaFechaPorPaciente[a.id] || 0;
+  return pacientes
+    .filter((p) => {
+      return (
+        !textoPaciente ||
+        normalizarTexto(p.nombre).includes(textoPaciente) ||
+        p.dni?.toString().includes(busqueda.trim())
+      );
+    })
+    .sort((a, b) => {
+      const ultimaB = ultimaConsultaFechaPorPaciente[b.id] || 0;
+      const ultimaA = ultimaConsultaFechaPorPaciente[a.id] || 0;
 
-    if (ultimaB !== ultimaA) {
-      return ultimaB - ultimaA;
-    }
+      if (ultimaB !== ultimaA) {
+        return ultimaB - ultimaA;
+      }
 
-    return obtenerCreadoPaciente(b) - obtenerCreadoPaciente(a);
-  });
+      return obtenerCreadoPaciente(b) - obtenerCreadoPaciente(a);
+    });
+}, [pacientes, busqueda, ultimaConsultaFechaPorPaciente]);
 
   const indiceFinal = pagina * pacientesPorPagina;
   const indiceInicial = indiceFinal - pacientesPorPagina;
@@ -1048,7 +1057,13 @@ const fechaHoyHistoriasTexto = new Date()
 </div>
 
 {/* LISTADO */}
-{pacientesPagina.length === 0 ? (
+{cargandoPacientes ? (
+  <div className="historias-empty">
+    <FaSearch />
+    <h5>Cargando historias clínicas...</h5>
+    <p>Preparando los pacientes registrados.</p>
+  </div>
+) : pacientesPagina.length === 0 ? (
         <div className="historias-empty">
           <FaSearch />
           <h5>No se encontraron pacientes</h5>
