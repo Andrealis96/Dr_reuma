@@ -487,6 +487,16 @@ const obtenerLugarComprobante = (cita) => {
   return "Consultorios Externos de la Clínica San Agustín - San Martín 1355,  Neuquén Capital";
 };
 
+const obtenerValorConsultaComprobante = (cita) => {
+  const tipo = cita?.tipo?.toLowerCase()?.trim();
+
+  if (tipo === "virtual") {
+    return "$30.000";
+  }
+
+  return "$60.000";
+};
+
 const generarComprobanteImagenPaciente = async () => {
   if (!citaGuardada || generandoComprobante) return;
 
@@ -1053,17 +1063,28 @@ const cerrarPreviewComprobantePaciente = () => {
         <p>{obtenerLugarComprobante(citaGuardada)}</p>
       </div>
 
-      <div className="servicio-comprobante-box">
-        <h4>
-          <FaUserMd />
-          Médico
-        </h4>
+      <div className="servicio-comprobante-box servicio-comprobante-medico-unico">
+  <div className="servicio-comprobante-medico-info">
+    <h4>
+      <FaUserMd />
+      Médico
+    </h4>
 
-        <p>
-          Dr. Tony Vélez <br />
-          Reumatólogo
-        </p>
-      </div>
+    <p>
+      Dr. Tony Vélez - Reumatólogo
+    </p>
+  </div>
+
+  <div className="servicio-comprobante-valor-inline">
+    <span>Valor consulta</span>
+    <strong>{obtenerValorConsultaComprobante(citaGuardada)}</strong>
+    <small>
+      {citaGuardada?.tipo === "virtual"
+        ? "Consulta virtual"
+        : "Efectivo / Transferencia" }
+    </small>
+  </div>
+</div>
 
       <div className="servicio-comprobante-note">
         <strong>Nota importante</strong>
