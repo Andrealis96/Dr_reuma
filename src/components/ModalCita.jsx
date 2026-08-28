@@ -26,6 +26,7 @@ function ModalCita({
   fechaSeleccionada,
   horaPreseleccionada,
   horariosDisponibles,
+  tipoPreseleccionado,
   obtenerHorariosDisponibles
 }) {
   const [nombre, setNombre] = useState("");
@@ -39,6 +40,19 @@ function ModalCita({
   const [sexo, setSexo] = useState("");
   const [motivoConsulta, setMotivoConsulta] = useState("");
   const [horasDisponibles, setHorasDisponibles] = useState([]);
+
+  const obtenerTipoPorFecha = (fechaISO) => {
+  if (!fechaISO) return "presencial";
+
+  const [anio, mes, dia] = fechaISO.split("-").map(Number);
+  const fechaLocal = new Date(anio, mes - 1, dia);
+  const diaSemana = fechaLocal.getDay();
+
+  // 6 = sábado
+  if (diaSemana === 6) return "virtual";
+
+  return "presencial";
+};
 
   const [busquedaPacienteModal, setBusquedaPacienteModal] = useState("");
   const [citasPrevias, setCitasPrevias] = useState([]);
@@ -83,6 +97,7 @@ const handleFechaChange = (e) => {
   }
 
   setFecha(nuevaFecha);
+  setTipo(obtenerTipoPorFecha(nuevaFecha));
 };
 
 useEffect(() => {
@@ -114,8 +129,11 @@ useEffect(() => {
 
   // fecha y hora seleccionada
 useEffect(() => {
-  if (fechaSeleccionada) setFecha(fechaSeleccionada);
-}, [fechaSeleccionada]);
+  if (fechaSeleccionada) {
+    setFecha(fechaSeleccionada);
+    setTipo(tipoPreseleccionado || obtenerTipoPorFecha(fechaSeleccionada));
+  }
+}, [fechaSeleccionada, tipoPreseleccionado]);
 
 useEffect(() => {
   if (!show) return;
@@ -131,7 +149,7 @@ useEffect(() => {
       setNombre("");
       setTelefono("");
       setDni("");
-      setTipo("presencial");
+      setTipo(tipoPreseleccionado || obtenerTipoPorFecha(fechaSeleccionada));
 
       setFechaNacimiento("");
       setObraSocial("");
@@ -144,7 +162,7 @@ useEffect(() => {
       }
     }
   }
-}, [show, citaEditar, horaPreseleccionada]);
+}, [show, citaEditar, horaPreseleccionada, tipoPreseleccionado, fechaSeleccionada]);
 
 useEffect(() => {
   const cargar = async () => {
@@ -442,12 +460,14 @@ const seleccionarPacientePrevio = (cita) => {
         </InputGroup.Text>
 
         <Form.Select
-            value={tipo}
-            onChange={(e) => setTipo(e.target.value)}
+          value={tipo}
+          onChange={(e) => setTipo(e.target.value)}
+          disabled={!!fecha}
         >
-            <option value="presencial">🟢 Presencial</option>
-            <option value="virtual">🔵 Virtual</option>
+          <option value="presencial">🟢 Presencial</option>
+          <option value="virtual">🔵 Virtual</option>
         </Form.Select>
+
         </InputGroup>
 
       </Modal.Body>

@@ -378,6 +378,20 @@ const convertirISOADateLocal = (fechaISO) => {
   return new Date(anio, mes - 1, dia);
 };
 
+const obtenerTipoCitaPorFecha = (fecha) => {
+  if (!fecha) return "presencial";
+
+  const [anio, mes, dia] = fecha.split("-").map(Number);
+  const fechaLocal = new Date(anio, mes - 1, dia);
+  const numeroDia = fechaLocal.getDay();
+
+  // 6 = sábado
+  if (numeroDia === 6) return "virtual";
+
+  // lunes a viernes
+  return "presencial";
+};
+
 const cambiarDiaTablaCitas = (dias) => {
   const fechaActual = convertirISOADateLocal(fechaTablaCitas);
   fechaActual.setDate(fechaActual.getDate() + dias);
@@ -623,16 +637,19 @@ const mostrarMensajeGuardadoCita = (mensaje) => {
 
   // ================= GUARDAR =================
 const guardarCita = async (data) => {
+  const tipoCorrecto = obtenerTipoCitaPorFecha(data.fecha);
+
   const dataLimpia = {
-  ...data,
-  telefono: limpiarTelefono10(data.telefono),
+    ...data,
+    tipo: tipoCorrecto,
+    telefono: limpiarTelefono10(data.telefono),
 
-  estadoConfirmacion:
-    data.estadoConfirmacion || citaEditar?.estadoConfirmacion || "pendiente",
+    estadoConfirmacion:
+      data.estadoConfirmacion || citaEditar?.estadoConfirmacion || "pendiente",
 
-  estadoAsistencia:
-    data.estadoAsistencia || citaEditar?.estadoAsistencia || "pendiente"
-};
+    estadoAsistencia:
+      data.estadoAsistencia || citaEditar?.estadoAsistencia || "pendiente"
+  };
 
   const q = query(
     collection(db, "citas"),
@@ -682,7 +699,6 @@ const guardarCita = async (data) => {
 
   return true;
 };
-
 
 const fechaFormateada = diaSeleccionado
   ? new Date(`${diaSeleccionado}T00:00:00`).toLocaleDateString(
@@ -791,6 +807,26 @@ const obtenerLugarCita = (cita) => {
   }
 
   return "San Martín 1355, Consultorios Externos de la Clínica San Agustín - Neuquén Capital";
+};
+
+const obtenerValorConsultaCita = (cita) => {
+  const tipo = cita?.tipo?.toLowerCase()?.trim();
+
+  if (tipo === "virtual") {
+    return "$30.000";
+  }
+
+  return "$60.000";
+};
+
+const obtenerTextoTipoConsulta = (cita) => {
+  const tipo = cita?.tipo?.toLowerCase()?.trim();
+
+  if (tipo === "virtual") {
+    return "Consulta virtual";
+  }
+
+  return "Efectivo / Transferencia" ;
 };
 
 const descargarComprobanteImagen = (cita) => {
@@ -1866,9 +1902,9 @@ horariosDisponibles.map(h => {
       )}
 
       {/* MODAL cita y modal detalle*/}
-      <ModalCita
+<ModalCita
   show={showModal}
- onHide={() => {
+  onHide={() => {
     setShowModal(false);
     setCitaEditar(null);
   }}
@@ -1877,8 +1913,8 @@ horariosDisponibles.map(h => {
   fechaSeleccionada={fechaSeleccionada || diaSeleccionado}
   horariosDisponibles={horariosDisponibles}
   horaPreseleccionada={horaPreseleccionada}
-  
-   obtenerHorariosDisponibles={obtenerHorariosDisponibles}
+  tipoPreseleccionado={obtenerTipoCitaPorFecha(fechaSeleccionada || diaSeleccionado)}
+  obtenerHorariosDisponibles={obtenerHorariosDisponibles}
 />
 
 <ModalDetalle
@@ -2020,6 +2056,7 @@ horariosDisponibles.map(h => {
 )}
 
 {citaParaDescargar && (
+
   <div className="servicio-comprobante-hidden">
     <div ref={comprobanteRef} className="servicio-comprobante-card">
 
@@ -2088,11 +2125,11 @@ horariosDisponibles.map(h => {
     </p>
   </div>
 
-  <div className="servicio-comprobante-valor-inline">
-    <span> Consulta</span>
-    <strong>  $60.000  </strong>
-    <small> Efectivo / Transferencia  </small>
-  </div>
+<div className="servicio-comprobante-valor-inline">
+  <span>Valor consulta</span>
+  <strong>{obtenerValorConsultaCita(citaParaDescargar)}</strong>
+  <small>{obtenerTextoTipoConsulta(citaParaDescargar)}</small>
+</div>
 </div>
 
       <div className="servicio-comprobante-note">
@@ -2169,6 +2206,8 @@ horariosDisponibles.map(h => {
 )}
 
 </div>
+
+
   ); 
 }
 
