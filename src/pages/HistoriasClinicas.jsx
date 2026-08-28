@@ -7,8 +7,7 @@ import {
   doc,
   updateDoc,
   query,
-  orderBy,
-  collectionGroup
+  orderBy
 } from "firebase/firestore";
 
 import { db } from "../firebase";
@@ -32,7 +31,6 @@ import {
   FaUsers,
   FaStethoscope,
   FaCalendarAlt,
-  FaFileMedical,
   FaUserCheck,
   FaClock,
 FaWhatsapp
@@ -57,15 +55,12 @@ function HistoriasClinicas() {
 
   const [busqueda, setBusqueda] = useState(() => {
   return sessionStorage.getItem("busquedaHistorias") || "";
-});
-   const [diagnosticosPorPaciente, setDiagnosticosPorPaciente] = useState({});
-  const [ultimaConsultaPorPaciente, setUltimaConsultaPorPaciente] = useState({});
-  const [ultimaConsultaFechaPorPaciente, setUltimaConsultaFechaPorPaciente] = useState({});
-  const [cantidadConsultasPorPaciente, setCantidadConsultasPorPaciente] = useState({}); 
-  const [pagina, setPagina] = useState(1);
-  const [cargandoPacientes, setCargandoPacientes] = useState(true);
-  const [fechaTablaAgenda, setFechaTablaAgenda] = useState(() => {
+}); 
+const [pagina, setPagina] = useState(1);
+const [cargandoPacientes, setCargandoPacientes] = useState(true); 
+const [fechaTablaAgenda, setFechaTablaAgenda] = useState(() => {
   const hoy = new Date();
+
   const anio = hoy.getFullYear();
   const mes = String(hoy.getMonth() + 1).padStart(2, "0");
   const dia = String(hoy.getDate()).padStart(2, "0");
@@ -242,87 +237,6 @@ useEffect(() => {
 }, []);
 
 useEffect(() => {
-  const unsubscribe = onSnapshot(
-    collectionGroup(db, "consultas"),
-    (snapshot) => {
-      const mapaDiagnosticos = {};
-      const mapaUltimaConsulta = {};
-      const mapaCantidadConsultas = {};
-
-      snapshot.docs.forEach((consultaDoc) => {
-        const data = consultaDoc.data();
-
-        const pacienteId = consultaDoc.ref.parent.parent?.id;
-
-        if (!pacienteId) return;
-
-        mapaCantidadConsultas[pacienteId] =
-          (mapaCantidadConsultas[pacienteId] || 0) + 1;
-
-        const listaDiagnosticos = Array.isArray(data.diagnosticos)
-          ? data.diagnosticos
-          : data.diagnostico
-            ? data.diagnostico.split(" - ")
-            : [];
-
-        listaDiagnosticos.forEach((diag) => {
-          const diagnosticoLimpio = diag?.toString().trim().toUpperCase();
-
-          if (!diagnosticoLimpio) return;
-
-          if (!mapaDiagnosticos[pacienteId]) {
-            mapaDiagnosticos[pacienteId] = new Set();
-          }
-
-          mapaDiagnosticos[pacienteId].add(diagnosticoLimpio);
-        });
-
-        const fechaHoraConsulta = obtenerFechaHoraConsulta(data);
-
-        if (fechaHoraConsulta.fechaDate) {
-          const ultimaActual = mapaUltimaConsulta[pacienteId]?.fechaDate;
-
-          if (!ultimaActual || fechaHoraConsulta.fechaDate > ultimaActual) {
-            mapaUltimaConsulta[pacienteId] = fechaHoraConsulta;
-          }
-        }
-      });
-
-      const mapaDiagnosticosFinal = {};
-      const mapaUltimaConsultaFinal = {};
-      const mapaUltimaConsultaFechaFinal = {};
-
-      Object.entries(mapaDiagnosticos).forEach(
-        ([pacienteId, diagnosticosSet]) => {
-          mapaDiagnosticosFinal[pacienteId] = Array.from(diagnosticosSet).sort(
-            (a, b) =>
-              a.localeCompare(b, "es", {
-                sensitivity: "base"
-              })
-          );
-        }
-      );
-
-      Object.entries(mapaUltimaConsulta).forEach(([pacienteId, data]) => {
-        mapaUltimaConsultaFinal[pacienteId] = data.hora
-          ? `${data.fecha} - ${data.hora} hs`
-          : data.fecha;
-
-        mapaUltimaConsultaFechaFinal[pacienteId] =
-          data.fechaDate?.getTime ? data.fechaDate.getTime() : 0;
-      });
-
-      setDiagnosticosPorPaciente(mapaDiagnosticosFinal);
-      setUltimaConsultaPorPaciente(mapaUltimaConsultaFinal);
-      setUltimaConsultaFechaPorPaciente(mapaUltimaConsultaFechaFinal);
-      setCantidadConsultasPorPaciente(mapaCantidadConsultas);
-    }
-  );
-
-  return () => unsubscribe();
-}, []);
-
-useEffect(() => {
   setPagina(1);
 }, [busqueda]);
 
@@ -434,8 +348,8 @@ const pacientesFiltrados = useMemo(() => {
       );
     })
     .sort((a, b) => {
-      const ultimaB = ultimaConsultaFechaPorPaciente[b.id] || 0;
-      const ultimaA = ultimaConsultaFechaPorPaciente[a.id] || 0;
+      const ultimaB = b.ultimaConsultaAtMillis || 0;
+      const ultimaA = a.ultimaConsultaAtMillis || 0;
 
       if (ultimaB !== ultimaA) {
         return ultimaB - ultimaA;
@@ -443,7 +357,7 @@ const pacientesFiltrados = useMemo(() => {
 
       return obtenerCreadoPaciente(b) - obtenerCreadoPaciente(a);
     });
-}, [pacientes, busqueda, ultimaConsultaFechaPorPaciente]);
+}, [pacientes, busqueda]);
 
   const indiceFinal = pagina * pacientesPorPagina;
   const indiceInicial = indiceFinal - pacientesPorPagina;
@@ -647,7 +561,6 @@ const fechaHoyHistoriasTexto = new Date()
   .replace(",", "")
   .replace(/^./, (letra) => letra.toUpperCase());
 
-
   return (
     <div className="container historias-modern-container py-4 mb-5">
       {mostrarConfirmacion && (
@@ -705,13 +618,17 @@ const fechaHoyHistoriasTexto = new Date()
     Agendar cita
   </Link>
 
-  <div className="historias-total-card">
+  <div className="historias-total-resumen">
+  <div className="historias-total-icon">
     <FaUsers />
-    <div>
-      <strong>{pacientes.length}</strong>
-      <span>Pacientes</span>
-    </div>
   </div>
+
+  <div className="historias-total-info">
+    <span>Total de historias</span>
+    <strong>{pacientes.length}</strong>
+    <small>pacientes registrados</small>
+  </div>
+</div>
 
 </div>
 
@@ -1081,9 +998,9 @@ const fechaHoyHistoriasTexto = new Date()
               sexoTexto === "femenino" ? femaleAvatar : maleAvatar;
 
             const edad = calcularEdad(p.fechaNacimiento);
-            const diagnosticosPaciente = diagnosticosPorPaciente[p.id] || [];
-            const ultimaConsulta = ultimaConsultaPorPaciente[p.id]; 
-            const cantidadConsultas = cantidadConsultasPorPaciente[p.id] || 0; 
+            const diagnosticosPaciente = p.diagnosticosResumen || [];
+            const ultimaConsulta = p.ultimaConsultaTexto;
+            const cantidadConsultas = p.cantidadConsultas || 0;
 
             return (
               <div key={p.id} className="historias-paciente-card">

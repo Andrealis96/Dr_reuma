@@ -418,8 +418,8 @@ const formatearFechaTablaCitas = (fechaISO) => {
 const esTablaCitasDeHoy = fechaTablaCitas === fechaISODesdeDate(new Date());
 
 const tituloTablaCitas = esTablaCitasDeHoy
-  ? "PACIENTES DE HOY"
-  : `PACIENTES DEL ${formatearFechaTablaCitas(fechaTablaCitas).toUpperCase()}`;
+  ? "AGENDA DEL DÍA"
+  : `AGENDA DEL ${formatearFechaTablaCitas(fechaTablaCitas).toUpperCase()}`;
 
 const pacientesHoy = citasDB
   .filter((c) => c.fecha === fechaTablaCitas)
@@ -1045,13 +1045,16 @@ const abrirWhatsappCita = (cita, usarNueve = true, tipoMensaje = "recordatorio")
   let texto = "";
 
   if (tipoMensaje === "recordatorio") {
-    texto =
-      `Hola ${capitalizarNombre(cita.nombre || "")}, te recordamos tu cita con el Dr. Tony Velez (Reumatologo). Por favor, responde a este mensaje si confirmas tu asistencia o si necesitas reprogramar.\n` +
-      `Fecha: ${formatearFechaComprobante(cita.fecha)}\n` +
-      `Hora: ${cita.hora} hs\n` +
-      `Lugar: ${obtenerLugarCita(cita)}\n\n` +
-      `Te esperamos.`;
-  }
+  texto =
+    `_______RECORDATORIO DE CITA ______ \n\n` +
+    `Hola ${capitalizarNombre(cita.nombre || "")}, te recordamos tu cita con el Dr. Tony Vélez (Reumatólogo).\n\n` +
+    `Por favor, responde a este mensaje si confirmas tu asistencia o si necesitas reprogramar.\n\n` +
+    `-Fecha: ${formatearFechaComprobante(cita.fecha)}\n` +
+    `-Hora: ${cita.hora} hs\n` +
+    `-Lugar: ${obtenerLugarCita(cita)}\n\n` +
+    `Te esperamos.\n\n` +
+    `Dr. Reuma`;
+}
 
   if (tipoMensaje === "comprobante") {
     texto =
@@ -1142,6 +1145,14 @@ const fechaHoyAgendaTexto = new Date()
   .replace(",", "")
   .replace(/^./, (letra) => letra.toUpperCase());
 
+  const fechaHoyAgendaCorta = new Date()
+  .toLocaleDateString("es-AR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit"
+  })
+  .replace(/\//g, "-");
+
 const irAListadoDelDiaTabla = () => {
   setDiaSeleccionado(fechaTablaCitas);
 
@@ -1207,33 +1218,50 @@ return (
   </div>
 )}
 
-      {/* HEADER */}
-     <div className="citas-header-top mb-4">
+{/* HEADER */}
+{/* HEADER */}
+<div className="citas-header-top citas-agenda-hero mb-4">
 
-  <div></div>
+  <div className="citas-header-main">
+    <div className="citas-header-badge">
+      <FaCalendarAlt />
+      <span>Panel de turnos</span>
+    </div>
 
-  <div className="citas-titulo-fecha mb-4">
-  <h3 className="subtitle-general text-center mb-1">
-    <span className="subtitle-celeste">CALENDARIO DE</span>
-    <span className="subtitle-celeste"> CITAS</span>
-  </h3>
+    <div className="citas-titulo-fecha">
+      <h3 className="subtitle-general ">
+        <span className="subtitle-celeste">AGENDA DE TURNOS</span>
+      </h3>
 
-  <div className="citas-fecha-hoy">
-  {fechaHoyAgendaTexto.toUpperCase()}
+      <div className="citas-fecha-hoy">
+        <span className="fecha-hoy-desktop">
+          {fechaHoyAgendaTexto.toUpperCase()}
+        </span>
+
+      </div>
+
+      <p className="citas-header-subtitle">
+        Gestiona citas, confirma asistencia, edita datos o reagenda pacientes.
+      </p>
+    </div>
   </div>
-</div>
 
   <Link
     to="/admin/historias"
     className="citas-ir-historias-btn"
   >
     <FaFolderOpen />
-    Historias clínicas
+    <span>
+      Historias
+      <br />
+      clínicas
+    </span>
   </Link>
 
 </div>
+
       {/* CARDS */}
-      <div className="row g-3 mb-4">
+      <div className="row g-3 mb-4 citas-stats-row">
 
         <div className="col-6 col-md-4">
           <div className="stat-card h-100">
@@ -1275,16 +1303,20 @@ return (
     <FaChevronLeft />
   </button>
 
-  <div className="pacientes-dia-title">
-    <button
-      type="button"
-      className="pacientes-dia-title-btn"
-      onClick={irAListadoDelDiaTabla}
-      title="Ir al listado de este día"
-    >
-      {tituloTablaCitas}
-    </button>
-  </div>
+<div className="pacientes-dia-title pacientes-dia-title-agenda">
+  <button
+    type="button"
+    className="pacientes-dia-title-btn"
+    onClick={irAListadoDelDiaTabla}
+    title="Ir al listado de este día"
+  >
+    {tituloTablaCitas}
+  </button>
+
+  <small>
+    Toca una fila para ver, editar, confirmar o reagendar la cita.
+  </small>
+</div>
 
   <button
     type="button"
@@ -1436,14 +1468,17 @@ return (
         </div>
       </div>
 
-
-{/* BUSCADOR DE PACIENTES */}
+{/* BUSCADOR DE CITAS */}
 <div className="buscador-citas-card mt-4 mb-4">
 
   <div className="buscador-citas-title">
     <FaSearch />
-    <span>Buscar paciente en agenda</span>
+    <span>Buscar cita para editar o reagendar</span>
   </div>
+
+  <p className="buscador-citas-help">
+    Busca turnos agendados por nombre o DNI. No busca historias clínicas.
+  </p>
 
   <div className="buscador-citas-input-wrap">
     <FaSearch className="buscador-citas-icon" />
@@ -1451,7 +1486,7 @@ return (
     <input
       type="text"
       className="form-control buscador-citas-input"
-      placeholder="Buscar por nombre o DNI..."
+      placeholder="Buscar cita por nombre o DNI..."
       value={busquedaPaciente}
       onChange={(e) => setBusquedaPaciente(e.target.value)}
     />
@@ -1472,7 +1507,7 @@ return (
 
       {resultadosBusqueda.length === 0 ? (
         <div className="buscador-citas-vacio">
-          No se encontraron pacientes
+          No se encontraron citas
         </div>
       ) : (
         resultadosBusqueda.slice(0, 8).map((c) => (

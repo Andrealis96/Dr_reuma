@@ -7,6 +7,442 @@ body {
   z-index: 2;
 }
 
+
+/* ===== CARDS PRINCIPALES AGENDA DE TURNOS ===== */
+
+.citas-stats-row {
+  margin-top: 22px !important;
+  margin-bottom: 28px !important;
+}
+
+.citas-stats-row .stat-card {
+  min-height: 145px !important;
+  border-radius: 26px !important;
+  padding: 24px 22px !important;
+
+  background: rgba(255, 255, 255, 0.97) !important;
+  border: 1px solid rgba(0, 150, 170, 0.18) !important;
+  border-top: 7px solid #079db2 !important;
+
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.11) !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  text-align: center !important;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.citas-stats-row .stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 38px rgba(0, 150, 170, 0.16) !important;
+}
+
+.citas-stats-row .stat-card h6 {
+  font-size: 0.95rem !important;
+  font-weight: 1000 !important;
+  color: #4e5d64 !important;
+  margin-bottom: 10px !important;
+}
+
+.citas-stats-row .stat-card h6 svg {
+  font-size: 1rem !important;
+}
+
+.citas-stats-row .stat-card h4 {
+  font-size: 2.8rem !important;
+  font-weight: 1000 !important;
+  color: #000 !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+}
+
+.citas-stats-row .stat-card h5 {
+  font-size: 1.45rem !important;
+  font-weight: 1000 !important;
+  color: #1c1c1c !important;
+  margin: 0 0 8px !important;
+  line-height: 1.1 !important;
+}
+
+.citas-stats-row .stat-card small {
+  font-size: 1rem !important;
+  font-weight: 900 !important;
+  color: #44535a !important;
+}
+
+@media (max-width: 768px) {
+  .citas-stats-row {
+    margin-top: 18px !important;
+    margin-bottom: 22px !important;
+  }
+
+  .citas-stats-row .stat-card {
+    min-height: 108px !important;
+    border-radius: 20px !important;
+    padding: 16px 12px !important;
+    border-top: 5px solid #079db2 !important;
+  }
+
+  .citas-stats-row .stat-card h6 {
+    font-size: 0.72rem !important;
+    margin-bottom: 6px !important;
+  }
+
+  .citas-stats-row .stat-card h4 {
+    font-size: 2rem !important;
+  }
+
+  .citas-stats-row .stat-card h5 {
+    font-size: 1rem !important;
+  }
+
+  .citas-stats-row .stat-card small {
+    font-size: 0.82rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .citas-header-subtitle {
+    max-width: 180px !important;
+  }
+
+  .citas-ir-historias-btn {
+    width: 78px !important;
+    height: 78px !important;
+  }
+}
+
+
+/* ===== TOTAL DE HISTORIAS - NO BOTÓN ===== */
+
+.historias-total-resumen {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  min-width: 220px;
+  height: 92px;
+  padding: 16px 20px;
+
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(0, 150, 170, 0.18);
+  border-left: 7px solid #079db2;
+
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
+}
+
+.historias-total-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0, 150, 170, 0.11);
+  color: #008ca0;
+  font-size: 1.35rem;
+  flex-shrink: 0;
+}
+
+.historias-total-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.05;
+}
+
+.historias-total-info span {
+  font-size: 0.74rem;
+  font-weight: 900;
+  color: #5b6b73;
+  text-transform: uppercase;
+}
+
+.historias-total-info strong {
+  font-size: 2.45rem;
+  font-weight: 1000;
+  color: #008ca0;
+  line-height: 1;
+}
+
+.historias-total-info small {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #5b6b73;
+}
+
+/* ===== TOTAL DE HISTORIAS - NO BOTÓN ===== */
+
+.historias-total-resumen {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  min-width: 220px;
+  height: 92px;
+  padding: 16px 20px;
+
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(0, 150, 170, 0.18);
+  border-left: 7px solid #079db2;
+
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
+}
+
+.historias-total-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0, 150, 170, 0.11);
+  color: #008ca0;
+  font-size: 1.35rem;
+  flex-shrink: 0;
+}
+
+.historias-total-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.05;
+}
+
+.historias-total-info span {
+  font-size: 0.74rem;
+  font-weight: 900;
+  color: #5b6b73;
+  text-transform: uppercase;
+}
+
+.historias-total-info strong {
+  font-size: 2.45rem;
+  font-weight: 1000;
+  color: #008ca0;
+  line-height: 1;
+}
+
+.historias-total-info small {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #5b6b73;
+}
+
+/* ===== CORRECCIÓN FINAL HEADER CITAS ===== */
+
+.citas-agenda-hero {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 130px !important;
+  align-items: center !important;
+  gap: 24px !important;
+  padding: 28px 0 30px !important;
+  margin-bottom: 24px !important;
+  text-align: left !important;
+}
+
+.citas-header-main {
+  text-align: left !important;
+  justify-self: start !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.citas-header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 150, 170, 0.1);
+  color: #008ca0;
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 0.76rem;
+  padding: 8px 14px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+}
+
+.citas-agenda-hero .subtitle-general {
+  text-align: left !important;
+  margin: 0 0 8px !important;
+  line-height: 0.95 !important;
+}
+
+.citas-agenda-hero .subtitle-celeste {
+  font-size: 3.45rem !important;
+  font-weight: 1000 !important;
+  letter-spacing: -1px !important;
+}
+
+
+
+/* ===== ALINEAR FECHA CON TÍTULO EN CITAS ===== */
+
+.citas-titulo-fecha {
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  text-align: left !important;
+  width: 100% !important;
+}
+
+.citas-agenda-hero .subtitle-general {
+  width: 100% !important;
+  text-align: left !important;
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+.citas-fecha-hoy {
+  display: block !important;
+  width: 100% !important;
+  text-align: left !important;
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+  align-self: flex-start !important;
+}
+
+.fecha-hoy-desktop,
+.fecha-hoy-mobile {
+  text-align: left !important;
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+  display: none;
+}
+
+.citas-header-subtitle {
+  text-align: left !important;
+  margin: 10px 0 0 !important;
+  max-width: 620px;
+  font-size: 0.9rem;
+  line-height: 1.25;
+  font-weight: 800;
+  color: #5b6b73;
+}
+
+.citas-ir-historias-btn {
+  position: static !important;
+  transform: none !important;
+  justify-self: end !important;
+
+  width: 116px !important;
+  height: 116px !important;
+  border-radius: 28px !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+
+  background: linear-gradient(135deg, #079db2, #007f91) !important;
+  color: white !important;
+  text-decoration: none !important;
+  text-align: center !important;
+
+  font-weight: 1000 !important;
+  font-size: 0.76rem !important;
+  line-height: 1.08 !important;
+
+  box-shadow: 0 14px 28px rgba(0, 150, 170, 0.32) !important;
+  white-space: normal !important;
+  overflow: hidden !important;
+}
+
+.citas-ir-historias-btn svg {
+  font-size: 1.35rem !important;
+}
+
+.citas-ir-historias-btn span {
+  display: block;
+  max-width: 90px;
+}
+
+.citas-ir-historias-btn:hover {
+  color: white !important;
+  transform: translateY(-2px) !important;
+}
+
+/* ===== CELULAR CITAS: TEXTO IZQUIERDA + BOTÓN DERECHA ===== */
+
+@media (max-width: 768px) {
+  .citas-agenda-hero {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 88px !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 14px 4px 16px !important;
+    margin-bottom: 14px !important;
+    text-align: left !important;
+  }
+
+  .citas-header-main {
+    text-align: left !important;
+  }
+
+  .citas-header-badge {
+    font-size: 0.58rem !important;
+    padding: 5px 9px !important;
+    margin-bottom: 6px !important;
+  }
+
+  .citas-agenda-hero .subtitle-general {
+    text-align: left !important;
+    margin-bottom: 4px !important;
+    line-height: 0.92 !important;
+  }
+
+  .citas-agenda-hero .subtitle-celeste {
+    font-size: 1.65rem !important;
+    letter-spacing: -0.4px !important;
+  }
+
+  .citas-fecha-hoy {
+    text-align: left !important;
+    font-size: 1.05rem !important;
+    line-height: 1.05 !important;
+    white-space: normal !important;
+  }
+
+  .fecha-hoy-desktop {
+    display: none !important;
+  }
+
+  .fecha-hoy-mobile {
+    display: inline !important;
+  }
+
+  .citas-header-subtitle {
+    text-align: left !important;
+    font-size: 0.62rem !important;
+    line-height: 1.2 !important;
+    margin-top: 6px !important;
+    max-width: 210px !important;
+  }
+
+  .citas-ir-historias-btn {
+    width: 82px !important;
+    height: 82px !important;
+    border-radius: 20px !important;
+    font-size: 0.6rem !important;
+    gap: 5px !important;
+    justify-self: end !important;
+  }
+
+  .citas-ir-historias-btn svg {
+    font-size: 1.05rem !important;
+  }
+
+  .citas-ir-historias-btn:hover {
+    transform: none !important;
+  }
+}
 /* ============================= */
 /* TÍTULOS GLOBALES LIMPIOS */
 /* ============================= */
@@ -4723,107 +5159,145 @@ html, body, #root {
   }
 }
 
-/* BOTÓN AGENDAR CITA EN HISTORIAS CLÍNICAS */
-.historiaS-hero-actions,
+/* ===== HEADER HISTORIAS: BOTÓN + TOTAL EN LA MISMA FILA ===== */
+
 .historias-hero-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 14px;
-  flex-wrap: wrap;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  flex-wrap: nowrap !important;
 }
 
-.historias-agenda-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+/* Botón Agendar cita */
+.historias-hero-actions .historias-agenda-btn {
+  width: 112px !important;
+  height: 92px !important;
+  border-radius: 24px !important;
 
-  background: linear-gradient(135deg, #099aad, #007c89);
-  color: white !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
 
-  border-radius: 999px;
-  padding: 12px 18px;
-
-  font-size: 0.9rem;
-  font-weight: 1000;
-  text-decoration: none !important;
-
-  box-shadow: 0 8px 22px rgba(9, 154, 173, 0.28);
-  transition: 0.22s ease;
-  white-space: nowrap;
+  text-align: center !important;
+  white-space: normal !important;
+  flex-shrink: 0 !important;
 }
 
-.historias-agenda-btn:hover {
-  transform: translateY(-1px);
-  background: linear-gradient(135deg, #0ab3c9, #087f8f);
+/* Total de historias: indicador, NO botón */
+.historias-total-resumen {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+
+  min-width: 270px !important;
+  height: 108px !important;
+  padding: 18px 22px !important;
+
+  border-radius: 28px !important;
+  background: rgba(255, 255, 255, 0.97) !important;
+  border: 1px solid rgba(0, 150, 170, 0.18) !important;
+  border-left: 8px solid #079db2 !important;
+
+  box-shadow: 0 15px 32px rgba(0, 0, 0, 0.09) !important;
 }
 
-.historias-agenda-btn svg {
-  font-size: 1rem;
+.historias-total-icon {
+  width: 52px !important;
+  height: 52px !important;
+  border-radius: 18px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  background: rgba(0, 150, 170, 0.12) !important;
+  color: #008ca0 !important;
+  font-size: 1.45rem !important;
+  flex-shrink: 0 !important;
 }
+
+.historias-total-info {
+  display: flex !important;
+  flex-direction: column !important;
+  line-height: 1.05 !important;
+}
+
+.historias-total-info span {
+  font-size: 0.76rem !important;
+  font-weight: 1000 !important;
+  color: #5b6b73 !important;
+  text-transform: uppercase !important;
+}
+
+.historias-total-info strong {
+  font-size: 3rem !important;
+  font-weight: 1000 !important;
+  color: #008ca0 !important;
+  line-height: 0.95 !important;
+}
+
+.historias-total-info small {
+  font-size: 0.78rem !important;
+  font-weight: 900 !important;
+  color: #5b6b73 !important;
+}
+
+/* ===== CELULAR HISTORIAS: AGENDAR + TOTAL LADO A LADO ===== */
 
 @media (max-width: 768px) {
   .historias-hero-actions {
-    width: 100%;
-    justify-content: flex-start;
+    display: grid !important;
+    grid-template-columns: 88px minmax(0, 1fr) !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    width: 100% !important;
   }
 
-  .historias-agenda-btn {
-    width: 100%;
+  .historias-hero-actions .historias-agenda-btn {
+    width: 88px !important;
+    height: 84px !important;
+    min-width: 0 !important;
+    border-radius: 20px !important;
+    font-size: 0.68rem !important;
+    padding: 8px !important;
   }
 
-  .historias-total-card {
-    width: 100%;
-  }
-}
-
-/* BOTÓN HISTORIAS CLÍNICAS EN AGENDA */
-.citas-header-top {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 14px;
-}
-
-.citas-ir-historias-btn {
-  justify-self: end;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-
-  background: linear-gradient(135deg, #099aad, #007c89);
-  color: white !important;
-
-  border-radius: 999px;
-  padding: 11px 17px;
-
-  font-size: 0.86rem;
-  font-weight: 1000;
-  text-decoration: none !important;
-
-  box-shadow: 0 8px 22px rgba(9, 154, 173, 0.28);
-  transition: 0.22s ease;
-  white-space: nowrap;
-}
-
-.citas-ir-historias-btn:hover {
-  transform: translateY(-1px);
-  background: linear-gradient(135deg, #0ab3c9, #087f8f);
-}
-
-@media (max-width: 768px) {
-  .citas-header-top {
-    grid-template-columns: 1fr;
-    text-align: center;
+  .historias-hero-actions .historias-agenda-btn svg {
+    font-size: 1.05rem !important;
   }
 
-  .citas-ir-historias-btn {
-    justify-self: center;
-    width: 100%;
-    max-width: 260px;
+  .historias-total-resumen {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 84px !important;
+    padding: 10px 12px !important;
+    border-radius: 20px !important;
+    gap: 10px !important;
+    border-left: 6px solid #079db2 !important;
+  }
+
+  .historias-total-icon {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 13px !important;
+    font-size: 1rem !important;
+  }
+
+  .historias-total-info span {
+    font-size: 0.56rem !important;
+    line-height: 1.05 !important;
+  }
+
+  .historias-total-info strong {
+    font-size: 2.15rem !important;
+  }
+
+  .historias-total-info small {
+    font-size: 0.58rem !important;
+    line-height: 1.05 !important;
   }
 }
 /* =========================================================

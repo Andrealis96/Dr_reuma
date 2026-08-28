@@ -269,6 +269,99 @@ const textoDiagnosticosConsulta = (consulta) => {
   return lista.join(" - ");
 };
 
+const convertirConsultaADateResumen = (consulta) => {
+  const fecha = consulta.fecha || consulta.fechaConsulta || "";
+  const hora = consulta.hora || "00:00";
+
+  let fechaDate = null;
+
+  if (consulta.creado?.toDate) {
+    fechaDate = consulta.creado.toDate();
+  } else if (consulta.createdAt?.toDate) {
+    fechaDate = consulta.createdAt.toDate();
+  } else if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(fecha)) {
+    const [dia, mes, anio] = fecha.split("/").map(Number);
+    fechaDate = new Date(anio, mes - 1, dia);
+  } else if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(fecha)) {
+    const [anio, mes, dia] = fecha.split("-").map(Number);
+    fechaDate = new Date(anio, mes - 1, dia);
+  }
+
+  if (!fechaDate || isNaN(fechaDate.getTime())) return null;
+
+  const matchHora = hora.toString().match(/^(\d{1,2}):(\d{2})/);
+
+  if (matchHora) {
+    fechaDate.setHours(Number(matchHora[1]), Number(matchHora[2]), 0, 0);
+  }
+
+  return fechaDate;
+};
+
+const formatearFechaResumenPaciente = (fechaDate) => {
+  return fechaDate
+    .toLocaleDateString("es-AR", {
+      weekday: "long",
+      day: "numeric",
+      month: "numeric",
+      year: "numeric"
+    })
+    .replace(",", "")
+    .replace(/^./, (letra) => letra.toUpperCase());
+};
+
+const recalcularResumenPaciente = async () => {
+  const consultasSnap = await getDocs(
+    collection(db, "historiasClinicas", id, "consultas")
+  );
+
+  const diagnosticosSet = new Set();
+  let ultimaConsulta = null;
+
+  consultasSnap.docs.forEach((consultaDoc) => {
+    const consulta = {
+      id: consultaDoc.id,
+      ...consultaDoc.data()
+    };
+
+    obtenerDiagnosticosConsulta(consulta).forEach((diag) => {
+      const limpio = diag?.toString().trim().toUpperCase();
+      if (limpio) diagnosticosSet.add(limpio);
+    });
+
+    const fechaDate = convertirConsultaADateResumen(consulta);
+
+    if (fechaDate) {
+      if (!ultimaConsulta || fechaDate > ultimaConsulta.fechaDate) {
+        ultimaConsulta = {
+          fechaDate,
+          hora: consulta.hora || ""
+        };
+      }
+    }
+  });
+
+  const cantidadConsultas = consultasSnap.docs.length;
+
+  const diagnosticosResumen = Array.from(diagnosticosSet).sort((a, b) =>
+    a.localeCompare(b, "es", { sensitivity: "base" })
+  );
+
+  const ultimaConsultaTexto = ultimaConsulta
+    ? `${formatearFechaResumenPaciente(ultimaConsulta.fechaDate)}${
+        ultimaConsulta.hora ? ` - ${ultimaConsulta.hora} hs` : ""
+      }`
+    : "";
+
+  await updateDoc(doc(db, "historiasClinicas", id), {
+    cantidadConsultas,
+    diagnosticosResumen,
+    ultimaConsultaTexto,
+    ultimaConsultaAtMillis: ultimaConsulta?.fechaDate?.getTime() || 0,
+    resumenActualizadoAt: new Date()
+  });
+};
+
 useEffect(() => {
   if (!diagnosticoRecienteId) return;
 
@@ -499,12 +592,14 @@ const guardarConsulta = async (e) => {
   };
 
   if (consultaEditando) {
-    await updateDoc(
-      doc(db, "historiasClinicas", id, "consultas", consultaEditando.id),
-      dataConsulta
-    );
+  await updateDoc(
+    doc(db, "historiasClinicas", id, "consultas", consultaEditando.id),
+    dataConsulta
+  );
 
-    limpiarFormularioConsulta();
+  await recalcularResumenPaciente();
+
+  limpiarFormularioConsulta();
     setMensajeGuardado("Consulta actualizada");
     setMostrarModal(true);
 
@@ -520,6 +615,8 @@ await addDoc(collection(db, "historiasClinicas", id, "consultas"), {
   creado: new Date()
 });
 
+await recalcularResumenPaciente();
+
 await marcarCitaComoAsistio(dataConsulta);
 
   limpiarFormularioConsulta();
@@ -531,13 +628,15 @@ await marcarCitaComoAsistio(dataConsulta);
   }, 2500);
 };
 
-  const eliminarConsulta = async (cid) => {
-    if (window.confirm("¿Eliminar consulta?")) {
-      await deleteDoc(
-        doc(db, "historiasClinicas", id, "consultas", cid)
-      );
-    }
-  };
+const eliminarConsulta = async (cid) => {
+  if (window.confirm("¿Eliminar consulta?")) {
+    await deleteDoc(
+      doc(db, "historiasClinicas", id, "consultas", cid)
+    );
+
+    await recalcularResumenPaciente();
+  }
+};
 
 const editarConsulta = (consulta) => {
   setConsultaEditando(consulta);
@@ -854,6 +953,8 @@ const irAConsultasRegistradas = () => {
   });
 };
 
+const cantidadConsultas = consultas.length;
+
   return (
     <div className="historia-paciente-page">
 
@@ -893,59 +994,59 @@ const irAConsultasRegistradas = () => {
 ) : (
   <div className="container-fluid historia-paciente-container py-4 mb-5">
           {/* HEADER */}
-          <div className="historia-paciente-header mb-4">
+          <div className="historia-paciente-hero">
+  <div className="historia-paciente-hero-texto">
+    <div className="historia-paciente-badge">
+      <FaFilePdf />
+      <span>Historia clínica digital</span>
+    </div>
 
-            <div>
-              <div className="historia-paciente-badge">
-                <FaFilePdf />
-                Historia clínica digital
-              </div>
+    <h1 className="subtitle-general text-start mb-2">
+      <span className="subtitle-celeste">HISTORIA CLÍNICA</span>{" "}
+      <span className="subtitle-celeste">DEL PACIENTE</span>
+    </h1>
 
-              <h2 className="subtitle-general text-start mb-2">
-                <span className="subtitle-celeste">HISTORIA CLÍNICA</span>{" "}
-                <span className="subtitle-celeste">DEL PACIENTE</span>
-              </h2>
+    <div className="historia-paciente-fecha-hoy">
+      {fechaHoyHistoriaPacienteTexto.toUpperCase()}
+    </div>
 
-              <div className="historia-paciente-fecha-hoy">
-                {fechaHoyHistoriaPacienteTexto.toUpperCase()}
-              </div>
+    <p className="historia-paciente-subtitle">
+      Registro evolutivo, plantillas médicas, diagnósticos y generación de PDF.
+    </p>
+  </div>
 
-              <p className="historia-paciente-subtitle">
-                Registro evolutivo, plantillas médicas, diagnósticos y generación de PDF.
-              </p>
-            </div>
-
-            <div className="historia-paciente-header-actions">
+  <div className="historia-paciente-hero-actions">
 
   <Link
     to="/admin/citas"
-    className="historia-header-action historia-header-agenda"
+    className="historia-paciente-action-card historia-paciente-action-primary"
   >
     <FaCalendarAlt />
-    Agendar cita
+    <span>Agendar cita</span>
   </Link>
 
   <Link
     to="/admin/historias"
-    className="historia-header-action historia-header-volver"
+    className="historia-paciente-action-card historia-paciente-action-secondary"
   >
     <FaFolderOpen />
-    Historias clínicas
+    <span>Historias clínicas</span>
   </Link>
 
   <button
     type="button"
-    className="historia-paciente-count historia-paciente-count-btn"
+    className="historia-paciente-action-card historia-paciente-action-counter"
     onClick={irAConsultasRegistradas}
     title="Ver consultas registradas"
   >
-    <strong>{consultas.length}</strong>
+    <strong>{cantidadConsultas}</strong>
     <span>Consultas</span>
   </button>
 
 </div>
 
-          </div>
+</div>
+<br />
 
           {/* CARD PACIENTE */}
           <div className="historia-paciente-card mb-4">
