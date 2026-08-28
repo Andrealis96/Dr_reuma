@@ -213,7 +213,7 @@ if (diaSemana === "viernes") {
   }
 
   if (configViernes.turno === "tarde") {
-    horariosBase = ["14:45", "15:00", "15:30", "16:30"];
+    horariosBase = [ "15:00", "15:30", "16:00" , "16:30"];
   }
 }
 
@@ -286,7 +286,14 @@ useEffect(() => {
       ...prev,
       tipo: "virtual"
     }));
+
+    return;
   }
+
+  setForm((prev) => ({
+    ...prev,
+    tipo: "presencial"
+  }));
 }, [form.fecha]);
 
   // 🔥 GUARDAR CITA
@@ -368,6 +375,22 @@ if (citaYaExiste) {
     hora: ""
   }));
 
+  return;
+}
+
+const fechaTipoObj = new Date(form.fecha + "T00:00:00");
+
+const diaTipoSemana = fechaTipoObj
+  .toLocaleDateString("es-AR", { weekday: "long" })
+  .toLowerCase();
+
+if (diaTipoSemana === "sábado" && form.tipo !== "virtual") {
+  alert("Los sábados solo se permiten consultas virtuales.");
+  return;
+}
+
+if (diaTipoSemana !== "sábado" && form.tipo !== "presencial") {
+  alert("De lunes a viernes solo se permiten consultas presenciales.");
   return;
 }
 
@@ -730,28 +753,37 @@ const cerrarPreviewComprobantePaciente = () => {
 
     <div className="col-md-6">
 
-      <select
-        name="tipo"
-        className="form-select"
-        value={form.tipo}
-        onChange={handleChange}
-      >
+<select
+  name="tipo"
+  className="form-select"
+  value={form.tipo}
+  onChange={handleChange}
+  required
+>
+  <option
+    value="presencial"
+    disabled={
+      form.fecha &&
+      new Date(form.fecha + "T00:00:00")
+        .toLocaleDateString("es-AR", { weekday: "long" })
+        .toLowerCase() === "sábado"
+    }
+  >
+    Presencial
+  </option>
 
-        <option value="virtual">Virtual</option>
-
-        <option
-          value="presencial"
-          disabled={
-            form.fecha &&
-            new Date(form.fecha + "T00:00:00")
-              .toLocaleDateString("es-AR", { weekday: "long" })
-              .toLowerCase() === "sábado"
-          }
-        >
-          Presencial
-        </option>
-
-      </select>
+  <option
+    value="virtual"
+    disabled={
+      form.fecha &&
+      new Date(form.fecha + "T00:00:00")
+        .toLocaleDateString("es-AR", { weekday: "long" })
+        .toLowerCase() !== "sábado"
+    }
+  >
+    Virtual
+  </option>
+</select>
 
       {form.fecha &&
         new Date(form.fecha + "T00:00:00")
@@ -759,6 +791,15 @@ const cerrarPreviewComprobantePaciente = () => {
           .toLowerCase() === "sábado" && (
           <small className="text-danger d-block mt-1">
             ⚠️ Los sábados solo se permiten consultas virtuales.
+          </small>
+      )}
+
+            {form.fecha &&
+        new Date(form.fecha + "T00:00:00")
+          .toLocaleDateString("es-AR", { weekday: "long" })
+          .toLowerCase() !== "sábado" && (
+          <small className="text-success d-block mt-1">
+            ✅ De lunes a viernes la consulta es únicamente presencial.
           </small>
       )}
 
