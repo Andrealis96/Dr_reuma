@@ -425,29 +425,63 @@ const limpiarTelefono10 = (telefono = "") => {
   return numero;
 };
 
-const obtenerClavePacienteAgenda = (cita) => {
-  const dniPaciente = cita?.Dni || cita?.dni || "";
+const limpiarDniCitaAgenda = (valor = "") => {
+  return valor.toString().replace(/\D/g, "").trim();
+};
 
-  if (dniPaciente.toString().trim()) {
-    return `dni-${dniPaciente.toString().replace(/\D/g, "")}`;
+const obtenerDniCitaAgenda = (cita = {}) => {
+  return limpiarDniCitaAgenda(
+    cita.Dni ||
+    cita.dni ||
+    cita.DNI ||
+    cita.documento ||
+    cita.numeroDocumento ||
+    ""
+  );
+};
+
+const normalizarNombreCitaAgenda = (valor = "") => {
+  return normalizarTexto(valor)
+    .replace(/\s+/g, " ")
+    .trim();
+};
+
+const sonLaMismaPersonaAgenda = (citaA, citaB) => {
+  const historiaA = citaA?.historiaClinicaId || citaA?.pacienteId || "";
+  const historiaB = citaB?.historiaClinicaId || citaB?.pacienteId || "";
+
+  if (historiaA && historiaB && historiaA === historiaB) {
+    return true;
   }
 
-  return `nombre-${normalizarTexto(cita?.nombre || "")}`;
+  const dniA = obtenerDniCitaAgenda(citaA);
+  const dniB = obtenerDniCitaAgenda(citaB);
+
+  if (dniA && dniB && dniA === dniB) {
+    return true;
+  }
+
+  const nombreA = normalizarNombreCitaAgenda(citaA?.nombre || "");
+  const nombreB = normalizarNombreCitaAgenda(citaB?.nombre || "");
+
+  return nombreA && nombreB && nombreA === nombreB;
+};
+
+const obtenerMillisCitaAgenda = (cita = {}) => {
+  const fecha = cita.fecha || "1900-01-01";
+  const hora = cita.hora || "00:00";
+
+  const fechaDate = new Date(`${fecha}T${hora}`);
+
+  return isNaN(fechaDate.getTime()) ? 0 : fechaDate.getTime();
 };
 
 const obtenerNumeroCitaPacienteAgenda = (cita) => {
   if (!cita) return 1;
 
-  const clavePaciente = obtenerClavePacienteAgenda(cita);
-
   const citasPaciente = citasAgenda
-    .filter((c) => obtenerClavePacienteAgenda(c) === clavePaciente)
-    .sort((a, b) => {
-      const fechaA = new Date(`${a.fecha}T${a.hora || "00:00"}`);
-      const fechaB = new Date(`${b.fecha}T${b.hora || "00:00"}`);
-
-      return fechaA - fechaB;
-    });
+    .filter((c) => sonLaMismaPersonaAgenda(c, cita))
+    .sort((a, b) => obtenerMillisCitaAgenda(a) - obtenerMillisCitaAgenda(b));
 
   const posicion = citasPaciente.findIndex((c) => c.id === cita.id);
 
@@ -524,6 +558,23 @@ const buscarPacienteGuardadoPorCita = (cita) => {
   return pacientes.find(
     (p) => normalizarTexto(p.nombre) === normalizarTexto(cita.nombre)
   );
+};
+
+const obtenerNumeroVezHistoriaClinica = (cita) => {
+  const pacienteGuardado = buscarPacienteGuardadoPorCita(cita);
+
+  if (!pacienteGuardado) {
+    return obtenerNumeroCitaPacienteAgenda(cita);
+  }
+
+  const consultasRegistradas = Number(pacienteGuardado.cantidadConsultas || 0);
+  const estado = obtenerEstadoCitaTexto(cita);
+
+  if (estado === "Asistió") {
+    return Math.max(consultasRegistradas, 1);
+  }
+
+  return consultasRegistradas + 1;
 };
 
 const cargarPacienteDesdeCitaHoy = (cita) => {
@@ -724,7 +775,7 @@ const fechaHoyHistoriasTexto = new Date()
 
         <tbody className="text-center">
           {citasHoyAgenda.map((c) => {
-            const numeroCita = obtenerNumeroCitaPacienteAgenda(c);
+           const numeroCita = obtenerNumeroVezHistoriaClinica(c);
 
             return (
               <tr

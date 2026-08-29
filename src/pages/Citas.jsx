@@ -435,34 +435,67 @@ const pacientesHoy = citasDB
     return new Date(`${c.fecha}T${c.hora}`) >= new Date();
   }).length;
 
-  const obtenerClavePaciente = (cita) => {
-  const dniPaciente = cita?.Dni || cita?.dni || "";
+const limpiarDniCita = (valor = "") => {
+  return valor.toString().replace(/\D/g, "").trim();
+};
 
-  if (dniPaciente.toString().trim()) {
-    return `dni-${dniPaciente.toString().replace(/\D/g, "")}`;
-  }
+const obtenerDniCita = (cita = {}) => {
+  return limpiarDniCita(
+    cita.Dni ||
+    cita.dni ||
+    cita.DNI ||
+    cita.documento ||
+    cita.numeroDocumento ||
+    ""
+  );
+};
 
-  return `nombre-${(cita?.nombre || "")
+const normalizarNombreCita = (valor = "") => {
+  return valor
     .toString()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
-    .trim()}`;
+    .replace(/\s+/g, " ")
+    .trim();
+};
+
+const sonLaMismaPersonaCita = (citaA, citaB) => {
+  const historiaA = citaA?.historiaClinicaId || citaA?.pacienteId || "";
+  const historiaB = citaB?.historiaClinicaId || citaB?.pacienteId || "";
+
+  if (historiaA && historiaB && historiaA === historiaB) {
+    return true;
+  }
+
+  const dniA = obtenerDniCita(citaA);
+  const dniB = obtenerDniCita(citaB);
+
+  if (dniA && dniB && dniA === dniB) {
+    return true;
+  }
+
+  const nombreA = normalizarNombreCita(citaA?.nombre || "");
+  const nombreB = normalizarNombreCita(citaB?.nombre || "");
+
+  return nombreA && nombreB && nombreA === nombreB;
+};
+
+const obtenerMillisCita = (cita = {}) => {
+  const fecha = cita.fecha || "1900-01-01";
+  const hora = cita.hora || "00:00";
+
+  const fechaDate = new Date(`${fecha}T${hora}`);
+
+  return isNaN(fechaDate.getTime()) ? 0 : fechaDate.getTime();
 };
 
 const obtenerNumeroCitaPaciente = (cita) => {
   if (!cita) return 1;
 
-  const clavePaciente = obtenerClavePaciente(cita);
-
   const citasPaciente = citasDB
-    .filter((c) => obtenerClavePaciente(c) === clavePaciente)
-    .sort((a, b) => {
-      const fechaA = new Date(`${a.fecha}T${a.hora || "00:00"}`);
-      const fechaB = new Date(`${b.fecha}T${b.hora || "00:00"}`);
-
-      return fechaA - fechaB;
-    });
+    .filter((c) => sonLaMismaPersonaCita(c, cita))
+    .sort((a, b) => obtenerMillisCita(a) - obtenerMillisCita(b));
 
   const posicion = citasPaciente.findIndex((c) => c.id === cita.id);
 
