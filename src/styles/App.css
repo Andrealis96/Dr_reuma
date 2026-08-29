@@ -5300,6 +5300,131 @@ html, body, #root {
     line-height: 1.05 !important;
   }
 }
+
+/* ===== RESTAURAR BOTONES HEADER HISTORIA PACIENTE ===== */
+
+.historia-paciente-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.historia-paciente-hero-texto {
+  text-align: left;
+}
+
+.historia-paciente-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: nowrap;
+}
+
+.historia-paciente-action-card {
+  width: 118px;
+  height: 96px;
+  border-radius: 24px;
+  border: none;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  text-align: center;
+  text-decoration: none !important;
+  font-weight: 1000;
+  font-size: 0.8rem;
+  line-height: 1.1;
+
+  cursor: pointer;
+  box-shadow: 0 12px 26px rgba(0, 150, 170, 0.2);
+}
+
+.historia-paciente-action-card svg {
+  font-size: 1.25rem;
+}
+
+.historia-paciente-action-primary {
+  background: linear-gradient(135deg, #079db2, #007f91);
+  color: white !important;
+}
+
+.historia-paciente-action-secondary {
+  background: #eaf8fa;
+  color: #008ca0 !important;
+  border: 1px solid rgba(0, 150, 170, 0.25);
+}
+
+.historia-paciente-action-counter {
+  background: linear-gradient(135deg, #079db2, #007f91);
+  color: white !important;
+}
+
+.historia-paciente-action-counter strong {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.historia-paciente-action-counter span {
+  font-size: 0.8rem;
+}
+
+.historia-paciente-action-card:hover {
+  transform: translateY(-2px);
+}
+
+.historia-paciente-action-card:focus,
+.historia-paciente-action-card:active,
+.historia-paciente-action-card:focus-visible {
+  outline: none;
+}
+
+@media (max-width: 768px) {
+  .historia-paciente-hero {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .historia-paciente-hero-texto {
+    text-align: center;
+  }
+
+  .historia-paciente-hero-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .historia-paciente-action-card {
+    width: 100%;
+    min-width: 0;
+    height: 82px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    padding: 8px;
+  }
+
+  .historia-paciente-action-card svg {
+    font-size: 1.05rem;
+  }
+
+  .historia-paciente-action-counter {
+    grid-column: 1 / -1;
+    width: 48%;
+    max-width: 135px;
+    margin: 0 auto;
+    height: 72px;
+  }
+
+  .historia-paciente-action-counter strong {
+    font-size: 1.6rem;
+  }
+}
 /* =========================================================
    BUSCADOR DESDE AGENDA - HISTORIAS CLÍNICAS
 ========================================================= */
