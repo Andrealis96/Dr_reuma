@@ -2728,13 +2728,7 @@ margin-top: 5px;
   transform: translateY(-1px);
 }
 
-.buscador-citas-card {
-  background: rgba(9, 154, 173, 0.16);
-  border: 1px solid rgba(9, 154, 173, 0.16);
-  border-radius: 24px;
-  padding: 18px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
-}
+
 
 .citas-titulo-fecha {
   text-align: center;
@@ -8835,14 +8829,6 @@ html, body, #root {
   font-weight: 900 !important;
   line-height: 1.1 !important;
   margin-top: 4px !important;
-}
-
-
-
-/* oculta el buscador */
-/* OCULTAR BUSCADOR DE PACIENTES EN AGENDA DE CITAS */
-.buscador-citas-card {
-  display: none !important;
 }
 
 

@@ -439,16 +439,6 @@ const pacientesHoy = citasDB
   .filter((c) => c.fecha === fechaTablaCitas)
   .sort((a, b) => (a.hora || "").localeCompare(b.hora || ""));
 
-  const citasHoy = pacientesHoy.length;
-
-  const proximoPaciente = pacientesHoy.find(c => {
-    return new Date(`${c.fecha}T${c.hora}`) >= new Date();
-  });
-
-  const pacientesRestantes = pacientesHoy.filter(c => {
-    return new Date(`${c.fecha}T${c.hora}`) >= new Date();
-  }).length;
-
 const limpiarDniCita = (valor = "") => {
   return valor.toString().replace(/\D/g, "").trim();
 };
@@ -1325,7 +1315,6 @@ return (
 )}
 
 {/* HEADER */}
-{/* HEADER */}
 <div className="citas-header-top citas-agenda-hero mb-4">
 
   <div className="citas-header-main">
@@ -1366,222 +1355,8 @@ return (
 
 </div>
 
-      {/* CARDS */}
-      <div className="row g-3 mb-4 citas-stats-row">
-
-        <div className="col-6 col-md-4">
-          <div className="stat-card h-100">
-            <h6><FaCalendarAlt className="me-2 celeste" />Hoy</h6>
-            <h4>{citasHoy}</h4>
-          </div>
-        </div>
-
-        <div className="col-6 col-md-4">
-          <div className="stat-card h-100">
-            <h6><FaUserClock className="me-2 celeste" />Próximo paciente</h6>
-            <h5>
-              {proximoPaciente
-                ? capitalizarNombre(proximoPaciente.nombre)
-                : "Sin pacientes"}
-            </h5>
-            <small>{proximoPaciente?.hora || ""}</small>
-          </div>
-        </div>
-
-        <div className="col-12 col-md-4">
-          <div className="stat-card h-100">
-            <h6><FaUsers className="me-2 celeste" />Restantes</h6>
-            <h4>{pacientesRestantes}</h4>
-          </div>
-        </div>
-
-      </div>
-
-      {/* TABLA DE HOY (LA TUYA ORIGINAL) */}
-      <div className="card shadow-sm mb-4">
-        <div className="card-header text-center text-white fw-bold pacientes-dia-header">
-  <button
-    type="button"
-    className="pacientes-dia-nav-btn"
-    onClick={() => cambiarDiaTablaCitas(-1)}
-    title="Ver día anterior"
-  >
-    <FaChevronLeft />
-  </button>
-
-<div className="pacientes-dia-title pacientes-dia-title-agenda">
-  <button
-    type="button"
-    className="pacientes-dia-title-btn"
-    onClick={irAListadoDelDiaTabla}
-    title="Ir al listado de este día"
-  >
-    {tituloTablaCitas}
-  </button>
-
-  <small>
-    Toca una fila para ver, editar, confirmar o reagendar la cita.
-  </small>
-</div>
-
-  <button
-    type="button"
-    className="pacientes-dia-nav-btn"
-    onClick={() => cambiarDiaTablaCitas(1)}
-    title="Ver día siguiente"
-  >
-    <FaChevronRight />
-  </button>
-</div>
-
-        <div className="card-body p-0 table-responsive">
-
-          {pacientesHoy.length === 0 ? (
-            <div className="p-3 text-center">
-              No hay citas programadas
-            </div>
-          ) : (
-            <table className="table table-sm mb-0 tabla-pacientes-hoy">
-              <thead>
-                <tr className="text-center">
-                  <th>
-                      <FaClock className="me-1 celeste text-center" /> <br />
-                       <span className="celeste">
-                        Hora
-                       </span>
-                    </th>
-
-                    <th>
-                      <FaUser className="me-2 celeste" /><br />
-                      <span className="celeste">
-                      Paciente
-                      </span>
-                    </th>
-
-                    <th>
-                      <FaIdCard className="me-2 celeste" /> <br />
-                      <span className="celeste">
-                        Dni
-                      </span>
-                    </th>
-
-                    <th>
-                      <FaWhatsapp className="me-2 celeste" /> <br />
-                      <span className="celeste">
-                        Teléfono
-                      </span>
-                    </th>
-
-                    <th>
-                      <FaUserClock className="me-2 celeste" /> <br />
-                      <span className="celeste">
-                        Vez
-                      </span>
-                    </th>
-
-                    <th>
-                      <FaStethoscope className="me-2 celeste" /> <br />
-                      <span className="celeste">
-                        Motivo
-                      </span>
-                    </th>
-
-                    <th>
-                      <FaCheckCircle className="me-2 celeste" /> <br />
-                      <span className="celeste">
-                        Estado
-                      </span>
-                    </th>
-                </tr>
-              </thead>
-
-              <tbody className="text-center">
-                {pacientesHoy.map(c => (
-                    <tr
-                      key={c.id}
-                      className="fila-cita-clickable"
-                      onClick={() => abrirDetalle(c)}
-                      title="Ver detalle de la cita"
-                    >
-                    <td>
-                      {c.sinAgenda ? (
-                        <span className="hora-sin-agenda">
-                          Sin hora
-                        </span>
-                      ) : (
-                        c.hora
-                      )}
-                    </td>
-                    <td>{capitalizarNombre(c.nombre)}</td>
-                    
-                    <td>{c.Dni}</td>
-                    <td>
-                      {c.telefono ? (
-                        <button
-                          type="button"
-                          className="btn-whatsapp-tabla"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            abrirWhatsappCita(c, true, "recordatorio");
-                          }}
-                          title="Enviar recordatorio por WhatsApp Business"
-                        >
-                          <FaWhatsapp />
-                          {limpiarTelefono10(c.telefono)}
-                        </button>
-                      ) : (
-                        "-"
-                      )}
-                    </td>
-
-                  <td>
-                      {(() => {
-                        const numeroCita = obtenerNumeroCitaPaciente(c);
-                        const textoVez = textoNumeroCitaPaciente(numeroCita);
-
-                        return (
-                          <span className={obtenerClaseVez(textoVez)}>
-                            {textoVez}
-                          </span>
-                        );
-                      })()}
-                    </td>
-
-                      <td>
-                      <span
-                        className="motivo-tabla-cita"
-                        title={c.motivoConsulta || "Sin motivo"}
-                      >
-                        {c.motivoConsulta || "Sin motivo"}
-                      </span>
-                    </td>
-
-                    <td>
-                      <span className={`estado-cita-simple ${obtenerEstadoCitaClase(c)}`}>
-                        {obtenerEstadoCitaTexto(c)}
-                      </span>
-                    </td>
-
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-
-        </div>
-      </div>
-
 {/* BUSCADOR DE CITAS */}
-<div className="buscador-citas-card mt-4 mb-4">
-
-  <div className="buscador-citas-title">
-    <FaSearch />
-    <span>Buscar cita para editar o reagendar</span>
-  </div>
-
-  <p className="buscador-citas-help">
-    Busca turnos agendados por nombre o DNI. No busca historias clínicas.
-  </p>
+<div className="buscador-citas-card mb-4">
 
   <div className="buscador-citas-input-wrap">
     <FaSearch className="buscador-citas-icon" />
@@ -1762,8 +1537,7 @@ eventClick={(info) => {
   }, 50);
 }}
 />
-</div>
-
+      </div>
 
 {/* BLOQUE DÍA SELECCIONADO */}
 {diaSeleccionado && (
@@ -2039,7 +1813,7 @@ horariosDisponibles.map(h => {
         </div>
       )}
 
-      {/* MODAL cita y modal detalle*/}
+{/* MODAL cita y modal detalle*/}
 <ModalCita
   show={showModal}
   onHide={() => {
@@ -2054,7 +1828,6 @@ horariosDisponibles.map(h => {
   tipoPreseleccionado={obtenerTipoCitaPorFecha(fechaSeleccionada || diaSeleccionado)}
   obtenerHorariosDisponibles={obtenerHorariosDisponibles}
 />
-
 <ModalDetalle
   show={showDetalle}
   onHide={() => setShowDetalle(false)}
@@ -2073,9 +1846,7 @@ horariosDisponibles.map(h => {
     await deleteDoc(doc(db, "citas", cita.id));
   }}
 />
-
-
-      {showModalNota && (
+{showModalNota && (
   <div className="modal d-block" style={{ background: "rgba(0,0,0,0.5)" }}>
     <div className="modal-dialog modal-dialog-centered">
       <div className="modal-content">
@@ -2140,7 +1911,6 @@ horariosDisponibles.map(h => {
     </div>
   </div>
 )}
-
 {showModalBloqueo && (
   <div className="modal d-block" style={{ background: "rgba(0,0,0,0.5)" }}>
     <div className="modal-dialog modal-dialog-centered">
@@ -2192,7 +1962,6 @@ horariosDisponibles.map(h => {
     </div>
   </div>
 )}
-
 {citaParaDescargar && (
 
   <div className="servicio-comprobante-hidden">
@@ -2293,7 +2062,6 @@ horariosDisponibles.map(h => {
     </div>
   </div>
 )}
-
 {previewComprobanteUrl && (
   <div className="comprobante-preview-overlay">
     <div className="comprobante-preview-card">
@@ -2343,9 +2111,182 @@ horariosDisponibles.map(h => {
   </div>
 )}
 
+
+
+   {/* TABLA DE HOY (LA TUYA ORIGINAL) */}
+      <div className="card shadow-sm mb-4 mt-4">
+        <div className="card-header text-center text-white fw-bold pacientes-dia-header">
+  <button
+    type="button"
+    className="pacientes-dia-nav-btn"
+    onClick={() => cambiarDiaTablaCitas(-1)}
+    title="Ver día anterior"
+  >
+    <FaChevronLeft />
+  </button>
+
+<div className="pacientes-dia-title pacientes-dia-title-agenda">
+  <button
+    type="button"
+    className="pacientes-dia-title-btn"
+    onClick={irAListadoDelDiaTabla}
+    title="Ir al listado de este día"
+  >
+    {tituloTablaCitas}
+  </button>
+
+  <small>
+    Toca una fila para ver, editar, confirmar o reagendar la cita.
+  </small>
 </div>
 
+  <button
+    type="button"
+    className="pacientes-dia-nav-btn"
+    onClick={() => cambiarDiaTablaCitas(1)}
+    title="Ver día siguiente"
+  >
+    <FaChevronRight />
+  </button>
+</div>
 
+        <div className="card-body p-0 table-responsive">
+
+          {pacientesHoy.length === 0 ? (
+            <div className="p-3 text-center">
+              No hay citas programadas
+            </div>
+          ) : (
+            <table className="table table-sm mb-0 tabla-pacientes-hoy">
+              <thead>
+                <tr className="text-center">
+                  <th>
+                      <FaClock className="me-1 celeste text-center" /> <br />
+                       <span className="celeste">
+                        Hora
+                       </span>
+                    </th>
+
+                    <th>
+                      <FaUser className="me-2 celeste" /><br />
+                      <span className="celeste">
+                      Paciente
+                      </span>
+                    </th>
+
+                    <th>
+                      <FaIdCard className="me-2 celeste" /> <br />
+                      <span className="celeste">
+                        Dni
+                      </span>
+                    </th>
+
+                    <th>
+                      <FaWhatsapp className="me-2 celeste" /> <br />
+                      <span className="celeste">
+                        Teléfono
+                      </span>
+                    </th>
+
+                    <th>
+                      <FaUserClock className="me-2 celeste" /> <br />
+                      <span className="celeste">
+                        Vez
+                      </span>
+                    </th>
+
+                    <th>
+                      <FaStethoscope className="me-2 celeste" /> <br />
+                      <span className="celeste">
+                        Motivo
+                      </span>
+                    </th>
+
+                    <th>
+                      <FaCheckCircle className="me-2 celeste" /> <br />
+                      <span className="celeste">
+                        Estado
+                      </span>
+                    </th>
+                </tr>
+              </thead>
+
+              <tbody className="text-center">
+                {pacientesHoy.map(c => (
+                    <tr
+                      key={c.id}
+                      className="fila-cita-clickable"
+                      onClick={() => abrirDetalle(c)}
+                      title="Ver detalle de la cita"
+                    >
+                    <td>
+                      {c.sinAgenda ? (
+                        <span className="hora-sin-agenda">
+                          Sin hora
+                        </span>
+                      ) : (
+                        c.hora
+                      )}
+                    </td>
+                    <td>{capitalizarNombre(c.nombre)}</td>
+                    
+                    <td>{c.Dni}</td>
+                    <td>
+                      {c.telefono ? (
+                        <button
+                          type="button"
+                          className="btn-whatsapp-tabla"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            abrirWhatsappCita(c, true, "recordatorio");
+                          }}
+                          title="Enviar recordatorio por WhatsApp Business"
+                        >
+                          <FaWhatsapp />
+                          {limpiarTelefono10(c.telefono)}
+                        </button>
+                      ) : (
+                        "-"
+                      )}
+                    </td>
+
+                  <td>
+                      {(() => {
+                        const numeroCita = obtenerNumeroCitaPaciente(c);
+                        const textoVez = textoNumeroCitaPaciente(numeroCita);
+
+                        return (
+                          <span className={obtenerClaseVez(textoVez)}>
+                            {textoVez}
+                          </span>
+                        );
+                      })()}
+                    </td>
+
+                      <td>
+                      <span
+                        className="motivo-tabla-cita"
+                        title={c.motivoConsulta || "Sin motivo"}
+                      >
+                        {c.motivoConsulta || "Sin motivo"}
+                      </span>
+                    </td>
+
+                    <td>
+                      <span className={`estado-cita-simple ${obtenerEstadoCitaClase(c)}`}>
+                        {obtenerEstadoCitaTexto(c)}
+                      </span>
+                    </td>
+
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+
+        </div>
+      </div>
+</div>
   ); 
 }
 
