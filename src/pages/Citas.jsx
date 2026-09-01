@@ -1535,20 +1535,17 @@ return (
                     </td>
 
                   <td>
-                    {(() => {
-                      const numeroCita = obtenerNumeroCitaPaciente(c);
+                      {(() => {
+                        const numeroCita = obtenerNumeroCitaPaciente(c);
+                        const textoVez = textoNumeroCitaPaciente(numeroCita);
 
-                      return (
-                        <span
-                          className={`badge-vez-paciente ${
-                            numeroCita === 1 ? "badge-primera-vez" : "badge-repetido"
-                          }`}
-                        >
-                          {textoNumeroCitaPaciente(numeroCita)}
-                        </span>
-                      );
-                    })()}
-                  </td>
+                        return (
+                          <span className={obtenerClaseVez(textoVez)}>
+                            {textoVez}
+                          </span>
+                        );
+                      })()}
+                    </td>
 
                       <td>
                       <span

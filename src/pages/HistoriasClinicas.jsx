@@ -496,6 +496,15 @@ const textoNumeroCitaPacienteAgenda = (numero) => {
   return `${numero}ª vez`;
 };
 
+const obtenerClaseVezHistoria = (textoVez = "") => {
+  const texto = String(textoVez).toLowerCase();
+
+  if (texto.includes("primera")) return "vez-badge vez-primera";
+  if (texto.includes("segunda")) return "vez-badge vez-segunda";
+
+  return "vez-badge vez-tercera-mas";
+};
+
 const fechaISODesdeDate = (fecha) => {
   const anio = fecha.getFullYear();
   const mes = String(fecha.getMonth() + 1).padStart(2, "0");
@@ -817,14 +826,16 @@ const fechaHoyHistoriasTexto = new Date()
                 </td>
 
                 <td>
-                  <span
-                    className={`badge-vez-paciente ${
-                      numeroCita === 1 ? "badge-primera-vez" : "badge-repetido"
-                    }`}
-                  >
-                    {textoNumeroCitaPacienteAgenda(numeroCita)}
-                  </span>
-                </td>
+                {(() => {
+                  const textoVez = textoNumeroCitaPacienteAgenda(numeroCita);
+
+                  return (
+                    <span className={obtenerClaseVezHistoria(textoVez)}>
+                      {textoVez}
+                    </span>
+                  );
+                })()}
+              </td>
 
                 <td>
                   <span
