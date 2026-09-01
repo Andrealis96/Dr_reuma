@@ -1135,12 +1135,12 @@ const abrirWhatsappCita = (cita, usarNueve = true, tipoMensaje = "recordatorio")
 
   if (tipoMensaje === "recordatorio") {
   texto =
-    `_______RECORDATORIO DE CITA ______ \n\n` +
+    `RECORDATORIO DE CITA  \n\n` +
     `Hola ${capitalizarNombre(cita.nombre || "")}, te recordamos tu cita con el Dr. Tony Vélez (Reumatólogo).\n\n` +
     `Por favor, responde a este mensaje si confirmas tu asistencia o si necesitas reprogramar.\n\n` +
-    `-Fecha: ${formatearFechaComprobante(cita.fecha)}\n` +
-    `-Hora: ${cita.hora} hs\n` +
-    `-Lugar: ${obtenerLugarCita(cita)}\n\n` +
+    `- Fecha: ${formatearFechaComprobante(cita.fecha)}\n` +
+    `- Hora: ${cita.hora} hs\n` +
+    `- Lugar: ${obtenerLugarCita(cita)}\n\n` +
     `Te esperamos.\n\n` +
     `Dr. Reuma`;
 }

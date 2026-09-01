@@ -10490,3 +10490,76 @@ html, body, #root {
     border-left:20px solid transparent;
   }
 }
+/* ===== BUSCADOR MODAL NUEVA CITA - LIMPIO ===== */
+
+.modal-cita-form .modal-paciente-buscador {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin-bottom: 14px !important;
+}
+
+.modal-cita-form .modal-paciente-search {
+  width: 100% !important;
+  height: 44px !important;
+  border-radius: 14px !important;
+
+  background: #ffffff !important;
+  border: 1.5px solid rgba(0, 150, 170, 0.35) !important;
+  box-shadow: none !important;
+
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+
+  padding: 0 14px !important;
+  position: relative !important;
+}
+
+.modal-cita-form .modal-paciente-search svg {
+  position: static !important;
+  left: auto !important;
+  top: auto !important;
+  transform: none !important;
+
+  color: #079db2 !important;
+  font-size: 1rem !important;
+  flex: 0 0 auto !important;
+}
+
+.modal-cita-form .modal-paciente-search input,
+.modal-cita-form .modal-paciente-search .form-control {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+
+  padding: 0 !important;
+  margin: 0 !important;
+
+  color: #222 !important;
+  font-size: 0.82rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase;
+}
+
+.modal-cita-form .modal-paciente-search input::placeholder {
+  color: #6b7b83 !important;
+  font-weight: 800 !important;
+  opacity: 1 !important;
+}
+
+.modal-cita-form .modal-paciente-search button {
+  position: static !important;
+  border: none !important;
+  background: transparent !important;
+  color: #079db2 !important;
+  font-size: 1.1rem !important;
+  font-weight: 900 !important;
+  padding: 0 !important;
+  flex: 0 0 auto !important;
+}
