@@ -363,6 +363,18 @@ const recalcularResumenPaciente = async () => {
 };
 
 useEffect(() => {
+  if (!paciente) return;
+  if (!Array.isArray(consultas)) return;
+
+  const cantidadReal = consultas.length;
+  const cantidadResumen = Number(paciente.cantidadConsultas || 0);
+
+  if (cantidadReal !== cantidadResumen) {
+    recalcularResumenPaciente();
+  }
+}, [paciente, consultas.length]);
+
+useEffect(() => {
   if (!diagnosticoRecienteId) return;
 
   const timer = setTimeout(() => {

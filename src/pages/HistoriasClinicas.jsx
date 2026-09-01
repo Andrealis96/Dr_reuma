@@ -563,18 +563,18 @@ const buscarPacienteGuardadoPorCita = (cita) => {
 const obtenerNumeroVezHistoriaClinica = (cita) => {
   const pacienteGuardado = buscarPacienteGuardadoPorCita(cita);
 
-  if (!pacienteGuardado) {
-    return obtenerNumeroCitaPacienteAgenda(cita);
+  if (pacienteGuardado) {
+    const consultasRegistradas = Number(pacienteGuardado.cantidadConsultas || 0);
+    const estado = obtenerEstadoCitaTexto(cita);
+
+    if (estado === "Asistió") {
+      return Math.max(consultasRegistradas, 1);
+    }
+
+    return consultasRegistradas + 1;
   }
 
-  const consultasRegistradas = Number(pacienteGuardado.cantidadConsultas || 0);
-  const estado = obtenerEstadoCitaTexto(cita);
-
-  if (estado === "Asistió") {
-    return Math.max(consultasRegistradas, 1);
-  }
-
-  return consultasRegistradas + 1;
+  return obtenerNumeroCitaPacienteAgenda(cita);
 };
 
 const cargarPacienteDesdeCitaHoy = (cita) => {

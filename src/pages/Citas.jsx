@@ -55,6 +55,7 @@ function Citas() {
   const calendarRef = useRef(null);
 
   const [citasDB, setCitasDB] = useState([]);
+  const [historiasPacientes, setHistoriasPacientes] = useState([]);
   const [eventos, setEventos] = useState([]);
 
   const [showModal, setShowModal] = useState(false);
@@ -116,6 +117,19 @@ function Citas() {
 
     return () => unsub();
   }, []);
+
+  useEffect(() => {
+  const unsub = onSnapshot(collection(db, "historiasClinicas"), (snap) => {
+    const data = snap.docs.map((d) => ({
+      id: d.id,
+      ...d.data()
+    }));
+
+    setHistoriasPacientes(data);
+  });
+
+  return () => unsub();
+}, []);
 
   useEffect(() => {
   const eventosCitas = citasDB.map(c => ({
@@ -460,6 +474,45 @@ const normalizarNombreCita = (valor = "") => {
     .trim();
 };
 
+const buscarPacienteHistoriaPorCita = (cita = {}) => {
+  const historiaClinicaId = cita.historiaClinicaId || cita.pacienteId || "";
+
+  if (historiaClinicaId) {
+    const pacientePorId = historiasPacientes.find(
+      (p) => p.id === historiaClinicaId
+    );
+
+    if (pacientePorId) return pacientePorId;
+  }
+
+  const dniCita = obtenerDniCita(cita);
+
+  if (dniCita) {
+    const pacientePorDni = historiasPacientes.find((p) => {
+      const dniPaciente = limpiarDniCita(
+        p.dni ||
+        p.Dni ||
+        p.DNI ||
+        p.documento ||
+        p.numeroDocumento ||
+        ""
+      );
+
+      return dniPaciente && dniPaciente === dniCita;
+    });
+
+    if (pacientePorDni) return pacientePorDni;
+  }
+
+  const nombreCita = normalizarNombreCita(cita.nombre || "");
+
+  if (!nombreCita) return null;
+
+  return historiasPacientes.find(
+    (p) => normalizarNombreCita(p.nombre || "") === nombreCita
+  );
+};
+
 const sonLaMismaPersonaCita = (citaA, citaB) => {
   const historiaA = citaA?.historiaClinicaId || citaA?.pacienteId || "";
   const historiaB = citaB?.historiaClinicaId || citaB?.pacienteId || "";
@@ -492,6 +545,19 @@ const obtenerMillisCita = (cita = {}) => {
 
 const obtenerNumeroCitaPaciente = (cita) => {
   if (!cita) return 1;
+
+  const pacienteHistoria = buscarPacienteHistoriaPorCita(cita);
+
+  if (pacienteHistoria) {
+    const consultasRegistradas = Number(pacienteHistoria.cantidadConsultas || 0);
+    const estado = obtenerEstadoCitaTexto(cita);
+
+    if (estado === "Asistió") {
+      return Math.max(consultasRegistradas, 1);
+    }
+
+    return consultasRegistradas + 1;
+  }
 
   const citasPaciente = citasDB
     .filter((c) => sonLaMismaPersonaCita(c, cita))
@@ -1197,6 +1263,13 @@ const irAListadoDelDiaTabla = () => {
   }, 250);
 };
 
+const obtenerClaseVez = (textoVez = "") => {
+  const texto = String(textoVez).toLowerCase();
+
+  if (texto.includes("primera")) return "vez-badge vez-primera";
+  if (texto.includes("segunda")) return "vez-badge vez-segunda";
+  return "vez-badge vez-tercera-mas";
+};
 
 
 return (
