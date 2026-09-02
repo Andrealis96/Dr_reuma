@@ -548,9 +548,92 @@ const tituloTablaAgenda = esTablaDeHoy
   ? "PACIENTES DE HOY"
   : `PACIENTES DEL ${formatearFechaTablaAgenda(fechaTablaAgenda).toUpperCase()}`;
 
-const citasHoyAgenda = citasAgenda
-  .filter((c) => c.fecha === fechaTablaAgenda)
-  .sort((a, b) => (a.hora || "").localeCompare(b.hora || ""));
+const obtenerInicioDiaMillis = (fechaISO) => {
+  const [anio, mes, dia] = fechaISO.split("-").map(Number);
+  return new Date(anio, mes - 1, dia, 0, 0, 0, 0).getTime();
+};
+
+const obtenerFinDiaMillis = (fechaISO) => {
+  const [anio, mes, dia] = fechaISO.split("-").map(Number);
+  return new Date(anio, mes - 1, dia, 23, 59, 59, 999).getTime();
+};
+
+const citaYaExisteParaPaciente = (paciente, citasDelDia) => {
+  const dniPaciente = (paciente.dni || paciente.Dni || "")
+    .toString()
+    .replace(/\D/g, "");
+
+  if (dniPaciente) {
+    return citasDelDia.some((cita) => {
+      const dniCita = (cita.Dni || cita.dni || "")
+        .toString()
+        .replace(/\D/g, "");
+
+      return dniCita && dniCita === dniPaciente;
+    });
+  }
+
+  const nombrePaciente = normalizarTexto(paciente.nombre || "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return citasDelDia.some((cita) => {
+    const nombreCita = normalizarTexto(cita.nombre || "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    return nombrePaciente && nombreCita === nombrePaciente;
+  });
+};
+
+const citasDelDiaAgenda = citasAgenda.filter(
+  (c) => c.fecha === fechaTablaAgenda
+);
+
+const atencionesSinAgenda = pacientes
+  .filter((p) => {
+    const ultimaConsultaMillis = Number(p.ultimaConsultaAtMillis || 0);
+
+    const esConsultaDelDia =
+      ultimaConsultaMillis >= obtenerInicioDiaMillis(fechaTablaAgenda) &&
+      ultimaConsultaMillis <= obtenerFinDiaMillis(fechaTablaAgenda);
+
+    return (
+      esConsultaDelDia &&
+      !citaYaExisteParaPaciente(p, citasDelDiaAgenda)
+    );
+  })
+  .map((p) => ({
+    id: `sin-agenda-${p.id}`,
+    historiaClinicaId: p.id,
+
+    nombre: p.nombre || "",
+    Dni: p.dni || p.Dni || "",
+    telefono: p.telefono || "",
+
+    fecha: fechaTablaAgenda,
+    hora: "00:00",
+
+    sinAgenda: true,
+    origen: "sinAgendaResumen",
+
+    tipo: "presencial",
+
+    fechaNacimiento: p.fechaNacimiento || "",
+    obraSocial: p.obraSocial || "",
+    sexo: p.sexo || "",
+
+    motivoConsulta: "Sin cita / Atención espontánea",
+
+    estadoCita: "asistio",
+    estadoAsistencia: "asistio",
+    estadoConfirmacion: "confirmado"
+  }));
+
+const citasHoyAgenda = [
+  ...atencionesSinAgenda,
+  ...citasDelDiaAgenda
+].sort((a, b) => (a.hora || "").localeCompare(b.hora || ""));
 
 const buscarPacienteGuardadoPorCita = (cita) => {
   const dniCita = (cita?.Dni || cita?.dni || "")
@@ -592,9 +675,16 @@ const cargarPacienteDesdeCitaHoy = (cita) => {
   const pacienteGuardado = buscarPacienteGuardadoPorCita(cita);
 
   if (pacienteGuardado) {
-    navigate(`/admin/historia/${pacienteGuardado.id}?citaId=${cita.id}`);
-    return;
-  }
+  const esSinAgendaDesdeResumen = cita.origen === "sinAgendaResumen";
+
+  navigate(
+    `/admin/historia/${pacienteGuardado.id}${
+      esSinAgendaDesdeResumen ? "" : `?citaId=${cita.id}`
+    }`
+  );
+
+  return;
+}
 
   setNombre(cita.nombre || "");
   setDni(cita.Dni || cita.dni || "");
