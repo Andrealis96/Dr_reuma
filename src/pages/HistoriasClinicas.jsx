@@ -52,7 +52,6 @@ function HistoriasClinicas() {
   const [fechaNacimiento, setFechaNacimiento] = useState("");
   const [obraSocial, setObraSocial] = useState("");
   const [sexo, setSexo] = useState("");
-
   const [busqueda, setBusqueda] = useState(() => {
   return sessionStorage.getItem("busquedaHistorias") || "";
 }); 
@@ -620,6 +619,7 @@ const fechaHoyHistoriasTexto = new Date()
   })
   .replace(",", "")
   .replace(/^./, (letra) => letra.toUpperCase());
+
 
   return (
     <div className="container historias-modern-container py-4 mb-5">
