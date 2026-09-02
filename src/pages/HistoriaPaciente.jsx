@@ -56,7 +56,7 @@ const citaIdAgenda = searchParams.get("citaId");
   const [diagnosticoRecienteId, setDiagnosticoRecienteId] = useState(null);
   const diagnosticosBoxRef = useRef(null);
   const consultasRegistradasRef = useRef(null);
-
+  const sincronizandoAgendaHoyRef = useRef(false);
   const [consultaAbierta, setConsultaAbierta] = useState(null);
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mensajeGuardado, setMensajeGuardado] = useState("Consulta guardada");
@@ -495,7 +495,8 @@ const buscarTelefonoPrevioPorDni = async () => {
   return citasDelPaciente[0]?.telefono || "";
 };
 
-const marcarCitaComoAsistio = async (consultaGuardada = {}) => {
+const marcarCitaComoAsistio = 
+  async (consultaGuardada = {}) => {
   if (!paciente) return;
 
   const datosAsistencia = {
@@ -505,6 +506,38 @@ const marcarCitaComoAsistio = async (consultaGuardada = {}) => {
     asistenciaActualizadaAt: new Date(),
     historiaClinicaId: id
   };
+
+
+  useEffect(() => {
+  if (!paciente) return;
+  if (!consultas.length) return;
+  if (sincronizandoAgendaHoyRef.current) return;
+
+  const hoyISO = obtenerFechaHoyLocal();
+
+  const consultaDeHoy = consultas.find((consulta) => {
+    const fechaDate = convertirConsultaADateResumen(consulta);
+
+    if (!fechaDate) return false;
+
+    const offset = fechaDate.getTimezoneOffset();
+
+    const fechaISO = new Date(fechaDate.getTime() - offset * 60000)
+      .toISOString()
+      .split("T")[0];
+
+    return fechaISO === hoyISO;
+  });
+
+  if (!consultaDeHoy) return;
+
+  sincronizandoAgendaHoyRef.current = true;
+
+  marcarCitaComoAsistio(consultaDeHoy).catch((error) => {
+    console.error("Error sincronizando consulta de hoy con agenda:", error);
+    sincronizandoAgendaHoyRef.current = false;
+  });
+}, [paciente, consultas.length]);
 
   // Caso 1: viene desde Pacientes de hoy con citaId
   if (citaIdAgenda) {
@@ -611,10 +644,12 @@ const guardarConsulta = async (e) => {
     dataConsulta
   );
 
-  await recalcularResumenPaciente();
+await recalcularResumenPaciente();
 
-  limpiarFormularioConsulta();
-    setMensajeGuardado("Consulta actualizada");
+await marcarCitaComoAsistio(dataConsulta);
+
+limpiarFormularioConsulta();
+setMensajeGuardado("Consulta actualizada");
     setMostrarModal(true);
 
     setTimeout(() => {

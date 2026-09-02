@@ -424,6 +424,22 @@ const limpiarTelefono10 = (telefono = "") => {
   return numero;
 };
 
+const abrirWhatsappAgendaHistoria = (cita) => {
+  if (!cita?.telefono) return;
+
+  const numero10 = limpiarTelefono10(cita.telefono);
+
+  if (!numero10) return;
+
+  const numero = `549${numero10}`;
+
+  const mensaje = encodeURIComponent(
+    `Hola ${capitalizarNombre(cita.nombre || "")}, te escribimos de Dr. Reuma.`
+  );
+
+  window.open(`https://wa.me/${numero}?text=${mensaje}`, "_blank");
+};
+
 const limpiarDniCitaAgenda = (valor = "") => {
   return valor.toString().replace(/\D/g, "").trim();
 };
@@ -834,6 +850,10 @@ const fechaHoyHistoriasTexto = new Date()
         <thead>
           <tr className="text-center">
             <th>
+              <span className="celeste">N°</span>
+            </th>
+
+            <th>
               <FaClock className="me-1 celeste" /> <br />
               <span className="celeste">Hora</span>
             </th>
@@ -850,7 +870,7 @@ const fechaHoyHistoriasTexto = new Date()
 
             <th>
               <FaWhatsapp className="me-2 celeste" /> <br />
-              <span className="celeste">Teléfono</span>
+              <span className="celeste">Wp</span>
             </th>
 
             <th>
@@ -873,7 +893,7 @@ const fechaHoyHistoriasTexto = new Date()
         </thead>
 
         <tbody className="text-center">
-          {citasHoyAgenda.map((c) => {
+          {citasHoyAgenda.map((c, index) => {
            const numeroCita = obtenerNumeroVezHistoriaClinica(c);
 
             return (
@@ -885,6 +905,10 @@ const fechaHoyHistoriasTexto = new Date()
                   title="Clic para cargar en Nuevo paciente"
                   onClick={() => cargarPacienteDesdeCitaHoy(c)}
                 >
+
+                  <td className="tabla-numero-fila">
+                    {index + 1}
+                  </td>
                 
                 <td>
                   {c.sinAgenda ? (
@@ -905,15 +929,22 @@ const fechaHoyHistoriasTexto = new Date()
                 </td>
 
                 <td>
-                  {c.telefono ? (
-                    <span className="telefono-tabla-hoy">
-                      <FaWhatsapp />
-                      {limpiarTelefono10(c.telefono)}
-                    </span>
-                  ) : (
-                    "-"
-                  )}
-                </td>
+  {c.telefono ? (
+    <button
+      type="button"
+      className="btn-whatsapp-tabla btn-whatsapp-tabla-solo-icono"
+      onClick={(e) => {
+        e.stopPropagation();
+        abrirWhatsappAgendaHistoria(c);
+      }}
+      title="Enviar WhatsApp"
+    >
+      <FaWhatsapp />
+    </button>
+  ) : (
+    "-"
+  )}
+</td>
 
                 <td>
                 {(() => {

@@ -57,7 +57,6 @@ function Citas() {
   const [citasDB, setCitasDB] = useState([]);
   const [historiasPacientes, setHistoriasPacientes] = useState([]);
   const [eventos, setEventos] = useState([]);
-
   const [showModal, setShowModal] = useState(false);
   const [citaEditar, setCitaEditar] = useState(null);
 
@@ -2163,11 +2162,15 @@ horariosDisponibles.map(h => {
               <thead>
                 <tr className="text-center">
                   <th>
-                      <FaClock className="me-1 celeste text-center" /> <br />
-                       <span className="celeste">
-                        Hora
-                       </span>
-                    </th>
+                    <span className="celeste">N°</span>
+                  </th>
+
+                  <th>
+                    <FaClock className="me-1 celeste text-center" /> <br />
+                    <span className="celeste">
+                      Hora
+                    </span>
+                  </th>
 
                     <th>
                       <FaUser className="me-2 celeste" /><br />
@@ -2186,7 +2189,7 @@ horariosDisponibles.map(h => {
                     <th>
                       <FaWhatsapp className="me-2 celeste" /> <br />
                       <span className="celeste">
-                        Teléfono
+                        Wp
                       </span>
                     </th>
 
@@ -2214,13 +2217,17 @@ horariosDisponibles.map(h => {
               </thead>
 
               <tbody className="text-center">
-                {pacientesHoy.map(c => (
+                {pacientesHoy.map((c, index) => (
                     <tr
                       key={c.id}
                       className="fila-cita-clickable"
                       onClick={() => abrirDetalle(c)}
                       title="Ver detalle de la cita"
                     >
+                      <td className="tabla-numero-fila">
+                        {index + 1}
+                      </td>
+
                     <td>
                       {c.sinAgenda ? (
                         <span className="hora-sin-agenda">
@@ -2234,23 +2241,22 @@ horariosDisponibles.map(h => {
                     
                     <td>{c.Dni}</td>
                     <td>
-                      {c.telefono ? (
-                        <button
-                          type="button"
-                          className="btn-whatsapp-tabla"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            abrirWhatsappCita(c, true, "recordatorio");
-                          }}
-                          title="Enviar recordatorio por WhatsApp Business"
-                        >
-                          <FaWhatsapp />
-                          {limpiarTelefono10(c.telefono)}
-                        </button>
-                      ) : (
-                        "-"
-                      )}
-                    </td>
+            {c.telefono ? (
+              <button
+                type="button"
+                className="btn-whatsapp-tabla btn-whatsapp-tabla-solo-icono"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  abrirWhatsappCita(c, true, "recordatorio");
+                }}
+                title="Enviar WhatsApp"
+              >
+                <FaWhatsapp />
+              </button>
+            ) : (
+              "-"
+            )}
+          </td>
 
                   <td>
                       {(() => {
