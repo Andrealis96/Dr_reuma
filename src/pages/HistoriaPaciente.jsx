@@ -362,6 +362,7 @@ const recalcularResumenPaciente = async () => {
   });
 };
 
+/*
 useEffect(() => {
   if (!paciente) return;
   if (!Array.isArray(consultas)) return;
@@ -373,6 +374,7 @@ useEffect(() => {
     recalcularResumenPaciente();
   }
 }, [paciente, consultas.length]);
+*/
 
 useEffect(() => {
   if (!diagnosticoRecienteId) return;
