@@ -105,18 +105,37 @@ function Citas() {
   const [citaComprobanteActual, setCitaComprobanteActual] = useState(null);
 
   // ================= FIRESTORE =================
-  useEffect(() => {
-    const unsub = onSnapshot(collection(db, "citas"), (snap) => {
-      const data = snap.docs.map(d => ({
-        id: d.id,
-        ...d.data()
-      }));
+const fechaISOAgenda = (fecha) => {
+  const copia = new Date(fecha);
+  const offset = copia.getTimezoneOffset();
 
-      setCitasDB(data);
-    });
+  return new Date(copia.getTime() - offset * 60000)
+    .toISOString()
+    .split("T")[0];
+};
 
-    return () => unsub();
-  }, []);
+const [rangoAgenda, setRangoAgenda] = useState(null);
+
+useEffect(() => {
+  if (!rangoAgenda?.inicio || !rangoAgenda?.fin) return;
+
+  const qCitas = query(
+    collection(db, "citas"),
+    where("fecha", ">=", rangoAgenda.inicio),
+    where("fecha", "<=", rangoAgenda.fin)
+  );
+
+  const unsubscribe = onSnapshot(qCitas, (snapshot) => {
+    const datos = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    setCitasDB(datos);
+  });
+
+  return () => unsubscribe();
+}, [rangoAgenda]);
 
   useEffect(() => {
   const unsub = onSnapshot(collection(db, "historiasClinicas"), (snap) => {
@@ -1442,6 +1461,29 @@ return (
   events={eventos}
   height="auto"
   hiddenDays={[0]}
+  datesSet={(info) => {
+  const inicio = new Date(info.start);
+  const fin = new Date(info.end);
+
+  inicio.setDate(inicio.getDate() - 7);
+  fin.setDate(fin.getDate() + 7);
+
+  const nuevoRango = {
+    inicio: fechaISOAgenda(inicio),
+    fin: fechaISOAgenda(fin)
+  };
+
+  setRangoAgenda((prev) => {
+    if (
+      prev?.inicio === nuevoRango.inicio &&
+      prev?.fin === nuevoRango.fin
+    ) {
+      return prev;
+    }
+
+    return nuevoRango;
+  });
+}}
 
 dayCellClassNames={(arg) => {
   const fecha = arg.date.toISOString().split("T")[0];
