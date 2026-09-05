@@ -60,7 +60,9 @@ const citaIdAgenda = searchParams.get("citaId");
   const [consultaAbierta, setConsultaAbierta] = useState(null);
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mensajeGuardado, setMensajeGuardado] = useState("Consulta guardada");
-  
+  const guardandoConsultaRef = useRef(false);
+const [guardandoConsulta, setGuardandoConsulta] = useState(false);
+
   useEffect(() => {
     const obtenerPaciente = async () => {
       const ref = doc(db, "historiasClinicas", id);
@@ -616,65 +618,87 @@ const marcarCitaComoAsistio =
 const guardarConsulta = async (e) => {
   e.preventDefault();
 
-  const diagnosticosFinales = diagnosticosSeleccionados.map((d) =>
-    d.toUpperCase()
-  );
+  if (guardandoConsultaRef.current) return;
 
-  if (diagnosticosFinales.length === 0) {
-    alert("Selecciona al menos un diagnóstico.");
-    return;
-  }
+  guardandoConsultaRef.current = true;
+  setGuardandoConsulta(true);
 
-  const dataConsulta = {
-    fecha: consultaEditando?.fecha || new Date().toLocaleDateString("es-AR"),
-    hora: consultaEditando?.hora || new Date().toLocaleTimeString("es-AR", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false
-    }),
-    diagnosticos: diagnosticosFinales,
-    diagnostico: diagnosticosFinales.join(" - "),
-    historia,
-    actualizado: new Date()
-  };
+  try {
+    const diagnosticosFinales = diagnosticosSeleccionados.map((d) =>
+      d.toUpperCase()
+    );
 
-  if (consultaEditando) {
-  await updateDoc(
-    doc(db, "historiasClinicas", id, "consultas", consultaEditando.id),
-    dataConsulta
-  );
+    if (diagnosticosFinales.length === 0) {
+      alert("Selecciona al menos un diagnóstico.");
+      return;
+    }
 
-await recalcularResumenPaciente();
+    const dataConsulta = {
+      fecha: consultaEditando?.fecha || new Date().toLocaleDateString("es-AR"),
+      hora: consultaEditando?.hora || new Date().toLocaleTimeString("es-AR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      }),
+      diagnosticos: diagnosticosFinales,
+      diagnostico: diagnosticosFinales.join(" - "),
+      historia,
+      actualizado: new Date()
+    };
 
-await marcarCitaComoAsistio(dataConsulta);
+    if (consultaEditando) {
+      await updateDoc(
+        doc(db, "historiasClinicas", id, "consultas", consultaEditando.id),
+        dataConsulta
+      );
 
-limpiarFormularioConsulta();
-setMensajeGuardado("Consulta actualizada");
+      await recalcularResumenPaciente();
+
+      limpiarFormularioConsulta();
+      setMensajeGuardado("Consulta actualizada");
+      setMostrarModal(true);
+
+      setTimeout(() => {
+        setMostrarModal(false);
+      }, 2500);
+
+      try {
+        await marcarCitaComoAsistio(dataConsulta);
+      } catch (errorAgenda) {
+        console.error("La consulta se guardó, pero no se pudo sincronizar con agenda:", errorAgenda);
+      }
+
+      return;
+    }
+
+    await addDoc(collection(db, "historiasClinicas", id, "consultas"), {
+      ...dataConsulta,
+      creado: new Date()
+    });
+
+    await recalcularResumenPaciente();
+
+    limpiarFormularioConsulta();
+    setMensajeGuardado("Consulta guardada");
     setMostrarModal(true);
 
     setTimeout(() => {
       setMostrarModal(false);
     }, 2500);
 
-    return;
+    try {
+      await marcarCitaComoAsistio(dataConsulta);
+    } catch (errorAgenda) {
+      console.error("La consulta se guardó, pero no se pudo sincronizar con agenda:", errorAgenda);
+    }
+
+  } catch (error) {
+    console.error("Error guardando consulta:", error);
+    alert("No se pudo guardar la consulta. Revisá la consola.");
+  } finally {
+    guardandoConsultaRef.current = false;
+    setGuardandoConsulta(false);
   }
-
-await addDoc(collection(db, "historiasClinicas", id, "consultas"), {
-  ...dataConsulta,
-  creado: new Date()
-});
-
-await recalcularResumenPaciente();
-
-await marcarCitaComoAsistio(dataConsulta);
-
-  limpiarFormularioConsulta();
-  setMensajeGuardado("Consulta guardada");
-  setMostrarModal(true);
-
-  setTimeout(() => {
-    setMostrarModal(false);
-  }, 2500);
 };
 
 const eliminarConsulta = async (cid) => {
@@ -1305,9 +1329,17 @@ const cantidadConsultas = consultas.length;
                     </button>
                   </div>
 
-                  <button className="historia-save-consulta-btn mt-4">
+                  <button
+                    type="submit"
+                    className="historia-save-consulta-btn mt-4"
+                    disabled={guardandoConsulta}
+                  >
                     <FaPlus className="me-2" />
-                    {consultaEditando ? "Actualizar consulta" : "Guardar consulta"}
+                    {guardandoConsulta
+                      ? "Guardando..."
+                      : consultaEditando
+                        ? "Actualizar consulta"
+                        : "Guardar consulta"}
                   </button>
 
                   {consultaEditando && (
