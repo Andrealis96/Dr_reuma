@@ -613,7 +613,24 @@ const obtenerHoyLocal = () => {
     .split("T")[0];
 };
 
+const pacienteTieneConsultaEnFechaCita = (cita) => {
+  const pacienteHistoria = buscarPacienteHistoriaPorCita(cita);
+
+  if (!pacienteHistoria?.ultimaConsultaAtMillis) return false;
+  if (!cita?.fecha) return false;
+
+  const fechaUltimaConsulta = fechaISODesdeDate(
+    new Date(Number(pacienteHistoria.ultimaConsultaAtMillis))
+  );
+
+  return fechaUltimaConsulta === cita.fecha;
+};
+
 const obtenerEstadoCitaTexto = (cita) => {
+  if (pacienteTieneConsultaEnFechaCita(cita)) {
+    return "Asistió";
+  }
+
   if (cita.estadoCita === "asistio" || cita.estadoAsistencia === "asistio") {
     return "Asistió";
   }

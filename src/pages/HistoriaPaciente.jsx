@@ -497,9 +497,10 @@ const buscarTelefonoPrevioPorDni = async () => {
   return citasDelPaciente[0]?.telefono || "";
 };
 
-const marcarCitaComoAsistio = 
-  async (consultaGuardada = {}) => {
+const marcarCitaComoAsistio = async (consultaGuardada = {}) => {
   if (!paciente) return;
+
+  const hoy = obtenerFechaHoyLocal();
 
   const datosAsistencia = {
     estadoCita: "asistio",
@@ -509,46 +510,18 @@ const marcarCitaComoAsistio =
     historiaClinicaId: id
   };
 
+  const dniPaciente = limpiarDni(paciente.dni || paciente.Dni || "");
 
-  useEffect(() => {
-  if (!paciente) return;
-  if (!consultas.length) return;
-  if (sincronizandoAgendaHoyRef.current) return;
+  const normalizarNombrePaciente = (valor = "") =>
+    valor
+      .toString()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/\s+/g, " ")
+      .trim();
 
-  const hoyISO = obtenerFechaHoyLocal();
-
-  const consultaDeHoy = consultas.find((consulta) => {
-    const fechaDate = convertirConsultaADateResumen(consulta);
-
-    if (!fechaDate) return false;
-
-    const offset = fechaDate.getTimezoneOffset();
-
-    const fechaISO = new Date(fechaDate.getTime() - offset * 60000)
-      .toISOString()
-      .split("T")[0];
-
-    return fechaISO === hoyISO;
-  });
-
-  if (!consultaDeHoy) return;
-
-  sincronizandoAgendaHoyRef.current = true;
-
-  marcarCitaComoAsistio(consultaDeHoy).catch((error) => {
-    console.error("Error sincronizando consulta de hoy con agenda:", error);
-    sincronizandoAgendaHoyRef.current = false;
-  });
-}, [paciente, consultas.length]);
-
-  // Caso 1: viene desde Pacientes de hoy con citaId
-  if (citaIdAgenda) {
-    await updateDoc(doc(db, "citas", citaIdAgenda), datosAsistencia);
-    return;
-  }
-
-  // Caso 2: buscar si tiene cita hoy por DNI
-  const hoy = obtenerFechaHoyLocal();
+  const nombrePaciente = normalizarNombrePaciente(paciente.nombre || "");
 
   const q = query(
     collection(db, "citas"),
@@ -557,25 +530,37 @@ const marcarCitaComoAsistio =
 
   const snap = await getDocs(q);
 
-  const dniPaciente = limpiarDni(paciente.dni);
-
-  const citaDeHoy = snap.docs
+  const citasDelPacienteHoy = snap.docs
     .map((d) => ({
       id: d.id,
       ...d.data()
     }))
-    .find((cita) => {
-      const dniCita = limpiarDni(cita.Dni || cita.dni);
-      return dniPaciente && dniCita === dniPaciente;
+    .filter((cita) => {
+      const historiaIdCita = cita.historiaClinicaId || cita.pacienteId || "";
+
+      if (historiaIdCita && historiaIdCita === id) {
+        return true;
+      }
+
+      const dniCita = limpiarDni(cita.Dni || cita.dni || cita.DNI || "");
+
+      if (dniPaciente && dniCita && dniPaciente === dniCita) {
+        return true;
+      }
+
+      const nombreCita = normalizarNombrePaciente(cita.nombre || "");
+
+      return nombrePaciente && nombreCita && nombrePaciente === nombreCita;
     });
 
-  // Si tenía cita, solo la marcamos como asistida
-  if (citaDeHoy) {
-    await updateDoc(doc(db, "citas", citaDeHoy.id), datosAsistencia);
+  if (citasDelPacienteHoy.length > 0) {
+    for (const cita of citasDelPacienteHoy) {
+      await updateDoc(doc(db, "citas", cita.id), datosAsistencia);
+    }
+
     return;
   }
 
-  // Caso 3: NO tenía cita, pero se atendió igual
   const horaAtencion =
     consultaGuardada.hora ||
     new Date().toLocaleTimeString("es-AR", {
@@ -588,13 +573,10 @@ const marcarCitaComoAsistio =
 
   await addDoc(collection(db, "citas"), {
     nombre: paciente.nombre || "",
-    Dni: paciente.dni || "",
+    Dni: paciente.dni || paciente.Dni || "",
     telefono: paciente.telefono || telefonoPrevio || "",
 
     fecha: hoy,
-
-    // 00:00 es solo para que salga arriba en la tabla.
-    // No ocupa turnos reales.
     hora: "00:00",
     horaAtencion,
 

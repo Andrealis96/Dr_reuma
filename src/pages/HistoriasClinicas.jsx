@@ -378,7 +378,24 @@ const obtenerFechaHoyLocal = () => {
     .split("T")[0];
 };
 
+const pacienteTieneConsultaEnFechaAgenda = (cita) => {
+  const pacienteGuardado = buscarPacienteGuardadoPorCita(cita);
+
+  if (!pacienteGuardado?.ultimaConsultaAtMillis) return false;
+  if (!cita?.fecha) return false;
+
+  const fechaUltimaConsulta = fechaISODesdeDate(
+    new Date(Number(pacienteGuardado.ultimaConsultaAtMillis))
+  );
+
+  return fechaUltimaConsulta === cita.fecha;
+};
+
 const obtenerEstadoCitaTexto = (cita) => {
+  if (pacienteTieneConsultaEnFechaAgenda(cita)) {
+    return "Asistió";
+  }
+
   if (cita.estadoCita === "asistio" || cita.estadoAsistencia === "asistio") {
     return "Asistió";
   }
