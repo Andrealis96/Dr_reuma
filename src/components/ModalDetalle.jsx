@@ -4,6 +4,7 @@ import {
   FaWhatsapp,
   FaUser,
   FaIdCard,
+  FaUserClock,
   FaCalendarAlt,
   FaClock,
   FaLaptopMedical,
@@ -17,10 +18,14 @@ function ModalDetalle({
   show,
   onHide,
   cita,
-  onEditar,
-  onEliminar,
+  estadoTexto,
+  estadoClase,
+  textoVez,
+  claseVez,
   onWhatsapp,
-  onConfirmar
+  onConfirmar,
+  onEditar,
+  onEliminar
 }) {
   const formatearFecha = (fecha) => {
     if (!fecha) return "";
@@ -145,6 +150,21 @@ function ModalDetalle({
                 : "🔵 Virtual"}
             </span>
           </div>
+{textoVez && (
+  <div className="detalle-item detalle-vez-item">
+    <div className="detalle-icono">
+      <FaUserClock />
+    </div>
+
+    <div className="detalle-vez-linea">
+      <strong>Vez:</strong>
+
+      <span className={`detalle-vez-badge ${claseVez}`}>
+        {textoVez}
+      </span>
+    </div>
+  </div>
+)}
 
         </div>
       </Modal.Body>
@@ -156,14 +176,19 @@ function ModalDetalle({
             Asistió
           </span>
         ) : (
-          <Button
+          <button
             type="button"
-            className="btn-confirmar-cita me-auto"
-            onClick={() => onConfirmar?.(cita)}
+            className={`btn-detalle-confirmar ${
+              estadoTexto === "Confirmado"
+                ? "btn-detalle-confirmado"
+                : "btn-detalle-pendiente-confirmar"
+            }`}
+            onClick={() => onConfirmar(cita)}
+            disabled={estadoTexto === "Confirmado"}
           >
-            Confirmado
-          </Button>
-        )}
+            {estadoTexto === "Confirmado" ? "Confirmado" : "Confirmar"}
+          </button>
+                  )}
 
         <Button
           onClick={() => onEditar(cita)}

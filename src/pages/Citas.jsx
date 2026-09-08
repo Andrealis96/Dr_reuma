@@ -767,17 +767,30 @@ const mostrarMensajeGuardadoCita = (mensaje) => {
 const guardarCita = async (data) => {
   const tipoCorrecto = obtenerTipoCitaPorFecha(data.fecha);
 
-  const dataLimpia = {
-    ...data,
-    tipo: tipoCorrecto,
-    telefono: limpiarTelefono10(data.telefono),
+const cambioFechaOHora =
+  citaEditar &&
+  (
+    data.fecha !== citaEditar.fecha ||
+    normalizarHora(data.hora) !== normalizarHora(citaEditar.hora)
+  );
 
-    estadoConfirmacion:
-      data.estadoConfirmacion || citaEditar?.estadoConfirmacion || "pendiente",
+const dataLimpia = {
+  ...data,
+  tipo: tipoCorrecto,
+  telefono: limpiarTelefono10(data.telefono),
 
-    estadoAsistencia:
-      data.estadoAsistencia || citaEditar?.estadoAsistencia || "pendiente"
-  };
+  estadoCita: cambioFechaOHora
+    ? "pendiente"
+    : data.estadoCita || citaEditar?.estadoCita || "pendiente",
+
+  estadoConfirmacion: cambioFechaOHora
+    ? "pendiente"
+    : data.estadoConfirmacion || citaEditar?.estadoConfirmacion || "pendiente",
+
+  estadoAsistencia: cambioFechaOHora
+    ? "pendiente"
+    : data.estadoAsistencia || citaEditar?.estadoAsistencia || "pendiente"
+};
 
   const q = query(
     collection(db, "citas"),
@@ -1878,6 +1891,24 @@ horariosDisponibles.map(h => {
   show={showDetalle}
   onHide={() => setShowDetalle(false)}
   cita={citaSeleccionada}
+    estadoTexto={
+    citaSeleccionada ? obtenerEstadoCitaTexto(citaSeleccionada) : ""
+  }
+  estadoClase={
+    citaSeleccionada ? obtenerEstadoCitaClase(citaSeleccionada) : ""
+  }
+  textoVez={
+    citaSeleccionada
+      ? textoNumeroCitaPaciente(obtenerNumeroCitaPaciente(citaSeleccionada))
+      : ""
+  }
+  claseVez={
+    citaSeleccionada
+      ? obtenerClaseVez(
+          textoNumeroCitaPaciente(obtenerNumeroCitaPaciente(citaSeleccionada))
+        )
+      : ""
+  }
   onWhatsapp={(cita) => abrirWhatsappCita(cita, true, "recordatorio")}
   onConfirmar={confirmarCitaDesdeDetalle}
   onEditar={(cita) => {
