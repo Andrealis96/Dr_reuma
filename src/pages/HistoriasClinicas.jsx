@@ -689,11 +689,6 @@ const obtenerNumeroVezHistoriaClinica = (cita) => {
 
   if (pacienteGuardado) {
     const consultasRegistradas = Number(pacienteGuardado.cantidadConsultas || 0);
-    const estado = obtenerEstadoCitaTexto(cita);
-
-    if (estado === "Asistió") {
-      return Math.max(consultasRegistradas, 1);
-    }
 
     return consultasRegistradas + 1;
   }
