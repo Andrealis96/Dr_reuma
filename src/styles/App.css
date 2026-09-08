@@ -5364,6 +5364,36 @@ margin-top: 5px;
 
 /*tabla de pacientes del dia*/
 
+/* ===== BOTÓN DETALLE EN TABLA DE AGENDA ===== */
+
+.btn-detalle-cita-tabla {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  border: none !important;
+  border-radius: 999px !important;
+
+  background: #e6f8fb !important;
+  color: #079db2 !important;
+
+  font-size: 1rem !important;
+  font-weight: 900 !important;
+
+  box-shadow: 0 4px 12px rgba(0, 150, 170, 0.18) !important;
+  transition: 0.2s ease !important;
+}
+
+.btn-detalle-cita-tabla:hover {
+  background: #079db2 !important;
+  color: white !important;
+  transform: translateY(-1px);
+}
+
 .table th,
 .table td {
   border: 1px solid rgba(9, 154, 173, 0.25) !important;

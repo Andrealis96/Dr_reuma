@@ -35,7 +35,7 @@ import {
   FaFolderOpen
 } from "react-icons/fa";
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   collection,
   onSnapshot,
@@ -53,7 +53,7 @@ import { db } from "../firebase";
 
 function Citas() {
   const calendarRef = useRef(null);
-
+  const navigate = useNavigate();
   const [citasDB, setCitasDB] = useState([]);
   const [historiasPacientes, setHistoriasPacientes] = useState([]);
   const [eventos, setEventos] = useState([]);
@@ -681,6 +681,17 @@ const obtenerEstadoCitaClase = (cita) => {
   const abrirDetalle = (cita) => {
   setCitaSeleccionada(cita);
   setShowDetalle(true);
+};
+
+const abrirHistoriaDesdeCita = (cita) => {
+  const pacienteHistoria = buscarPacienteHistoriaPorCita(cita);
+
+  if (pacienteHistoria) {
+    navigate(`/admin/historia/${pacienteHistoria.id}?citaId=${cita.id}`);
+    return;
+  }
+
+  abrirDetalle(cita);
 };
 
 const capitalizarNombre = (texto) => {
@@ -2230,17 +2241,24 @@ horariosDisponibles.map(h => {
                         Estado
                       </span>
                     </th>
+
+                    <th>
+                      <FaEye className="me-2 celeste" /> <br />
+                      <span className="celeste">
+                        Detalle
+                      </span>
+                    </th>
                 </tr>
               </thead>
 
               <tbody className="text-center">
                 {pacientesHoy.map((c, index) => (
                     <tr
-                      key={c.id}
-                      className="fila-cita-clickable"
-                      onClick={() => abrirDetalle(c)}
-                      title="Ver detalle de la cita"
-                    >
+                        key={c.id}
+                        className="fila-cita-clickable"
+                        onClick={() => abrirHistoriaDesdeCita(c)}
+                        title="Abrir historia clínica"
+                      >
                       <td className="tabla-numero-fila">
                         {index + 1}
                       </td>
@@ -2301,6 +2319,20 @@ horariosDisponibles.map(h => {
                       <span className={`estado-cita-simple ${obtenerEstadoCitaClase(c)}`}>
                         {obtenerEstadoCitaTexto(c)}
                       </span>
+                    </td>
+
+                    <td>
+                      <button
+                        type="button"
+                        className="btn-detalle-cita-tabla"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          abrirDetalle(c);
+                        }}
+                        title="Ver detalle de la cita"
+                      >
+                        <FaEye />
+                      </button>
                     </td>
 
                   </tr>
