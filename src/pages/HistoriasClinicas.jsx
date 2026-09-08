@@ -708,29 +708,33 @@ const cargarPacienteDesdeCitaHoy = (cita) => {
   const pacienteGuardado = buscarPacienteGuardadoPorCita(cita);
 
   if (pacienteGuardado) {
-  const esSinAgendaDesdeResumen = cita.origen === "sinAgendaResumen";
+    localStorage.setItem(
+      `paciente-cache-${pacienteGuardado.id}`,
+      JSON.stringify({
+        ts: Date.now(),
+        paciente: pacienteGuardado
+      })
+    );
 
-  navigate(
-    `/admin/historia/${pacienteGuardado.id}${
-      esSinAgendaDesdeResumen ? "" : `?citaId=${cita.id}`
-    }`
-  );
+    const citaId = cita?.id || "";
+    const esCitaReal =
+      citaId &&
+      !String(citaId).startsWith("sin-agenda-") &&
+      cita.origen !== "sinAgendaResumen";
 
-  return;
-}
+    const url = esCitaReal
+      ? `/admin/historia/${pacienteGuardado.id}?citaId=${citaId}`
+      : `/admin/historia/${pacienteGuardado.id}`;
+
+    window.open(url, "_blank", "noopener,noreferrer");
+    return;
+  }
 
   setNombre(cita.nombre || "");
   setDni(cita.Dni || cita.dni || "");
   setFechaNacimiento(cita.fechaNacimiento || "");
   setObraSocial(cita.obraSocial || "");
   setSexo(cita.sexo || "");
-
-  setTimeout(() => {
-    nuevoPacienteRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
-  }, 100);
 };
 
 const fechaHoyHistoriasTexto = new Date()

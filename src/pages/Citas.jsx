@@ -35,7 +35,7 @@ import {
   FaFolderOpen
 } from "react-icons/fa";
 
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   collection,
   onSnapshot,
@@ -53,7 +53,6 @@ import { db } from "../firebase";
 
 function Citas() {
   const calendarRef = useRef(null);
-  const navigate = useNavigate();
   const [citasDB, setCitasDB] = useState([]);
   const [historiasPacientes, setHistoriasPacientes] = useState([]);
   const [eventos, setEventos] = useState([]);
@@ -687,7 +686,17 @@ const abrirHistoriaDesdeCita = (cita) => {
   const pacienteHistoria = buscarPacienteHistoriaPorCita(cita);
 
   if (pacienteHistoria) {
-    navigate(`/admin/historia/${pacienteHistoria.id}?citaId=${cita.id}`);
+    localStorage.setItem(
+      `paciente-cache-${pacienteHistoria.id}`,
+      JSON.stringify({
+        ts: Date.now(),
+        paciente: pacienteHistoria
+      })
+    );
+
+    const url = `/admin/historia/${pacienteHistoria.id}?citaId=${cita.id}`;
+
+    window.open(url, "_blank", "noopener,noreferrer");
     return;
   }
 

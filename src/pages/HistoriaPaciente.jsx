@@ -39,7 +39,26 @@ const [searchParams] = useSearchParams();
 
 const citaIdAgenda = searchParams.get("citaId");
 
-  const [paciente, setPaciente] = useState(null);
+  const [paciente, setPaciente] = useState(() => {
+  try {
+    const cache = localStorage.getItem(`paciente-cache-${id}`);
+
+    if (!cache) return null;
+
+    const data = JSON.parse(cache);
+
+    const cacheVencido = Date.now() - data.ts > 1000 * 60 * 15;
+
+    if (cacheVencido) {
+      localStorage.removeItem(`paciente-cache-${id}`);
+      return null;
+    }
+
+    return data.paciente || null;
+  } catch (error) {
+    return null;
+  }
+});
   const [consultas, setConsultas] = useState([]);
   const [diagnosticos, setDiagnosticos] = useState([]);
 
