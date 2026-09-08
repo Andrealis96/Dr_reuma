@@ -735,6 +735,13 @@ const cargarPacienteDesdeCitaHoy = (cita) => {
   setFechaNacimiento(cita.fechaNacimiento || "");
   setObraSocial(cita.obraSocial || "");
   setSexo(cita.sexo || "");
+
+  setTimeout(() => {
+    nuevoPacienteRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
+  }, 100);
 };
 
 const fechaHoyHistoriasTexto = new Date()

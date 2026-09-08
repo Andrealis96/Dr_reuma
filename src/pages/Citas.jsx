@@ -53,9 +53,28 @@ import { db } from "../firebase";
 
 function Citas() {
   const calendarRef = useRef(null);
-  const [citasDB, setCitasDB] = useState([]);
-  const [historiasPacientes, setHistoriasPacientes] = useState([]);
-  const [eventos, setEventos] = useState([]);
+  
+  const [citasDB, setCitasDB] = useState(() => {
+  try {
+    const cache = localStorage.getItem("drreuma_citas_cache");
+    return cache ? JSON.parse(cache) : [];
+  } catch (error) {
+    return [];
+  }
+});
+
+const [historiasPacientes, setHistoriasPacientes] = useState(() => {
+  try {
+    const cache = localStorage.getItem("drreuma_historias_cache");
+    return cache ? JSON.parse(cache) : [];
+  } catch (error) {
+    return [];
+  }
+});
+
+const [eventos, setEventos] = useState([]);
+
+
   const [showModal, setShowModal] = useState(false);
   const [citaEditar, setCitaEditar] = useState(null);
 
@@ -105,7 +124,7 @@ function Citas() {
 
   // ================= FIRESTORE =================
 
-  useEffect(() => {
+ useEffect(() => {
   const unsubscribe = onSnapshot(collection(db, "citas"), (snapshot) => {
     const datos = snapshot.docs.map((doc) => ({
       id: doc.id,
@@ -113,12 +132,18 @@ function Citas() {
     }));
 
     setCitasDB(datos);
+
+    try {
+      localStorage.setItem("drreuma_citas_cache", JSON.stringify(datos));
+    } catch (error) {
+      console.warn("No se pudo guardar cache de citas:", error);
+    }
   });
 
   return () => unsubscribe();
 }, []);
 
-  useEffect(() => {
+useEffect(() => {
   const unsub = onSnapshot(collection(db, "historiasClinicas"), (snap) => {
     const data = snap.docs.map((d) => ({
       id: d.id,
@@ -126,6 +151,12 @@ function Citas() {
     }));
 
     setHistoriasPacientes(data);
+
+    try {
+      localStorage.setItem("drreuma_historias_cache", JSON.stringify(data));
+    } catch (error) {
+      console.warn("No se pudo guardar cache de historias:", error);
+    }
   });
 
   return () => unsub();
