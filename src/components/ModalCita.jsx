@@ -37,7 +37,7 @@ function ModalCita({
   const [tipo, setTipo] = useState("presencial");
   const [fechaNacimiento, setFechaNacimiento] = useState("");
   const [obraSocial, setObraSocial] = useState("");
-  const [sexo, setSexo] = useState("");
+  const [sexo, setSexo] = useState("Femenino");
   const [motivoConsulta, setMotivoConsulta] = useState("");
   const [horasDisponibles, setHorasDisponibles] = useState([]);
 
@@ -122,7 +122,7 @@ useEffect(() => {
 
     setFechaNacimiento("");
     setObraSocial("");
-    setSexo("");
+    setSexo("Femenino");
     setMotivoConsulta("");
   }
 }, [citaEditar]);
@@ -153,7 +153,7 @@ useEffect(() => {
 
       setFechaNacimiento("");
       setObraSocial("");
-      setSexo("");
+      setSexo("Femenino");
       setMotivoConsulta("");
 
       // ❌ NO borres hora si viene preseleccionada
@@ -332,6 +332,59 @@ const seleccionarPacientePrevio = (cita) => {
             />
         </InputGroup>
 
+        <InputGroup className="mb-2">
+            <InputGroup.Text>
+                <FaIdCard  className="celeste"/>
+            </InputGroup.Text>
+
+            <Form.Control
+                placeholder="DNI"
+                value={Dni}
+                onChange={(e) => setDni(e.target.value)}
+            />
+        </InputGroup>
+
+        <InputGroup className="mb-2">
+          <InputGroup.Text>
+            <FaBirthdayCake  className="celeste"/>
+          </InputGroup.Text>
+
+          <Form.Control
+              type="text"
+              inputMode="numeric"
+              placeholder="DD-MM-AAAA"
+              maxLength="10"
+              value={fechaNacimiento}
+              onChange={(e) => {
+                let valor = e.target.value.replace(/\D/g, "");
+
+                if (valor.length > 8) {
+                  valor = valor.slice(0, 8);
+                }
+
+                if (valor.length >= 5) {
+                  valor = `${valor.slice(0, 2)}-${valor.slice(2, 4)}-${valor.slice(4)}`;
+                } else if (valor.length >= 3) {
+                  valor = `${valor.slice(0, 2)}-${valor.slice(2)}`;
+                }
+
+                setFechaNacimiento(valor);
+              }}
+            />
+        </InputGroup>
+
+        <InputGroup className="mb-2">
+          <InputGroup.Text>
+            <FaShieldAlt  className="celeste"/>
+          </InputGroup.Text>
+
+          <Form.Control
+            placeholder="Obra social"
+            value={obraSocial}
+            onChange={(e) => setObraSocial(e.target.value)}
+          />
+        </InputGroup>
+
         <InputGroup className="mb-2 celeste">
             <InputGroup.Text>
                 <FaWhatsapp  className="celeste"/>
@@ -354,38 +407,16 @@ const seleccionarPacientePrevio = (cita) => {
         </InputGroup>
 
         <InputGroup className="mb-2">
-            <InputGroup.Text>
-                <FaIdCard  className="celeste"/>
-            </InputGroup.Text>
-
-            <Form.Control
-                placeholder="DNI"
-                value={Dni}
-                onChange={(e) => setDni(e.target.value)}
-            />
-        </InputGroup>
-
-        <InputGroup className="mb-2">
           <InputGroup.Text>
-            <FaBirthdayCake  className="celeste"/>
+            <FaStethoscope className="celeste"/>
           </InputGroup.Text>
 
           <Form.Control
-            type="date"
-            value={fechaNacimiento}
-            onChange={(e) => setFechaNacimiento(e.target.value)}
-          />
-        </InputGroup>
-
-        <InputGroup className="mb-2">
-          <InputGroup.Text>
-            <FaShieldAlt  className="celeste"/>
-          </InputGroup.Text>
-
-          <Form.Control
-            placeholder="Obra social"
-            value={obraSocial}
-            onChange={(e) => setObraSocial(e.target.value)}
+            as="textarea"
+            rows={2}
+            placeholder="Motivo de consulta"
+            value={motivoConsulta}
+            onChange={(e) => setMotivoConsulta(e.target.value)}
           />
         </InputGroup>
 
@@ -402,20 +433,6 @@ const seleccionarPacientePrevio = (cita) => {
             <option value="Masculino">Masculino</option>
             <option value="Femenino">Femenino</option>
           </Form.Select>
-        </InputGroup>
-
-        <InputGroup className="mb-2">
-          <InputGroup.Text>
-            <FaStethoscope className="celeste"/>
-          </InputGroup.Text>
-
-          <Form.Control
-            as="textarea"
-            rows={2}
-            placeholder="Motivo de consulta"
-            value={motivoConsulta}
-            onChange={(e) => setMotivoConsulta(e.target.value)}
-          />
         </InputGroup>
 
         <InputGroup className="mb-2">

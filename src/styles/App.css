@@ -3413,6 +3413,54 @@ margin-top: 5px;
 /* =========================================================
    06 - AGENDA DE TURNOS / CITAS
 ========================================================= */
+/* ===== ESTADO EN BUSCADOR DE CITAS ===== */
+
+.buscador-citas-meta {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+  margin-top: 4px !important;
+}
+
+.buscador-citas-estado-mini {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  padding: 4px 10px !important;
+  border-radius: 999px !important;
+
+  font-size: 0.72rem !important;
+  font-weight: 1000 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+/* colores según estado */
+.buscador-citas-estado-mini.estado-asistio {
+  background: #198754 !important;
+  color: white !important;
+}
+
+.buscador-citas-estado-mini.estado-confirmado {
+  background: #dcfce7 !important;
+  color: #047857 !important;
+  border: 1px solid #22c55e !important;
+}
+
+.buscador-citas-estado-mini.estado-pendiente {
+  background: #fff3cd !important;
+  color: #856404 !important;
+  border: 1px solid #ffc107 !important;
+}
+
+.buscador-citas-estado-mini.estado-no-asistio {
+  background: #fee2e2 !important;
+  color: #b91c1c !important;
+  border: 1px solid #ef4444 !important;
+}
+
 /* ===== TABLA AGENDA DE TURNOS - AJUSTE CELULAR ===== */
 
 @media (max-width: 768px) {

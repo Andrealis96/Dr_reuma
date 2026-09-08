@@ -199,21 +199,32 @@ if (diaSemana === "domingo") {
   return;
 }
 
-// 🔴 VIERNES CAMBIO DE HORARIOS
+// 🔴 VIERNES EN AGENDA PÚBLICA / SERVICIOS
+// El doctor puede tener horarios extra en Citas.jsx,
+// pero el paciente público solo puede sacar turno viernes de mañana.
 if (diaSemana === "viernes") {
   const configViernes = getConfiguracionViernes(form.fecha);
 
   if (!configViernes) {
     setHorariosDisponibles([]);
+    setForm((prev) => ({
+      ...prev,
+      hora: ""
+    }));
     return;
   }
 
   if (configViernes.turno === "mañana") {
-    horariosBase = ["13:20"];
+    horariosBase = ["10:00", "10:30", "11:00"];
   }
 
   if (configViernes.turno === "tarde") {
-    horariosBase = [ "15:00", "15:30", "16:00" , "16:30"];
+    setHorariosDisponibles([]);
+    setForm((prev) => ({
+      ...prev,
+      hora: ""
+    }));
+    return;
   }
 }
 

@@ -306,11 +306,11 @@ const obtenerHorariosDisponibles = (fecha) => {
   }
 
   if (configViernes.turno === "mañana") {
-    base = ["13:20"];
+    base = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "13:20"];
   }
 
   if (configViernes.turno === "tarde") {
-    base = ["14:45", "15:00", "15:30", "16:00" , "16:30"];
+    base = ["14:45", "15:00", "15:20", "15:40" , "16:00", "16:20" ,"16:40"];
   }
 }
   else if (day === 6)
@@ -1443,9 +1443,15 @@ return (
                 DNI: {c.Dni || "Sin DNI"}
               </span>
 
+              <div className="buscador-citas-meta">
               <small>
                 {c.fecha} · {c.hora} hs · {c.tipo === "presencial" ? "Presencial" : "Virtual"}
               </small>
+
+              <span className={`buscador-citas-estado-mini ${obtenerEstadoCitaClase(c)}`}>
+                {obtenerEstadoCitaTexto(c)}
+              </span>
+            </div>
             </div>
 
             <button
