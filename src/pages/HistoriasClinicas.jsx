@@ -867,7 +867,7 @@ const fechaHoyHistoriasTexto = new Date()
         No hay citas programadas para esta fecha
       </div>
     ) : (
-      <table className="table table-sm mb-0 tabla-pacientes-hoy">
+      <table className="table table-sm mb-0 tabla-pacientes-hoy tabla-historias-hoy">
         <thead>
           <tr className="text-center">
             <th>

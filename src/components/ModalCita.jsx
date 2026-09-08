@@ -275,6 +275,9 @@ const seleccionarPacientePrevio = (cita) => {
         placeholder="DNI O NOMBRE YA REGISTRADO ANTES...."
         value={busquedaPacienteModal}
         onChange={(e) => setBusquedaPacienteModal(e.target.value)}
+        autoComplete="off"
+        autoCorrect="off"
+        spellCheck="false"
       />
 
       {busquedaPacienteModal && (

@@ -3413,6 +3413,139 @@ margin-top: 5px;
 /* =========================================================
    06 - AGENDA DE TURNOS / CITAS
 ========================================================= */
+/* ===== TABLA AGENDA DE TURNOS - AJUSTE CELULAR ===== */
+
+@media (max-width: 768px) {
+  .tabla-agenda-turnos {
+    table-layout: fixed !important;
+    min-width: 640px !important;
+  }
+
+  .tabla-agenda-turnos th,
+  .tabla-agenda-turnos td {
+    padding: 8px 4px !important;
+    font-size: 0.68rem !important;
+    vertical-align: middle !important;
+  }
+
+  /* N° */
+  .tabla-agenda-turnos th:nth-child(1),
+  .tabla-agenda-turnos td:nth-child(1) {
+    width: 34px !important;
+    min-width: 34px !important;
+    max-width: 34px !important;
+  }
+
+  /* Hora */
+  .tabla-agenda-turnos th:nth-child(2),
+  .tabla-agenda-turnos td:nth-child(2) {
+    width: 54px !important;
+    min-width: 54px !important;
+    max-width: 54px !important;
+  }
+
+  /* Paciente */
+  .tabla-agenda-turnos th:nth-child(3),
+  .tabla-agenda-turnos td:nth-child(3) {
+    width: 88px !important;
+    min-width: 88px !important;
+    max-width: 88px !important;
+
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+    line-height: 1.15 !important;
+  }
+
+  /* DNI */
+  .tabla-agenda-turnos th:nth-child(4),
+  .tabla-agenda-turnos td:nth-child(4) {
+    width: 68px !important;
+    min-width: 68px !important;
+    max-width: 68px !important;
+  }
+
+  /* WhatsApp */
+  .tabla-agenda-turnos th:nth-child(5),
+  .tabla-agenda-turnos td:nth-child(5) {
+    width: 36px !important;
+    min-width: 36px !important;
+    max-width: 36px !important;
+  }
+
+  /* Vez */
+  .tabla-agenda-turnos th:nth-child(6),
+  .tabla-agenda-turnos td:nth-child(6) {
+    width: 82px !important;
+    min-width: 82px !important;
+    max-width: 82px !important;
+  }
+
+  /* Motivo */
+  .tabla-agenda-turnos th:nth-child(7),
+  .tabla-agenda-turnos td:nth-child(7) {
+    width: 135px !important;
+    min-width: 135px !important;
+    max-width: 135px !important;
+
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+    line-height: 1.12 !important;
+  }
+
+  /* Estado */
+  .tabla-agenda-turnos th:nth-child(8),
+  .tabla-agenda-turnos td:nth-child(8) {
+    width: 82px !important;
+    min-width: 82px !important;
+    max-width: 82px !important;
+  }
+
+  /* Detalle */
+  .tabla-agenda-turnos th:nth-child(9),
+  .tabla-agenda-turnos td:nth-child(9) {
+    width: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
+    padding-left: 2px !important;
+    padding-right: 2px !important;
+  }
+
+  .tabla-agenda-turnos .btn-detalle-cita-tabla {
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+    padding: 0 !important;
+    font-size: 0.78rem !important;
+  }
+
+  .tabla-agenda-turnos .btn-whatsapp-tabla-solo-icono {
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+    padding: 0 !important;
+    font-size: 0.85rem !important;
+  }
+
+  .tabla-agenda-turnos .estado-cita-simple {
+    min-width: 70px !important;
+    padding: 6px 8px !important;
+    font-size: 0.68rem !important;
+    white-space: nowrap !important;
+  }
+
+  .tabla-agenda-turnos .vez-badge {
+    min-width: 74px !important;
+    padding: 6px 8px !important;
+    font-size: 0.68rem !important;
+    white-space: nowrap !important;
+  }
+
+  .tabla-agenda-turnos .hora-sin-agenda {
+    padding: 5px 7px !important;
+    font-size: 0.62rem !important;
+    white-space: nowrap !important;
+  }
+}
 
 /* ===== WHATSAPP SOLO ICONO EN TABLA DE AGENDA ===== */
 
@@ -5459,7 +5592,51 @@ margin-top: 5px;
    07 - MODAL NUEVA CITA / DETALLE CITA
 ========================================================= */
 
+/* ===== MODAL NUEVA CITA - AJUSTE CELULAR SIN ZOOM ===== */
 
+@media (max-width: 768px) {
+  .modal-cita-form .modal-dialog {
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    margin: 10px auto !important;
+  }
+
+  .modal-cita-form .modal-content {
+    max-height: calc(100dvh - 20px) !important;
+    overflow: hidden !important;
+    border-radius: 16px !important;
+  }
+
+  .modal-cita-form .modal-body {
+    max-height: calc(100dvh - 86px) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .modal-cita-form input,
+  .modal-cita-form select,
+  .modal-cita-form textarea,
+  .modal-cita-form .form-control,
+  .modal-cita-form .form-select {
+    font-size: 16px !important;
+  }
+
+  .modal-paciente-buscador {
+    position: relative !important;
+  }
+
+  .modal-paciente-search input {
+    font-size: 16px !important;
+  }
+
+  .modal-paciente-resultados {
+    max-height: 190px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
 /*modal editar citas agenda*/
 
 /* MODAL EDITAR CITA - MISMA ARMONÍA QUE DETALLE */
@@ -6904,6 +7081,95 @@ margin-top: 5px;
   background: #f0fcff !important;
   box-shadow: 0 0 0 5px rgba(0, 154, 173, 0.14),
               0 14px 30px rgba(0, 154, 173, 0.2) !important;
+}
+
+/* ===== TABLA HISTORIAS CLÍNICAS - AJUSTE CELULAR ===== */
+
+@media (max-width: 768px) {
+  .tabla-historias-hoy {
+    table-layout: fixed !important;
+    min-width: 590px !important;
+  }
+
+  .tabla-historias-hoy th,
+  .tabla-historias-hoy td {
+    padding: 8px 4px !important;
+    font-size: 0.68rem !important;
+    vertical-align: middle !important;
+  }
+
+  /* N° */
+  .tabla-historias-hoy th:nth-child(1),
+  .tabla-historias-hoy td:nth-child(1) {
+    width: 34px !important;
+    min-width: 34px !important;
+    max-width: 34px !important;
+  }
+
+  /* Hora */
+  .tabla-historias-hoy th:nth-child(2),
+  .tabla-historias-hoy td:nth-child(2) {
+    width: 58px !important;
+    min-width: 58px !important;
+    max-width: 58px !important;
+  }
+
+  /* Paciente más angosto */
+  .tabla-historias-hoy th:nth-child(3),
+  .tabla-historias-hoy td:nth-child(3) {
+    width: 92px !important;
+    min-width: 92px !important;
+    max-width: 92px !important;
+
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+    word-break: normal !important;
+    line-height: 1.15 !important;
+  }
+
+  /* DNI */
+  .tabla-historias-hoy th:nth-child(4),
+  .tabla-historias-hoy td:nth-child(4) {
+    width: 72px !important;
+    min-width: 72px !important;
+    max-width: 72px !important;
+  }
+
+  /* WhatsApp */
+  .tabla-historias-hoy th:nth-child(5),
+  .tabla-historias-hoy td:nth-child(5) {
+    width: 38px !important;
+    min-width: 38px !important;
+    max-width: 38px !important;
+  }
+
+  /* Vez */
+  .tabla-historias-hoy th:nth-child(6),
+  .tabla-historias-hoy td:nth-child(6) {
+    width: 115px !important;
+    min-width: 115px !important;
+    max-width: 115px !important;
+  }
+
+  /* Motivo */
+  .tabla-historias-hoy th:nth-child(7),
+  .tabla-historias-hoy td:nth-child(7) {
+    width: 150px !important;
+    min-width: 150px !important;
+    max-width: 150px !important;
+
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+    line-height: 1.12 !important;
+  }
+
+  /* Estado */
+  .tabla-historias-hoy th:nth-child(8),
+  .tabla-historias-hoy td:nth-child(8) {
+    width: 115px !important;
+    min-width: 115px !important;
+    max-width: 115px !important;
+  }
 }
 
 

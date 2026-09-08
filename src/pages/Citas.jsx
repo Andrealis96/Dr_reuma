@@ -89,6 +89,7 @@ function Citas() {
   const [bloqueosHora, setBloqueosHora] = useState([]);
   const [showDetalle, setShowDetalle] = useState(false);
   const [citaSeleccionada, setCitaSeleccionada] = useState(null);
+  const [citaTablaSeleccionadaId, setCitaTablaSeleccionadaId] = useState(null);
   //notas 
   const [notasAgenda, setNotasAgenda] = useState([]);
   const [showModalNota, setShowModalNota] = useState(false);
@@ -431,8 +432,8 @@ const formatearFechaTablaCitas = (fechaISO) => {
 const esTablaCitasDeHoy = fechaTablaCitas === fechaISODesdeDate(new Date());
 
 const tituloTablaCitas = esTablaCitasDeHoy
-  ? "AGENDA DEL DÍA"
-  : `AGENDA DEL ${formatearFechaTablaCitas(fechaTablaCitas).toUpperCase()}`;
+  ? "TURNOS HOY"
+  : ` ${formatearFechaTablaCitas(fechaTablaCitas).toUpperCase()}`;
 
 const pacientesHoy = citasDB
   .filter((c) => c.fecha === fechaTablaCitas)
@@ -676,13 +677,14 @@ const obtenerEstadoCitaClase = (cita) => {
           const fechaB = new Date(`${b.fecha}T${b.hora}`);
           return fechaB - fechaA;
         });
-
-  const abrirDetalle = (cita) => {
+const abrirDetalle = (cita) => {
+  setCitaTablaSeleccionadaId(cita?.id || null);
   setCitaSeleccionada(cita);
   setShowDetalle(true);
 };
 
 const abrirHistoriaDesdeCita = (cita) => {
+  setCitaTablaSeleccionadaId(cita?.id || null);
   const pacienteHistoria = buscarPacienteHistoriaPorCita(cita);
 
   if (pacienteHistoria) {
@@ -2195,7 +2197,7 @@ horariosDisponibles.map(h => {
               No hay citas programadas
             </div>
           ) : (
-            <table className="table table-sm mb-0 tabla-pacientes-hoy">
+            <table className="table table-sm mb-0 tabla-pacientes-hoy tabla-agenda-turnos">
               <thead>
                 <tr className="text-center">
                   <th>
@@ -2264,7 +2266,9 @@ horariosDisponibles.map(h => {
                 {pacientesHoy.map((c, index) => (
                     <tr
                         key={c.id}
-                        className="fila-cita-clickable"
+                        className={`fila-cita-clickable ${
+                          citaTablaSeleccionadaId === c.id ? "fila-cita-seleccionada" : ""
+                        }`}
                         onClick={() => abrirHistoriaDesdeCita(c)}
                         title="Abrir historia clínica"
                       >
