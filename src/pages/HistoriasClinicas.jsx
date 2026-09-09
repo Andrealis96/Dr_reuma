@@ -128,6 +128,25 @@ const capitalizarNombre = (nombre = "") => {
     .join(" ");
 };
 
+const normalizarFechaNacimientoHistoria = (valor = "") => {
+  if (!valor) return "";
+
+  const texto = valor.toString().trim();
+
+  // Ya viene como DD-MM-AAAA o DD/MM/AAAA
+  if (/^\d{2}[-/]\d{2}[-/]\d{4}$/.test(texto)) {
+    return texto.replace(/\//g, "-");
+  }
+
+  // Viene como AAAA-MM-DD desde registros viejos
+  if (/^\d{4}-\d{2}-\d{2}$/.test(texto)) {
+    const [anio, mes, dia] = texto.split("-");
+    return `${dia}-${mes}-${anio}`;
+  }
+
+  return texto;
+};
+
 const convertirFechaFlexible = (valor, hora = "") => {
   if (!valor) return null;
 
@@ -732,7 +751,9 @@ const cargarPacienteDesdeCitaHoy = (cita) => {
 
   setNombre(cita.nombre || "");
   setDni(cita.Dni || cita.dni || "");
-  setFechaNacimiento(cita.fechaNacimiento || "");
+  setFechaNacimiento(
+  normalizarFechaNacimientoHistoria(cita.fechaNacimiento || "")
+);
   setObraSocial(cita.obraSocial || "");
   setSexo(cita.sexo || "");
 
@@ -1071,10 +1092,27 @@ const fechaHoyHistoriasTexto = new Date()
               </label>
 
               <input
-                type="date"
+                type="text"
+                inputMode="numeric"
+                placeholder="DD-MM-AAAA"
+                maxLength="10"
                 className="form-control historias-input"
                 value={fechaNacimiento}
-                onChange={(e) => setFechaNacimiento(e.target.value)}
+                onChange={(e) => {
+                  let valor = e.target.value.replace(/\D/g, "");
+
+                  if (valor.length > 8) {
+                    valor = valor.slice(0, 8);
+                  }
+
+                  if (valor.length >= 5) {
+                    valor = `${valor.slice(0, 2)}-${valor.slice(2, 4)}-${valor.slice(4)}`;
+                  } else if (valor.length >= 3) {
+                    valor = `${valor.slice(0, 2)}-${valor.slice(2)}`;
+                  }
+
+                  setFechaNacimiento(valor);
+                }}
                 required
               />
             </div>
