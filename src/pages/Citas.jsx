@@ -571,6 +571,11 @@ const obtenerNumeroCitaPaciente = (cita) => {
 
   if (pacienteHistoria) {
     const consultasRegistradas = Number(pacienteHistoria.cantidadConsultas || 0);
+    const consultaGuardadaEseDia = pacienteTieneConsultaEnFechaCita(cita);
+
+    if (consultaGuardadaEseDia) {
+      return Math.max(consultasRegistradas, 1);
+    }
 
     return consultasRegistradas + 1;
   }
