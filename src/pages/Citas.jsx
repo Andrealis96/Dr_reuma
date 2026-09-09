@@ -53,7 +53,7 @@ import { db } from "../firebase";
 
 function Citas() {
   const calendarRef = useRef(null);
-  
+  const primeraCargaCitasRef = useRef(true);
   const [citasDB, setCitasDB] = useState(() => {
   try {
     const cache = localStorage.getItem("drreuma_citas_cache");
@@ -102,6 +102,7 @@ const [eventos, setEventos] = useState([]);
   const [showModalBloqueo, setShowModalBloqueo] = useState(false);
   const [motivoBloqueo, setMotivoBloqueo] = useState("");
   const detalleDiaRef = useRef(null);
+
   //variable para bloquear viernes
   const [viernesAgenda, setViernesAgenda] = useState([]);
   const [bloqueos, setBloqueos] = useState([]);
@@ -113,7 +114,7 @@ const [eventos, setEventos] = useState([]);
   const [notasAgenda, setNotasAgenda] = useState([]);
   const [showModalNota, setShowModalNota] = useState(false);
   const [notaDia, setNotaDia] = useState("");
-
+  
   //imagen cita
   const comprobanteRef = useRef(null);
   const [citaParaDescargar, setCitaParaDescargar] = useState(null);
@@ -123,8 +124,57 @@ const [eventos, setEventos] = useState([]);
   const [citaComprobanteActual, setCitaComprobanteActual] = useState(null);
 
   // ================= FIRESTORE =================
+  const notificarNuevaCitaWeb = (cita) => {
+  const nombre = capitalizarNombre(cita.nombre || "Paciente");
+  const fecha = cita.fecha || "-";
+  const hora = cita.hora || "-";
 
- useEffect(() => {
+  Swal.fire({
+    toast: true,
+    position: "top-end",
+    icon: "info",
+    title: "Nueva cita web",
+    html: `
+      <strong>${nombre}</strong><br/>
+      ${fecha} · ${hora} hs
+    `,
+    showConfirmButton: false,
+    timer: 7000,
+    timerProgressBar: true
+  });
+
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const audioCtx = new AudioContext();
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    oscillator.frequency.value = 880;
+    gainNode.gain.value = 0.06;
+
+    oscillator.start();
+    oscillator.stop(audioCtx.currentTime + 0.18);
+  } catch (error) {
+    console.warn("No se pudo reproducir sonido de notificación:", error);
+  }
+
+  if ("Notification" in window && Notification.permission === "granted") {
+    new Notification("Nueva cita web - Dr. Reuma", {
+      body: `${nombre} - ${fecha} ${hora} hs`
+    });
+  }
+};
+
+useEffect(() => {
+  if ("Notification" in window && Notification.permission === "default") {
+    Notification.requestPermission();
+  }
+}, []);
+
+useEffect(() => {
   const unsubscribe = onSnapshot(collection(db, "citas"), (snapshot) => {
     const datos = snapshot.docs.map((doc) => ({
       id: doc.id,
@@ -138,6 +188,24 @@ const [eventos, setEventos] = useState([]);
     } catch (error) {
       console.warn("No se pudo guardar cache de citas:", error);
     }
+
+    if (primeraCargaCitasRef.current) {
+      primeraCargaCitasRef.current = false;
+      return;
+    }
+
+    snapshot.docChanges().forEach((change) => {
+      if (change.type !== "added") return;
+
+      const citaNueva = {
+        id: change.doc.id,
+        ...change.doc.data()
+      };
+
+      if (citaNueva.origen === "web") {
+        notificarNuevaCitaWeb(citaNueva);
+      }
+    });
   });
 
   return () => unsubscribe();
@@ -273,6 +341,15 @@ useEffect(() => {
 
   const diaEstaBloqueado = (fecha) => {
   return bloqueos.some(b => b.fecha === fecha && b.activo);
+};
+
+const horaEstaBloqueada = (fecha, hora) => {
+  return bloqueosHora.some(
+    (b) =>
+      b.fecha === fecha &&
+      normalizarHora(b.hora) === normalizarHora(hora) &&
+      b.activo
+  );
 };
 
 const toggleBloqueoDia = async () => {
@@ -534,6 +611,65 @@ const buscarPacienteHistoriaPorCita = (cita = {}) => {
   );
 };
 
+const buscarOCrearHistoriaDesdeCita = async (dataCita = {}) => {
+  const idDirecto = dataCita.historiaClinicaId || dataCita.pacienteId || "";
+
+  if (idDirecto) {
+    return idDirecto;
+  }
+
+  const dniLimpio = limpiarDniCita(
+    dataCita.Dni ||
+    dataCita.dni ||
+    dataCita.DNI ||
+    ""
+  );
+
+  if (!dniLimpio) {
+    return "";
+  }
+
+  const pacienteEnMemoria = buscarPacienteHistoriaPorCita({
+    ...dataCita,
+    Dni: dniLimpio
+  });
+
+  if (pacienteEnMemoria?.id) {
+    return pacienteEnMemoria.id;
+  }
+
+  const qHistorias = query(
+    collection(db, "historiasClinicas"),
+    where("dni", "==", dniLimpio)
+  );
+
+  const snapHistorias = await getDocs(qHistorias);
+
+  if (!snapHistorias.empty) {
+    return snapHistorias.docs[0].id;
+  }
+
+  const nuevaHistoria = await addDoc(collection(db, "historiasClinicas"), {
+    nombre: dataCita.nombre?.trim() || "",
+    dni: dniLimpio,
+    Dni: dniLimpio,
+    telefono: limpiarTelefono10(dataCita.telefono || ""),
+    fechaNacimiento: dataCita.fechaNacimiento || "",
+    obraSocial: dataCita.obraSocial || "",
+    sexo: dataCita.sexo || "",
+
+    cantidadConsultas: 0,
+    diagnosticosResumen: [],
+    ultimaConsultaTexto: "",
+    ultimaConsultaAtMillis: 0,
+
+    origen: "agenda",
+    creado: new Date()
+  });
+
+  return nuevaHistoria.id;
+};
+
 const sonLaMismaPersonaCita = (citaA, citaB) => {
   const historiaA = citaA?.historiaClinicaId || citaA?.pacienteId || "";
   const historiaB = citaB?.historiaClinicaId || citaB?.pacienteId || "";
@@ -541,6 +677,7 @@ const sonLaMismaPersonaCita = (citaA, citaB) => {
   if (historiaA && historiaB && historiaA === historiaB) {
     return true;
   }
+
 
   const dniA = obtenerDniCita(citaA);
   const dniB = obtenerDniCita(citaB);
@@ -714,26 +851,66 @@ const abrirDetalle = (cita) => {
   setShowDetalle(true);
 };
 
-const abrirHistoriaDesdeCita = (cita) => {
+const abrirHistoriaDesdeCita = async (cita) => {
   setCitaTablaSeleccionadaId(cita?.id || null);
-  const pacienteHistoria = buscarPacienteHistoriaPorCita(cita);
 
-  if (pacienteHistoria) {
-    localStorage.setItem(
-      `paciente-cache-${pacienteHistoria.id}`,
-      JSON.stringify({
-        ts: Date.now(),
-        paciente: pacienteHistoria
-      })
-    );
+  // Abre una pestaña vacía rápido para que el navegador no bloquee el popup
+  const ventanaHistoria = window.open("", "_blank");
 
-    const url = `/admin/historia/${pacienteHistoria.id}?citaId=${cita.id}`;
+  try {
+    let historiaClinicaId = cita?.historiaClinicaId || cita?.pacienteId || "";
 
-    window.open(url, "_blank", "noopener,noreferrer");
-    return;
+    if (!historiaClinicaId) {
+      const pacienteHistoria = buscarPacienteHistoriaPorCita(cita);
+
+      if (pacienteHistoria?.id) {
+        historiaClinicaId = pacienteHistoria.id;
+      }
+    }
+
+    if (!historiaClinicaId) {
+      historiaClinicaId = await buscarOCrearHistoriaDesdeCita(cita);
+    }
+
+    if (historiaClinicaId) {
+      await updateDoc(doc(db, "citas", cita.id), {
+        historiaClinicaId,
+        pacienteId: historiaClinicaId
+      });
+
+      const pacienteHistoria = historiasPacientes.find(
+        (p) => p.id === historiaClinicaId
+      );
+
+      if (pacienteHistoria) {
+        localStorage.setItem(
+          `paciente-cache-${pacienteHistoria.id}`,
+          JSON.stringify({
+            ts: Date.now(),
+            paciente: pacienteHistoria
+          })
+        );
+      }
+
+      const url = `/admin/historia/${historiaClinicaId}?citaId=${cita.id}`;
+
+      if (ventanaHistoria) {
+        ventanaHistoria.location.href = url;
+      } else {
+        window.open(url, "_blank", "noopener,noreferrer");
+      }
+
+      return;
+    }
+
+    if (ventanaHistoria) ventanaHistoria.close();
+    abrirDetalle(cita);
+  } catch (error) {
+    console.error("No se pudo abrir o crear historia desde cita:", error);
+
+    if (ventanaHistoria) ventanaHistoria.close();
+    abrirDetalle(cita);
   }
-
-  abrirDetalle(cita);
 };
 
 const capitalizarNombre = (texto) => {
@@ -798,31 +975,32 @@ const mostrarMensajeGuardadoCita = (mensaje) => {
 const guardarCita = async (data) => {
   const tipoCorrecto = obtenerTipoCitaPorFecha(data.fecha);
 
-const cambioFechaOHora =
-  citaEditar &&
-  (
-    data.fecha !== citaEditar.fecha ||
-    normalizarHora(data.hora) !== normalizarHora(citaEditar.hora)
-  );
+  const cambioFechaOHora =
+    citaEditar &&
+    (
+      data.fecha !== citaEditar.fecha ||
+      normalizarHora(data.hora) !== normalizarHora(citaEditar.hora)
+    );
 
-const dataLimpia = {
-  ...data,
-  tipo: tipoCorrecto,
-  telefono: limpiarTelefono10(data.telefono),
+  const dataLimpia = {
+    ...data,
+    tipo: tipoCorrecto,
+    telefono: limpiarTelefono10(data.telefono),
 
-  estadoCita: cambioFechaOHora
-    ? "pendiente"
-    : data.estadoCita || citaEditar?.estadoCita || "pendiente",
+    estadoCita: cambioFechaOHora
+      ? "pendiente"
+      : data.estadoCita || citaEditar?.estadoCita || "pendiente",
 
-  estadoConfirmacion: cambioFechaOHora
-    ? "pendiente"
-    : data.estadoConfirmacion || citaEditar?.estadoConfirmacion || "pendiente",
+    estadoConfirmacion: cambioFechaOHora
+      ? "pendiente"
+      : data.estadoConfirmacion || citaEditar?.estadoConfirmacion || "pendiente",
 
-  estadoAsistencia: cambioFechaOHora
-    ? "pendiente"
-    : data.estadoAsistencia || citaEditar?.estadoAsistencia || "pendiente"
-};
+    estadoAsistencia: cambioFechaOHora
+      ? "pendiente"
+      : data.estadoAsistencia || citaEditar?.estadoAsistencia || "pendiente"
+  };
 
+  // 🔒 Validar horario ocupado usando dataLimpia, NO dataFinal
   const q = query(
     collection(db, "citas"),
     where("fecha", "==", dataLimpia.fecha),
@@ -832,7 +1010,7 @@ const dataLimpia = {
   const snap = await getDocs(q);
 
   const existe = snap.docs.some(
-    d => d.id !== citaEditar?.id
+    (d) => d.id !== citaEditar?.id
   );
 
   if (existe) {
@@ -845,10 +1023,23 @@ const dataLimpia = {
     return false;
   }
 
+  // ✅ Recién aquí se crea o vincula la historia clínica
+  const historiaClinicaId = await buscarOCrearHistoriaDesdeCita(dataLimpia);
+
+  const dataFinal = {
+    ...dataLimpia,
+    ...(historiaClinicaId
+      ? {
+          historiaClinicaId,
+          pacienteId: historiaClinicaId
+        }
+      : {})
+  };
+
   if (citaEditar) {
     await updateDoc(
       doc(db, "citas", citaEditar.id),
-      dataLimpia
+      dataFinal
     );
 
     setCitaEditar(null);
@@ -861,7 +1052,7 @@ const dataLimpia = {
   await addDoc(
     collection(db, "citas"),
     {
-      ...dataLimpia,
+      ...dataFinal,
       createdAt: new Date()
     }
   );
@@ -1252,15 +1443,6 @@ const abrirWhatsappCita = (cita, usarNueve = true, tipoMensaje = "recordatorio")
   window.open(urlWeb, "_blank");
 };
 
-const horaEstaBloqueada = (fecha, hora) => {
-  return bloqueosHora.some(
-    b =>
-      b.fecha === fecha &&
-      normalizarHora(b.hora) === normalizarHora(hora) &&
-      b.activo
-  );
-};
-
 const toggleBloqueoHora = async (hora) => {
   if (!diaSeleccionado || !hora) return;
 
@@ -1615,17 +1797,30 @@ const tieneNota = notasAgenda.some(
 }}
 
 eventClick={(info) => {
-  setDiaSeleccionado(
-    info.event.startStr.split("T")[0]
-  );
+  const fechaEvento = info.event.startStr.split("T")[0];
+  const datosEvento = info.event.extendedProps || "";
 
-  setTimeout(() => {
-    detalleDiaRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  }, 50);
+  setDiaSeleccionado(fechaEvento);
+
+  if (datosEvento?.tipoEvento === "bloqueoHora") {
+    setTimeout(() => {
+      detalleDiaRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 50);
+
+    return;
+  }
+
+  const cita = {
+    id: info.event.id,
+    ...datosEvento
+  };
+
+  abrirHistoriaDesdeCita(cita);
 }}
+
 />
       </div>
 

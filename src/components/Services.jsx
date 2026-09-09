@@ -21,7 +21,14 @@ import {
   FaSave, 
   FaImage,
   FaClock,
-  FaUserMd
+  FaUserMd,
+FaUser,
+FaPhoneAlt,
+FaIdCard,
+FaBirthdayCake,
+FaVenusMars,
+FaShieldAlt,
+FaNotesMedical
 } from "react-icons/fa";
 function Services() {
 
@@ -54,7 +61,7 @@ const [form, setForm] = useState({
 
 const [mostrarCitaAgendada, setMostrarCitaAgendada] = useState(false);
 const [generandoComprobante, setGenerandoComprobante] = useState(false);
-
+const [guardandoCita, setGuardandoCita] = useState(false);
 const [previewComprobanteUrl, setPreviewComprobanteUrl] = useState(null);
 const [previewComprobanteFile, setPreviewComprobanteFile] = useState(null);
 
@@ -137,6 +144,97 @@ const diaEstaBloqueado = (fecha) => {
 
 const normalizarHora = (hora = "") => {
   return hora.toString().trim().slice(0, 5);
+};
+
+const limpiarDniPaciente = (valor = "") => {
+  return valor.toString().replace(/\D/g, "").trim();
+};
+
+const limpiarTelefono10 = (telefono = "") => {
+  let numero = telefono.toString().replace(/\D/g, "");
+
+  if (!numero) return "";
+
+  if (numero.startsWith("00")) {
+    numero = numero.slice(2);
+  }
+
+  if (numero.startsWith("549") && numero.length >= 13) {
+    numero = numero.slice(3);
+  }
+
+  if (numero.startsWith("54") && numero.length >= 12) {
+    numero = numero.slice(2);
+  }
+
+  if (numero.startsWith("9") && numero.length === 11) {
+    numero = numero.slice(1);
+  }
+
+  if (numero.startsWith("0") && numero.length === 11) {
+    numero = numero.slice(1);
+  }
+
+  if (numero.length > 10) {
+    numero = numero.slice(-10);
+  }
+
+  return numero;
+};
+
+const buscarOCrearHistoriaDesdeServices = async (dataCita = {}) => {
+  const dniLimpio = limpiarDniPaciente(
+    dataCita.Dni ||
+    dataCita.dni ||
+    dataCita.DNI ||
+    ""
+  );
+
+  if (!dniLimpio) {
+    return "";
+  }
+
+  const qHistoriasDni = query(
+    collection(db, "historiasClinicas"),
+    where("dni", "==", dniLimpio)
+  );
+
+  const snapHistoriasDni = await getDocs(qHistoriasDni);
+
+  if (!snapHistoriasDni.empty) {
+    return snapHistoriasDni.docs[0].id;
+  }
+
+  const qHistoriasDniMayus = query(
+    collection(db, "historiasClinicas"),
+    where("Dni", "==", dniLimpio)
+  );
+
+  const snapHistoriasDniMayus = await getDocs(qHistoriasDniMayus);
+
+  if (!snapHistoriasDniMayus.empty) {
+    return snapHistoriasDniMayus.docs[0].id;
+  }
+
+  const nuevaHistoria = await addDoc(collection(db, "historiasClinicas"), {
+    nombre: dataCita.nombre?.trim() || "",
+    dni: dniLimpio,
+    Dni: dniLimpio,
+    telefono: limpiarTelefono10(dataCita.telefono || ""),
+    fechaNacimiento: dataCita.fechaNacimiento || "",
+    obraSocial: dataCita.obraSocial?.trim() || "",
+    sexo: dataCita.sexo || "",
+
+    cantidadConsultas: 0,
+    diagnosticosResumen: [],
+    ultimaConsultaTexto: "",
+    ultimaConsultaAtMillis: 0,
+
+    origen: "web",
+    creado: new Date()
+  });
+
+  return nuevaHistoria.id;
 };
 
 const horaEstaBloqueada = (fecha, hora) => {
@@ -308,10 +406,12 @@ useEffect(() => {
 }, [form.fecha]);
 
   // 🔥 GUARDAR CITA
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    const camposObligatorios = [
+  if (guardandoCita) return;
+
+  const camposObligatorios = [
     "nombre",
     "telefono",
     "Dni",
@@ -333,137 +433,155 @@ useEffect(() => {
     return;
   }
 
+  if (!form.hora) {
+    alert("Selecciona un horario");
+    return;
+  }
 
-    if (!form.hora) {
-      alert("Selecciona un horario");
+  setGuardandoCita(true);
+
+  try {
+    const bloqueosHoraSnap = await getDocs(
+      query(
+        collection(db, "bloqueosHora"),
+        where("fecha", "==", form.fecha)
+      )
+    );
+
+    const horaBloqueada = bloqueosHoraSnap.docs.some((doc) => {
+      const data = doc.data();
+
+      return (
+        data.activo &&
+        normalizarHora(data.hora) === normalizarHora(form.hora)
+      );
+    });
+
+    if (horaBloqueada) {
+      alert("Ese horario ya no está disponible. Por favor selecciona otro horario.");
+
+      setForm((prev) => ({
+        ...prev,
+        hora: ""
+      }));
+
       return;
     }
 
-    const bloqueosHoraSnap = await getDocs(
-  query(
-    collection(db, "bloqueosHora"),
-    where("fecha", "==", form.fecha)
-  )
-);
+    const citasSnap = await getDocs(
+      query(
+        collection(db, "citas"),
+        where("fecha", "==", form.fecha)
+      )
+    );
 
-const horaBloqueada = bloqueosHoraSnap.docs.some((doc) => {
-  const data = doc.data();
-
-  return (
-    data.activo &&
-    normalizarHora(data.hora) === normalizarHora(form.hora)
-  );
-});
-
-if (horaBloqueada) {
-  alert("Ese horario ya no está disponible. Por favor selecciona otro horario.");
-
-  setForm((prev) => ({
-    ...prev,
-    hora: ""
-  }));
-
-  return;
-}
-
-const citasSnap = await getDocs(
-  query(
-    collection(db, "citas"),
-    where("fecha", "==", form.fecha)
-  )
-);
-
-const citaYaExiste = citasSnap.docs.some((doc) => {
-  const data = doc.data();
-  return normalizarHora(data.hora) === normalizarHora(form.hora);
-});
-
-if (citaYaExiste) {
-  alert("Ese horario acaba de ser reservado. Por favor selecciona otro horario.");
-
-  setForm((prev) => ({
-    ...prev,
-    hora: ""
-  }));
-
-  return;
-}
-
-const fechaTipoObj = new Date(form.fecha + "T00:00:00");
-
-const diaTipoSemana = fechaTipoObj
-  .toLocaleDateString("es-AR", { weekday: "long" })
-  .toLowerCase();
-
-if (diaTipoSemana === "sábado" && form.tipo !== "virtual") {
-  alert("Los sábados solo se permiten consultas virtuales.");
-  return;
-}
-
-if (diaTipoSemana !== "sábado" && form.tipo !== "presencial") {
-  alert("De lunes a viernes solo se permiten consultas presenciales.");
-  return;
-}
-
-    try {
-      await addDoc(collection(db, "citas"), {
-        ...form,
-        estado: "confirmada",
-        createdAt: new Date()
-      });
-
-      // ✅ guardar datos
-      setCitaGuardada(form);
-
-      // ✅ mensaje moderno
-      setMostrarCitaAgendada(true);
-      setTimeout(() => {
-        setMostrarCitaAgendada(false);
-      }, 1800);
-
-      // ✅ mostrar botón WhatsApp
-      setSuccess(true);
-      // 👇 SCROLL automático
-      setTimeout(() => {
-  if (whatsappRef.current) {
-    const yOffset = -80; // ajusta si quieres más arriba
-    const y =
-      whatsappRef.current.getBoundingClientRect().top +
-      window.pageYOffset +
-      yOffset;
-
-    window.scrollTo({
-      top: y,
-      behavior: "smooth"
+    const citaYaExiste = citasSnap.docs.some((doc) => {
+      const data = doc.data();
+      return normalizarHora(data.hora) === normalizarHora(form.hora);
     });
-  }
-}, 600); // ⬅️ más tiempo para móvil
 
-      // ✅ limpiar form
-      setForm({
-        nombre: "",
-        telefono: "",
-        Dni: "",
+    if (citaYaExiste) {
+      alert("Ese horario acaba de ser reservado. Por favor selecciona otro horario.");
 
-        fechaNacimiento: "",
-        sexo: "",
-        obraSocial: "",
-        motivoConsulta: "",
-
-        tipo: "presencial",
-        fecha: "",
+      setForm((prev) => ({
+        ...prev,
         hora: ""
-      });
+      }));
 
-      
-      
-      setHorariosDisponibles([]);
-
-    } catch (error) {
-      console.error(error);
-      alert("Error al guardar la cita");
+      return;
     }
-  };
+
+    const fechaTipoObj = new Date(form.fecha + "T00:00:00");
+
+    const diaTipoSemana = fechaTipoObj
+      .toLocaleDateString("es-AR", { weekday: "long" })
+      .toLowerCase();
+
+    if (diaTipoSemana === "sábado" && form.tipo !== "virtual") {
+      alert("Los sábados solo se permiten consultas virtuales.");
+      return;
+    }
+
+    if (diaTipoSemana !== "sábado" && form.tipo !== "presencial") {
+      alert("De lunes a viernes solo se permiten consultas presenciales.");
+      return;
+    }
+
+    const dniLimpio = limpiarDniPaciente(form.Dni);
+    const telefonoLimpio = limpiarTelefono10(form.telefono);
+
+    const historiaClinicaId = await buscarOCrearHistoriaDesdeServices({
+      ...form,
+      Dni: dniLimpio,
+      telefono: telefonoLimpio
+    });
+
+    const citaFinal = {
+      ...form,
+      Dni: dniLimpio,
+      telefono: telefonoLimpio,
+
+      historiaClinicaId,
+      pacienteId: historiaClinicaId,
+
+      estadoCita: "pendiente",
+      estadoConfirmacion: "pendiente",
+      estadoAsistencia: "pendiente",
+
+      origen: "web",
+      createdAt: new Date()
+    };
+
+    await addDoc(collection(db, "citas"), citaFinal);
+
+    setCitaGuardada(citaFinal);
+
+    setMostrarCitaAgendada(true);
+    setTimeout(() => {
+      setMostrarCitaAgendada(false);
+    }, 1800);
+
+    setSuccess(true);
+
+    // ✅ Que NO se quede abajo: vuelve al cuadro principal de agenda
+    setTimeout(() => {
+      const agenda = document.getElementById("agenda-cita");
+      if (!agenda) return;
+
+      const y =
+        agenda.getBoundingClientRect().top +
+        window.pageYOffset -
+        95;
+
+      window.scrollTo({
+        top: y,
+        behavior: "smooth"
+      });
+    }, 120);
+
+    setForm({
+      nombre: "",
+      telefono: "",
+      Dni: "",
+
+      fechaNacimiento: "",
+      sexo: "",
+      obraSocial: "",
+      motivoConsulta: "",
+
+      tipo: "presencial",
+      fecha: "",
+      hora: ""
+    });
+
+    setHorariosDisponibles([]);
+  } catch (error) {
+    console.error(error);
+    alert("Error al guardar la cita");
+  } finally {
+    setGuardandoCita(false);
+  }
+};
 
   // 📲 Link dinámico WhatsApp
   const whatsappLink = citaGuardada
@@ -665,251 +783,289 @@ const cerrarPreviewComprobantePaciente = () => {
           {!success ? (
             
 
-<form onSubmit={handleSubmit}>
+<form onSubmit={handleSubmit} className="agenda-pro-form">
+<div className="agenda-pro-header">
+  <div className="agenda-pro-header-icon">
+    <FaCalendarCheck />
+  </div>
 
-  <div className="row g-3">
+  <h4>AGENDA TU CITA</h4>
 
-    <div className="col-12">
-      <div className="mb-4 text-center">
-            <div className="service-icon mx-auto">
-              <FaCalendarCheck />
-            </div>
+  <p>
+    Completa tus datos y reserva tu consulta con Dr. Reuma.
+  </p>
+</div>
+  <div className="agenda-pro-grid">
 
-            <h4 className="mb-3 fw-bold">
-              AGENDA TU CITA
-            </h4>
-
-          </div>
+    <div className="agenda-pro-field">
+      <div className="agenda-pro-icon">
+        <FaUser />
       </div>
 
-      <div className="col-md-6">
-       <input
-        type="text"
-        name="nombre"
-        placeholder="Nombre completo"
-        className="form-control"
-        required
-        value={form.nombre}
-        onChange={handleChange}
-      />
+      <div className="agenda-pro-control">
+        <label>Nombre completo</label>
+        <input
+          type="text"
+          name="nombre"
+          placeholder="Ingresa tu nombre completo"
+          className="form-control"
+          required
+          value={form.nombre}
+          onChange={handleChange}
+        />
       </div>
-     
-    <div className="col-md-6">
-      <input
-        type="text"
-        name="telefono"
-        placeholder="Teléfono"
-        className="form-control"
-        required
-        value={form.telefono}
-        onChange={handleChange}
-      />
     </div>
 
-    <div className="col-md-6">
-      <input
-        type="text"
-        name="Dni"
-        placeholder="Dni"
-        className="form-control"
-        required
-        value={form.Dni}
-        onChange={handleChange}
-      />
+    <div className="agenda-pro-field">
+      <div className="agenda-pro-icon">
+        <FaPhoneAlt />
+      </div>
+
+      <div className="agenda-pro-control">
+        <label>Teléfono</label>
+        <input
+          type="text"
+          name="telefono"
+          placeholder="Ingresa tu número de teléfono"
+          className="form-control"
+          required
+          value={form.telefono}
+          onChange={handleChange}
+        />
+      </div>
     </div>
 
-    <div className="col-md-6">
-  <label className="form-label fw-semibold">
-    🎂 Fecha de nacimiento
-  </label>
+    <div className="agenda-pro-field">
+      <div className="agenda-pro-icon">
+        <FaIdCard />
+      </div>
 
-  <input
-    type="date"
-    name="fechaNacimiento"
-    className="form-control"
-    required
-    value={form.fechaNacimiento}
-    onChange={handleChange}
-  />
-</div>
-
-<div className="col-md-6">
-  <select
-    name="sexo"
-    className="form-select"
-    required
-    value={form.sexo}
-    onChange={handleChange}
-  >
-    <option value="">Sexo</option>
-    <option value="Femenino">Femenino</option>
-    <option value="Masculino">Masculino</option>
-    <option value="Otro">Otro</option>
-  </select>
-</div>
-
-<div className="col-md-6">
-  <input
-    type="text"
-    name="obraSocial"
-    placeholder="Escribir nombre de obra social"
-    className="form-control"
-    required
-    value={form.obraSocial}
-    onChange={handleChange}
-  />
-</div>
-
-<div className="col-12">
-  <textarea
-    name="motivoConsulta"
-    placeholder="Motivo de consulta"
-    className="form-control"
-    rows="3"
-    required
-    value={form.motivoConsulta}
-    onChange={handleChange}
-  />
-</div>
-
-    <div className="col-md-6">
-
-<select
-  name="tipo"
-  className="form-select"
-  value={form.tipo}
-  onChange={handleChange}
-  required
->
-  <option
-    value="presencial"
-    disabled={
-      form.fecha &&
-      new Date(form.fecha + "T00:00:00")
-        .toLocaleDateString("es-AR", { weekday: "long" })
-        .toLowerCase() === "sábado"
-    }
-  >
-    Presencial
-  </option>
-
-  <option
-    value="virtual"
-    disabled={
-      form.fecha &&
-      new Date(form.fecha + "T00:00:00")
-        .toLocaleDateString("es-AR", { weekday: "long" })
-        .toLowerCase() !== "sábado"
-    }
-  >
-    Virtual
-  </option>
-</select>
-
-      {form.fecha &&
-        new Date(form.fecha + "T00:00:00")
-          .toLocaleDateString("es-AR", { weekday: "long" })
-          .toLowerCase() === "sábado" && (
-          <small className="text-danger d-block mt-1">
-            ⚠️ Los sábados solo se permiten consultas virtuales.
-          </small>
-      )}
-
-            {form.fecha &&
-        new Date(form.fecha + "T00:00:00")
-          .toLocaleDateString("es-AR", { weekday: "long" })
-          .toLowerCase() !== "sábado" && (
-          <small className="text-success d-block mt-1">
-            ✅ De lunes a viernes la consulta es únicamente presencial.
-          </small>
-      )}
-
+      <div className="agenda-pro-control">
+        <label>DNI</label>
+        <input
+          type="text"
+          name="Dni"
+          placeholder="Ingresa tu número de DNI"
+          className="form-control"
+          required
+          value={form.Dni}
+          onChange={handleChange}
+        />
+      </div>
     </div>
 
-    <div className="col-md-6">
+    <div className="agenda-pro-field">
+      <div className="agenda-pro-icon">
+        <FaBirthdayCake />
+      </div>
 
-      <label className="form-label fw-semibold">
-        📅 Fecha de la cita
-      </label>
-
-      <input
-        type="date"
-        name="fecha"
-        className="form-control"
-        required
-        value={form.fecha}
-        onChange={handleChange}
-      />
-
+      <div className="agenda-pro-control">
+        <label>Fecha de nacimiento</label>
+        <input
+          type="date"
+          name="fechaNacimiento"
+          className="form-control"
+          required
+          value={form.fechaNacimiento}
+          onChange={handleChange}
+        />
+      </div>
     </div>
 
-    <div className="col-md-6">
+    <div className="agenda-pro-field">
+      <div className="agenda-pro-icon">
+        <FaVenusMars />
+      </div>
 
-      <select
-        name="hora"
-        className="form-select"
-        required
-        value={form.hora}
-        onChange={handleChange}
-      >
+      <div className="agenda-pro-control">
+        <label>Sexo</label>
+        <select
+          name="sexo"
+          className="form-select select-con-flecha"
+          required
+          value={form.sexo}
+          onChange={handleChange}
+        >
+          <option value="">Selecciona una opción</option>
+          <option value="Femenino">Femenino</option>
+          <option value="Masculino">Masculino</option>
+        </select>
+      </div>
+    </div>
 
-        <option value="">
-          Selecciona una hora
-        </option>
+    <div className="agenda-pro-field">
+      <div className="agenda-pro-icon">
+        <FaShieldAlt />
+      </div>
 
-        {horariosDisponibles.length > 0 ? (
+      <div className="agenda-pro-control">
+        <label>Obra social</label>
+        <input
+          type="text"
+          name="obraSocial"
+          placeholder="Ej: ISSN, OSDE, Particular"
+          className="form-control"
+          required
+          value={form.obraSocial}
+          onChange={handleChange}
+        />
+      </div>
+    </div>
 
-          horariosDisponibles.map((h, i) => (
-            <option key={i} value={h}>
-              {h}
-            </option>
-          ))
+    <div className="agenda-pro-field agenda-pro-field-wide">
+      <div className="agenda-pro-icon">
+        <FaNotesMedical />
+      </div>
 
-        ) : (
+      <div className="agenda-pro-control">
+        <label>Motivo de consulta</label>
+        <textarea
+          name="motivoConsulta"
+          placeholder="Cuéntanos brevemente el motivo de tu consulta"
+          className="form-control"
+          rows="3"
+          required
+          value={form.motivoConsulta}
+          onChange={handleChange}
+        />
+      </div>
+    </div>
 
-          <option disabled>
-           {form.fecha
-              ? "No hay horarios disponibles 😢"
-              : "Primero selecciona una fecha"}
+    <div className="agenda-pro-field">
+      <div className="agenda-pro-icon">
+        <FaMapMarkerAlt />
+      </div>
+
+      <div className="agenda-pro-control">
+        <label>Modalidad</label>
+        <select
+          name="tipo"
+          className="form-select select-con-flecha"
+          value={form.tipo}
+          onChange={handleChange}
+          required
+        >
+          <option
+            value="presencial"
+            disabled={
+              form.fecha &&
+              new Date(form.fecha + "T00:00:00")
+                .toLocaleDateString("es-AR", { weekday: "long" })
+                .toLowerCase() === "sábado"
+            }
+          >
+            Presencial
           </option>
 
+          <option
+            value="virtual"
+            disabled={
+              form.fecha &&
+              new Date(form.fecha + "T00:00:00")
+                .toLocaleDateString("es-AR", { weekday: "long" })
+                .toLowerCase() !== "sábado"
+            }
+          >
+            Virtual
+          </option>
+        </select>
+
+        {form.fecha &&
+          new Date(form.fecha + "T00:00:00")
+            .toLocaleDateString("es-AR", { weekday: "long" })
+            .toLowerCase() === "sábado" && (
+            <small className="agenda-pro-help danger">
+              ⚠️ Los sábados solo se permiten consultas virtuales.
+            </small>
         )}
 
-      </select>
+        {form.fecha &&
+          new Date(form.fecha + "T00:00:00")
+            .toLocaleDateString("es-AR", { weekday: "long" })
+            .toLowerCase() !== "sábado" && (
+            <small className="agenda-pro-help success">
+              ✅ De lunes a viernes la consulta es únicamente presencial.
+            </small>
+        )}
+      </div>
+    </div>
 
+    <div className="agenda-pro-field">
+      <div className="agenda-pro-icon">
+        <FaCalendarAlt />
+      </div>
+
+      <div className="agenda-pro-control">
+        <label>Fecha de la cita</label>
+        <input
+          type="date"
+          name="fecha"
+          className="form-control"
+          required
+          value={form.fecha}
+          onChange={handleChange}
+        />
+      </div>
+    </div>
+
+    <div className="agenda-pro-field agenda-pro-field-wide">
+      <div className="agenda-pro-icon">
+        <FaClock />
+      </div>
+
+      <div className="agenda-pro-control">
+        <label>Selecciona una hora</label>
+        <select
+          name="hora"
+          className="form-select select-con-flecha"
+          required
+          value={form.hora}
+          onChange={handleChange}
+        >
+          <option value="">Selecciona una hora</option>
+
+          {horariosDisponibles.length > 0 ? (
+            horariosDisponibles.map((h, i) => (
+              <option key={i} value={h}>
+                {h}
+              </option>
+            ))
+          ) : (
+            <option disabled>
+              {form.fecha
+                ? "No hay horarios disponibles 😢"
+                : "Primero selecciona una fecha"}
+            </option>
+          )}
+        </select>
+      </div>
     </div>
 
   </div>
 
-  <div className="d-flex justify-content-center">
-
-    <button className="btn btn-dark fw-bold mt-4">
-      <FaSave size={20}/>
-      Guardar Cita
-    </button>
-
+  <div className="agenda-pro-actions">
+    <button
+        type="submit"
+        className="agenda-pro-submit"
+        disabled={guardandoCita}
+      >
+        <FaSave />
+        <span>{guardandoCita ? "Guardando..." : "Guardar Cita"}</span>
+      </button>
   </div>
 
-  <div className="info-card mt-4">
-
-    <p className="info-title">
-      📌 Información importante
-    </p>
-
-    <div className="info-item success">
-      <FaMoneyBillWave />
-      <span>
-        El pago se realizará al finalizar la consulta médica. (Se acepta Efectivo o Transferencia.)
-      </span>
-    </div>
-
-    <div className="info-item danger">
+  <div className="agenda-pro-info">
+    <div className="agenda-pro-info-icon">
       <FaExclamationCircle />
-      <span>
-        En caso de cancelación, comunícate con el médico.
-      </span>
     </div>
 
+    <div>
+      <h5>Información importante</h5>
+      <p>
+        El pago se realizará al finalizar la consulta médica.
+        En caso de cancelación o reprogramación, comunícate con el médico.
+      </p>
+    </div>
   </div>
 
 </form>

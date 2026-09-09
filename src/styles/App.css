@@ -1671,8 +1671,364 @@ margin-top: 5px;
 /* =========================================================
    04 - SERVICIOS / AGENDA PÚBLICA
 ========================================================= */
+/* ===== AGENDA PÚBLICA - FORMULARIO PRO RESPONSIVE ===== */
 
+.agenda-shell {
+  max-width: 980px !important;
+  margin: 0 auto 3rem auto !important;
+  padding: 14px !important;
+  border-radius: 28px !important;
+  background: linear-gradient(135deg, #079db2, #056f7c) !important;
+  box-shadow: 0 24px 55px rgba(7, 157, 178, 0.25) !important;
+}
 
+.agenda-inner-card {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border-radius: 24px !important;
+  padding: 34px !important;
+  border: 1px solid rgba(7, 157, 178, 0.15) !important;
+}
+
+.agenda-inner-card .service-icon {
+  width: 66px !important;
+  height: 66px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #0bb6c8, #058898) !important;
+  color: white !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 14px 30px rgba(7, 157, 178, 0.32) !important;
+}
+
+.agenda-inner-card h4 {
+  color: #111827 !important;
+  font-size: 1.65rem !important;
+  letter-spacing: 0.4px !important;
+}
+
+.agenda-pro-form {
+  width: 100% !important;
+}
+
+.agenda-pro-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 16px !important;
+}
+
+.agenda-pro-field {
+  display: flex !important;
+  align-items: stretch !important;
+  gap: 12px !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(7, 157, 178, 0.22) !important;
+  border-radius: 18px !important;
+  padding: 12px !important;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05) !important;
+  transition: 0.2s ease !important;
+}
+
+.agenda-pro-field:hover {
+  border-color: #079db2 !important;
+  box-shadow: 0 12px 26px rgba(7, 157, 178, 0.12) !important;
+  transform: translateY(-1px) !important;
+}
+
+.agenda-pro-field-wide {
+  grid-column: span 2 !important;
+}
+
+.agenda-pro-icon {
+  width: 42px !important;
+  min-width: 42px !important;
+  height: 42px !important;
+  border-radius: 14px !important;
+  background: #e6f8fb !important;
+  color: #079db2 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.15rem !important;
+}
+
+.agenda-pro-control {
+  width: 100% !important;
+}
+
+.agenda-pro-control label {
+  display: block !important;
+  margin-bottom: 5px !important;
+  color: #111827 !important;
+  font-size: 0.83rem !important;
+  font-weight: 900 !important;
+}
+
+.agenda-pro-control .form-control,
+.agenda-pro-control .form-select {
+  width: 100% !important;
+  min-height: 44px !important;
+  border-radius: 12px !important;
+  border: 1px solid #cceef3 !important;
+  background-color: #f9feff !important;
+  color: #111827 !important;
+  font-weight: 700 !important;
+  font-size: 0.95rem !important;
+  box-shadow: none !important;
+}
+
+.agenda-pro-control textarea.form-control {
+  min-height: 86px !important;
+  resize: vertical !important;
+}
+
+.agenda-pro-control .form-control:focus,
+.agenda-pro-control .form-select:focus {
+  border-color: #079db2 !important;
+  box-shadow: 0 0 0 4px rgba(7, 157, 178, 0.13) !important;
+}
+
+.agenda-pro-help {
+  display: block !important;
+  margin-top: 7px !important;
+  font-size: 0.78rem !important;
+  font-weight: 800 !important;
+}
+
+.agenda-pro-help.success {
+  color: #047857 !important;
+}
+
+.agenda-pro-help.danger {
+  color: #dc2626 !important;
+}
+
+.agenda-pro-actions {
+  display: flex !important;
+  justify-content: center !important;
+  margin-top: 26px !important;
+}
+
+.agenda-pro-submit {
+  border: none !important;
+  border-radius: 18px !important;
+  padding: 14px 34px !important;
+  min-width: 220px !important;
+  background: linear-gradient(135deg, #079db2, #057987) !important;
+  color: white !important;
+  font-weight: 1000 !important;
+  font-size: 1rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  box-shadow: 0 16px 32px rgba(7, 157, 178, 0.32) !important;
+  transition: 0.2s ease !important;
+}
+
+.agenda-pro-submit:hover {
+  transform: translateY(-2px) !important;
+  filter: brightness(0.95) !important;
+}
+
+.agenda-pro-info {
+  margin-top: 28px !important;
+  padding: 18px 20px !important;
+  border-radius: 20px !important;
+  background: #eefcff !important;
+  border: 1px solid #bcecf3 !important;
+  display: flex !important;
+  gap: 14px !important;
+  align-items: flex-start !important;
+}
+
+.agenda-pro-info-icon {
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  border-radius: 50% !important;
+  background: #079db2 !important;
+  color: white !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.1rem !important;
+}
+
+.agenda-pro-info h5 {
+  margin: 0 0 4px 0 !important;
+  color: #111827 !important;
+  font-weight: 1000 !important;
+}
+
+.agenda-pro-info p {
+  margin: 0 !important;
+  color: #374151 !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  line-height: 1.35 !important;
+}
+
+/* ===== CELULAR ===== */
+
+@media (max-width: 768px) {
+  .agenda-shell {
+    width: calc(100% - 18px) !important;
+    padding: 8px !important;
+    border-radius: 22px !important;
+    margin-top: 10px !important;
+  }
+
+  .agenda-inner-card {
+    padding: 22px 14px !important;
+    border-radius: 18px !important;
+  }
+
+  .agenda-inner-card .service-icon {
+    width: 56px !important;
+    height: 56px !important;
+  }
+
+  .agenda-inner-card h4 {
+    font-size: 1.35rem !important;
+  }
+
+  .agenda-pro-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .agenda-pro-field,
+  .agenda-pro-field-wide {
+    grid-column: span 1 !important;
+  }
+
+  .agenda-pro-field {
+    padding: 10px !important;
+    border-radius: 16px !important;
+    gap: 9px !important;
+  }
+
+  .agenda-pro-icon {
+    width: 38px !important;
+    min-width: 38px !important;
+    height: 38px !important;
+    font-size: 1rem !important;
+  }
+
+  .agenda-pro-control label {
+    font-size: 0.78rem !important;
+  }
+
+  .agenda-pro-control .form-control,
+  .agenda-pro-control .form-select {
+    min-height: 42px !important;
+    font-size: 16px !important;
+  }
+
+  .agenda-pro-submit {
+    width: 100% !important;
+    min-width: 100% !important;
+    padding: 14px 20px !important;
+    border-radius: 16px !important;
+  }
+
+  .agenda-pro-info {
+    padding: 14px !important;
+    border-radius: 16px !important;
+  }
+
+  .agenda-pro-info p {
+    font-size: 0.82rem !important;
+  }
+}
+
+/* ===== TÍTULO FORMULARIO AGENDA PÚBLICA ===== */
+
+.agenda-pro-header {
+  text-align: center !important;
+  margin-bottom: 30px !important;
+}
+
+.agenda-pro-header-icon {
+  width: 68px !important;
+  height: 68px !important;
+  margin: 0 auto 14px auto !important;
+
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #0bb6c8, #058898) !important;
+  color: white !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  font-size: 1.8rem !important;
+  box-shadow: 0 14px 30px rgba(7, 157, 178, 0.32) !important;
+}
+
+.agenda-pro-header h4 {
+  margin: 0 !important;
+  color: #111827 !important;
+  font-size: 1.75rem !important;
+  font-weight: 1000 !important;
+  letter-spacing: 0.5px !important;
+}
+
+.agenda-pro-header p {
+  margin: 8px 0 0 0 !important;
+  color: #4b5563 !important;
+  font-size: 0.98rem !important;
+  font-weight: 600 !important;
+}
+
+.agenda-pro-header::after {
+  content: "" !important;
+  display: block !important;
+  width: 54px !important;
+  height: 4px !important;
+  border-radius: 999px !important;
+  background: #079db2 !important;
+  margin: 14px auto 0 auto !important;
+}
+
+@media (max-width: 768px) {
+  .agenda-pro-header {
+    margin-bottom: 22px !important;
+  }
+
+  .agenda-pro-header-icon {
+    width: 58px !important;
+    height: 58px !important;
+    font-size: 1.45rem !important;
+  }
+
+  .agenda-pro-header h4 {
+    font-size: 1.35rem !important;
+  }
+
+  .agenda-pro-header p {
+    font-size: 0.86rem !important;
+    line-height: 1.25 !important;
+  }
+}
+
+.agenda-pro-submit:disabled {
+  opacity: 0.75 !important;
+  cursor: wait !important;
+  transform: none !important;
+}
+/* ===== SELECT CON FLECHITA DESPLEGABLE ===== */
+
+.select-con-flecha {
+  appearance: auto !important;
+  -webkit-appearance: auto !important;
+  -moz-appearance: auto !important;
+
+  padding-right: 5rem !important;
+  cursor: pointer !important;
+  background-color: #ffffff !important;
+}
 /* =========================================================
    SERVICIOS - DR. REUMA MODERNO
 ========================================================= */
@@ -3499,6 +3855,24 @@ margin-top: 5px;
 
   white-space: nowrap !important;
 }
+/* ===== HOVER EN EVENTOS DEL CALENDARIO ===== */
+
+.fc .fc-daygrid-event {
+  cursor: pointer !important;
+  transition: 0.18s ease !important;
+}
+
+.fc .fc-daygrid-event:hover {
+  filter: brightness(0.82) !important;
+  transform: scale(1.02) !important;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25) !important;
+  z-index: 20 !important;
+}
+
+.fc .fc-daygrid-event:hover .fc-event-title,
+.fc .fc-daygrid-event:hover .fc-event-time {
+  text-decoration: underline !important;
+}
 
 /* ===== ESTADO EN BUSCADOR DE CITAS ===== */
 
@@ -4480,6 +4854,10 @@ margin-top: 5px;
     padding: 5px 8px;
   }
 }
+
+
+
+
 
 .fila-cita-historia {
   cursor: pointer !important;

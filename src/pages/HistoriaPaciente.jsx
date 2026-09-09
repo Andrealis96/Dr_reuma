@@ -139,24 +139,53 @@ const [guardandoConsulta, setGuardandoConsulta] = useState(false);
     };
   }, [id]);
 
-  const calcularEdad = (fecha) => {
-    if (!fecha) return "";
+const convertirFechaNacimientoADate = (valor = "") => {
+  if (!valor) return null;
 
-    const hoy = new Date();
-    const nacimiento = new Date(`${fecha}T00:00:00`);
+  const texto = valor.toString().trim();
 
-    let edad = hoy.getFullYear() - nacimiento.getFullYear();
-    const mes = hoy.getMonth() - nacimiento.getMonth();
+  // Formato viejo: AAAA-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}$/.test(texto)) {
+    const [anio, mes, dia] = texto.split("-").map(Number);
+    return new Date(anio, mes - 1, dia);
+  }
 
-    if (
-      mes < 0 ||
-      (mes === 0 && hoy.getDate() < nacimiento.getDate())
-    ) {
-      edad--;
-    }
+  // Formato con slash tipo: AAAA/MM/DD
+  if (/^\d{4}\/\d{2}\/\d{2}$/.test(texto)) {
+    const [anio, mes, dia] = texto.split("/").map(Number);
+    return new Date(anio, mes - 1, dia);
+  }
 
-    return edad;
-  };
+  // Formato nuevo: DD-MM-AAAA o DD/MM/AAAA
+  if (/^\d{2}[-/]\d{2}[-/]\d{4}$/.test(texto)) {
+    const partes = texto.split(/[-/]/).map(Number);
+    const [dia, mes, anio] = partes;
+    return new Date(anio, mes - 1, dia);
+  }
+
+  const fechaTemporal = new Date(texto);
+  return isNaN(fechaTemporal.getTime()) ? null : fechaTemporal;
+};
+
+const calcularEdad = (fecha) => {
+  const nacimiento = convertirFechaNacimientoADate(fecha);
+
+  if (!nacimiento) return null;
+
+  const hoy = new Date();
+
+  let edad = hoy.getFullYear() - nacimiento.getFullYear();
+  const mes = hoy.getMonth() - nacimiento.getMonth();
+
+  if (
+    mes < 0 ||
+    (mes === 0 && hoy.getDate() < nacimiento.getDate())
+  ) {
+    edad--;
+  }
+
+  return edad;
+};
 
   const obtenerIconoSexo = () => {
     const sexo = paciente?.sexo?.toLowerCase()?.trim();
@@ -168,12 +197,19 @@ const [guardandoConsulta, setGuardandoConsulta] = useState(false);
     return userMale;
   };
 
-  const formatearFecha = (fechaISO) => {
-    if (!fechaISO) return "";
+const formatearFecha = (valor = "") => {
+  if (!valor) return "";
 
-    const [anio, mes, dia] = fechaISO.split("-");
-    return `${dia}/${mes}/${anio}`;
-  };
+  const fecha = convertirFechaNacimientoADate(valor);
+
+  if (!fecha) return valor;
+
+  const dia = String(fecha.getDate()).padStart(2, "0");
+  const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+  const anio = fecha.getFullYear();
+
+  return `${dia}/${mes}/${anio}`;
+};
 
   const plantillas = {
     aptitudfisica: `
