@@ -7,11 +7,12 @@ import {
   doc,
   updateDoc,
   query,
-  orderBy
+  orderBy,
+  where
 } from "firebase/firestore";
 
 import { db } from "../firebase";
-import { Link, useNavigate} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import {
   FaPlus,
@@ -33,48 +34,99 @@ import {
   FaCalendarAlt,
   FaUserCheck,
   FaClock,
-FaWhatsapp
+  FaWhatsapp
 } from "react-icons/fa";
 
 import maleAvatar from "../assets/user-male.png";
 import femaleAvatar from "../assets/user-female.png";
 import "../styles/App.css";
 
+// Cache breve para que la pantalla de Historias Clínicas se pinte
+// de inmediato al volver desde la historia de un paciente.
+const PACIENTES_CACHE_KEY = "historias-clinicas-pacientes-cache-v1";
+const PACIENTES_CACHE_TTL = 1000 * 60 * 10; // 10 minutos
+
+const leerPacientesCache = () => {
+  try {
+    const raw = sessionStorage.getItem(PACIENTES_CACHE_KEY);
+
+    if (!raw) return [];
+
+    const cache = JSON.parse(raw);
+
+    const vencido =
+      Date.now() - Number(cache?.ts || 0) > PACIENTES_CACHE_TTL;
+
+    if (vencido || !Array.isArray(cache?.pacientes)) {
+      sessionStorage.removeItem(PACIENTES_CACHE_KEY);
+      return [];
+    }
+
+    return cache.pacientes;
+  } catch (error) {
+    return [];
+  }
+};
+
 function HistoriasClinicas() {
-
   const navigate = useNavigate();
-  const [pacientes, setPacientes] = useState([]);
+
+  const [pacientes, setPacientes] = useState(() => leerPacientesCache());
+
   const [citasAgenda, setCitasAgenda] = useState([]);
-  const [citaHoySeleccionadaId, setCitaHoySeleccionadaId] = useState(null);
+
+  const [cargandoCitas, setCargandoCitas] = useState(true);
+
+  const [citaHoySeleccionadaId, setCitaHoySeleccionadaId] =
+    useState(null);
+
   const nuevoPacienteRef = useRef(null);
+
   const [nombre, setNombre] = useState("");
+
   const [dni, setDni] = useState("");
+
   const [fechaNacimiento, setFechaNacimiento] = useState("");
+
   const [obraSocial, setObraSocial] = useState("");
+
   const [sexo, setSexo] = useState("");
+
   const [busqueda, setBusqueda] = useState(() => {
-  return sessionStorage.getItem("busquedaHistorias") || "";
-}); 
-const [pagina, setPagina] = useState(1);
-const [cargandoPacientes, setCargandoPacientes] = useState(true); 
-const [fechaTablaAgenda, setFechaTablaAgenda] = useState(() => {
-  const hoy = new Date();
+    return sessionStorage.getItem("busquedaHistorias") || "";
+  });
 
-  const anio = hoy.getFullYear();
-  const mes = String(hoy.getMonth() + 1).padStart(2, "0");
-  const dia = String(hoy.getDate()).padStart(2, "0");
+  const [pagina, setPagina] = useState(1);
 
-  return `${anio}-${mes}-${dia}`;
-});
+  const [cargandoPacientes, setCargandoPacientes] = useState(
+    () => leerPacientesCache().length === 0
+  );
+
+  const [fechaTablaAgenda, setFechaTablaAgenda] = useState(() => {
+    const hoy = new Date();
+
+    const anio = hoy.getFullYear();
+
+    const mes = String(hoy.getMonth() + 1).padStart(2, "0");
+
+    const dia = String(hoy.getDate()).padStart(2, "0");
+
+    return `${anio}-${mes}-${dia}`;
+  });
+
   const pacientesPorPagina = 6;
 
   const [editando, setEditando] = useState(null);
-  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
-  const [mensajeConfirmacion, setMensajeConfirmacion] = useState("");
+
+  const [mostrarConfirmacion, setMostrarConfirmacion] =
+    useState(false);
+
+  const [mensajeConfirmacion, setMensajeConfirmacion] =
+    useState("");
 
   useEffect(() => {
-  sessionStorage.setItem("busquedaHistorias", busqueda);
-}, [busqueda]);
+    sessionStorage.setItem("busquedaHistorias", busqueda);
+  }, [busqueda]);
 
   const limpiarFormulario = () => {
     setNombre("");
@@ -88,6 +140,7 @@ const [fechaTablaAgenda, setFechaTablaAgenda] = useState(() => {
     if (!fecha) return "-";
 
     const f = new Date(`${fecha}T00:00:00`);
+
     return f.toLocaleDateString("es-AR");
   };
 
@@ -95,10 +148,14 @@ const [fechaTablaAgenda, setFechaTablaAgenda] = useState(() => {
     if (!fecha) return null;
 
     const nacimiento = new Date(`${fecha}T00:00:00`);
+
     const hoy = new Date();
 
-    let edad = hoy.getFullYear() - nacimiento.getFullYear();
-    const mes = hoy.getMonth() - nacimiento.getMonth();
+    let edad =
+      hoy.getFullYear() - nacimiento.getFullYear();
+
+    const mes =
+      hoy.getMonth() - nacimiento.getMonth();
 
     if (
       mes < 0 ||
@@ -111,984 +168,1857 @@ const [fechaTablaAgenda, setFechaTablaAgenda] = useState(() => {
   };
 
   const normalizarTexto = (texto = "") => {
-  return texto
-    .toString()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
-};
+    return texto
+      .toString()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+  };
 
-const capitalizarNombre = (nombre = "") => {
-  return nombre
-    .toString()
-    .toLowerCase()
-    .split(" ")
-    .filter(Boolean)
-    .map((palabra) => palabra.charAt(0).toUpperCase() + palabra.slice(1))
-    .join(" ");
-};
+  const capitalizarNombre = (nombre = "") => {
+    return nombre
+      .toString()
+      .toLowerCase()
+      .split(" ")
+      .filter(Boolean)
+      .map(
+        (palabra) =>
+          palabra.charAt(0).toUpperCase() +
+          palabra.slice(1)
+      )
+      .join(" ");
+  };
 
-const normalizarFechaNacimientoHistoria = (valor = "") => {
-  if (!valor) return "";
+  const normalizarFechaNacimientoHistoria = (
+    valor = ""
+  ) => {
+    if (!valor) return "";
 
-  const texto = valor.toString().trim();
+    const texto = valor.toString().trim();
 
-  // Ya viene como DD-MM-AAAA o DD/MM/AAAA
-  if (/^\d{2}[-/]\d{2}[-/]\d{4}$/.test(texto)) {
-    return texto.replace(/\//g, "-");
-  }
+    // Ya viene como DD-MM-AAAA o DD/MM/AAAA
+    if (/^\d{2}[-/]\d{2}[-/]\d{4}$/.test(texto)) {
+      return texto.replace(/\//g, "-");
+    }
 
-  // Viene como AAAA-MM-DD desde registros viejos
-  if (/^\d{4}-\d{2}-\d{2}$/.test(texto)) {
-    const [anio, mes, dia] = texto.split("-");
-    return `${dia}-${mes}-${anio}`;
-  }
+    // Viene como AAAA-MM-DD desde registros viejos
+    if (/^\d{4}-\d{2}-\d{2}$/.test(texto)) {
+      const [anio, mes, dia] = texto.split("-");
 
-  return texto;
-};
+      return `${dia}-${mes}-${anio}`;
+    }
 
-const convertirFechaFlexible = (valor, hora = "") => {
-  if (!valor) return null;
+    return texto;
+  };
 
-  let fecha = null;
+  const convertirFechaFlexible = (
+    valor,
+    hora = ""
+  ) => {
+    if (!valor) return null;
 
-  // Firestore Timestamp
-  if (valor?.toDate) {
-    fecha = valor.toDate();
-  }
+    let fecha = null;
 
-  // Date normal
-  else if (valor instanceof Date) {
-    fecha = valor;
-  }
+    // Firestore Timestamp
+    if (valor?.toDate) {
+      fecha = valor.toDate();
+    }
 
-  // Texto: 26/8/2026 o 26/08/2026 o 2026-08-26
-  else if (typeof valor === "string") {
-    const limpio = valor.trim();
+    // Date normal
+    else if (valor instanceof Date) {
+      fecha = valor;
+    }
 
-    if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(limpio)) {
-      const [anio, mes, dia] = limpio.split("-").map(Number);
-      fecha = new Date(anio, mes - 1, dia);
-    } else if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(limpio)) {
-      const [dia, mes, anio] = limpio.split("/").map(Number);
-      fecha = new Date(anio, mes - 1, dia);
-    } else {
-      const fechaTemporal = new Date(limpio);
+    // Texto: 26/8/2026 o 26/08/2026 o 2026-08-26
+    else if (typeof valor === "string") {
+      const limpio = valor.trim();
 
-      if (!isNaN(fechaTemporal.getTime())) {
-        fecha = fechaTemporal;
+      if (
+        /^\d{4}-\d{1,2}-\d{1,2}$/.test(limpio)
+      ) {
+        const [anio, mes, dia] =
+          limpio.split("-").map(Number);
+
+        fecha = new Date(
+          anio,
+          mes - 1,
+          dia
+        );
+      } else if (
+        /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(
+          limpio
+        )
+      ) {
+        const [dia, mes, anio] =
+          limpio.split("/").map(Number);
+
+        fecha = new Date(
+          anio,
+          mes - 1,
+          dia
+        );
+      } else {
+        const fechaTemporal =
+          new Date(limpio);
+
+        if (
+          !isNaN(fechaTemporal.getTime())
+        ) {
+          fecha = fechaTemporal;
+        }
       }
     }
-  }
 
-  if (!fecha || isNaN(fecha.getTime())) return null;
+    if (
+      !fecha ||
+      isNaN(fecha.getTime())
+    ) {
+      return null;
+    }
 
-  const horaLimpia = hora?.toString().trim();
-  const matchHora = horaLimpia.match(/^(\d{1,2}):(\d{2})/);
+    const horaLimpia =
+      hora?.toString().trim();
 
-  if (matchHora) {
-    fecha.setHours(Number(matchHora[1]), Number(matchHora[2]), 0, 0);
-  } else {
-    fecha.setHours(12, 0, 0, 0);
-  }
+    const matchHora =
+      horaLimpia.match(
+        /^(\d{1,2}):(\d{2})/
+      );
 
-  return fecha;
-};
+    if (matchHora) {
+      fecha.setHours(
+        Number(matchHora[1]),
+        Number(matchHora[2]),
+        0,
+        0
+      );
+    } else {
+      fecha.setHours(
+        12,
+        0,
+        0,
+        0
+      );
+    }
 
-const formatearFechaCorta = (fecha) => {
-  return fecha
-    .toLocaleDateString("es-AR", {
-      weekday: "long",
-      day: "numeric",
-      month: "numeric",
-      year: "numeric"
-    })
-    .replace(",", "")
-    .replace(/^./, (letra) => letra.toUpperCase());
-};
-
-const obtenerFechaHoraConsulta = (consulta) => {
-  const fechaDate =
-    convertirFechaFlexible(consulta.fecha, consulta.hora) ||
-    convertirFechaFlexible(consulta.fechaConsulta, consulta.hora) ||
-    convertirFechaFlexible(consulta.creado, consulta.hora) ||
-    convertirFechaFlexible(consulta.createdAt, consulta.hora);
-
-  return {
-    fecha: fechaDate ? formatearFechaCorta(fechaDate) : "Sin fecha",
-    hora: consulta.hora || "",
-    fechaDate
+    return fecha;
   };
-};
 
-useEffect(() => {
-  const q = query(
-    collection(db, "historiasClinicas"),
-    orderBy("creado", "desc")
-  );
+  const formatearFechaCorta = (fecha) => {
+    return fecha
+      .toLocaleDateString("es-AR", {
+        weekday: "long",
+        day: "numeric",
+        month: "numeric",
+        year: "numeric"
+      })
+      .replace(",", "")
+      .replace(
+        /^./,
+        (letra) => letra.toUpperCase()
+      );
+  };
 
-  const unsubscribe = onSnapshot(q, (snapshot) => {
-    const datos = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data()
-    }));
+  const obtenerFechaHoraConsulta = (
+    consulta
+  ) => {
+    const fechaDate =
+      convertirFechaFlexible(
+        consulta.fecha,
+        consulta.hora
+      ) ||
+      convertirFechaFlexible(
+        consulta.fechaConsulta,
+        consulta.hora
+      ) ||
+      convertirFechaFlexible(
+        consulta.creado,
+        consulta.hora
+      ) ||
+      convertirFechaFlexible(
+        consulta.createdAt,
+        consulta.hora
+      );
 
-    setPacientes(datos);
-    setCargandoPacientes(false);
-  });
+    return {
+      fecha: fechaDate
+        ? formatearFechaCorta(fechaDate)
+        : "Sin fecha",
 
-  return () => unsubscribe();
-}, []);
+      hora: consulta.hora || "",
 
+      fechaDate
+    };
+  };
 
-useEffect(() => {
-  const unsubscribe = onSnapshot(collection(db, "citas"), (snapshot) => {
-    const datos = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data()
-    }));
+  // ==============================
+  // CARGAR HISTORIAS CLÍNICAS
+  // ==============================
 
-    setCitasAgenda(datos);
-  });
+  useEffect(() => {
+    const qPacientes = query(
+      collection(
+        db,
+        "historiasClinicas"
+      ),
+      orderBy(
+        "creado",
+        "desc"
+      )
+    );
 
-  return () => unsubscribe();
-}, []);
+    const unsubscribe = onSnapshot(
+      qPacientes,
 
-useEffect(() => {
-  setPagina(1);
-}, [busqueda]);
+      (snapshot) => {
+        const datos =
+          snapshot.docs.map(
+            (doc) => ({
+              id: doc.id,
+              ...doc.data()
+            })
+          );
 
-const mostrarMensajeGuardado = (texto) => {
-  setMensajeConfirmacion(texto);
-  setMostrarConfirmacion(true);
+        setPacientes(datos);
 
-  setTimeout(() => {
-    setMostrarConfirmacion(false);
-  }, 1800);
-};
+        setCargandoPacientes(false);
 
-const crearPaciente = async (e) => {
-  e.preventDefault();
+        // Guardamos una copia temporal.
+        // Cuando volvés a Historias Clínicas,
+        // los pacientes aparecen inmediatamente
+        // mientras Firestore se sincroniza.
+        try {
+          sessionStorage.setItem(
+            PACIENTES_CACHE_KEY,
+            JSON.stringify({
+              ts: Date.now(),
+              pacientes: datos
+            })
+          );
+        } catch (error) {
+          console.warn(
+            "No se pudo guardar cache de pacientes:",
+            error
+          );
+        }
+      },
 
-  const pacienteCreado = await addDoc(collection(db, "historiasClinicas"), {
-    nombre: nombre.trim(),
-    dni: dni.trim(),
-    fechaNacimiento,
-    obraSocial: obraSocial.trim(),
-    sexo,
-    creado: new Date()
-  });
+      (error) => {
+        console.error(
+          "Error cargando historias clínicas:",
+          error
+        );
 
-  if (citaHoySeleccionadaId) {
-    await updateDoc(doc(db, "citas", citaHoySeleccionadaId), {
-      estadoCita: "asistio",
+        setCargandoPacientes(false);
+      }
+    );
 
-      // Compatibilidad con lo anterior si ya lo habías agregado
-      estadoAsistencia: "asistio",
-      estadoConfirmacion: "confirmado",
+    return () =>
+      unsubscribe();
+  }, []);
 
-      asistenciaActualizadaAt: new Date(),
-      historiaClinicaId: pacienteCreado.id
-    });
+  // ==============================
+  // CARGAR CITAS SOLO DEL DÍA
+  // ==============================
+  //
+  // Antes se descargaba TODA
+  // la colección "citas".
+  //
+  // Ahora Firestore trae solamente
+  // las citas del día visible.
+  //
+  // Esto mejora especialmente
+  // celular y tablet.
+  // ==============================
 
-    setCitaHoySeleccionadaId(null);
-  }
+  useEffect(() => {
+    setCargandoCitas(true);
 
-  limpiarFormulario();
-  mostrarMensajeGuardado("Paciente guardado");
-};
+    const qCitasDia = query(
+      collection(
+        db,
+        "citas"
+      ),
 
-  const eliminarPaciente = async (id) => {
-    if (window.confirm("¿Eliminar paciente?")) {
-      await deleteDoc(doc(db, "historiasClinicas", id));
+      where(
+        "fecha",
+        "==",
+        fechaTablaAgenda
+      )
+    );
+
+    const unsubscribe = onSnapshot(
+      qCitasDia,
+
+      (snapshot) => {
+        const datos =
+          snapshot.docs.map(
+            (doc) => ({
+              id: doc.id,
+              ...doc.data()
+            })
+          );
+
+        setCitasAgenda(datos);
+
+        setCargandoCitas(false);
+      },
+
+      (error) => {
+        console.error(
+          "Error cargando citas del día:",
+          error
+        );
+
+        setCitasAgenda([]);
+
+        setCargandoCitas(false);
+      }
+    );
+
+    return () =>
+      unsubscribe();
+  }, [fechaTablaAgenda]);
+
+  useEffect(() => {
+    setPagina(1);
+  }, [busqueda]);
+
+  const mostrarMensajeGuardado = (
+    texto
+  ) => {
+    setMensajeConfirmacion(texto);
+
+    setMostrarConfirmacion(true);
+
+    setTimeout(() => {
+      setMostrarConfirmacion(false);
+    }, 1800);
+  };
+
+  const crearPaciente = async (e) => {
+    e.preventDefault();
+
+    const pacienteCreado =
+      await addDoc(
+        collection(
+          db,
+          "historiasClinicas"
+        ),
+        {
+          nombre: nombre.trim(),
+
+          dni: dni.trim(),
+
+          fechaNacimiento,
+
+          obraSocial:
+            obraSocial.trim(),
+
+          sexo,
+
+          creado:
+            new Date()
+        }
+      );
+
+    if (
+      citaHoySeleccionadaId
+    ) {
+      await updateDoc(
+        doc(
+          db,
+          "citas",
+          citaHoySeleccionadaId
+        ),
+        {
+          estadoCita:
+            "asistio",
+
+          estadoAsistencia:
+            "asistio",
+
+          estadoConfirmacion:
+            "confirmado",
+
+          asistenciaActualizadaAt:
+            new Date(),
+
+          historiaClinicaId:
+            pacienteCreado.id
+        }
+      );
+
+      setCitaHoySeleccionadaId(
+        null
+      );
+    }
+
+    limpiarFormulario();
+
+    mostrarMensajeGuardado(
+      "Paciente guardado"
+    );
+  };
+
+  const eliminarPaciente = async (
+    id
+  ) => {
+    if (
+      window.confirm(
+        "¿Eliminar paciente?"
+      )
+    ) {
+      await deleteDoc(
+        doc(
+          db,
+          "historiasClinicas",
+          id
+        )
+      );
     }
   };
 
   const editarPaciente = (p) => {
     setEditando(p.id);
 
-    setNombre(p.nombre || "");
-    setDni(p.dni || "");
-    setFechaNacimiento(p.fechaNacimiento || "");
-    setObraSocial(p.obraSocial || "");
-    setSexo(p.sexo || "");
+    setNombre(
+      p.nombre || ""
+    );
+
+    setDni(
+      p.dni || ""
+    );
+
+    setFechaNacimiento(
+      p.fechaNacimiento || ""
+    );
+
+    setObraSocial(
+      p.obraSocial || ""
+    );
+
+    setSexo(
+      p.sexo || ""
+    );
 
     setTimeout(() => {
-  nuevoPacienteRef.current?.scrollIntoView({
-    behavior: "smooth",
-    block: "center"
-  });
-}, 100);
+      nuevoPacienteRef.current?.scrollIntoView(
+        {
+          behavior: "smooth",
+          block: "center"
+        }
+      );
+    }, 100);
   };
 
-  const guardarEdicion = async (e) => {
+  const guardarEdicion = async (
+    e
+  ) => {
     e.preventDefault();
 
-    await updateDoc(doc(db, "historiasClinicas", editando), {
-      nombre: nombre.trim(),
-      dni: dni.trim(),
-      fechaNacimiento,
-      obraSocial: obraSocial.trim(),
-      sexo
-    });
+    await updateDoc(
+      doc(
+        db,
+        "historiasClinicas",
+        editando
+      ),
+      {
+        nombre:
+          nombre.trim(),
+
+        dni:
+          dni.trim(),
+
+        fechaNacimiento,
+
+        obraSocial:
+          obraSocial.trim(),
+
+        sexo
+      }
+    );
 
     setEditando(null);
+
     limpiarFormulario();
-    mostrarMensajeGuardado("Paciente actualizado");
+
+    mostrarMensajeGuardado(
+      "Paciente actualizado"
+    );
   };
 
   const cancelarEdicion = () => {
     setEditando(null);
+
     limpiarFormulario();
   };
 
-const obtenerCreadoPaciente = (p) => {
-  if (p.creado?.toDate) {
-    return p.creado.toDate().getTime();
-  }
+  const obtenerCreadoPaciente = (
+    p
+  ) => {
+    if (
+      p.creado?.toDate
+    ) {
+      return p.creado
+        .toDate()
+        .getTime();
+    }
 
-  if (p.creado instanceof Date) {
-    return p.creado.getTime();
-  }
+    if (
+      p.creado instanceof Date
+    ) {
+      return p.creado.getTime();
+    }
 
-  return 0;
-};
+    return 0;
+  };
 
-const pacientesFiltrados = useMemo(() => {
-  const textoPaciente = normalizarTexto(busqueda);
+  const pacientesFiltrados =
+    useMemo(() => {
+      const textoPaciente =
+        normalizarTexto(busqueda);
 
-  return pacientes
-    .filter((p) => {
-      return (
-        !textoPaciente ||
-        normalizarTexto(p.nombre).includes(textoPaciente) ||
-        p.dni?.toString().includes(busqueda.trim())
-      );
-    })
-    .sort((a, b) => {
-      const ultimaB = b.ultimaConsultaAtMillis || 0;
-      const ultimaA = a.ultimaConsultaAtMillis || 0;
+      return pacientes
+        .filter((p) => {
+          return (
+            !textoPaciente ||
 
-      if (ultimaB !== ultimaA) {
-        return ultimaB - ultimaA;
-      }
+            normalizarTexto(
+              p.nombre
+            ).includes(
+              textoPaciente
+            ) ||
 
-      return obtenerCreadoPaciente(b) - obtenerCreadoPaciente(a);
-    });
-}, [pacientes, busqueda]);
+            p.dni
+              ?.toString()
+              .includes(
+                busqueda.trim()
+              )
+          );
+        })
+        .sort((a, b) => {
+          const ultimaB =
+            b.ultimaConsultaAtMillis ||
+            0;
 
-  const indiceFinal = pagina * pacientesPorPagina;
-  const indiceInicial = indiceFinal - pacientesPorPagina;
+          const ultimaA =
+            a.ultimaConsultaAtMillis ||
+            0;
 
-  const pacientesPagina = pacientesFiltrados.slice(
-    indiceInicial,
-    indiceFinal
-  );
+          if (
+            ultimaB !== ultimaA
+          ) {
+            return (
+              ultimaB -
+              ultimaA
+            );
+          }
+
+          return (
+            obtenerCreadoPaciente(
+              b
+            ) -
+            obtenerCreadoPaciente(
+              a
+            )
+          );
+        });
+    }, [
+      pacientes,
+      busqueda
+    ]);
+
+  const indiceFinal =
+    pagina *
+    pacientesPorPagina;
+
+  const indiceInicial =
+    indiceFinal -
+    pacientesPorPagina;
+
+  const pacientesPagina =
+    pacientesFiltrados.slice(
+      indiceInicial,
+      indiceFinal
+    );
 
   const totalPaginas =
-    Math.ceil(pacientesFiltrados.length / pacientesPorPagina) || 1;
+    Math.ceil(
+      pacientesFiltrados.length /
+        pacientesPorPagina
+    ) || 1;
 
-const obtenerFechaHoyLocal = () => {
-  const ahora = new Date();
-  const offset = ahora.getTimezoneOffset();
+  const obtenerFechaHoyLocal =
+    () => {
+      const ahora =
+        new Date();
 
-  return new Date(ahora.getTime() - offset * 60000)
-    .toISOString()
-    .split("T")[0];
-};
+      const offset =
+        ahora.getTimezoneOffset();
 
-const pacienteTieneConsultaEnFechaAgenda = (cita) => {
-  const pacienteGuardado = buscarPacienteGuardadoPorCita(cita);
+      return new Date(
+        ahora.getTime() -
+          offset * 60000
+      )
+        .toISOString()
+        .split("T")[0];
+    };
 
-  if (!pacienteGuardado?.ultimaConsultaAtMillis) return false;
-  if (!cita?.fecha) return false;
+  const pacienteTieneConsultaEnFechaAgenda =
+    (cita) => {
+      const pacienteGuardado =
+        buscarPacienteGuardadoPorCita(
+          cita
+        );
 
-  const fechaUltimaConsulta = fechaISODesdeDate(
-    new Date(Number(pacienteGuardado.ultimaConsultaAtMillis))
-  );
+      if (
+        !pacienteGuardado?.ultimaConsultaAtMillis
+      ) {
+        return false;
+      }
 
-  return fechaUltimaConsulta === cita.fecha;
-};
+      if (!cita?.fecha) {
+        return false;
+      }
 
-const obtenerEstadoCitaTexto = (cita) => {
-  if (pacienteTieneConsultaEnFechaAgenda(cita)) {
-    return "Asistió";
-  }
+      const fechaUltimaConsulta =
+        fechaISODesdeDate(
+          new Date(
+            Number(
+              pacienteGuardado.ultimaConsultaAtMillis
+            )
+          )
+        );
 
-  if (cita.estadoCita === "asistio" || cita.estadoAsistencia === "asistio") {
-    return "Asistió";
-  }
+      return (
+        fechaUltimaConsulta ===
+        cita.fecha
+      );
+    };
 
-  if (cita.estadoCita === "confirmado" || cita.estadoConfirmacion === "confirmado") {
-    return "Confirmado";
-  }
+  const obtenerEstadoCitaTexto =
+    (cita) => {
+      if (
+        pacienteTieneConsultaEnFechaAgenda(
+          cita
+        )
+      ) {
+        return "Asistió";
+      }
 
-  if (cita.fecha < obtenerFechaHoyLocal()) {
-    return "No asistió";
-  }
+      if (
+        cita.estadoCita ===
+          "asistio" ||
+        cita.estadoAsistencia ===
+          "asistio"
+      ) {
+        return "Asistió";
+      }
 
-  return "Pendiente";
-};
+      if (
+        cita.estadoCita ===
+          "confirmado" ||
+        cita.estadoConfirmacion ===
+          "confirmado"
+      ) {
+        return "Confirmado";
+      }
 
-const obtenerEstadoCitaClase = (cita) => {
-  const estado = obtenerEstadoCitaTexto(cita);
+      if (
+        cita.fecha <
+        obtenerFechaHoyLocal()
+      ) {
+        return "No asistió";
+      }
 
-  if (estado === "Asistió") return "estado-asistio";
-  if (estado === "No asistió") return "estado-no-asistio";
-  if (estado === "Confirmado") return "estado-confirmado";
+      return "Pendiente";
+    };
 
-  return "estado-pendiente";
-};
+  const obtenerEstadoCitaClase =
+    (cita) => {
+      const estado =
+        obtenerEstadoCitaTexto(
+          cita
+        );
 
-const limpiarTelefono10 = (telefono = "") => {
-  let numero = telefono.toString().replace(/\D/g, "");
+      if (
+        estado === "Asistió"
+      ) {
+        return "estado-asistio";
+      }
 
-  if (!numero) return "";
+      if (
+        estado ===
+        "No asistió"
+      ) {
+        return "estado-no-asistio";
+      }
 
-  if (numero.startsWith("549") && numero.length >= 13) {
-    numero = numero.slice(3);
-  }
+      if (
+        estado ===
+        "Confirmado"
+      ) {
+        return "estado-confirmado";
+      }
 
-  if (numero.startsWith("54") && numero.length >= 12) {
-    numero = numero.slice(2);
-  }
+      return "estado-pendiente";
+    };
 
-  if (numero.length > 10) {
-    numero = numero.slice(-10);
-  }
+  const limpiarTelefono10 = (
+    telefono = ""
+  ) => {
+    let numero = telefono
+      .toString()
+      .replace(/\D/g, "");
 
-  return numero;
-};
+    if (!numero) return "";
 
-const abrirWhatsappAgendaHistoria = (cita) => {
-  if (!cita?.telefono) return;
+    if (
+      numero.startsWith("549") &&
+      numero.length >= 13
+    ) {
+      numero = numero.slice(3);
+    }
 
-  const numero10 = limpiarTelefono10(cita.telefono);
+    if (
+      numero.startsWith("54") &&
+      numero.length >= 12
+    ) {
+      numero = numero.slice(2);
+    }
 
-  if (!numero10) return;
+    if (
+      numero.length > 10
+    ) {
+      numero =
+        numero.slice(-10);
+    }
 
-  const numero = `549${numero10}`;
+    return numero;
+  };
 
-  const mensaje = encodeURIComponent(
-    `Hola ${capitalizarNombre(cita.nombre || "")}, te escribimos de Dr. Reuma.`
-  );
+  const abrirWhatsappAgendaHistoria =
+    (cita) => {
+      if (
+        !cita?.telefono
+      ) {
+        return;
+      }
 
-  window.open(`https://wa.me/${numero}?text=${mensaje}`, "_blank");
-};
+      const numero10 =
+        limpiarTelefono10(
+          cita.telefono
+        );
 
-const limpiarDniCitaAgenda = (valor = "") => {
-  return valor.toString().replace(/\D/g, "").trim();
-};
+      if (!numero10) {
+        return;
+      }
 
-const obtenerDniCitaAgenda = (cita = {}) => {
-  return limpiarDniCitaAgenda(
-    cita.Dni ||
-    cita.dni ||
-    cita.DNI ||
-    cita.documento ||
-    cita.numeroDocumento ||
-    ""
-  );
-};
+      const numero =
+        `549${numero10}`;
 
-const normalizarNombreCitaAgenda = (valor = "") => {
-  return normalizarTexto(valor)
-    .replace(/\s+/g, " ")
-    .trim();
-};
+      const mensaje =
+        encodeURIComponent(
+          `Hola ${capitalizarNombre(
+            cita.nombre || ""
+          )}, te escribimos de Dr. Reuma.`
+        );
 
-const sonLaMismaPersonaAgenda = (citaA, citaB) => {
-  const historiaA = citaA?.historiaClinicaId || citaA?.pacienteId || "";
-  const historiaB = citaB?.historiaClinicaId || citaB?.pacienteId || "";
+      window.open(
+        `https://wa.me/${numero}?text=${mensaje}`,
+        "_blank"
+      );
+    };
 
-  if (historiaA && historiaB && historiaA === historiaB) {
-    return true;
-  }
+  const textoNumeroCitaPacienteAgenda =
+    (numero) => {
+      if (numero === 1) {
+        return "Primera vez";
+      }
 
-  const dniA = obtenerDniCitaAgenda(citaA);
-  const dniB = obtenerDniCitaAgenda(citaB);
+      if (numero === 2) {
+        return "Segunda vez";
+      }
 
-  if (dniA && dniB && dniA === dniB) {
-    return true;
-  }
+      if (numero === 3) {
+        return "Tercera vez";
+      }
 
-  const nombreA = normalizarNombreCitaAgenda(citaA?.nombre || "");
-  const nombreB = normalizarNombreCitaAgenda(citaB?.nombre || "");
+      return `${numero}ª vez`;
+    };
 
-  return nombreA && nombreB && nombreA === nombreB;
-};
+  const obtenerClaseVezHistoria =
+    (textoVez = "") => {
+      const texto =
+        String(
+          textoVez
+        ).toLowerCase();
 
-const obtenerMillisCitaAgenda = (cita = {}) => {
-  const fecha = cita.fecha || "1900-01-01";
-  const hora = cita.hora || "00:00";
+      if (
+        texto.includes("primera")
+      ) {
+        return "vez-badge vez-primera";
+      }
 
-  const fechaDate = new Date(`${fecha}T${hora}`);
+      if (
+        texto.includes("segunda")
+      ) {
+        return "vez-badge vez-segunda";
+      }
 
-  return isNaN(fechaDate.getTime()) ? 0 : fechaDate.getTime();
-};
+      return "vez-badge vez-tercera-mas";
+    };
 
-const obtenerNumeroCitaPacienteAgenda = (cita) => {
-  if (!cita) return 1;
+  const fechaISODesdeDate = (
+    fecha
+  ) => {
+    const anio =
+      fecha.getFullYear();
 
-  const citasPaciente = citasAgenda
-    .filter((c) => sonLaMismaPersonaAgenda(c, cita))
-    .sort((a, b) => obtenerMillisCitaAgenda(a) - obtenerMillisCitaAgenda(b));
+    const mes = String(
+      fecha.getMonth() + 1
+    ).padStart(2, "0");
 
-  const posicion = citasPaciente.findIndex((c) => c.id === cita.id);
+    const dia = String(
+      fecha.getDate()
+    ).padStart(2, "0");
 
-  return posicion === -1 ? 1 : posicion + 1;
-};
+    return `${anio}-${mes}-${dia}`;
+  };
 
-const textoNumeroCitaPacienteAgenda = (numero) => {
-  if (numero === 1) return "Primera vez";
-  if (numero === 2) return "Segunda vez";
-  if (numero === 3) return "Tercera vez";
+  const convertirISOADateLocal =
+    (fechaISO) => {
+      const [
+        anio,
+        mes,
+        dia
+      ] = fechaISO
+        .split("-")
+        .map(Number);
 
-  return `${numero}ª vez`;
-};
+      return new Date(
+        anio,
+        mes - 1,
+        dia
+      );
+    };
 
-const obtenerClaseVezHistoria = (textoVez = "") => {
-  const texto = String(textoVez).toLowerCase();
+  const cambiarDiaTablaAgenda =
+    (dias) => {
+      const fechaActual =
+        convertirISOADateLocal(
+          fechaTablaAgenda
+        );
 
-  if (texto.includes("primera")) return "vez-badge vez-primera";
-  if (texto.includes("segunda")) return "vez-badge vez-segunda";
+      fechaActual.setDate(
+        fechaActual.getDate() +
+          dias
+      );
 
-  return "vez-badge vez-tercera-mas";
-};
+      setFechaTablaAgenda(
+        fechaISODesdeDate(
+          fechaActual
+        )
+      );
 
-const fechaISODesdeDate = (fecha) => {
-  const anio = fecha.getFullYear();
-  const mes = String(fecha.getMonth() + 1).padStart(2, "0");
-  const dia = String(fecha.getDate()).padStart(2, "0");
+      setCitaHoySeleccionadaId(
+        null
+      );
+    };
 
-  return `${anio}-${mes}-${dia}`;
-};
+  const irAHoyTablaAgenda =
+    () => {
+      setFechaTablaAgenda(
+        obtenerFechaHoyLocal()
+      );
 
-const convertirISOADateLocal = (fechaISO) => {
-  const [anio, mes, dia] = fechaISO.split("-").map(Number);
-  return new Date(anio, mes - 1, dia);
-};
+      setCitaHoySeleccionadaId(
+        null
+      );
+    };
 
-const cambiarDiaTablaAgenda = (dias) => {
-  const fechaActual = convertirISOADateLocal(fechaTablaAgenda);
-  fechaActual.setDate(fechaActual.getDate() + dias);
+  const formatearFechaTablaAgenda =
+    (fechaISO) => {
+      return convertirISOADateLocal(
+        fechaISO
+      )
+        .toLocaleDateString(
+          "es-AR",
+          {
+            weekday: "long",
+            day: "numeric",
+            month: "numeric",
+            year: "numeric"
+          }
+        )
+        .replace(",", "")
+        .replace(
+          /^./,
+          (letra) =>
+            letra.toUpperCase()
+        );
+    };
 
-  setFechaTablaAgenda(fechaISODesdeDate(fechaActual));
-  setCitaHoySeleccionadaId(null);
-};
+  const esTablaDeHoy =
+    fechaTablaAgenda ===
+    obtenerFechaHoyLocal();
 
-const irAHoyTablaAgenda = () => {
-  setFechaTablaAgenda(obtenerFechaHoyLocal());
-  setCitaHoySeleccionadaId(null);
-};
+  const tituloTablaAgenda =
+    esTablaDeHoy
+      ? "PACIENTES DE HOY"
+      : `PACIENTES DEL ${formatearFechaTablaAgenda(
+          fechaTablaAgenda
+        ).toUpperCase()}`;
 
-const formatearFechaTablaAgenda = (fechaISO) => {
-  return convertirISOADateLocal(fechaISO)
-    .toLocaleDateString("es-AR", {
-      weekday: "long",
-      day: "numeric",
-      month: "numeric",
-      year: "numeric"
-    })
-    .replace(",", "")
-    .replace(/^./, (letra) => letra.toUpperCase());
-};
+  const obtenerInicioDiaMillis =
+    (fechaISO) => {
+      const [
+        anio,
+        mes,
+        dia
+      ] = fechaISO
+        .split("-")
+        .map(Number);
 
-const esTablaDeHoy = fechaTablaAgenda === obtenerFechaHoyLocal();
+      return new Date(
+        anio,
+        mes - 1,
+        dia,
+        0,
+        0,
+        0,
+        0
+      ).getTime();
+    };
 
-const tituloTablaAgenda = esTablaDeHoy
-  ? "PACIENTES DE HOY"
-  : `PACIENTES DEL ${formatearFechaTablaAgenda(fechaTablaAgenda).toUpperCase()}`;
+  const obtenerFinDiaMillis =
+    (fechaISO) => {
+      const [
+        anio,
+        mes,
+        dia
+      ] = fechaISO
+        .split("-")
+        .map(Number);
 
-const obtenerInicioDiaMillis = (fechaISO) => {
-  const [anio, mes, dia] = fechaISO.split("-").map(Number);
-  return new Date(anio, mes - 1, dia, 0, 0, 0, 0).getTime();
-};
+      return new Date(
+        anio,
+        mes - 1,
+        dia,
+        23,
+        59,
+        59,
+        999
+      ).getTime();
+    };
 
-const obtenerFinDiaMillis = (fechaISO) => {
-  const [anio, mes, dia] = fechaISO.split("-").map(Number);
-  return new Date(anio, mes - 1, dia, 23, 59, 59, 999).getTime();
-};
-
-const citaYaExisteParaPaciente = (paciente, citasDelDia) => {
-  const dniPaciente = (paciente.dni || paciente.Dni || "")
-    .toString()
-    .replace(/\D/g, "");
-
-  if (dniPaciente) {
-    return citasDelDia.some((cita) => {
-      const dniCita = (cita.Dni || cita.dni || "")
+  const citaYaExisteParaPaciente =
+    (
+      paciente,
+      citasDelDia
+    ) => {
+      const dniPaciente = (
+        paciente.dni ||
+        paciente.Dni ||
+        ""
+      )
         .toString()
         .replace(/\D/g, "");
 
-      return dniCita && dniCita === dniPaciente;
-    });
-  }
+      if (dniPaciente) {
+        return citasDelDia.some(
+          (cita) => {
+            const dniCita = (
+              cita.Dni ||
+              cita.dni ||
+              ""
+            )
+              .toString()
+              .replace(/\D/g, "");
 
-  const nombrePaciente = normalizarTexto(paciente.nombre || "")
-    .replace(/\s+/g, " ")
-    .trim();
+            return (
+              dniCita &&
+              dniCita ===
+                dniPaciente
+            );
+          }
+        );
+      }
 
-  return citasDelDia.some((cita) => {
-    const nombreCita = normalizarTexto(cita.nombre || "")
-      .replace(/\s+/g, " ")
-      .trim();
+      const nombrePaciente =
+        normalizarTexto(
+          paciente.nombre || ""
+        )
+          .replace(/\s+/g, " ")
+          .trim();
 
-    return nombrePaciente && nombreCita === nombrePaciente;
-  });
-};
+      return citasDelDia.some(
+        (cita) => {
+          const nombreCita =
+            normalizarTexto(
+              cita.nombre || ""
+            )
+              .replace(
+                /\s+/g,
+                " "
+              )
+              .trim();
 
-const citasDelDiaAgenda = citasAgenda.filter(
-  (c) => c.fecha === fechaTablaAgenda
-);
+          return (
+            nombrePaciente &&
+            nombreCita ===
+              nombrePaciente
+          );
+        }
+      );
+    };
 
-const atencionesSinAgenda = pacientes
-  .filter((p) => {
-    const ultimaConsultaMillis = Number(p.ultimaConsultaAtMillis || 0);
+  // citasAgenda ya viene filtrado
+  // directamente desde Firestore
+  // por fechaTablaAgenda.
+  const citasDelDiaAgenda =
+    citasAgenda;
 
-    const esConsultaDelDia =
-      ultimaConsultaMillis >= obtenerInicioDiaMillis(fechaTablaAgenda) &&
-      ultimaConsultaMillis <= obtenerFinDiaMillis(fechaTablaAgenda);
+  const atencionesSinAgenda =
+    pacientes
+      .filter((p) => {
+        const ultimaConsultaMillis =
+          Number(
+            p.ultimaConsultaAtMillis ||
+              0
+          );
 
-    return (
-      esConsultaDelDia &&
-      !citaYaExisteParaPaciente(p, citasDelDiaAgenda)
-    );
-  })
-  .map((p) => ({
-    id: `sin-agenda-${p.id}`,
-    historiaClinicaId: p.id,
+        const esConsultaDelDia =
+          ultimaConsultaMillis >=
+            obtenerInicioDiaMillis(
+              fechaTablaAgenda
+            ) &&
+          ultimaConsultaMillis <=
+            obtenerFinDiaMillis(
+              fechaTablaAgenda
+            );
 
-    nombre: p.nombre || "",
-    Dni: p.dni || p.Dni || "",
-    telefono: p.telefono || "",
-
-    fecha: fechaTablaAgenda,
-    hora: "00:00",
-
-    sinAgenda: true,
-    origen: "sinAgendaResumen",
-
-    tipo: "presencial",
-
-    fechaNacimiento: p.fechaNacimiento || "",
-    obraSocial: p.obraSocial || "",
-    sexo: p.sexo || "",
-
-    motivoConsulta: "Sin cita / Atención espontánea",
-
-    estadoCita: "asistio",
-    estadoAsistencia: "asistio",
-    estadoConfirmacion: "confirmado"
-  }));
-
-const citasHoyAgenda = [
-  ...atencionesSinAgenda,
-  ...citasDelDiaAgenda
-].sort((a, b) => (a.hora || "").localeCompare(b.hora || ""));
-
-const buscarPacienteGuardadoPorCita = (cita) => {
-  const dniCita = (cita?.Dni || cita?.dni || "")
-    .toString()
-    .replace(/\D/g, "");
-
-  if (dniCita) {
-    return pacientes.find(
-      (p) => p.dni?.toString().replace(/\D/g, "") === dniCita
-    );
-  }
-
-  return pacientes.find(
-    (p) => normalizarTexto(p.nombre) === normalizarTexto(cita.nombre)
-  );
-};
-
-const obtenerNumeroVezHistoriaClinica = (cita) => {
-  const pacienteGuardado = buscarPacienteGuardadoPorCita(cita);
-
-  if (pacienteGuardado) {
-    const consultasRegistradas = Number(pacienteGuardado.cantidadConsultas || 0);
-    const consultaGuardadaEseDia = pacienteTieneConsultaEnFechaAgenda(cita);
-
-    if (consultaGuardadaEseDia) {
-      return Math.max(consultasRegistradas, 1);
-    }
-
-    return consultasRegistradas + 1;
-  }
-
-  return obtenerNumeroCitaPacienteAgenda(cita);
-};
-
-const cargarPacienteDesdeCitaHoy = (cita) => {
-  setEditando(null);
-  setCitaHoySeleccionadaId(cita.id);
-
-  const pacienteGuardado = buscarPacienteGuardadoPorCita(cita);
-
-  if (pacienteGuardado) {
-    localStorage.setItem(
-      `paciente-cache-${pacienteGuardado.id}`,
-      JSON.stringify({
-        ts: Date.now(),
-        paciente: pacienteGuardado
+        return (
+          esConsultaDelDia &&
+          !citaYaExisteParaPaciente(
+            p,
+            citasDelDiaAgenda
+          )
+        );
       })
-    );
+      .map((p) => ({
+        id:
+          `sin-agenda-${p.id}`,
 
-    const citaId = cita?.id || "";
-    const esCitaReal =
-      citaId &&
-      !String(citaId).startsWith("sin-agenda-") &&
-      cita.origen !== "sinAgendaResumen";
+        historiaClinicaId:
+          p.id,
 
-    const url = esCitaReal
-      ? `/admin/historia/${pacienteGuardado.id}?citaId=${citaId}`
-      : `/admin/historia/${pacienteGuardado.id}`;
+        nombre:
+          p.nombre || "",
 
-    window.open(url, "_blank", "noopener,noreferrer");
-    return;
-  }
+        Dni:
+          p.dni ||
+          p.Dni ||
+          "",
 
-  setNombre(cita.nombre || "");
-  setDni(cita.Dni || cita.dni || "");
-  setFechaNacimiento(
-  normalizarFechaNacimientoHistoria(cita.fechaNacimiento || "")
-);
-  setObraSocial(cita.obraSocial || "");
-  setSexo(cita.sexo || "");
+        telefono:
+          p.telefono || "",
 
-  setTimeout(() => {
-    nuevoPacienteRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "center"
-    });
-  }, 100);
-};
+        fecha:
+          fechaTablaAgenda,
 
-const fechaHoyHistoriasTexto = new Date()
-  .toLocaleDateString("es-AR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric"
-  })
-  .replace(",", "")
-  .replace(/^./, (letra) => letra.toUpperCase());
+        hora: "00:00",
 
+        sinAgenda: true,
+
+        origen:
+          "sinAgendaResumen",
+
+        tipo:
+          "presencial",
+
+        fechaNacimiento:
+          p.fechaNacimiento ||
+          "",
+
+        obraSocial:
+          p.obraSocial || "",
+
+        sexo:
+          p.sexo || "",
+
+        motivoConsulta:
+          "Sin cita / Atención espontánea",
+
+        estadoCita:
+          "asistio",
+
+        estadoAsistencia:
+          "asistio",
+
+        estadoConfirmacion:
+          "confirmado"
+      }));
+
+  const citasHoyAgenda = [
+    ...atencionesSinAgenda,
+    ...citasDelDiaAgenda
+  ].sort((a, b) =>
+    (a.hora || "").localeCompare(
+      b.hora || ""
+    )
+  );
+
+  const buscarPacienteGuardadoPorCita =
+    (cita) => {
+      const dniCita = (
+        cita?.Dni ||
+        cita?.dni ||
+        ""
+      )
+        .toString()
+        .replace(/\D/g, "");
+
+      if (dniCita) {
+        return pacientes.find(
+          (p) =>
+            p.dni
+              ?.toString()
+              .replace(/\D/g, "") ===
+            dniCita
+        );
+      }
+
+      return pacientes.find(
+        (p) =>
+          normalizarTexto(
+            p.nombre
+          ) ===
+          normalizarTexto(
+            cita.nombre
+          )
+      );
+    };
+
+  const obtenerNumeroVezHistoriaClinica =
+    (cita) => {
+      const pacienteGuardado =
+        buscarPacienteGuardadoPorCita(
+          cita
+        );
+
+      if (pacienteGuardado) {
+        const consultasRegistradas =
+          Number(
+            pacienteGuardado.cantidadConsultas ||
+              0
+          );
+
+        const consultaGuardadaEseDia =
+          pacienteTieneConsultaEnFechaAgenda(
+            cita
+          );
+
+        if (
+          consultaGuardadaEseDia
+        ) {
+          return Math.max(
+            consultasRegistradas,
+            1
+          );
+        }
+
+        return (
+          consultasRegistradas +
+          1
+        );
+      }
+
+      // Si todavía no existe historia clínica,
+      // consideramos que es su primera consulta.
+      // Así no hace falta descargar todo el
+      // historial de citas.
+      return 1;
+    };
+
+  const cargarPacienteDesdeCitaHoy =
+    (cita) => {
+      setEditando(null);
+
+      setCitaHoySeleccionadaId(
+        cita.id
+      );
+
+      const pacienteGuardado =
+        buscarPacienteGuardadoPorCita(
+          cita
+        );
+
+      if (pacienteGuardado) {
+        localStorage.setItem(
+          `paciente-cache-${pacienteGuardado.id}`,
+
+          JSON.stringify({
+            ts: Date.now(),
+
+            paciente:
+              pacienteGuardado
+          })
+        );
+
+        const citaId =
+          cita?.id || "";
+
+        const esCitaReal =
+          citaId &&
+          !String(
+            citaId
+          ).startsWith(
+            "sin-agenda-"
+          ) &&
+          cita.origen !==
+            "sinAgendaResumen";
+
+        const url =
+          esCitaReal
+            ? `/admin/historia/${pacienteGuardado.id}?citaId=${citaId}`
+            : `/admin/historia/${pacienteGuardado.id}`;
+
+        window.open(
+          url,
+          "_blank",
+          "noopener,noreferrer"
+        );
+
+        return;
+      }
+
+      setNombre(
+        cita.nombre || ""
+      );
+
+      setDni(
+        cita.Dni ||
+          cita.dni ||
+          ""
+      );
+
+      setFechaNacimiento(
+        normalizarFechaNacimientoHistoria(
+          cita.fechaNacimiento ||
+            ""
+        )
+      );
+
+      setObraSocial(
+        cita.obraSocial || ""
+      );
+
+      setSexo(
+        cita.sexo || ""
+      );
+
+      setTimeout(() => {
+        nuevoPacienteRef.current?.scrollIntoView(
+          {
+            behavior: "smooth",
+            block: "center"
+          }
+        );
+      }, 100);
+    };
+
+  const fechaHoyHistoriasTexto =
+    new Date()
+      .toLocaleDateString(
+        "es-AR",
+        {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+          year: "numeric"
+        }
+      )
+      .replace(",", "")
+      .replace(
+        /^./,
+        (letra) =>
+          letra.toUpperCase()
+      );
 
   return (
     <div className="container historias-modern-container py-4 mb-5">
+
       {mostrarConfirmacion && (
-  <div className="paciente-save-overlay">
-    <div className="paciente-save-card">
+        <div className="paciente-save-overlay">
 
-      <div className="paciente-save-icon">
-        <FaUserCheck />
-      </div>
+          <div className="paciente-save-card">
 
-      <h4>{mensajeConfirmacion}</h4>
-    </div>
-  </div>
-)}
+            <div className="paciente-save-icon">
+              <FaUserCheck />
+            </div>
+
+            <h4>
+              {mensajeConfirmacion}
+            </h4>
+
+          </div>
+
+        </div>
+      )}
 
       {/* HEADER */}
+
       <div className="historias-hero mb-4">
 
         <div>
+
           <div className="historias-badge">
+
             <FaFolderOpen />
+
             Panel médico
+
           </div>
 
           <h2 className="subtitle-general mb-2">
+
             {editando ? (
               <>
-                <span className="subtitle-celeste">EDITAR</span>{" "}
-                <span className="subtitle-celeste">PACIENTE</span>
+                <span className="subtitle-celeste">
+                  EDITAR
+                </span>{" "}
+
+                <span className="subtitle-celeste">
+                  PACIENTE
+                </span>
               </>
             ) : (
               <>
-                <span className="subtitle-celeste">HISTORIAS</span>{" "}
-                <span className="subtitle-celeste">CLÍNICAS</span>
+                <span className="subtitle-celeste">
+                  HISTORIAS
+                </span>{" "}
+
+                <span className="subtitle-celeste">
+                  CLÍNICAS
+                </span>
               </>
             )}
+
           </h2>
 
           <div className="historias-fecha-hoy mb-2">
+
             {fechaHoyHistoriasTexto.toUpperCase()}
+
           </div>
 
           <p className="historias-hero-text">
+
             Registro de pacientes, búsqueda rápida y acceso directo a la historia clínica.
+
           </p>
+
         </div>
 
         <div className="historias-hero-actions">
 
-  <Link
-    to="/admin/citas"
-    className="historias-agenda-btn"
-  >
-    <FaCalendarAlt />
-    Agendar cita
-  </Link>
+          <Link
+            to="/admin/citas"
+            className="historias-agenda-btn"
+          >
 
-  <div className="historias-total-resumen">
-  <div className="historias-total-icon">
-    <FaUsers />
-  </div>
+            <FaCalendarAlt />
 
-  <div className="historias-total-info">
-    <span>Total de historias</span>
-    <strong>{pacientes.length}</strong>
-    <small>pacientes registrados</small>
-  </div>
-</div>
+            Agendar cita
 
-</div>
+          </Link>
+
+          <div className="historias-total-resumen">
+
+            <div className="historias-total-icon">
+
+              <FaUsers />
+
+            </div>
+
+            <div className="historias-total-info">
+
+              <span>
+                Total de historias
+              </span>
+
+              <strong>
+                {pacientes.length}
+              </strong>
+
+              <small>
+                pacientes registrados
+              </small>
+
+            </div>
+
+          </div>
+
+        </div>
 
       </div>
 
       {/* TABLA PACIENTES DE HOY DESDE AGENDA */}
-<div className="card shadow-sm mb-4 historias-tabla-hoy-card">
 
-<div className="card-header text-center text-white fw-bold pacientes-dia-header">
-  <button
-    type="button"
-    className="pacientes-dia-nav-btn"
-    onClick={() => cambiarDiaTablaAgenda(-1)}
-    title="Ver día anterior"
-  >
-    <FaChevronLeft />
-  </button>
+      <div className="card shadow-sm mb-4 historias-tabla-hoy-card">
 
-  <div className="pacientes-dia-title">
-    <h3 className="mb-0">
-      {tituloTablaAgenda}
-    </h3>
+        <div className="card-header text-center text-white fw-bold pacientes-dia-header">
 
-    {!esTablaDeHoy && (
-      <button
-        type="button"
-        className="pacientes-dia-hoy-btn"
-        onClick={irAHoyTablaAgenda}
-      >
-        Volver a hoy
-      </button>
-    )}
-  </div>
+          <button
+            type="button"
+            className="pacientes-dia-nav-btn"
+            onClick={() =>
+              cambiarDiaTablaAgenda(-1)
+            }
+            title="Ver día anterior"
+          >
 
-  <button
-    type="button"
-    className="pacientes-dia-nav-btn"
-    onClick={() => cambiarDiaTablaAgenda(1)}
-    title="Ver día siguiente"
-  >
-    <FaChevronRight />
-  </button>
-</div>
+            <FaChevronLeft />
 
-  <div className="card-body p-0 table-responsive">
+          </button>
 
-    {citasHoyAgenda.length === 0 ? (
-      <div className="p-3 text-center fw-bold">
-        No hay citas programadas para esta fecha
+          <div className="pacientes-dia-title">
+
+            <h3 className="mb-0">
+
+              {tituloTablaAgenda}
+
+            </h3>
+
+            {!esTablaDeHoy && (
+
+              <button
+                type="button"
+                className="pacientes-dia-hoy-btn"
+                onClick={
+                  irAHoyTablaAgenda
+                }
+              >
+
+                Volver a hoy
+
+              </button>
+
+            )}
+
+          </div>
+
+          <button
+            type="button"
+            className="pacientes-dia-nav-btn"
+            onClick={() =>
+              cambiarDiaTablaAgenda(1)
+            }
+            title="Ver día siguiente"
+          >
+
+            <FaChevronRight />
+
+          </button>
+
+        </div>
+
+        <div className="card-body p-0 table-responsive">
+
+          {cargandoCitas ? (
+
+            <div className="p-3 text-center fw-bold">
+
+              Cargando citas del día...
+
+            </div>
+
+          ) : citasHoyAgenda.length === 0 ? (
+
+            <div className="p-3 text-center fw-bold">
+
+              No hay citas programadas para esta fecha
+
+            </div>
+
+          ) : (
+
+            <table className="table table-sm mb-0 tabla-pacientes-hoy tabla-historias-hoy">
+
+              <thead>
+
+                <tr className="text-center">
+
+                  <th>
+
+                    <span className="celeste">
+                      N°
+                    </span>
+
+                  </th>
+
+                  <th>
+
+                    <FaClock className="me-1 celeste" />
+
+                    <br />
+
+                    <span className="celeste">
+                      Hora
+                    </span>
+
+                  </th>
+
+                  <th>
+
+                    <FaUserCheck className="me-2 celeste" />
+
+                    <br />
+
+                    <span className="celeste">
+                      Paciente
+                    </span>
+
+                  </th>
+
+                  <th>
+
+                    <FaIdCard className="me-2 celeste" />
+
+                    <br />
+
+                    <span className="celeste">
+                      DNI
+                    </span>
+
+                  </th>
+
+                  <th>
+
+                    <FaWhatsapp className="me-2 celeste" />
+
+                    <br />
+
+                    <span className="celeste">
+                      Wp
+                    </span>
+
+                  </th>
+
+                  <th>
+
+                    <FaUsers className="me-2 celeste" />
+
+                    <br />
+
+                    <span className="celeste">
+                      Vez
+                    </span>
+
+                  </th>
+
+                  <th>
+
+                    <FaStethoscope className="me-2 celeste" />
+
+                    <br />
+
+                    <span className="celeste">
+                      Motivo
+                    </span>
+
+                  </th>
+
+                  <th>
+
+                    <FaCheckCircle className="me-2 celeste" />
+
+                    <br />
+
+                    <span className="celeste">
+                      Estado
+                    </span>
+
+                  </th>
+
+                </tr>
+
+              </thead>
+
+              <tbody className="text-center">
+
+                {citasHoyAgenda.map(
+                  (c, index) => {
+
+                    const numeroCita =
+                      obtenerNumeroVezHistoriaClinica(
+                        c
+                      );
+
+                    return (
+
+                      <tr
+                        key={c.id}
+                        className={`fila-cita-historia ${
+                          citaHoySeleccionadaId ===
+                          c.id
+                            ? "fila-cita-seleccionada"
+                            : ""
+                        }`}
+                        title="Clic para cargar en Nuevo paciente"
+                        onClick={() =>
+                          cargarPacienteDesdeCitaHoy(
+                            c
+                          )
+                        }
+                      >
+
+                        <td className="tabla-numero-fila">
+
+                          {index + 1}
+
+                        </td>
+
+                        <td>
+
+                          {c.sinAgenda ? (
+
+                            <span className="hora-sin-agenda">
+
+                              Sin hora
+
+                            </span>
+
+                          ) : (
+
+                            c.hora || "-"
+
+                          )}
+
+                        </td>
+
+                        <td>
+
+                          {capitalizarNombre(
+                            c.nombre || ""
+                          )}
+
+                        </td>
+
+                        <td>
+
+                          {c.Dni ||
+                            c.dni ||
+                            "-"}
+
+                        </td>
+
+                        <td>
+
+                          {c.telefono ? (
+
+                            <button
+                              type="button"
+                              className="btn-whatsapp-tabla btn-whatsapp-tabla-solo-icono"
+                              onClick={(e) => {
+                                e.stopPropagation();
+
+                                abrirWhatsappAgendaHistoria(
+                                  c
+                                );
+                              }}
+                              title="Enviar WhatsApp"
+                            >
+
+                              <FaWhatsapp />
+
+                            </button>
+
+                          ) : (
+
+                            "-"
+
+                          )}
+
+                        </td>
+
+                        <td>
+
+                          {(() => {
+
+                            const textoVez =
+                              textoNumeroCitaPacienteAgenda(
+                                numeroCita
+                              );
+
+                            return (
+
+                              <span
+                                className={
+                                  obtenerClaseVezHistoria(
+                                    textoVez
+                                  )
+                                }
+                              >
+
+                                {textoVez}
+
+                              </span>
+
+                            );
+
+                          })()}
+
+                        </td>
+
+                        <td>
+
+                          <span
+                            className="motivo-tabla-cita"
+                            title={
+                              c.motivoConsulta ||
+                              "Sin motivo"
+                            }
+                          >
+
+                            {c.motivoConsulta ||
+                              "Sin motivo"}
+
+                          </span>
+
+                        </td>
+
+                        <td>
+
+                          <span
+                            className={`estado-cita-simple ${obtenerEstadoCitaClase(
+                              c
+                            )}`}
+                          >
+
+                            {obtenerEstadoCitaTexto(
+                              c
+                            )}
+
+                          </span>
+
+                        </td>
+
+                      </tr>
+
+                    );
+
+                  }
+                )}
+
+              </tbody>
+
+            </table>
+
+          )}
+
+        </div>
+
       </div>
-    ) : (
-      <table className="table table-sm mb-0 tabla-pacientes-hoy tabla-historias-hoy">
-        <thead>
-          <tr className="text-center">
-            <th>
-              <span className="celeste">N°</span>
-            </th>
 
-            <th>
-              <FaClock className="me-1 celeste" /> <br />
-              <span className="celeste">Hora</span>
-            </th>
-
-            <th>
-              <FaUserCheck className="me-2 celeste" /> <br />
-              <span className="celeste">Paciente</span>
-            </th>
-
-            <th>
-              <FaIdCard className="me-2 celeste" /> <br />
-              <span className="celeste">DNI</span>
-            </th>
-
-            <th>
-              <FaWhatsapp className="me-2 celeste" /> <br />
-              <span className="celeste">Wp</span>
-            </th>
-
-            <th>
-              <FaUsers className="me-2 celeste" /> <br />
-              <span className="celeste">Vez</span>
-            </th>
-
-            <th>
-              <FaStethoscope className="me-2 celeste" /> <br />
-              <span className="celeste">Motivo</span>
-            </th>
-
-            <th>
-                                  <FaCheckCircle className="me-2 celeste" /> <br />
-                                  <span className="celeste">
-                                    Estado
-                                  </span>
-           </th>
-          </tr>
-        </thead>
-
-        <tbody className="text-center">
-          {citasHoyAgenda.map((c, index) => {
-           const numeroCita = obtenerNumeroVezHistoriaClinica(c);
-
-            return (
-              <tr
-                  key={c.id}
-                  className={`fila-cita-historia ${
-                    citaHoySeleccionadaId === c.id ? "fila-cita-seleccionada" : ""
-                  }`}
-                  title="Clic para cargar en Nuevo paciente"
-                  onClick={() => cargarPacienteDesdeCitaHoy(c)}
-                >
-
-                  <td className="tabla-numero-fila">
-                    {index + 1}
-                  </td>
-                
-                <td>
-                  {c.sinAgenda ? (
-                    <span className="hora-sin-agenda">
-                      Sin hora
-                    </span>
-                  ) : (
-                    c.hora || "-"
-                  )}
-                </td>
-
-                <td>
-                  {capitalizarNombre(c.nombre || "")}
-                </td>
-
-                <td>
-                  {c.Dni || c.dni || "-"}
-                </td>
-
-                <td>
-  {c.telefono ? (
-    <button
-      type="button"
-      className="btn-whatsapp-tabla btn-whatsapp-tabla-solo-icono"
-      onClick={(e) => {
-        e.stopPropagation();
-        abrirWhatsappAgendaHistoria(c);
-      }}
-      title="Enviar WhatsApp"
-    >
-      <FaWhatsapp />
-    </button>
-  ) : (
-    "-"
-  )}
-</td>
-
-                <td>
-                {(() => {
-                  const textoVez = textoNumeroCitaPacienteAgenda(numeroCita);
-
-                  return (
-                    <span className={obtenerClaseVezHistoria(textoVez)}>
-                      {textoVez}
-                    </span>
-                  );
-                })()}
-              </td>
-
-                <td>
-                  <span
-                    className="motivo-tabla-cita"
-                    title={c.motivoConsulta || "Sin motivo"}
-                  >
-                    {c.motivoConsulta || "Sin motivo"}
-                  </span>
-                </td>
-
-                <td>
-                  <span className={`estado-cita-simple ${obtenerEstadoCitaClase(c)}`}>
-                    {obtenerEstadoCitaTexto(c)}
-                  </span>
-                </td>
-
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    )}
-
-  </div>
-</div>
-
-<br />
+      <br />
 
       {/* FORMULARIO */}
-      <div ref={nuevoPacienteRef} className="historias-form-card mb-4">
+
+      <div
+        ref={nuevoPacienteRef}
+        className="historias-form-card mb-4"
+      >
 
         <div className="historias-form-title">
+
           <div className="historias-form-icon">
+
             <FaUserPlus />
+
           </div>
 
           <div>
+
             <h4>
-              {editando ? "Editar paciente" : "Nuevo paciente"}
+
+              {editando
+                ? "Editar paciente"
+                : "Nuevo paciente"}
+
             </h4>
 
             <p>
+
               Completa los datos para la historia clínica.
+
             </p>
+
           </div>
+
         </div>
 
-            <form onSubmit={editando ? guardarEdicion : crearPaciente}>
+        <form
+          onSubmit={
+            editando
+              ? guardarEdicion
+              : crearPaciente
+          }
+        >
 
-
-  <div className="row g-3">
+          <div className="row g-3">
 
             <div className="col-12 col-md-6">
+
               <label className="historias-label">
+
                 Nombre completo
+
               </label>
 
               <input
                 className="form-control historias-input"
                 placeholder="Ej: Juan Pérez"
                 value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
+                onChange={(e) =>
+                  setNombre(
+                    e.target.value
+                  )
+                }
                 required
               />
+
             </div>
 
             <div className="col-12 col-md-6">
+
               <label className="historias-label">
+
                 DNI
+
               </label>
 
               <input
                 className="form-control historias-input"
                 placeholder="Ej: 12345678"
                 value={dni}
-                onChange={(e) => setDni(e.target.value)}
+                onChange={(e) =>
+                  setDni(
+                    e.target.value
+                  )
+                }
                 required
               />
+
             </div>
 
             <div className="col-12 col-md-4">
+
               <label className="historias-label">
+
                 Fecha de nacimiento
+
               </label>
 
               <input
@@ -1097,55 +2027,126 @@ const fechaHoyHistoriasTexto = new Date()
                 placeholder="DD-MM-AAAA"
                 maxLength="10"
                 className="form-control historias-input"
-                value={fechaNacimiento}
+                value={
+                  fechaNacimiento
+                }
                 onChange={(e) => {
-                  let valor = e.target.value.replace(/\D/g, "");
 
-                  if (valor.length > 8) {
-                    valor = valor.slice(0, 8);
+                  let valor =
+                    e.target.value.replace(
+                      /\D/g,
+                      ""
+                    );
+
+                  if (
+                    valor.length >
+                    8
+                  ) {
+                    valor =
+                      valor.slice(
+                        0,
+                        8
+                      );
                   }
 
-                  if (valor.length >= 5) {
-                    valor = `${valor.slice(0, 2)}-${valor.slice(2, 4)}-${valor.slice(4)}`;
-                  } else if (valor.length >= 3) {
-                    valor = `${valor.slice(0, 2)}-${valor.slice(2)}`;
+                  if (
+                    valor.length >=
+                    5
+                  ) {
+                    valor =
+                      `${valor.slice(
+                        0,
+                        2
+                      )}-${valor.slice(
+                        2,
+                        4
+                      )}-${valor.slice(
+                        4
+                      )}`;
+                  } else if (
+                    valor.length >=
+                    3
+                  ) {
+                    valor =
+                      `${valor.slice(
+                        0,
+                        2
+                      )}-${valor.slice(
+                        2
+                      )}`;
                   }
 
-                  setFechaNacimiento(valor);
+                  setFechaNacimiento(
+                    valor
+                  );
+
                 }}
                 required
               />
+
             </div>
 
             <div className="col-12 col-md-4">
+
               <label className="historias-label">
+
                 Obra social
+
               </label>
 
               <input
                 className="form-control historias-input"
                 placeholder="Ej: ISSN / OSDE / Particular"
                 value={obraSocial}
-                onChange={(e) => setObraSocial(e.target.value)}
+                onChange={(e) =>
+                  setObraSocial(
+                    e.target.value
+                  )
+                }
                 required
               />
+
             </div>
 
             <div className="col-12 col-md-4">
+
               <label className="historias-label">
+
                 Sexo
+
               </label>
 
               <select
                 className="form-select historias-input"
                 value={sexo}
-                onChange={(e) => setSexo(e.target.value)}
+                onChange={(e) =>
+                  setSexo(
+                    e.target.value
+                  )
+                }
                 required
               >
-                <option value="">Seleccione sexo</option>
-                <option value="Masculino">Masculino</option>
-                <option value="Femenino">Femenino</option>
+
+                <option value="">
+
+                  Seleccione sexo
+
+                </option>
+
+                <option value="Masculino">
+
+                  Masculino
+
+                </option>
+
+                <option value="Femenino">
+
+                  Femenino
+
+                </option>
+
               </select>
+
             </div>
 
           </div>
@@ -1153,28 +2154,39 @@ const fechaHoyHistoriasTexto = new Date()
           <div className="historias-form-actions">
 
             <button className="historias-save-btn">
+
               {editando ? (
                 <>
                   <FaCheckCircle />
+
                   Guardar cambios
                 </>
               ) : (
                 <>
                   <FaPlus />
+
                   Guardar paciente
                 </>
               )}
+
             </button>
 
             {editando && (
+
               <button
                 type="button"
                 className="historias-cancel-btn"
-                onClick={cancelarEdicion}
+                onClick={
+                  cancelarEdicion
+                }
               >
+
                 <FaTimes />
+
                 Cancelar
+
               </button>
+
             )}
 
           </div>
@@ -1183,194 +2195,352 @@ const fechaHoyHistoriasTexto = new Date()
 
       </div>
 
-{/* TÍTULO LISTADO DE PACIENTES */}
-<div className="historias-listado-header">
-  <h3>
-    <span>HISTORIA CLÍNICA</span> REGISTRADAS
-  </h3>
+      {/* TÍTULO LISTADO DE PACIENTES */}
 
-  <p>
-    Historias clínicas de pacientes en el sistema. 
-  </p>
-</div>
+      <div className="historias-listado-header">
 
-      {/* BUSCADORES */}
-<div className="historias-filtros-row mb-4">
+        <h3>
 
-  <div className="historias-search-card">
+          <span>
+            HISTORIA CLÍNICA
+          </span>{" "}
 
-    <FaSearch className="historias-search-icon" />
+          REGISTRADAS
 
-    <input
-      className="form-control historias-search-input"
-      placeholder="Buscar por nombre o DNI..."
-      value={busqueda}
-      onChange={(e) => setBusqueda(e.target.value)}
-    />
+        </h3>
 
-    {busqueda && (
-      <button
-        type="button"
-        className="historias-clear-search"
-        onClick={() => setBusqueda("")}
-      >
-        <FaTimes />
-      </button>
-    )}
+        <p>
 
-  </div>
+          Historias clínicas de pacientes en el sistema.
 
-</div>
+        </p>
 
-{/* LISTADO */}
-{cargandoPacientes ? (
-  <div className="historias-empty">
-    <FaSearch />
-    <h5>Cargando historias clínicas...</h5>
-    <p>Preparando los pacientes registrados.</p>
-  </div>
-) : pacientesPagina.length === 0 ? (
+      </div>
+
+      {/* BUSCADOR */}
+
+      <div className="historias-filtros-row mb-4">
+
+        <div className="historias-search-card">
+
+          <FaSearch className="historias-search-icon" />
+
+          <input
+            className="form-control historias-search-input"
+            placeholder="Buscar por nombre o DNI..."
+            value={busqueda}
+            onChange={(e) =>
+              setBusqueda(
+                e.target.value
+              )
+            }
+          />
+
+          {busqueda && (
+
+            <button
+              type="button"
+              className="historias-clear-search"
+              onClick={() =>
+                setBusqueda("")
+              }
+            >
+
+              <FaTimes />
+
+            </button>
+
+          )}
+
+        </div>
+
+      </div>
+
+      {/* LISTADO */}
+
+      {cargandoPacientes ? (
+
         <div className="historias-empty">
+
           <FaSearch />
-          <h5>No se encontraron pacientes</h5>
+
+          <h5>
+            Cargando historias clínicas...
+          </h5>
+
+          <p>
+            Preparando los pacientes registrados.
+          </p>
+
+        </div>
+
+      ) : pacientesPagina.length === 0 ? (
+
+        <div className="historias-empty">
+
+          <FaSearch />
+
+          <h5>
+            No se encontraron pacientes
+          </h5>
+
           <p>
             Prueba con otro nombre o DNI.
           </p>
+
         </div>
+
       ) : (
+
         <div className="historias-list">
 
-          {pacientesPagina.map((p) => {
-            const sexoTexto = p.sexo?.toLowerCase() || "";
+          {pacientesPagina.map(
+            (p) => {
 
-            const avatar =
-              sexoTexto === "femenino" ? femaleAvatar : maleAvatar;
+              const sexoTexto =
+                p.sexo?.toLowerCase() ||
+                "";
 
-            const edad = calcularEdad(p.fechaNacimiento);
-            const diagnosticosPaciente = p.diagnosticosResumen || [];
-            const ultimaConsulta = p.ultimaConsultaTexto;
-            const cantidadConsultas = p.cantidadConsultas || 0;
+              const avatar =
+                sexoTexto ===
+                "femenino"
+                  ? femaleAvatar
+                  : maleAvatar;
 
-            return (
-              <div key={p.id} className="historias-paciente-card">
+              const edad =
+                calcularEdad(
+                  p.fechaNacimiento
+                );
 
-                <div className="historias-consultas-badge-card">
-                  <span>Consultas</span>
-                  <strong>{cantidadConsultas}</strong>
-                </div>
+              const diagnosticosPaciente =
+                p.diagnosticosResumen ||
+                [];
 
-                <div className="historias-paciente-main">
+              const ultimaConsulta =
+                p.ultimaConsultaTexto;
 
-                  <img
-                    src={avatar}
-                    alt={p.nombre}
-                    className="historias-avatar"
-                  />
+              const cantidadConsultas =
+                p.cantidadConsultas ||
+                0;
 
-                  <div className="historias-paciente-info">
+              return (
 
-                    <h4>{p.nombre}</h4>
+                <div
+                  key={p.id}
+                  className="historias-paciente-card"
+                >
 
-                    <div className="historias-paciente-grid">
+                  <div className="historias-consultas-badge-card">
 
-                      <span>
-                        <FaIdCard />
-                        DNI: {p.dni}
-                      </span>
+                    <span>
+                      Consultas
+                    </span>
 
-                      <span>
-                        <FaBirthdayCake />
-                        {formatearFecha(p.fechaNacimiento)}
-                        {edad !== null && ` (${edad} años)`}
-                      </span>
+                    <strong>
+                      {cantidadConsultas}
+                    </strong>
 
-                      <span>
-                        <FaShieldAlt />
-                        {p.obraSocial}
-                      </span>
+                  </div>
 
-                      <span>
-                        <FaVenusMars />
-                        {p.sexo}
-                      </span>
+                  <div className="historias-paciente-main">
 
-                      <span>
-                        <FaCalendarAlt />
-                        Última consulta: {ultimaConsulta || "Sin consultas"}
-                      </span>
+                    <img
+                      src={avatar}
+                      alt={p.nombre}
+                      className="historias-avatar"
+                    />
+
+                    <div className="historias-paciente-info">
+
+                      <h4>
+                        {p.nombre}
+                      </h4>
+
+                      <div className="historias-paciente-grid">
+
+                        <span>
+
+                          <FaIdCard />
+
+                          DNI: {p.dni}
+
+                        </span>
+
+                        <span>
+
+                          <FaBirthdayCake />
+
+                          {formatearFecha(
+                            p.fechaNacimiento
+                          )}
+
+                          {edad !== null &&
+                            ` (${edad} años)`}
+
+                        </span>
+
+                        <span>
+
+                          <FaShieldAlt />
+
+                          {p.obraSocial}
+
+                        </span>
+
+                        <span>
+
+                          <FaVenusMars />
+
+                          {p.sexo}
+
+                        </span>
+
+                        <span>
+
+                          <FaCalendarAlt />
+
+                          Última consulta:{" "}
+
+                          {ultimaConsulta ||
+                            "Sin consultas"}
+
+                        </span>
+
+                      </div>
+
+                      {diagnosticosPaciente.length >
+                        0 && (
+
+                        <div className="historias-diag-chips">
+
+                          {diagnosticosPaciente.map(
+                            (diag) => (
+
+                              <span
+                                key={
+                                  diag
+                                }
+                              >
+
+                                {diag}
+
+                              </span>
+
+                            )
+                          )}
+
+                        </div>
+
+                      )}
 
                     </div>
 
-                    {diagnosticosPaciente.length > 0 && (
-                      <div className="historias-diag-chips">
-                        {diagnosticosPaciente.map((diag) => (
-                          <span key={diag}>
-                            {diag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                  </div>
+
+                  <div className="historias-actions">
+
+                    <Link
+                      to={`/admin/historia/${p.id}`}
+                      className="historias-action-btn historias-open"
+                      title="Abrir historia"
+                    >
+
+                      <FaFolderOpen />
+
+                    </Link>
+
+                    <button
+                      onClick={() =>
+                        editarPaciente(
+                          p
+                        )
+                      }
+                      className="historias-action-btn historias-edit"
+                      title="Editar paciente"
+                    >
+
+                      <FaPencilAlt />
+
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        eliminarPaciente(
+                          p.id
+                        )
+                      }
+                      className="historias-action-btn historias-delete"
+                      title="Eliminar paciente"
+                    >
+
+                      <FaTrash />
+
+                    </button>
 
                   </div>
 
                 </div>
 
-                <div className="historias-actions">
+              );
 
-                  <Link
-                    to={`/admin/historia/${p.id}`}
-                    className="historias-action-btn historias-open"
-                    title="Abrir historia"
-                  >
-                    <FaFolderOpen />
-                  </Link>
-
-                  <button
-                    onClick={() => editarPaciente(p)}
-                    className="historias-action-btn historias-edit"
-                    title="Editar paciente"
-                  >
-                    <FaPencilAlt />
-                  </button>
-
-                  <button
-                    onClick={() => eliminarPaciente(p.id)}
-                    className="historias-action-btn historias-delete"
-                    title="Eliminar paciente"
-                  >
-                    <FaTrash />
-                  </button>
-
-                </div>
-
-              </div>
-            );
-          })}
+            }
+          )}
 
         </div>
+
       )}
 
       {/* PAGINACIÓN */}
+
       <div className="historias-pagination">
 
         <button
           className="historias-page-btn"
-          disabled={pagina === 1}
-          onClick={() => setPagina(pagina - 1)}
+          disabled={
+            pagina === 1
+          }
+          onClick={() =>
+            setPagina(
+              pagina - 1
+            )
+          }
         >
+
           <FaChevronLeft />
+
         </button>
 
         <span>
-          Página <strong>{pagina}</strong> de <strong>{totalPaginas}</strong>
+
+          Página{" "}
+
+          <strong>
+            {pagina}
+          </strong>{" "}
+
+          de{" "}
+
+          <strong>
+            {totalPaginas}
+          </strong>
+
         </span>
 
         <button
           className="historias-page-btn"
-          disabled={pagina === totalPaginas}
-          onClick={() => setPagina(pagina + 1)}
+          disabled={
+            pagina ===
+            totalPaginas
+          }
+          onClick={() =>
+            setPagina(
+              pagina + 1
+            )
+          }
         >
+
           <FaChevronRight />
+
         </button>
 
       </div>

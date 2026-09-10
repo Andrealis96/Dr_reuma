@@ -1,5 +1,5 @@
 import { useEffect,useRef, useState } from "react";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
   doc,
   getDoc,
@@ -32,10 +32,12 @@ import logo from "../assets/DrReumaLogo.png";
 import firma from "../assets/firma.png";
 import userMale from "../assets/user-male.png";
 import userFemale from "../assets/user-female.png";
+import Swal from "sweetalert2";
 
 function HistoriaPaciente() {
+  const navigate = useNavigate();
   const { id } = useParams();
-const [searchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
 const citaIdAgenda = searchParams.get("citaId");
 
@@ -79,6 +81,66 @@ const citaIdAgenda = searchParams.get("citaId");
   const [consultaAbierta, setConsultaAbierta] = useState(null);
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mensajeGuardado, setMensajeGuardado] = useState("Consulta guardada");
+  const cambiosSinGuardarRef = useRef(false);
+const [hayCambiosSinGuardar, setHayCambiosSinGuardar] = useState(false);
+
+const marcarConsultaComoModificada = () => {
+  cambiosSinGuardarRef.current = true;
+  setHayCambiosSinGuardar(true);
+};
+
+const marcarConsultaComoGuardada = () => {
+  cambiosSinGuardarRef.current = false;
+  setHayCambiosSinGuardar(false);
+};
+
+const limpiarMarcaCambiosConsulta = () => {
+  cambiosSinGuardarRef.current = false;
+  setHayCambiosSinGuardar(false);
+};
+
+const confirmarSalidaConCambios = async () => {
+  if (!cambiosSinGuardarRef.current) return true;
+
+  const result = await Swal.fire({
+    icon: "warning",
+    title: "Consulta sin guardar",
+    html: `
+      <div style="text-align:center">
+        Hay una evolución con cambios sin guardar.<br/>
+        Si sales ahora, podrías perder lo escrito.
+      </div>
+    `,
+    showCancelButton: true,
+    confirmButtonText: "Salir igual",
+    cancelButtonText: "Seguir escribiendo",
+    reverseButtons: true,
+    confirmButtonColor: "#dc2626",
+    cancelButtonColor: "#079db2",
+    customClass: {
+      popup: "modal-consulta-sin-guardar"
+    }
+  });
+
+  return result.isConfirmed;
+};
+
+useEffect(() => {
+  const bloquearCierre = (e) => {
+    if (!cambiosSinGuardarRef.current) return;
+
+    e.preventDefault();
+    e.returnValue = "";
+    return "";
+  };
+
+  window.addEventListener("beforeunload", bloquearCierre);
+
+  return () => {
+    window.removeEventListener("beforeunload", bloquearCierre);
+  };
+}, []);
+
   const guardandoConsultaRef = useRef(false);
 const [guardandoConsulta, setGuardandoConsulta] = useState(false);
 
@@ -276,6 +338,7 @@ Indicaciones: Reposo relativo
 
   const usarPlantilla = (nombre) => {
     setHistoria(plantillas[nombre] || "");
+    marcarConsultaComoModificada();
   };
 
   useEffect(() => {
@@ -286,6 +349,8 @@ Indicaciones: Reposo relativo
 }, [consultaEditando]);
 
 const toggleDiagnostico = (nombre) => {
+  marcarConsultaComoModificada();
+
   const nombreFormateado = nombre.toUpperCase();
 
   setDiagnosticosSeleccionados((prev) =>
@@ -296,6 +361,8 @@ const toggleDiagnostico = (nombre) => {
 };
 
 const limpiarFormularioConsulta = () => {
+  marcarConsultaComoGuardada();
+
   setHistoria(plantillas.primeravez.trim());
   setDiagnosticosSeleccionados([]);
   setConsultaEditando(null);
@@ -689,7 +756,20 @@ const guardarConsulta = async (e) => {
         dataConsulta
       );
 
-      await recalcularResumenPaciente();
+      // ✅ La consulta ya quedó guardada: apagar alerta inmediatamente
+      marcarConsultaComoGuardada();
+
+      try {
+        await recalcularResumenPaciente();
+      } catch (errorResumen) {
+        console.error("La consulta se guardó, pero no se pudo recalcular resumen:", errorResumen);
+      }
+
+      try {
+        await marcarCitaComoAsistio(dataConsulta);
+      } catch (errorAgenda) {
+        console.error("La consulta se guardó, pero no se pudo sincronizar con agenda:", errorAgenda);
+      }
 
       limpiarFormularioConsulta();
       setMensajeGuardado("Consulta actualizada");
@@ -699,12 +779,6 @@ const guardarConsulta = async (e) => {
         setMostrarModal(false);
       }, 2500);
 
-      try {
-        await marcarCitaComoAsistio(dataConsulta);
-      } catch (errorAgenda) {
-        console.error("La consulta se guardó, pero no se pudo sincronizar con agenda:", errorAgenda);
-      }
-
       return;
     }
 
@@ -713,7 +787,20 @@ const guardarConsulta = async (e) => {
       creado: new Date()
     });
 
-    await recalcularResumenPaciente();
+    // ✅ La consulta ya quedó guardada: apagar alerta inmediatamente
+    marcarConsultaComoGuardada();
+
+    try {
+      await recalcularResumenPaciente();
+    } catch (errorResumen) {
+      console.error("La consulta se guardó, pero no se pudo recalcular resumen:", errorResumen);
+    }
+
+    try {
+      await marcarCitaComoAsistio(dataConsulta);
+    } catch (errorAgenda) {
+      console.error("La consulta se guardó, pero no se pudo sincronizar con agenda:", errorAgenda);
+    }
 
     limpiarFormularioConsulta();
     setMensajeGuardado("Consulta guardada");
@@ -722,13 +809,6 @@ const guardarConsulta = async (e) => {
     setTimeout(() => {
       setMostrarModal(false);
     }, 2500);
-
-    try {
-      await marcarCitaComoAsistio(dataConsulta);
-    } catch (errorAgenda) {
-      console.error("La consulta se guardó, pero no se pudo sincronizar con agenda:", errorAgenda);
-    }
-
   } catch (error) {
     console.error("Error guardando consulta:", error);
     alert("No se pudo guardar la consulta. Revisá la consola.");
@@ -761,8 +841,13 @@ const editarConsulta = (consulta) => {
   });
 };
 
-const cancelarEdicionConsulta = () => {
+const cancelarEdicionConsulta = async () => {
+  const puedeCancelar = await confirmarSalidaConCambios();
+
+  if (!puedeCancelar) return;
+
   limpiarFormularioConsulta();
+  limpiarMarcaCambiosConsulta();
 };
 
   const generarPDF = (consulta) => {
@@ -1127,21 +1212,39 @@ const cantidadConsultas = consultas.length;
 
   <div className="historia-paciente-hero-actions">
 
-  <Link
-    to="/admin/citas"
-    className="historia-paciente-action-card historia-paciente-action-primary"
-  >
-    <FaCalendarAlt />
-    <span>Agendar cita</span>
-  </Link>
+ <Link
+  to="/admin/citas"
+  className="historia-header-action historia-header-agenda"
+  onClick={async (e) => {
+    e.preventDefault();
 
-  <Link
-    to="/admin/historias"
-    className="historia-paciente-action-card historia-paciente-action-secondary"
-  >
-    <FaFolderOpen />
-    <span>Historias clínicas</span>
-  </Link>
+    const puedeSalir = await confirmarSalidaConCambios();
+
+    if (puedeSalir) {
+      navigate("/admin/citas");
+    }
+  }}
+>
+  <FaCalendarAlt />
+  Agendar cita
+</Link>
+
+<Link
+  to="/admin/historias"
+  className="historia-header-action historia-header-volver"
+  onClick={async (e) => {
+    e.preventDefault();
+
+    const puedeSalir = await confirmarSalidaConCambios();
+
+    if (puedeSalir) {
+      navigate("/admin/historias");
+    }
+  }}
+>
+  <FaFolderOpen />
+  Historias clínicas
+</Link>
 
   <button
     type="button"
@@ -1423,13 +1526,16 @@ const cantidadConsultas = consultas.length;
                     </div>
                   </div>
 
-                  <textarea
-                    className="form-control historia-textarea-modern"
-                    value={historia}
-                    onChange={(e) => setHistoria(e.target.value)}
-                    placeholder="Escribe aquí la historia clínica del paciente..."
-                    required
-                  />
+                      <textarea
+                        className="form-control historia-textarea-modern"
+                        value={historia}
+                        onChange={(e) => {
+                          setHistoria(e.target.value);
+                          marcarConsultaComoModificada();
+                        }}
+                        placeholder="Escribe aquí la historia clínica del paciente..."
+                        required
+                      />
 
                 </div>
 

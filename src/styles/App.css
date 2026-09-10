@@ -8041,8 +8041,176 @@ margin-top: 5px;
 /*====================================*/
 
 /* ===============================
-   HISTORIA PACIENTE MODERNO
+   HISTORIA CLINICA DEL PACIENTE
 ================================ */
+
+/* ===== MODAL CONSULTA SIN GUARDAR ===== */
+
+.modal-consulta-sin-guardar {
+  border-radius: 24px !important;
+  padding: 10px !important;
+}
+
+.modal-consulta-sin-guardar .swal2-title {
+  color: #111827 !important;
+  font-weight: 1000 !important;
+}
+
+.modal-consulta-sin-guardar .swal2-html-container {
+  color: #374151 !important;
+  font-weight: 700 !important;
+  line-height: 1.45 !important;
+}
+
+/* ==========================================
+   HISTORIA CLÍNICA
+   3 BOTONES EN UNA SOLA FILA EN CELULAR
+   ========================================== */
+
+@media (max-width: 576px) {
+
+  .historia-paciente-hero-actions {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+    width: 100% !important;
+    align-items: stretch !important;
+  }
+
+  /* LOS 3 BOTONES */
+  .historia-paciente-hero-actions > .historia-header-action,
+  .historia-paciente-hero-actions > .historia-paciente-action-card {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+
+    grid-column: auto !important;
+    grid-row: auto !important;
+
+    flex: none !important;
+    flex-basis: auto !important;
+
+    margin: 0 !important;
+
+    min-height: 66px !important;
+    padding: 6px 3px !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    text-align: center !important;
+    font-size: 9px !important;
+    line-height: 1.15 !important;
+  }
+
+  /* BOTÓN CONSULTAS:
+     quitar cualquier regla previa que lo mande abajo */
+  .historia-paciente-hero-actions
+  > .historia-paciente-action-counter {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+
+    grid-column: auto !important;
+
+    flex: none !important;
+    flex-grow: 0 !important;
+    flex-shrink: 1 !important;
+    flex-basis: auto !important;
+  }
+
+  .historia-header-action svg,
+  .historia-paciente-action-card svg {
+    font-size: 15px !important;
+    margin: 0 0 5px 0 !important;
+  }
+
+  .historia-paciente-action-counter strong {
+    font-size: 19px !important;
+    line-height: 1 !important;
+    margin: 0 0 4px 0 !important;
+  }
+
+  .historia-paciente-action-counter span {
+    font-size: 9px !important;
+    line-height: 1.15 !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .historia-header-action {
+    font-size: 10px !important;
+  }
+
+  .historia-paciente-action-counter span {
+    font-size: 10px !important;
+  }
+}
+
+@media (max-width: 576px) {
+
+  .historia-paciente-hero-actions {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 6px !important;
+    width: 100% !important;
+  }
+
+  /* LOS 3 EXACTAMENTE DEL MISMO TAMAÑO */
+  .historia-paciente-hero-actions > * {
+    width: 100% !important;
+    height: 66px !important;
+    min-height: 66px !important;
+    max-height: 66px !important;
+
+    min-width: 0 !important;
+    max-width: none !important;
+
+    margin: 0 !important;
+    padding: 6px 3px !important;
+
+    box-sizing: border-box !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    grid-column: auto !important;
+    flex: none !important;
+
+    border-radius: 16px !important;
+  }
+
+  /* TEXTO DE LOS DOS PRIMEROS */
+  .historia-header-action {
+    font-size: 10px !important;
+    line-height: 1.15 !important;
+  }
+
+  /* ICONOS */
+  .historia-header-action svg,
+  .historia-paciente-action-card svg {
+    font-size: 15px !important;
+    margin: 0 0 5px 0 !important;
+  }
+
+  /* NÚMERO DEL BOTÓN CONSULTAS */
+  .historia-paciente-action-counter strong {
+    font-size: 19px !important;
+    line-height: 1 !important;
+    margin: 0 0 4px 0 !important;
+  }
+
+  /* TEXTO CONSULTAS */
+  .historia-paciente-action-counter span {
+    font-size: 10px !important;
+    line-height: 1.15 !important;
+    margin: 0 !important;
+  }
+}
 
 /* =========================================================
    TABLA PACIENTES DE HOY EN HISTORIAS CLÍNICAS
@@ -11783,3 +11951,4 @@ transform:scale(1.07);
     border-left:20px solid transparent;
   }
 }
+
