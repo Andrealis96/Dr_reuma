@@ -283,30 +283,28 @@ Se extiende el presente certificado a solicitud del interesado/a para ser presen
 `,
 
     primeravez: `
-VIVE EN NEUQUEN
+VIVE EN 
 
 OCUPACION : 
 APF: 
 APP :
-PESO:
-
-HTA : 
 FUMA : 
 HIJOS :
 ABORTOS :
 CIRUGIAS : 
 FRACTURAS : 
 FUM : 
-GIMNASIA : 
-ANTECEDENTES:
+
+ACTIVIDAD FÍSICA : 
 
 MEDICACIÓN HABITUAL :
 
 ENFERMEDAD ACTUAL :
 
 EXAMEN FISICO:
+PESO:
 
-
+EXAMENES COMPLEMENTARIOS:
 
 IDX :
 
@@ -850,177 +848,489 @@ const cancelarEdicionConsulta = async () => {
   limpiarMarcaCambiosConsulta();
 };
 
-  const generarPDF = (consulta) => {
-    const pdf = new jsPDF();
-    const edad = calcularEdad(paciente.fechaNacimiento);
+const generarPDF = (consulta) => {
+  const pdf = new jsPDF("p", "mm", "a4");
 
-    const dibujarHeader = () => {
-      pdf.addImage(logo, "PNG", 14, 10, 26, 26);
+  const anchoPagina = 210;
+  const altoPagina = 297;
 
-      pdf.setFont("helvetica", "bold");
-      pdf.setFontSize(16);
-      pdf.text("DR. REUMA", 45, 18);
+  const margenIzq = 14;
+  const margenDer = 196;
+  const anchoUtil = margenDer - margenIzq;
 
-      pdf.setFont("helvetica", "normal");
-      pdf.setFontSize(10);
-      pdf.text("Dr. Tony Vélez", 45, 24);
+  const celeste = [9, 154, 173];
+  const grisTexto = [70, 70, 70];
+  const grisClaro = [245, 248, 249];
 
-      pdf.setFont("helvetica", "normal");
-      pdf.setFontSize(9);
-      pdf.text("Especialista en Reumatología y Enfermedades Autoinmunes", 45, 29);
+  const edad = calcularEdad(paciente.fechaNacimiento);
 
-      pdf.setFont("helvetica", "normal");
-      pdf.setFontSize(9);
-      pdf.text("San Martín 1355 - Consultorios Externos de la Clínica San Agustín", 45, 34);
+  // ============================================
+  // HEADER PROFESIONAL
+  // ============================================
+  const dibujarHeader = () => {
+    pdf.setTextColor(0, 0, 0);
 
-      pdf.setLineWidth(0.5);
-      pdf.line(14, 38, 196, 38);
-    };
+    // Logo más compacto
+    pdf.addImage(logo, "PNG", 14, 9, 20, 20);
 
-    dibujarHeader();
-
+    // Marca
     pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(13);
-    pdf.text("DATOS DEL PACIENTE:", 14, 48);
+    pdf.setFontSize(15);
+    pdf.setTextColor(...celeste);
+    pdf.text("DR. REUMA", 40, 14);
 
-    const iconoUsuario = obtenerIconoSexo();
-    pdf.addImage(iconoUsuario, "PNG", 160, 52, 28, 28);
-
-    pdf.setDrawColor(220);
-    pdf.rect(12, 50, 184, 45);
-
-    let y = 58;
-
-    const fila = (label, valor) => {
-      pdf.setFont("helvetica", "bold");
-      pdf.text(label, 16, y);
-
-      pdf.setFont("helvetica", "normal");
-      pdf.text(valor || "-", 60, y);
-
-      y += 6;
-    };
-
-    fila("Nombre:", paciente.nombre);
-    fila("Edad:", `${edad} años`);
-    fila("DNI:", paciente.dni);
-    fila("Nacimiento:", formatearFecha(paciente.fechaNacimiento));
-    fila("Obra social:", paciente.obraSocial);
-    fila("Sexo:", paciente.sexo);
-
-    pdf.line(14, y + 2, 196, y + 2);
-
-    y += 12;
-
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(13);
-    pdf.text("CONSULTA MÉDICA", 14, y);
-
-    y += 8;
+    // Médico
+    pdf.setTextColor(0, 0, 0);
+    pdf.setFontSize(10);
+    pdf.text("Dr. Tony Vélez", 40, 19);
 
     pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(11);
-    pdf.text(`Fecha: ${consulta.fecha}`, 14, y);
+    pdf.setFontSize(8.5);
+    pdf.setTextColor(...grisTexto);
 
-    y += 10;
+    pdf.text(
+      "Especialista en Reumatología y Enfermedades Autoinmunes",
+      40,
+      24
+    );
 
+    pdf.text(
+      "Consultorios Externos · Clínica San Agustín · Neuquén",
+      40,
+      28
+    );
+
+    // Matrículas a la derecha
     pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(13);
-    pdf.text(textoDiagnosticosConsulta(consulta).toUpperCase(), 105, y, {
-    align: "center"
-    });
+    pdf.setFontSize(8.5);
+    pdf.setTextColor(0, 0, 0);
 
-    y += 10;
+    pdf.text("REUMATÓLOGO", 196, 14, {
+      align: "right"
+    });
 
     pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(11);
 
-    const texto = pdf.splitTextToSize(consulta.historia || "", 180);
-
-    texto.forEach((linea) => {
-      if (y > 270) {
-        pdf.addPage();
-        dibujarHeader();
-        y = 45;
-      }
-
-      pdf.text(linea, 14, y);
-      y += 6;
+    pdf.text("MN 178050", 196, 19, {
+      align: "right"
     });
 
-    if (y > 230) {
+    pdf.text("MP 9762", 196, 23, {
+      align: "right"
+    });
+
+    pdf.text("ME 5655", 196, 27, {
+      align: "right"
+    });
+
+    // Línea institucional
+    pdf.setDrawColor(...celeste);
+    pdf.setLineWidth(0.8);
+    pdf.line(margenIzq, 33, margenDer, 33);
+  };
+
+  // ============================================
+  // FOOTER GENERAL
+  // ============================================
+
+  const dibujarFooter = (pagina, totalPaginas) => {
+  const yFooter = 281;
+
+  pdf.setDrawColor(210, 220, 223);
+  pdf.setLineWidth(0.25);
+
+  pdf.line(
+    margenIzq,
+    yFooter,
+    margenDer,
+    yFooter
+  );
+
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(7);
+  pdf.setTextColor(100, 100, 100);
+
+  pdf.text(
+    "Dr. Tony Vélez · Reumatología y Enfermedades Autoinmunes",
+    margenIzq,
+    yFooter + 5
+  );
+
+  pdf.text(
+    `Página ${pagina} de ${totalPaginas}`,
+    margenDer,
+    yFooter + 5,
+    {
+      align: "right"
+    }
+  );
+
+  pdf.setTextColor(0, 0, 0);
+};
+
+  // ============================================
+  // PRIMERA PÁGINA
+  // ============================================
+  dibujarHeader();
+
+  let y = 43;
+
+  // Título
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(12);
+  pdf.setTextColor(0, 0, 0);
+
+  pdf.text("HISTORIA CLÍNICA · CONSULTA MÉDICA", margenIzq, y);
+
+  y += 6;
+
+  // ============================================
+  // DATOS PACIENTE - COMPACTO
+  // ============================================
+  pdf.setFillColor(...grisClaro);
+  pdf.setDrawColor(220, 225, 228);
+
+  pdf.roundedRect(
+    margenIzq,
+    y,
+    anchoUtil,
+    31,
+    2,
+    2,
+    "FD"
+  );
+
+  const yDatos = y + 7;
+
+  const escribirDato = (label, valor, x, yy) => {
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(8.5);
+    pdf.setTextColor(...grisTexto);
+
+    pdf.text(label, x, yy);
+
+    pdf.setFont("helvetica", "normal");
+    pdf.setTextColor(0, 0, 0);
+
+    pdf.text(
+      String(valor || "-"),
+      x + 24,
+      yy
+    );
+  };
+
+  escribirDato(
+    "Paciente:",
+    paciente.nombre,
+    18,
+    yDatos
+  );
+
+  escribirDato(
+    "DNI:",
+    paciente.dni,
+    112,
+    yDatos
+  );
+
+  escribirDato(
+    "Nacimiento:",
+    formatearFecha(paciente.fechaNacimiento),
+    18,
+    yDatos + 7
+  );
+
+  escribirDato(
+    "Edad:",
+    edad !== null ? `${edad} años` : "-",
+    112,
+    yDatos + 7
+  );
+
+  escribirDato(
+    "Obra social:",
+    paciente.obraSocial,
+    18,
+    yDatos + 14
+  );
+
+  escribirDato(
+    "Sexo:",
+    paciente.sexo,
+    112,
+    yDatos + 14
+  );
+
+  escribirDato(
+    "Fecha:",
+    consulta.fecha,
+    18,
+    yDatos + 21
+  );
+
+  if (consulta.hora) {
+    escribirDato(
+      "Hora:",
+      `${consulta.hora} hs`,
+      112,
+      yDatos + 21
+    );
+  }
+
+  y += 39;
+
+  // ============================================
+  // DIAGNÓSTICO
+  // ============================================
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(8.5);
+  pdf.setTextColor(...celeste);
+
+  pdf.text("DIAGNÓSTICO", margenIzq, y);
+
+  y += 6;
+
+  pdf.setFontSize(11);
+  pdf.setTextColor(0, 0, 0);
+
+  const diagnostico = pdf.splitTextToSize(
+    textoDiagnosticosConsulta(consulta).toUpperCase(),
+    anchoUtil
+  );
+
+  pdf.text(diagnostico, margenIzq, y);
+
+  y += diagnostico.length * 5 + 5;
+
+  // Línea fina
+  pdf.setDrawColor(225, 225, 225);
+  pdf.line(margenIzq, y, margenDer, y);
+
+  y += 8;
+
+  // ============================================
+  // EVOLUCIÓN
+  // ============================================
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(9);
+  pdf.setTextColor(...celeste);
+
+  pdf.text("EVOLUCIÓN / NOTA MÉDICA", margenIzq, y);
+
+  y += 7;
+
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(10);
+  pdf.setTextColor(20, 20, 20);
+
+  const lineas = pdf.splitTextToSize(
+    consulta.historia || "",
+    anchoUtil
+  );
+
+  lineas.forEach((linea) => {
+    // Reservamos lugar abajo para firma + footer
+    if (y > 246) {
       pdf.addPage();
       dibujarHeader();
-      y = 45;
+
+      y = 44;
     }
 
-    pdf.addImage(firma, "PNG", 145, y, 28, 16);
-    pdf.line(130, y + 18, 185, y + 18);
+    pdf.text(linea, margenIzq, y);
+    y += 5.2;
+  });
 
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(10);
-    pdf.text("DR. TONY VÉLEZ", 160, y + 24, {
-      align: "center"
-    });
+  const formatearFechaDocumentoCorta = (valor) => {
+  if (!valor) {
+    const hoy = new Date();
 
-    pdf.setFontSize(9);
-    pdf.text("REUMATÓLOGO", 160, y + 29, {
-      align: "center"
-    });
-    pdf.text("MN 178050", 160, y + 33, {
-      align: "center"
-    });
-    pdf.text("MP 9762", 160, y + 37, {
-      align: "center"
-    });
-    pdf.text("ME 5655", 160, y + 41, {
-      align: "center"
-    });
+    return `${hoy.getDate()}/${hoy.getMonth() + 1}/${String(
+      hoy.getFullYear()
+    ).slice(-2)}`;
+  }
 
-    /* Texto de contacto a la izquierda */
-pdf.setFont("helvetica", "normal");
-pdf.setFontSize(8);
-pdf.setTextColor(80, 80, 80);
+  const texto = valor.toString().trim();
 
-pdf.text(
-  "Para consultas sobre este documento:",
-  14,
-  y + 26
+  // DD/MM/AAAA
+  if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(texto)) {
+    const [dia, mes, anio] = texto.split("/");
+
+    return `${Number(dia)}/${Number(mes)}/${anio.slice(-2)}`;
+  }
+
+  // DD-MM-AAAA
+  if (/^\d{1,2}-\d{1,2}-\d{4}$/.test(texto)) {
+    const [dia, mes, anio] = texto.split("-");
+
+    return `${Number(dia)}/${Number(mes)}/${anio.slice(-2)}`;
+  }
+
+  // AAAA-MM-DD
+  if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(texto)) {
+    const [anio, mes, dia] = texto.split("-");
+
+    return `${Number(dia)}/${Number(mes)}/${anio.slice(-2)}`;
+  }
+
+  return texto;
+};
+
+// ============================================
+// FIRMA + VALIDACIÓN DEL DOCUMENTO
+// ============================================
+
+// Espacio mínimo necesario para firma + texto institucional
+const espacioFirma = 53;
+
+// Si no entra completo, pasamos a otra página
+if (y + espacioFirma > 270) {
+  pdf.addPage();
+  dibujarHeader();
+  y = 46;
+}
+
+// La firma queda CERCA del final del texto
+const yFirma = y + 9;
+
+// ============================================
+// BLOQUE IZQUIERDO - VALIDACIÓN / CONTACTO
+// ============================================
+
+pdf.setFont("helvetica", "italic");
+pdf.setFontSize(7.5);
+pdf.setTextColor(55, 55, 55);
+
+const textoFirmaElectronica =
+  "Este documento ha sido firmado electrónica o digitalmente según corresponda - por Dr. Tony Vélez";
+
+const lineasFirmaElectronica = pdf.splitTextToSize(
+  textoFirmaElectronica,
+  92
 );
 
+pdf.text(
+  lineasFirmaElectronica,
+  margenIzq,
+  yFirma + 8
+);
+
+let yInstitucional =
+  yFirma + 8 + lineasFirmaElectronica.length * 3.8 + 3;
+
+// Correo
 pdf.setFont("helvetica", "bold");
+pdf.setFontSize(7.5);
+pdf.setTextColor(30, 30, 30);
+
 pdf.text(
   "tonygregoryvelez@gmail.com",
-  14,
-  y + 32
+  margenIzq,
+  yInstitucional
 );
 
-/* Volver a color negro normal */
+yInstitucional += 5;
+
+// Institución
+pdf.setFont("helvetica", "normal");
+pdf.setTextColor(70, 70, 70);
+
+pdf.text(
+  "Consultorios Externos · Clínica San Agustín",
+  margenIzq,
+  yInstitucional
+);
+
+yInstitucional += 5;
+
+// Fecha del documento
+pdf.setFont("helvetica", "bold");
 pdf.setTextColor(0, 0, 0);
 
-    const fechaActual = new Date().toLocaleString("es-AR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false
-    });
+pdf.text(
+  formatearFechaDocumentoCorta(consulta.fecha),
+  margenIzq,
+  yInstitucional
+);
 
-    const totalPaginas = pdf.getNumberOfPages();
+// ============================================
+// BLOQUE DERECHO - FIRMA PROFESIONAL
+// ============================================
 
-    for (let i = 1; i <= totalPaginas; i++) {
-      pdf.setPage(i);
-      pdf.setFontSize(9);
-      pdf.text(`Documento generado: ${fechaActual}`, 14, 285);
-      pdf.text(`Página ${i} de ${totalPaginas}`, 200, 285, {
-        align: "right"
-      });
-    }
+pdf.addImage(
+  firma,
+  "PNG",
+  148,
+  yFirma,
+  27,
+  14
+);
 
-    pdf.save(`Consulta-${paciente.nombre}-${consulta.fecha}.pdf`);
-  };
+pdf.setDrawColor(145, 145, 145);
+pdf.setLineWidth(0.25);
+
+pdf.line(
+  135,
+  yFirma + 16,
+  188,
+  yFirma + 16
+);
+
+pdf.setTextColor(0, 0, 0);
+
+pdf.setFont("helvetica", "bold");
+pdf.setFontSize(9);
+
+pdf.text(
+  "DR. TONY VÉLEZ",
+  161.5,
+  yFirma + 21,
+  {
+    align: "center"
+  }
+);
+
+pdf.setFontSize(8);
+
+pdf.text(
+  "MÉDICO · REUMATÓLOGO",
+  161.5,
+  yFirma + 25,
+  {
+    align: "center"
+  }
+);
+
+pdf.setFont("helvetica", "normal");
+pdf.setFontSize(7.5);
+
+pdf.text(
+  "MN 178050 · MP 9762 · ME 5655",
+  161.5,
+  yFirma + 29,
+  {
+    align: "center"
+  }
+);
+  // ============================================
+  // FOOTER EN TODAS LAS PÁGINAS
+  // ============================================
+  const totalPaginas = pdf.getNumberOfPages();
+
+  for (let i = 1; i <= totalPaginas; i++) {
+    pdf.setPage(i);
+    dibujarFooter(i, totalPaginas);
+  }
+
+  // Nombre seguro
+  const nombreArchivo = (paciente.nombre || "Paciente")
+    .replace(/[^\w\sáéíóúÁÉÍÓÚñÑ-]/g, "")
+    .replace(/\s+/g, "-");
+
+  pdf.save(
+    `Consulta-${nombreArchivo}-${consulta.fecha}.pdf`
+  );
+};
 
   const obtenerInicialDiagnostico = (nombre = "") => {
   const inicial = nombre.trim().charAt(0).toUpperCase();

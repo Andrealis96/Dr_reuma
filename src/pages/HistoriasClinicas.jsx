@@ -136,36 +136,135 @@ function HistoriasClinicas() {
     setSexo("");
   };
 
-  const formatearFecha = (fecha) => {
-    if (!fecha) return "-";
+const convertirFechaNacimientoADate = (valor = "") => {
+  if (!valor) return null;
 
-    const f = new Date(`${fecha}T00:00:00`);
+  // Por si alguna vez llega un Timestamp de Firestore
+  if (valor?.toDate) {
+    const fecha = valor.toDate();
+    return isNaN(fecha.getTime()) ? null : fecha;
+  }
 
-    return f.toLocaleDateString("es-AR");
-  };
+  const texto = valor.toString().trim();
 
-  const calcularEdad = (fecha) => {
-    if (!fecha) return null;
+  let dia;
+  let mes;
+  let anio;
 
-    const nacimiento = new Date(`${fecha}T00:00:00`);
+  // AAAA-MM-DD o AAAA/MM/DD
+  if (/^\d{4}[-/]\d{1,2}[-/]\d{1,2}$/.test(texto)) {
+    const partes = texto.split(/[-/]/).map(Number);
 
-    const hoy = new Date();
+    anio = partes[0];
+    mes = partes[1];
+    dia = partes[2];
+  }
 
-    let edad =
-      hoy.getFullYear() - nacimiento.getFullYear();
+  // DD-MM-AAAA o DD/MM/AAAA
+  else if (/^\d{1,2}[-/]\d{1,2}[-/]\d{4}$/.test(texto)) {
+    const partes = texto.split(/[-/]/).map(Number);
 
-    const mes =
-      hoy.getMonth() - nacimiento.getMonth();
+    dia = partes[0];
+    mes = partes[1];
+    anio = partes[2];
+  }
 
-    if (
-      mes < 0 ||
-      (mes === 0 && hoy.getDate() < nacimiento.getDate())
-    ) {
-      edad--;
+  else {
+    return null;
+  }
+
+  const fecha = new Date(anio, mes - 1, dia);
+
+  // Validar que JavaScript no haya corregido una fecha imposible
+  if (
+    fecha.getFullYear() !== anio ||
+    fecha.getMonth() !== mes - 1 ||
+    fecha.getDate() !== dia
+  ) {
+    return null;
+  }
+
+  return fecha;
+};
+
+const formatearFecha = (valor = "") => {
+  const fecha = convertirFechaNacimientoADate(valor);
+
+  if (!fecha) return "-";
+
+  const dia = String(fecha.getDate()).padStart(2, "0");
+  const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+  const anio = fecha.getFullYear();
+
+  return `${dia}/${mes}/${anio}`;
+};
+
+const calcularEdad = (valor = "") => {
+  const nacimiento = convertirFechaNacimientoADate(valor);
+
+  if (!nacimiento) return null;
+
+  const hoy = new Date();
+
+  let edad = hoy.getFullYear() - nacimiento.getFullYear();
+
+  const diferenciaMes = hoy.getMonth() - nacimiento.getMonth();
+
+  if (
+    diferenciaMes < 0 ||
+    (diferenciaMes === 0 &&
+      hoy.getDate() < nacimiento.getDate())
+  ) {
+    edad--;
+  }
+
+  return edad;
+};
+
+const obtenerUltimaConsultaCard = (paciente = {}) => {
+  const texto = (paciente.ultimaConsultaTexto || "")
+    .toString()
+    .trim();
+
+  // Una última consulta normal es un texto corto con fecha.
+  // Si contiene una evolución entera, no lo mostramos.
+  const textoPareceValido =
+    texto &&
+    texto.length <= 100 &&
+    !texto.includes("\n");
+
+  if (textoPareceValido) {
+    return texto;
+  }
+
+  const millis = Number(paciente.ultimaConsultaAtMillis || 0);
+
+  if (millis > 0) {
+    const fecha = new Date(millis);
+
+    if (!isNaN(fecha.getTime())) {
+      const fechaTexto = fecha
+        .toLocaleDateString("es-AR", {
+          weekday: "long",
+          day: "numeric",
+          month: "numeric",
+          year: "numeric"
+        })
+        .replace(",", "")
+        .replace(/^./, (letra) => letra.toUpperCase());
+
+      const horaTexto = fecha.toLocaleTimeString("es-AR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      });
+
+      return `${fechaTexto} - ${horaTexto} hs`;
     }
+  }
 
-    return edad;
-  };
+  return "Sin consultas";
+};
 
   const normalizarTexto = (texto = "") => {
     return texto
@@ -673,60 +772,64 @@ function HistoriasClinicas() {
     return 0;
   };
 
-  const pacientesFiltrados =
-    useMemo(() => {
-      const textoPaciente =
-        normalizarTexto(busqueda);
+const pacientesFiltrados = useMemo(() => {
+  const textoPaciente = normalizarTexto(busqueda)
+    .replace(/\s+/g, " ")
+    .trim();
 
-      return pacientes
-        .filter((p) => {
-          return (
-            !textoPaciente ||
+  const palabrasBusqueda = textoPaciente
+    .split(" ")
+    .filter(Boolean);
 
-            normalizarTexto(
-              p.nombre
-            ).includes(
-              textoPaciente
-            ) ||
+  const dniBusqueda = busqueda
+    .replace(/\D/g, "")
+    .trim();
 
-            p.dni
-              ?.toString()
-              .includes(
-                busqueda.trim()
-              )
-          );
-        })
-        .sort((a, b) => {
-          const ultimaB =
-            b.ultimaConsultaAtMillis ||
-            0;
+  return pacientes
+    .filter((p) => {
+      // =========================
+      // BÚSQUEDA POR NOMBRE
+      // =========================
+      const nombrePaciente = normalizarTexto(p.nombre || "")
+        .replace(/\s+/g, " ")
+        .trim();
 
-          const ultimaA =
-            a.ultimaConsultaAtMillis ||
-            0;
+      // Todas las palabras escritas deben existir
+      // sin importar el orden
+      const coincideNombre =
+        palabrasBusqueda.length > 0 &&
+        palabrasBusqueda.every((palabra) =>
+          nombrePaciente.includes(palabra)
+        );
 
-          if (
-            ultimaB !== ultimaA
-          ) {
-            return (
-              ultimaB -
-              ultimaA
-            );
-          }
+      // =========================
+      // BÚSQUEDA POR DNI
+      // =========================
+      const dniPaciente = (p.dni || p.Dni || p.DNI || "")
+        .toString()
+        .replace(/\D/g, "");
 
-          return (
-            obtenerCreadoPaciente(
-              b
-            ) -
-            obtenerCreadoPaciente(
-              a
-            )
-          );
-        });
-    }, [
-      pacientes,
-      busqueda
-    ]);
+      const coincideDni =
+        dniBusqueda &&
+        dniPaciente.includes(dniBusqueda);
+
+      return (
+        textoPaciente === "" ||
+        coincideNombre ||
+        coincideDni
+      );
+    })
+    .sort((a, b) => {
+      const ultimaB = b.ultimaConsultaAtMillis || 0;
+      const ultimaA = a.ultimaConsultaAtMillis || 0;
+
+      if (ultimaB !== ultimaA) {
+        return ultimaB - ultimaA;
+      }
+
+      return obtenerCreadoPaciente(b) - obtenerCreadoPaciente(a);
+    });
+}, [pacientes, busqueda]);
 
   const indiceFinal =
     pagina *
@@ -1564,7 +1667,7 @@ function HistoriasClinicas() {
 
       </div>
 
-      {/* TABLA PACIENTES DE HOY DESDE AGENDA */}
+      {/* TABLA PACIENTES DE HOY DESDE AGENDA 
 
       <div className="card shadow-sm mb-4 historias-tabla-hoy-card">
 
@@ -1923,6 +2026,8 @@ function HistoriasClinicas() {
       </div>
 
       <br />
+      
+       */}
 
       {/* FORMULARIO */}
 
@@ -2316,8 +2421,7 @@ function HistoriasClinicas() {
                 p.diagnosticosResumen ||
                 [];
 
-              const ultimaConsulta =
-                p.ultimaConsultaTexto;
+              const ultimaConsulta = obtenerUltimaConsultaCard(p);
 
               const cantidadConsultas =
                 p.cantidadConsultas ||

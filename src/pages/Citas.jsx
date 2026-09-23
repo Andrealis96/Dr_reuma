@@ -795,28 +795,44 @@ const pacienteTieneConsultaEnFechaCita = (cita) => {
 };
 
 const obtenerEstadoCitaTexto = (cita) => {
+  // 1. Tiene consulta realmente guardada ese día
   if (pacienteTieneConsultaEnFechaCita(cita)) {
     return "Asistió";
   }
 
-  if (cita.estadoCita === "asistio" || cita.estadoAsistencia === "asistio") {
+  // 2. Fue marcada explícitamente como asistida
+  if (
+    cita.estadoCita === "asistio" ||
+    cita.estadoAsistencia === "asistio"
+  ) {
     return "Asistió";
   }
 
-  if (cita.estadoCita === "noAsistio" || cita.estadoAsistencia === "noAsistio") {
+  // 3. Fue marcada explícitamente como no asistió
+  if (
+    cita.estadoCita === "noAsistio" ||
+    cita.estadoAsistencia === "noAsistio"
+  ) {
     return "No asistió";
   }
 
-  if (cita.estadoCita === "confirmado" || cita.estadoConfirmacion === "confirmado") {
-    return "Confirmado";
-  }
-
+  // 4. La fecha ya pasó y nunca se registró consulta
   if (cita.fecha < obtenerHoyLocal()) {
     return "No asistió";
   }
 
+  // 5. Solo puede seguir Confirmado si el turno todavía no pasó de día
+  if (
+    cita.estadoCita === "confirmado" ||
+    cita.estadoConfirmacion === "confirmado"
+  ) {
+    return "Confirmado";
+  }
+
   return "Pendiente";
 };
+
+
 
 const obtenerEstadoCitaClase = (cita) => {
   const estado = obtenerEstadoCitaTexto(cita);
@@ -828,23 +844,94 @@ const obtenerEstadoCitaClase = (cita) => {
   return "estado-pendiente";
 };
 
-  const resultadosBusqueda =
+const textoBusquedaNormalizado = normalizarNombreCita(busquedaPaciente);
+const dniBusqueda = limpiarDniCita(busquedaPaciente);
+
+const palabrasBusqueda = textoBusquedaNormalizado
+  .split(" ")
+  .filter(Boolean);
+
+// 1. PRIMERO agrupamos TODAS las citas por paciente
+const gruposPacientesBusqueda = Object.values(
+  citasDB.reduce((grupos, cita) => {
+    const dni = obtenerDniCita(cita);
+
+    const historiaId =
+      cita.historiaClinicaId ||
+      cita.pacienteId ||
+      "";
+
+    // ✅ EL DNI TIENE PRIORIDAD ABSOLUTA
+    const clave =
+      dni
+        ? `dni-${dni}`
+        : historiaId
+          ? `historia-${historiaId}`
+          : `nombre-${normalizarNombreCita(cita.nombre || "")}`;
+
+    if (!grupos[clave]) {
+      grupos[clave] = {
+        clave,
+        dni,
+        citas: []
+      };
+    }
+
+    grupos[clave].citas.push(cita);
+
+    return grupos;
+  }, {})
+);
+
+// 2. Ordenamos las citas de cada paciente
+const gruposPacientesOrdenados = gruposPacientesBusqueda.map((grupo) => {
+  const citasOrdenadas = [...grupo.citas].sort(
+    (a, b) => obtenerMillisCita(b) - obtenerMillisCita(a)
+  );
+
+  // Tomamos el nombre de la cita más reciente
+  const nombrePrincipal =
+    citasOrdenadas[0]?.nombre || "";
+
+  return {
+    ...grupo,
+    nombre: nombrePrincipal,
+    citas: citasOrdenadas
+  };
+});
+
+// 3. Recién AHORA filtramos los pacientes
+const resultadosBusquedaAgrupados =
   busquedaPaciente.trim() === ""
     ? []
-    : citasDB
-        .filter(c =>
-          c.nombre?.toLowerCase().includes(
-            busquedaPaciente.toLowerCase()
-          ) ||
-          c.Dni?.toString().includes(
-            busquedaPaciente
-          )
-        )
+    : gruposPacientesOrdenados
+        .filter((grupo) => {
+          const coincideDni =
+            dniBusqueda &&
+            grupo.dni &&
+            grupo.dni.includes(dniBusqueda);
+
+          // Busca el texto contra TODOS los nombres históricos
+          const coincideNombre = grupo.citas.some((cita) => {
+            const nombre = normalizarNombreCita(cita.nombre || "");
+
+            // ✅ No importa el orden:
+            // "ESTELA DELGADO" encuentra "DELGADO ESTELA"
+            return palabrasBusqueda.every((palabra) =>
+              nombre.includes(palabra)
+            );
+          });
+
+          return coincideDni || coincideNombre;
+        })
         .sort((a, b) => {
-          const fechaA = new Date(`${a.fecha}T${a.hora}`);
-          const fechaB = new Date(`${b.fecha}T${b.hora}`);
-          return fechaB - fechaA;
+          return (
+            obtenerMillisCita(b.citas[0]) -
+            obtenerMillisCita(a.citas[0])
+          );
         });
+
+
 const abrirDetalle = (cita) => {
   setCitaTablaSeleccionadaId(cita?.id || null);
   setCitaSeleccionada(cita);
@@ -1394,6 +1481,23 @@ const abrirWhatsappBusinessPaciente = (usarNueve = true) => {
   window.open(urlWeb, "_blank");
 };
 
+const abrirWhatsappSoloPaciente = (cita) => {
+  if (!cita?.telefono) {
+    Swal.fire({
+      icon: "warning",
+      title: "Sin teléfono",
+      text: "Este paciente no tiene un teléfono registrado."
+    });
+    return;
+  }
+
+  const numero = normalizarTelefonoWhatsapp(cita.telefono, true);
+
+  if (!numero) return;
+
+  window.open(`https://wa.me/${numero}`, "_blank");
+};
+
 const abrirWhatsappCita = (cita, usarNueve = true, tipoMensaje = "recordatorio") => {
   if (!cita?.telefono) {
     alert("Esta cita no tiene teléfono registrado.");
@@ -1645,58 +1749,128 @@ return (
     )}
   </div>
 
-  {busquedaPaciente.trim() !== "" && (
-    <div className="buscador-citas-resultados">
+{busquedaPaciente.trim() !== "" && (
+  <div className="buscador-citas-resultados">
 
-      {resultadosBusqueda.length === 0 ? (
-        <div className="buscador-citas-vacio">
-          No se encontraron citas
-        </div>
-      ) : (
-        resultadosBusqueda.slice(0, 8).map((c) => (
+    {resultadosBusquedaAgrupados.length === 0 ? (
+      <div className="buscador-citas-vacio">
+        No se encontraron pacientes
+      </div>
+    ) : (
+      resultadosBusquedaAgrupados.slice(0, 8).map((grupo) => {
+
+        const citaReferencia =
+          grupo.citas.find((c) => c.telefono) ||
+          grupo.citas[0];
+
+        return (
           <div
-            key={c.id}
-            className="buscador-citas-item"
-            onClick={() => {
-              setCitaSeleccionada(c);
-              setShowDetalle(true);
-            }}
+            key={grupo.clave}
+            className="buscador-paciente-grupo"
           >
-            <div>
-              <strong>{capitalizarNombre(c.nombre)}</strong>
 
-              <span>
-                DNI: {c.Dni || "Sin DNI"}
-              </span>
+            {/* CABECERA DEL PACIENTE */}
+            <div className="buscador-paciente-header">
 
-              <div className="buscador-citas-meta">
-              <small>
-                {c.fecha} · {c.hora} hs · {c.tipo === "presencial" ? "Presencial" : "Virtual"}
-              </small>
+              <div className="buscador-paciente-identidad">
+                <strong>
+                  {capitalizarNombre(grupo.nombre)}
+                </strong>
 
-              <span className={`buscador-citas-estado-mini ${obtenerEstadoCitaClase(c)}`}>
-                {obtenerEstadoCitaTexto(c)}
-              </span>
+                <span>
+                  DNI: {grupo.dni || "Sin DNI"}
+                </span>
+
+                <small>
+                  {grupo.citas.length}{" "}
+                  {grupo.citas.length === 1 ? "cita registrada" : "citas registradas"}
+                </small>
+              </div>
+
+              <div className="buscador-paciente-acciones">
+
+                {/* WHATSAPP SIN RECORDATORIO */}
+                <button
+                  type="button"
+                  className="buscador-accion buscador-accion-whatsapp"
+                  onClick={() =>
+                    abrirWhatsappSoloPaciente(citaReferencia)
+                  }
+                  title="Abrir WhatsApp"
+                >
+                  <FaWhatsapp />
+                </button>
+
+                {/* HISTORIA CLÍNICA */}
+                <button
+                  type="button"
+                  className="buscador-accion buscador-accion-historia"
+                  onClick={() =>
+                    abrirHistoriaDesdeCita(grupo.citas[0])
+                  }
+                  title="Abrir historia clínica"
+                >
+                  <FaFolderOpen />
+                </button>
+
+              </div>
             </div>
+
+            {/* TODAS LAS CITAS DEL PACIENTE */}
+            <div className="buscador-paciente-citas">
+
+              {grupo.citas.map((c) => (
+                <div
+                  key={c.id}
+                  className="buscador-paciente-cita-fila"
+                >
+
+                  <div className="buscador-paciente-cita-info">
+
+                    <span className="buscador-paciente-fecha">
+                      {c.fecha}
+                    </span>
+
+                    <span>
+                      {c.hora} hs
+                    </span>
+
+                    <span>
+                      {c.tipo === "virtual"
+                        ? "Virtual"
+                        : "Presencial"}
+                    </span>
+
+                    <span
+                      className={`buscador-citas-estado-mini ${obtenerEstadoCitaClase(c)}`}
+                    >
+                      {obtenerEstadoCitaTexto(c)}
+                    </span>
+
+                  </div>
+
+                  {/* DETALLE DE ESA CITA */}
+                  <button
+                    type="button"
+                    className="buscador-accion buscador-accion-detalle"
+                    onClick={() => abrirDetalle(c)}
+                    title="Ver detalle de esta cita"
+                  >
+                    <FaEye />
+                  </button>
+
+                </div>
+              ))}
+
             </div>
 
-            <button
-              type="button"
-              className="buscador-citas-whatsapp"
-              onClick={(e) => {
-                e.stopPropagation();
-                abrirWhatsappCita(c, true, "recordatorio");
-              }}
-              title="Enviar WhatsApp"
-            >
-              <FaWhatsapp />
-            </button>
           </div>
-        ))
-      )}
+        );
+      })
+    )}
 
-    </div>
-  )}
+  </div>
+)}
 
 </div>
 

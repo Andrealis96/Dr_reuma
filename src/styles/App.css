@@ -8212,6 +8212,244 @@ margin-top: 5px;
   }
 }
 
+
+/* ===== BUSCADOR DE CITAS AGRUPADO POR PACIENTE ===== */
+
+.buscador-paciente-grupo {
+  background: #eefbfc !important;
+  border-left: 5px solid #079db2 !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  margin-bottom: 12px !important;
+}
+
+.buscador-paciente-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 14px 16px !important;
+}
+
+.buscador-paciente-identidad {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+}
+
+.buscador-paciente-identidad strong {
+  color: #111827 !important;
+  font-size: 1rem !important;
+  font-weight: 1000 !important;
+}
+
+.buscador-paciente-identidad span {
+  color: #374151 !important;
+  font-size: .82rem !important;
+  font-weight: 800 !important;
+}
+
+.buscador-paciente-identidad small {
+  color: #079db2 !important;
+  font-size: .76rem !important;
+  font-weight: 900 !important;
+}
+
+.buscador-paciente-acciones {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.buscador-accion {
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  border: none !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1rem !important;
+  transition: .18s ease !important;
+}
+
+.buscador-accion:hover {
+  transform: translateY(-2px) !important;
+}
+
+.buscador-accion-whatsapp {
+  background: #25d366 !important;
+  color: white !important;
+}
+
+.buscador-accion-historia {
+  background: #079db2 !important;
+  color: white !important;
+}
+
+.buscador-accion-detalle {
+  background: #e0f2fe !important;
+  color: #0369a1 !important;
+}
+
+.buscador-paciente-citas {
+  border-top: 1px solid #cceef3 !important;
+  background: rgba(255, 255, 255, .65) !important;
+}
+
+.buscador-paciente-cita-fila {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  padding: 10px 14px !important;
+  border-bottom: 1px solid #d9f2f5 !important;
+}
+
+.buscador-paciente-cita-fila:last-child {
+  border-bottom: none !important;
+}
+
+.buscador-paciente-cita-info {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  color: #475569 !important;
+  font-size: .78rem !important;
+  font-weight: 800 !important;
+}
+
+.buscador-paciente-fecha {
+  color: #111827 !important;
+  font-weight: 1000 !important;
+}
+
+@media (max-width: 768px) {
+  .buscador-paciente-header {
+    padding: 12px !important;
+  }
+
+  .buscador-paciente-cita-fila {
+    padding: 9px 10px !important;
+  }
+
+  .buscador-paciente-cita-info {
+    gap: 5px 7px !important;
+    font-size: .7rem !important;
+  }
+
+  .buscador-accion {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    font-size: .9rem !important;
+  }
+}
+
+/* ===== CORRECCIÓN BUSCADOR AGRUPADO ===== */
+
+.buscador-citas-resultados {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+
+  max-height: 430px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+
+  align-items: stretch !important;
+}
+
+/* CLAVE: NO DEJAR QUE LAS TARJETAS SE APLASTEN */
+.buscador-paciente-grupo {
+  flex: 0 0 auto !important;
+  flex-shrink: 0 !important;
+
+  width: 100% !important;
+  height: auto !important;
+
+  background: #eefbfc !important;
+  border-left: 5px solid #079db2 !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+}
+
+.buscador-paciente-header {
+  flex-shrink: 0 !important;
+  min-height: 72px !important;
+}
+
+.buscador-paciente-citas {
+  flex: 0 0 auto !important;
+  height: auto !important;
+}
+
+.buscador-paciente-cita-fila {
+  flex-shrink: 0 !important;
+  min-height: 48px !important;
+}
+
+/* ===== EVITAR ZOOM DEL BUSCADOR NUEVA CITA EN CELULAR ===== */
+
+@media (max-width: 768px) {
+
+  .modal-cita-form {
+    overflow-x: hidden !important;
+  }
+
+  .modal-cita-form .modal-dialog {
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    margin: 10px auto !important;
+  }
+
+  .modal-cita-form .modal-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  /* CLAVE: 16px evita que iPhone haga zoom */
+  .modal-cita-form input,
+  .modal-cita-form select,
+  .modal-cita-form textarea,
+  .modal-cita-form .form-control,
+  .modal-cita-form .form-select,
+  .modal-cita-form .modal-paciente-search input,
+  .modal-cita-form .modal-paciente-search .form-control {
+    font-size: 16px !important;
+  }
+
+  .modal-cita-form .modal-paciente-search {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .modal-cita-form .modal-paciente-search input {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .modal-paciente-resultados {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  .modal-paciente-item {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .modal-paciente-item > div {
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+}
 /* =========================================================
    TABLA PACIENTES DE HOY EN HISTORIAS CLÍNICAS
 ========================================================= */
