@@ -8,9 +8,8 @@ import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
 
 import {
-  FaWhatsapp,  FaHome, FaBriefcase, FaCommentDots, FaUser, FaImages, FaBell, FaTachometerAlt, FaSignOutAlt, FaSignInAlt
+  FaWhatsapp,  FaHome, FaBriefcase, FaUser, FaImages, FaTachometerAlt, FaSignOutAlt, FaSignInAlt
 } from "react-icons/fa";
-import { FaHouseMedicalCircleXmark } from "react-icons/fa6";
 
 function NavbarDrReuma() {
 
@@ -145,114 +144,9 @@ function NavbarDrReuma() {
               <FaQuestionCircle className="me-1"/> Preguntas
             </Nav.Link>
 
-            <Nav.Link
-              as={RouterLink}
-              to="/testimonios"
-              onClick={closeNavbar}
-            >
-              <FaCommentDots className="me-1"/> Testimonios
-            </Nav.Link>
-
             <Nav.Link as={RouterLink} to="/nosotros" onClick={closeNavbar}>
               <FaUser className="me-1"/> Nosotros
             </Nav.Link>
-
-            
-
-            {/* CAMPANA ADMIN */}
-            {isAdmin && (
-              <div style={{ position: "relative" }}>
-
-                <Nav.Link
-                  onClick={() => setShowNotifications(!showNotifications)}
-                  style={{ cursor: "pointer", position: "relative" }}
-                >
-                  <FaBell size={13}/> Notificación
-
-                  {unreadReviews.length > 0 && (
-                    <Badge
-                      bg="danger"
-                      pill
-                      className="position-absolute translate-middle"
-                    >
-                      {unreadReviews.length}
-                    </Badge>
-                  )}
-
-                </Nav.Link>
-
-                {showNotifications && (
-
-                  <Card
-                    className="shadow-sm position-absolute"
-                    style={{
-                      right:0,
-                      top:30,
-                      zIndex:1000,
-                      width:300,
-                      maxHeight:400,
-                      overflowY:"auto"
-                    }}
-                  >
-
-                    <Card.Body>
-
-                      {unreadReviews.length === 0 ? (
-
-                        <div className="text-center text-muted">
-                          No hay nuevas notificaciones
-                        </div>
-
-                      ) : (
-
-                        unreadReviews.map((r) => (
-
-                          <div
-                            key={r.id}
-                            className="d-flex align-items-center mb-2"
-                            style={{ cursor:"pointer" }}
-                            onClick={()=>{
-                              navigate("/admin/comentarios?filtro=noLeidos");
-                              setShowNotifications(false);
-                            }}
-                          >
-
-                            <img
-                              src={r.photoURL || generarAvatar(r.name)}
-                              alt="avatar"
-                              style={{
-                                width:35,
-                                height:35,
-                                borderRadius:"50%",
-                                marginRight:10
-                              }}
-                            />
-
-                            <div>
-
-                              <strong>{r.name}</strong>
-
-                              <div style={{ fontSize:12 }}>
-                                {r.comment.slice(0,40)}
-                                {r.comment.length>40?"...":""}
-                              </div>
-
-                            </div>
-
-                          </div>
-
-                        ))
-
-                      )}
-
-                    </Card.Body>
-
-                  </Card>
-
-                )}
-
-              </div>
-            )}
 
             {/* PANEL ADMIN */}
             {isAdmin && (

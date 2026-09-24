@@ -1,4 +1,8 @@
 import { useEffect, useState } from "react";
+import {
+  FaChevronLeft,
+  FaChevronRight
+} from "react-icons/fa";
 
 // DESKTOP
 import img1 from "../assets/banner1.webp";
@@ -19,8 +23,16 @@ const mobileImages = [m1, m2, m3, m4, m5];
 
 function HeroCarousel() {
   const [index, setIndex] = useState(0);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
+  const [isMobile, setIsMobile] = useState(
+    window.innerWidth <= 768
+  );
+
+  const images = isMobile
+    ? mobileImages
+    : desktopImages;
+
+  // Detectar celular / escritorio
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
@@ -28,38 +40,104 @@ function HeroCarousel() {
 
     window.addEventListener("resize", handleResize);
 
-    const interval = setInterval(() => {
-      setIndex((prev) =>
-        prev === desktopImages.length - 1 ? 0 : prev + 1
-      );
-    }, 4500);
-
     return () => {
-      window.removeEventListener("resize", handleResize);
-      clearInterval(interval);
+      window.removeEventListener(
+        "resize",
+        handleResize
+      );
     };
   }, []);
 
-  const images = isMobile ? mobileImages : desktopImages;
+  // Cambio automático
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex((prev) =>
+        prev === images.length - 1
+          ? 0
+          : prev + 1
+      );
+    }, 4500);
+
+    return () => clearInterval(interval);
+  }, [images.length]);
+
+  const anterior = () => {
+    setIndex((prev) =>
+      prev === 0
+        ? images.length - 1
+        : prev - 1
+    );
+  };
+
+  const siguiente = () => {
+    setIndex((prev) =>
+      prev === images.length - 1
+        ? 0
+        : prev + 1
+    );
+  };
 
   return (
-    <section className="hero">
-      <img
-        src={images[index]}
-        alt="Reumatólogo en Neuquén - Dr. Reuma"
-        className="hero-img"
-      />
+    <section className="hero hero-home">
 
-      {/* indicadores */}
-      <div className="hero-dots">
-        {images.map((_, i) => (
-          <span
+      {/* TODAS LAS IMÁGENES QUEDAN CARGADAS */}
+      <div className="hero-images-stack">
+
+        {images.map((imagen, i) => (
+          <img
             key={i}
-            className={i === index ? "dot active" : "dot"}
-            onClick={() => setIndex(i)}
+            src={imagen}
+            alt="Reumatólogo en Neuquén - Dr. Reuma"
+            className={`hero-img hero-stack-img ${
+              i === index
+                ? "hero-stack-img-active"
+                : ""
+            }`}
+            draggable="false"
           />
         ))}
+
       </div>
+
+      {/* FLECHA IZQUIERDA */}
+      <button
+        type="button"
+        className="hero-arrow hero-arrow-left"
+        onClick={anterior}
+        aria-label="Imagen anterior"
+      >
+        <FaChevronLeft />
+      </button>
+
+      {/* FLECHA DERECHA */}
+      <button
+        type="button"
+        className="hero-arrow hero-arrow-right"
+        onClick={siguiente}
+        aria-label="Siguiente imagen"
+      >
+        <FaChevronRight />
+      </button>
+
+      {/* INDICADORES */}
+      <div className="hero-dots">
+
+        {images.map((_, i) => (
+          <button
+            key={i}
+            type="button"
+            className={
+              i === index
+                ? "dot active"
+                : "dot"
+            }
+            onClick={() => setIndex(i)}
+            aria-label={`Ir a imagen ${i + 1}`}
+          />
+        ))}
+
+      </div>
+
     </section>
   );
 }

@@ -9,6 +9,7 @@ import {
 
 import { useRef } from "react";
 
+/* IMÁGENES DE ENFERMEDADES */
 import esclerodermiaImg from "../assets/esclerodermiaa.webp";
 import rodillaImg from "../assets/rodilla.webp";
 import dermatomiositisImg from "../assets/dermatomiositiss.webp";
@@ -17,17 +18,20 @@ import protesisImg from "../assets/protesis.webp";
 import gotaImg from "../assets/gotaa.webp";
 import osteoporosisImg from "../assets/osteoporosiss.webp";
 import fibromialgiaImg from "../assets/fibromialgiaa.webp";
-import paciente1 from "../assets/paciente1.webp"
-import paciente2 from "../assets/paciente2.webp"
-import paciente3 from "../assets/paciente3.webp"
-import paciente4 from "../assets/paciente4.webp"
-import paciente5 from "../assets/paciente5.webp"
+
+/* IMÁGENES CON PACIENTES */
+import paciente1 from "../assets/paciente1.webp";
+import paciente2 from "../assets/paciente2.webp";
+import paciente3 from "../assets/paciente3.webp";
+import paciente4 from "../assets/paciente4.webp";
+import paciente5 from "../assets/paciente5.webp";
+
+/* VIDEOS */
 import gotavideo from "../assets/gotavideo.mp4";
 import esclerodermiavideo from "../assets/esclerodermiavideo.mp4";
 import artritisvideo from "../assets/artritisreumavideo.mp4";
 
 function Galeria() {
-
   const videosRef = useRef(null);
   const pacientesRef = useRef(null);
   const casosRef = useRef(null);
@@ -40,6 +44,10 @@ function Galeria() {
       behavior: "smooth"
     });
   };
+
+  /* ============================
+     VIDEOS
+  ============================ */
 
   const videos = [
     {
@@ -55,6 +63,10 @@ function Galeria() {
       title: "ARTRITIS REUMATOIDE"
     }
   ];
+
+  /* ============================
+     IMÁGENES CON PACIENTES
+  ============================ */
 
   const imagenespacientes = [
     {
@@ -81,14 +93,17 @@ function Galeria() {
       src: rodillaImg,
       title: "DOLOR DE RODILLA"
     }
-  
-];
-      const imagenescasos = [
+  ];
+
+  /* ============================
+     IMÁGENES DE ENFERMEDADES
+  ============================ */
+
+  const imagenescasos = [
     {
       src: esclerodermiaImg,
       title: "ESCLERODERMIA"
     },
-  
     {
       src: dermatomiositisImg,
       title: "DERMATOMIOSITIS"
@@ -116,150 +131,344 @@ function Galeria() {
   ];
 
   return (
-    <section className="galeria" id="galeriaa">
-      <div className="container py-1">  
-      <h2 className="subtitle-general mb-3">
-        <span className="subtitle-celeste">GALERÍA DE </span>
-        <span className="subtitle-negro">CASOS</span>
-      </h2>
-         <h6>
-          En esta sección podemos encontar videos de pacientes
-          
-         e imagenes de varias enfermedades que tratamos en 
-         <span className="fw-bold"> Dr. Reuma</span>
-         </h6> <br />
-      {/* VIDEOS */}
-      <div className="galeria-section">
+    <section className="galeria galeria-modern-page" id="galeriaa">
 
-        <div className="galeria-header">
-          <h4 className="fw-bold">
-            <span className="me-2 fs-2 galeria-icon">
-              <FaPlayCircle />
+      <div className="container ">
+
+        {/* ===================================================
+            CABECERA PRINCIPAL
+        =================================================== */}
+
+        <div className="galeria-public-hero">
+
+          <div className="galeria-public-badge">
+            <FaImages />
+            Casos clínicos
+          </div>
+
+          <h2 className="galeria-public-title">
+            <span className="title-celeste">
+              GALERÍA DE
+            </span>{" "}
+            <span className="title-negro">
+              CASOS
             </span>
+          </h2>
+
+          <p className="galeria-public-description">
+            Conocé algunos casos, exploraciones físicas e imágenes de
+            enfermedades reumatológicas atendidas en{" "}
+            <strong className="celeste">
+              Dr. Reuma
+            </strong>.
+          </p>
+
+        </div>
+
+
+        {/* ===================================================
             VIDEOS DE CASOS
-          </h4>
+        =================================================== */}
 
-          <div className="galeria-buttons">
-            <button onClick={() => scroll(videosRef, "left")}>
-              <FaChevronLeft />
-            </button>
+        <div className="galeria-modern-panel">
 
-            <button onClick={() => scroll(videosRef, "right")}>
-              <FaChevronRight />
-            </button>
-          </div>
-        </div>
+          <div className="galeria-modern-header">
 
-        <div className="galeria-slider" ref={videosRef}>
+            <div>
 
-          {videos.map((video, index) => (
-            <div className="video-card" key={index}>
+              <div className="galeria-modern-kicker">
+                <FaPlayCircle />
+                Videos clínicos
+              </div>
 
-              <video
-                src={video.src}
-                controls
-                preload="metadata"
-                muted
-              />
+              <h3>
+                Videos de casos
+              </h3>
 
-              <p>{video.title}</p>
+              <p>
+                Exploraciones, hallazgos y manifestaciones reumatológicas.
+              </p>
 
             </div>
-          ))}
-
-        </div>
-
-      </div>
 
 
+            <div className="galeria-modern-buttons">
 
-      {/* IMÁGENES */}
-      <div className="galeria-section">
+              <button
+                type="button"
+                onClick={() => scroll(videosRef, "left")}
+                aria-label="Video anterior"
+                title="Anterior"
+              >
+                <FaChevronLeft />
+              </button>
 
-        <div className="galeria-header">
-          <h4 className="fw-bold">
-            <span className="me-2 fs-2 galeria-icon">
-              <FaImages  />
-            </span>
-              IMÁGENES CON PACIENTES
-          </h4>
-
-          <div className="galeria-buttons">
-            <button onClick={() => scroll(pacientesRef, "left")}>
-              <FaChevronLeft />
-            </button>
-
-            <button onClick={() => scroll(pacientesRef, "right")}>
-              <FaChevronRight />
-            </button>
-          </div>
-        </div>
-
-        <div className="galeria-slider" ref={pacientesRef}>
-
-          {imagenespacientes.map((img, index) => (
-            <div className="image-card" key={index}>
-
-              <img
-                src={img.src}
-                alt={img.title}
-              />
-
-              <p>{img.title}</p>
+              <button
+                type="button"
+                onClick={() => scroll(videosRef, "right")}
+                aria-label="Siguiente video"
+                title="Siguiente"
+              >
+                <FaChevronRight />
+              </button>
 
             </div>
-          ))}
+
+          </div>
+
+
+          <div
+            className="galeria-modern-slider"
+            ref={videosRef}
+          >
+
+            {videos.map((video, index) => (
+
+              <article
+                className="galeria-modern-card"
+                key={index}
+              >
+
+                <div className="galeria-modern-media">
+
+                  <video
+                    src={video.src}
+                    controls
+                    preload="metadata"
+                    muted
+                    playsInline
+                  />
+
+                </div>
+
+                <div className="galeria-modern-card-footer">
+
+                  <span>
+                    CASO CLÍNICO
+                  </span>
+
+                  <strong>
+                    {video.title}
+                  </strong>
+
+                </div>
+
+              </article>
+
+            ))}
+
+          </div>
 
         </div>
-      </div>
-    
-     {/* IMÁGENES */}
-      <div className="galeria-section">
 
-        <div className="galeria-header">
-          <h4 className="fw-bold">
-            <span className="me-2 fs-2 galeria-icon">
-              <FaImages />
-            </span>
+
+        {/* ===================================================
+            IMÁGENES CON PACIENTES
+        =================================================== */}
+
+        <div className="galeria-modern-panel">
+
+          <div className="galeria-modern-header">
+
+            <div>
+
+              <div className="galeria-modern-kicker">
+                <FaImages />
+                Atención médica
+              </div>
+
+              <h3>
+                Evaluación de pacientes
+              </h3>
+
+              <p>
+                Examen físico y valoración reumatológica en consultorio.
+              </p>
+
+            </div>
+
+
+            <div className="galeria-modern-buttons">
+
+              <button
+                type="button"
+                onClick={() => scroll(pacientesRef, "left")}
+                aria-label="Imagen anterior"
+                title="Anterior"
+              >
+                <FaChevronLeft />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => scroll(pacientesRef, "right")}
+                aria-label="Siguiente imagen"
+                title="Siguiente"
+              >
+                <FaChevronRight />
+              </button>
+
+            </div>
+
+          </div>
+
+
+          <div
+            className="galeria-modern-slider"
+            ref={pacientesRef}
+          >
+
+            {imagenespacientes.map((img, index) => (
+
+              <article
+                className="galeria-modern-card"
+                key={index}
+              >
+
+                <div className="galeria-modern-media">
+
+                  <img
+                    src={img.src}
+                    alt={img.title}
+                    loading="lazy"
+                  />
+
+                </div>
+
+                <div className="galeria-modern-card-footer">
+
+                  <span>
+                    CONSULTORIO
+                  </span>
+
+                  <strong>
+                    {img.title}
+                  </strong>
+
+                </div>
+
+              </article>
+
+            ))}
+
+          </div>
+
+        </div>
+
+
+        {/* ===================================================
             IMÁGENES DE ENFERMEDADES
-          </h4>
+        =================================================== */}
 
-          <div className="galeria-buttons">
-            <button onClick={() => scroll(casosRef, "left")}>
-              <FaChevronLeft />
-            </button>
+        <div className="galeria-modern-panel">
 
-            <button onClick={() => scroll(casosRef, "right")}>
-              <FaChevronRight />
-            </button>
-          </div>
-        </div>
+          <div className="galeria-modern-header">
 
-        <div className="galeria-slider" ref={casosRef}>
+            <div>
 
-          {imagenescasos.map((img, index) => (
-            <div className="image-card" key={index}>
+              <div className="galeria-modern-kicker">
+                <FaImages />
+                Reumatología
+              </div>
 
-              <img
-                src={img.src}
-                alt={img.title}
-              />
+              <h3>
+                Manifestaciones clínicas
+              </h3>
 
-              <p>{img.title}</p>
+              <p>
+                Algunas enfermedades y hallazgos que pueden observarse
+                en reumatología.
+              </p>
 
             </div>
-          ))}
+
+
+            <div className="galeria-modern-buttons">
+
+              <button
+                type="button"
+                onClick={() => scroll(casosRef, "left")}
+                aria-label="Caso anterior"
+                title="Anterior"
+              >
+                <FaChevronLeft />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => scroll(casosRef, "right")}
+                aria-label="Siguiente caso"
+                title="Siguiente"
+              >
+                <FaChevronRight />
+              </button>
+
+            </div>
+
+          </div>
+
+
+          <div
+            className="galeria-modern-slider"
+            ref={casosRef}
+          >
+
+            {imagenescasos.map((img, index) => (
+
+              <article
+                className="galeria-modern-card"
+                key={index}
+              >
+
+                <div className="galeria-modern-media">
+
+                  <img
+                    src={img.src}
+                    alt={img.title}
+                    loading="lazy"
+                  />
+
+                </div>
+
+                <div className="galeria-modern-card-footer">
+
+                  <span>
+                    ENFERMEDAD REUMATOLÓGICA
+                  </span>
+
+                  <strong>
+                    {img.title}
+                  </strong>
+
+                </div>
+
+              </article>
+
+            ))}
+
+          </div>
 
         </div>
+
+
+        {/* ===================================================
+            CIERRE
+        =================================================== */}
+
+        <div className="galeria-final-card">
+
+          <strong>
+            Atención presencial en Neuquén Capital y consultas online.
+          </strong>
+
+          <span>
+            Tu calidad de vida es nuestra prioridad.
+          </span>
+
+        </div>
+
       </div>
 
-      <h6 className="mt-4 text-center fw-bold">
-        Consulta sin compromiso, tenemos citas virtuales o citas presenciales en Neuquén - Capital.
-      </h6>
-      <h6 className="mt-4 text-center fst-italic celeste">
-        "TU CALIDAD DE VIDA ES NUESTRA PRIORIEDAD"
-      </h6>
-      </div>
     </section>
   );
 }

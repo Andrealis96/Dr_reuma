@@ -2,10 +2,17 @@ import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase/Auth";
 import { useNavigate } from "react-router-dom";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+
+import {
+  FaEye,
+  FaEyeSlash,
+  FaEnvelope,
+  FaLock,
+  FaUserMd,
+  FaSignInAlt
+} from "react-icons/fa";
 
 function LoginAdmin() {
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -15,127 +22,186 @@ function LoginAdmin() {
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-
     e.preventDefault();
+
+    if (loading) return;
 
     setError("");
     setLoading(true);
 
     try {
-
-      await signInWithEmailAndPassword(auth, email, password);
+      await signInWithEmailAndPassword(
+        auth,
+        email.trim(),
+        password
+      );
 
       navigate("/admin");
+    } catch (error) {
+      console.error("Error login:", error);
 
-    } catch {
-
-      setError("Email o contraseña incorrectos");
-
+      setError(
+        "Correo electrónico o contraseña incorrectos."
+      );
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
-
   };
 
-
   return (
+    <section className="login-medico-page">
 
-    <div className="container py-20">
+      <div className="login-medico-card">
 
-      <div className="row justify-content-center align-items-center min-vh-100">
+        {/* CABECERA */}
+        <div className="login-medico-header">
 
-        <div className="col-8 ">
+          <div className="login-medico-logo-wrap">
+            <img
+              src="/DrReumaLogo.svg"
+              alt="Dr. Reuma"
+              className="login-medico-logo"
+            />
+          </div>
 
-          <div className="card shadow border-0">
+          <div className="login-medico-badge">
+            <FaUserMd />
+            Acceso profesional
+          </div>
 
-            <div className="card-body">
+          <h1 className="login-medico-title">
+            <span>INGRESO</span>
+            <strong>MÉDICO</strong>
+          </h1>
 
-              <div className="text-center mb-4">
+          <p className="login-medico-subtitle">
+            Acceso exclusivo al panel administrativo de Dr. Reuma.
+          </p>
 
-                <img
-                  src="/DrReumaLogo.svg"
-                  alt="Dr Reuma"
-                  style={{ width: "100px" }}
-                />
-                  <br />
-                <h8 className="mt-3 subtitle-general">
-                  <span className="subtitle-celeste">INGRESO</span> <br />
-                  <span className="subtitle-negro"> MÉDICO</span>
-                </h8>
-
-              </div>
-
-
-              <form onSubmit={handleLogin}>
-
-                <div className="mb-3">
-
-                  <input
-                    type="email"
-                    className="form-control"
-                    placeholder="Correo electrónico"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-
-                </div>
+        </div>
 
 
-                <div className="mb-3 password-container">
+        {/* FORMULARIO */}
+        <form
+          onSubmit={handleLogin}
+          className="login-medico-form"
+        >
 
-  <input
-    type={showPassword ? "text" : "password"}
-    className="form-control"
-    placeholder="Contraseña"
-    value={password}
-    onChange={(e) => setPassword(e.target.value)}
-    required
-  />
+          {/* EMAIL */}
+          <div className="login-medico-field">
 
-  <button
-    type="button"
-    className="toggle-password"
-    onClick={() => setShowPassword(!showPassword)}
-  >
+            <label>
+              Correo electrónico
+            </label>
 
-    {showPassword ? <FaEyeSlash /> : <FaEye />}
+            <div className="login-medico-input-wrap">
 
-  </button>
+              <span className="login-medico-input-icon">
+                <FaEnvelope />
+              </span>
 
-</div>
-
-
-                {error && (
-                  <div className="alert alert-danger py-2">
-                    {error}
-                  </div>
-                )}
-
-
-                <button
-                  className="btn btn-success w-100"
-                  disabled={loading}
-                >
-
-                  {loading ? "Ingresando..." : "Ingresar"}
-
-                </button>
-
-              </form>
+              <input
+                type="email"
+                placeholder="correo@ejemplo.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+                required
+              />
 
             </div>
 
           </div>
 
+
+          {/* PASSWORD */}
+          <div className="login-medico-field">
+
+            <label>
+              Contraseña
+            </label>
+
+            <div className="login-medico-input-wrap">
+
+              <span className="login-medico-input-icon">
+                <FaLock />
+              </span>
+
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Ingresa tu contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+                required
+              />
+
+              <button
+                type="button"
+                className="login-medico-password-toggle"
+                onClick={() =>
+                  setShowPassword((prev) => !prev)
+                }
+                aria-label={
+                  showPassword
+                    ? "Ocultar contraseña"
+                    : "Mostrar contraseña"
+                }
+              >
+                {showPassword ? (
+                  <FaEyeSlash />
+                ) : (
+                  <FaEye />
+                )}
+              </button>
+
+            </div>
+
+          </div>
+
+
+          {/* ERROR */}
+          {error && (
+            <div className="login-medico-error">
+              {error}
+            </div>
+          )}
+
+
+          {/* BOTÓN */}
+          <button
+            type="submit"
+            className="login-medico-submit"
+            disabled={loading}
+          >
+
+            {loading ? (
+              <>
+                <span className="login-medico-spinner" />
+                Ingresando...
+              </>
+            ) : (
+              <>
+                <FaSignInAlt />
+                Ingresar al panel
+              </>
+            )}
+
+          </button>
+
+        </form>
+
+
+        {/* PIE */}
+        <div className="login-medico-footer">
+          <FaLock />
+          Acceso protegido · Dr. Reuma
         </div>
 
       </div>
 
-    </div>
-
+    </section>
   );
-
 }
 
 export default LoginAdmin;

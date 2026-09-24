@@ -9,14 +9,12 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Galeria from "./components/Galeria";
-import Testimonials from "./components/Testimonials";
 import Solutions from "./components/Solutions";
 import Services from "./components/Services";
 import LoginAdmin from "./pages/LoginAdmin";
 import AdminPanel from "./pages/AdminPanel";
 import HistoriasClinicas from "./pages/HistoriasClinicas";
 import HistoriaPaciente from "./pages/HistoriaPaciente";
-import ComentariosPanel from "./pages/ComentariosPanel";
 import Citas from "./pages/Citas";
 import Laboratorios from "./pages/Laboratorios";
 import Faq from "./components/Faq";
@@ -36,7 +34,6 @@ import Hormigueo from "./pages/Hormigueo";
 import Dermatomiositis from "./pages/Dermatomiositis";
 import Nosesolomeduele from "./pages/Nosesolomeduele";
 import GaleriaPage from "./pages/GaleriaPage";
-import TestimoniosPage from "./pages/TestimoniosPage";
 import FaqPage from "./pages/FaqPage";
 import "./styles/App.css";
 
@@ -112,7 +109,6 @@ function App() {
           />
       <Route path="/servicios" element={<ServiciosPage />} />
       <Route path="/galeria" element={<GaleriaPage />} />
-      <Route path="/testimonios" element={<TestimoniosPage />} />
       <Route path="/nosotros" element={<About />} />
       <Route path="/preguntas-frecuentes" element={<FaqPage />} />
       <Route path="/loginAdmin" element={<LoginAdmin />} />
@@ -140,15 +136,6 @@ function App() {
         element={
           <ProtectedRoute>
             <HistoriaPaciente />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/admin/comentarios"
-        element={
-          <ProtectedRoute>
-            <ComentariosPanel />
           </ProtectedRoute>
         }
       />

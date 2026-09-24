@@ -719,7 +719,7 @@ const cerrarPreviewComprobantePaciente = () => {
 
   return (
     <section id="servicios" className="services-section">
-      <div className="container py-5">
+      <div className="container ">
 
         {mostrarCitaAgendada && (
   <div className="servicio-cita-overlay">
@@ -757,24 +757,32 @@ const cerrarPreviewComprobantePaciente = () => {
   </div>
 )}
 
-        <h3 className="subtitle-general mb-5">
-          <span className="subtitle-celeste">CONSULTAS Y SERVICIOS</span>
-          <span className="subtitle-negro"> DE REUMATOLOGÍA </span>
-        </h3>
-        
-        <p className="services-description mb-5">
-          Ofrecemos atención <span className="fw-bold"> Presencial en Neuquén Capital, en los consultorios externos de la Clínica San Agustín  y consultas online </span> desde la comodidad
-          de tu hogar por si no puedes venir, para personas con dolor articular, inflamación, cansancio,
-          rigidez o síntomas reumatológicos.
-        </p>
-    
-           
-        <p className="services-description text-center mb-5">
+        <div className="public-section-hero services-public-hero">
 
-          <span className="fw-bold celeste ">"QUE EL DOLOR CONSTANTE NO ES NORMAL,
-            UNA ENFERMEDAD REUMATOLÓGICA NO TIENE EDAD." 
-          </span>
-        </p>
+  <div className="public-section-badge">
+    <FaCalendarCheck />
+    Consultas y turnos
+  </div>
+
+  <h3 className="public-section-title">
+    <span className="title-celeste">
+      CONSULTAS Y SERVICIOS
+    </span>{" "}
+    <span className="title-negro">
+      DE REUMATOLOGÍA
+    </span>
+  </h3>
+
+  <p className="public-section-description">
+    Ofrecemos atención{" "}
+    <strong>
+      presencial en Neuquén Capital, en los consultorios externos de la
+      Clínica San Agustín, y consultas online
+    </strong>{" "}
+    desde la comodidad de tu hogar si no puedes venir, para personas con
+    dolor articular, inflamación, cansancio, rigidez o síntomas reumatológicos.
+  </p>
+</div>
 
 {/* FORMULARIO */}
 <div id="agenda-cita" className="agenda-shell mb-5">

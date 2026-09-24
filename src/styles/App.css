@@ -264,6 +264,101 @@ border: #000000;
 
 body { background-color: #f0fff435; font-family: 'Inter', sans-serif; }
 
+/* =========================================================
+   TITULOS PUBLICOS EN CARD
+========================================================= */
+
+.public-section-hero {
+  width: min(1120px, calc(100% - 32px)) !important;
+  margin: 38px auto 34px auto !important;
+
+  padding: 30px 32px !important;
+
+  background: rgba(255, 255, 255, 0.88) !important;
+
+  border: 1px solid rgba(9, 154, 173, 0.16) !important;
+  border-left: 7px solid #079db2 !important;
+
+  border-radius: 28px !important;
+
+  box-shadow:
+    0 14px 35px rgba(0, 0, 0, 0.08) !important;
+
+  backdrop-filter: blur(8px) !important;
+}
+
+.public-section-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+
+  margin-bottom: 14px !important;
+
+  padding: 8px 14px !important;
+
+  border-radius: 999px !important;
+
+  background: rgba(9, 154, 173, 0.12) !important;
+  color: #079db2 !important;
+
+  font-size: .82rem !important;
+  font-weight: 900 !important;
+}
+
+.public-section-title {
+  margin: 0 0 14px 0 !important;
+
+  font-size: clamp(2rem, 4vw, 3rem) !important;
+  font-weight: 1000 !important;
+  line-height: 1.08 !important;
+
+  text-align: left !important;
+}
+
+.public-section-description {
+  max-width: 1050px !important;
+
+  margin: 0 !important;
+
+  color: #3f4850 !important;
+
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+
+  line-height: 1.7 !important;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 768px) {
+
+  .public-section-hero {
+    width: calc(100% - 20px) !important;
+
+    margin: 24px auto 24px auto !important;
+
+    padding: 22px 18px !important;
+
+    border-radius: 22px !important;
+
+    border-left-width: 5px !important;
+  }
+
+  .public-section-title {
+    font-size: 1.75rem !important;
+    line-height: 1.08 !important;
+  }
+
+  .public-section-description {
+    font-size: .9rem !important;
+    line-height: 1.55 !important;
+  }
+
+}
+
+
+
 /* Hover premium */
 
 .card-hover { transition: all 0.25s ease; }
@@ -849,7 +944,339 @@ font-size: 14px;
    02 - HOME / INICIO / HERO / BIENVENIDA
 ========================================================= */
 
+/* =========================================================
+   HOME NUEVO - HERO + ACCESOS RÁPIDOS
+========================================================= */
 
+/* HERO MÁS ELEGANTE */
+
+.hero-home {
+  position: relative !important;
+  width: 100% !important;
+  height: 62vh !important;
+  min-height: 480px !important;
+  overflow: hidden !important;
+  background: #092f36 !important;
+}
+
+.hero-home .hero-img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+
+
+/* FLECHAS */
+
+.hero-arrow {
+  position: absolute !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+
+  width: 48px !important;
+  height: 48px !important;
+
+  border: none !important;
+  border-radius: 50% !important;
+
+  background: rgba(255,255,255,.16) !important;
+  backdrop-filter: blur(8px) !important;
+
+  color: rgb(0, 0, 0) !important;
+  font-size: 1.25rem !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  z-index: 5 !important;
+
+  transition: .2s ease !important;
+}
+
+.hero-arrow:hover {
+  background: rgba(255,255,255,.30) !important;
+  transform: translateY(-50%) scale(1.08) !important;
+}
+
+.hero-arrow-left {
+  left: 28px !important;
+}
+
+.hero-arrow-right {
+  right: 28px !important;
+}
+
+/* INDICADORES */
+
+.hero-home .hero-dots {
+  bottom: 32px !important;
+  z-index: 6 !important;
+}
+
+.hero-home .dot {
+  width: 9px !important;
+  height: 9px !important;
+  min-width: 9px !important;
+
+  padding: 0 !important;
+  border: 1px solid rgba(255,255,255,.75) !important;
+
+  border-radius: 50% !important;
+  background: rgba(255,255,255,.45) !important;
+}
+
+.hero-home .dot.active {
+  width: 24px !important;
+  border-radius: 999px !important;
+  background: #09a6b8 !important;
+  border-color: #09a6b8 !important;
+  transform: none !important;
+}
+
+
+/* =========================================================
+   TARJETAS FLOTANTES
+========================================================= */
+
+.welcome-section {
+  position: relative !important;
+}
+
+.welcome-quick-wrap {
+  position: relative !important;
+  z-index: 20 !important;
+
+  width: 100% !important;
+
+  margin-top: -72px !important;
+  margin-bottom: 35px !important;
+
+  padding: 0 24px !important;
+}
+
+.welcome-quick-grid {
+  width: min(1120px, 100%) !important;
+  margin: 0 auto !important;
+
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+
+  gap: 18px !important;
+}
+
+.welcome-quick-card {
+  min-height: 215px !important;
+
+  padding: 28px 25px !important;
+
+  border-radius: 12px !important;
+
+  color: white !important;
+  text-decoration: none !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+
+  box-shadow:
+    0 18px 38px rgba(0, 0, 0, .18) !important;
+
+  transition:
+    transform .22s ease,
+    box-shadow .22s ease !important;
+
+  overflow: hidden !important;
+
+  position: relative !important;
+}
+
+.welcome-quick-card:hover {
+  transform: translateY(-8px) !important;
+
+  box-shadow:
+    0 26px 50px rgba(0, 0, 0, .24) !important;
+
+  color: white !important;
+}
+
+/* COLORES */
+
+.welcome-quick-turnos {
+  background:
+    linear-gradient(135deg, #11bfae, #079ca7) !important;
+}
+
+.welcome-quick-ubicacion {
+  background:
+    linear-gradient(135deg, #09a6b8, #07889c) !important;
+}
+
+.welcome-quick-horarios {
+  background:
+    linear-gradient(135deg, #078eaa, #08739a) !important;
+}
+
+.welcome-quick-whatsapp {
+  background:
+    linear-gradient(135deg, #07769d, #075d87) !important;
+}
+
+/* ICONO */
+
+.welcome-quick-icon {
+  font-size: 2rem !important;
+  margin-bottom: 8px !important;
+
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* TITULOS */
+
+.welcome-quick-card h3 {
+  margin: 0 !important;
+
+  font-size: 1.55rem !important;
+  font-weight: 1000 !important;
+
+  color: white !important;
+}
+
+.welcome-quick-card p {
+  margin: 12px 0 18px 0 !important;
+
+  min-height: 42px !important;
+
+  font-size: .94rem !important;
+  font-weight: 600 !important;
+  line-height: 1.35 !important;
+
+  color: rgba(255,255,255,.92) !important;
+}
+
+/* BOTÓN INTERNO */
+
+.welcome-quick-button {
+  align-self: flex-start !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+
+  padding: 8px 16px !important;
+
+  border: 1px solid rgba(255,255,255,.8) !important;
+  border-radius: 999px !important;
+
+  color: white !important;
+
+  font-size: .84rem !important;
+  font-weight: 900 !important;
+  text-decoration: none !important;
+  transition: .2s ease !important;
+}
+
+.welcome-quick-card:hover .welcome-quick-button {
+  background: white !important;
+  color: #057e90 !important;
+}
+
+.welcome-quick-static {
+  opacity: .90 !important;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 992px) {
+
+  .welcome-quick-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .welcome-quick-wrap {
+    margin-top: -55px !important;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .hero-home {
+    height: 48vh !important;
+    min-height: 360px !important;
+  }
+
+  .hero-arrow {
+    width: 38px !important;
+    height: 38px !important;
+
+    font-size: .95rem !important;
+  }
+
+  .hero-arrow-left {
+    left: 10px !important;
+  }
+
+  .hero-arrow-right {
+    right: 10px !important;
+  }
+
+  .hero-home .hero-dots {
+    bottom: 22px !important;
+  }
+
+  .welcome-quick-wrap {
+    margin-top: -38px !important;
+
+    padding: 0 12px !important;
+
+    margin-bottom: 28px !important;
+  }
+
+  .welcome-quick-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 9px !important;
+  }
+
+  .welcome-quick-card {
+    min-height: 165px !important;
+
+    padding: 18px 14px !important;
+
+    border-radius: 14px !important;
+  }
+
+  .welcome-quick-icon {
+    font-size: 1.45rem !important;
+  }
+
+  .welcome-quick-card h3 {
+    font-size: 1.05rem !important;
+  }
+
+  .welcome-quick-card p {
+    font-size: .75rem !important;
+    min-height: 34px !important;
+
+    margin: 7px 0 12px 0 !important;
+  }
+
+  .welcome-quick-button {
+    padding: 6px 10px !important;
+
+    font-size: .67rem !important;
+  }
+
+}
 /* Título principal del Welcome */
 
 .welcome-title {
@@ -898,6 +1325,53 @@ font-size: 14px;
   .subtitle-general {
     font-size: 1.6rem !important;
   }
+}
+
+/* ===== BENEFICIOS DENTRO DE PRESENTACIÓN HOME ===== */
+
+.welcome-benefits-inline {
+  width: 100% !important;
+  margin-top: 28px !important;
+}
+
+.welcome-benefits-inline .benefits-line {
+  width: 100% !important;
+  display: flex !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+
+.welcome-benefits-inline .benefit-item-line {
+  flex: 1 !important;
+  min-width: 0 !important;
+  min-height: 62px !important;
+
+  padding: 10px 8px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  gap: 7px !important;
+
+  font-size: .70rem !important;
+  font-weight: 900 !important;
+
+  text-align: center !important;
+}
+
+.welcome-benefits-inline .benefit-icon {
+  font-size: 1.35rem !important;
+  flex-shrink: 0 !important;
+}
+
+@media (max-width: 991px) {
+
+  .welcome-benefits-inline {
+    margin-top: 22px !important;
+    margin-bottom: 28px !important;
+  }
+
 }
 
 /* ============================= */
@@ -1093,7 +1567,7 @@ font-size: 14px;
 .doctor-video-container{
   position: relative;
   width: 100%;
-  max-width: 290px;
+  max-width: 220px;
   margin: auto;
 }
 
@@ -12190,3 +12664,1373 @@ transform:scale(1.07);
   }
 }
 
+
+
+
+
+/* =========================================================
+   GALERÍA MODERNA - DR. REUMA
+========================================================= */
+
+.galeria-modern-page {
+  padding-top: 12px !important;
+  padding-bottom: 55px !important;
+}
+
+
+/* =========================================================
+   CABECERA PRINCIPAL
+========================================================= */
+
+.galeria-public-hero {
+  width: 100% !important;
+
+  margin: 20px auto 34px auto !important;
+
+  padding: 30px 32px !important;
+
+  background: rgba(255, 255, 255, 0.90) !important;
+
+  border:
+    1px solid rgba(9, 154, 173, 0.16) !important;
+
+  border-left:
+    7px solid #079db2 !important;
+
+  border-radius: 28px !important;
+
+  box-shadow:
+    0 14px 35px rgba(0, 0, 0, 0.08) !important;
+
+  backdrop-filter: blur(8px) !important;
+}
+
+
+.galeria-public-badge {
+  display: inline-flex !important;
+
+  align-items: center !important;
+
+  gap: 8px !important;
+
+  margin-bottom: 14px !important;
+
+  padding: 8px 14px !important;
+
+  border-radius: 999px !important;
+
+  background:
+    rgba(9, 154, 173, 0.12) !important;
+
+  color: #079db2 !important;
+
+  font-size: .82rem !important;
+
+  font-weight: 900 !important;
+}
+
+
+.galeria-public-title {
+  margin:
+    0 0 13px 0 !important;
+
+  font-size:
+    clamp(2rem, 4vw, 3rem) !important;
+
+  font-weight: 1000 !important;
+
+  line-height: 1.08 !important;
+
+  text-align: left !important;
+}
+
+
+.galeria-public-description {
+  max-width: 950px !important;
+
+  margin: 0 !important;
+
+  color: #3f4850 !important;
+
+  font-size: 1rem !important;
+
+  font-weight: 600 !important;
+
+  line-height: 1.65 !important;
+}
+
+
+/* =========================================================
+   PANEL DE CADA GALERÍA
+========================================================= */
+
+.galeria-modern-panel {
+  width: 100% !important;
+
+  margin-bottom: 28px !important;
+
+  padding: 26px !important;
+
+  background:
+    rgba(255, 255, 255, 0.92) !important;
+
+  border:
+    1px solid rgba(9, 154, 173, 0.15) !important;
+
+  border-radius: 26px !important;
+
+  box-shadow:
+    0 14px 35px rgba(0, 0, 0, 0.07) !important;
+
+  backdrop-filter:
+    blur(8px) !important;
+}
+
+
+/* =========================================================
+   HEADER DE PANEL
+========================================================= */
+
+.galeria-modern-header {
+  display: flex !important;
+
+  align-items: flex-end !important;
+
+  justify-content: space-between !important;
+
+  gap: 20px !important;
+
+  margin-bottom: 22px !important;
+}
+
+
+.galeria-modern-kicker {
+  display: inline-flex !important;
+
+  align-items: center !important;
+
+  gap: 7px !important;
+
+  margin-bottom: 7px !important;
+
+  color: #079db2 !important;
+
+  font-size: .78rem !important;
+
+  font-weight: 1000 !important;
+
+  text-transform: uppercase !important;
+
+  letter-spacing: .4px !important;
+}
+
+
+.galeria-modern-kicker svg {
+  font-size: 1rem !important;
+}
+
+
+.galeria-modern-header h3 {
+  margin: 0 !important;
+
+  color: #111827 !important;
+
+  font-size: 1.55rem !important;
+
+  font-weight: 1000 !important;
+}
+
+
+.galeria-modern-header p {
+  margin:
+    5px 0 0 0 !important;
+
+  color: #64748b !important;
+
+  font-size: .88rem !important;
+
+  font-weight: 600 !important;
+
+  line-height: 1.4 !important;
+}
+
+
+/* =========================================================
+   BOTONES DE NAVEGACIÓN
+========================================================= */
+
+.galeria-modern-buttons {
+  display: flex !important;
+
+  align-items: center !important;
+
+  gap: 8px !important;
+
+  flex-shrink: 0 !important;
+}
+
+
+.galeria-modern-buttons button {
+  width: 42px !important;
+
+  height: 42px !important;
+
+  min-width: 42px !important;
+
+  padding: 0 !important;
+
+  border: none !important;
+
+  border-radius: 50% !important;
+
+  background:
+    #079db2 !important;
+
+  color: #ffffff !important;
+
+  display: flex !important;
+
+  align-items: center !important;
+
+  justify-content: center !important;
+
+  font-size: .95rem !important;
+
+  box-shadow:
+    0 8px 18px rgba(7, 157, 178, .22) !important;
+
+  transition:
+    all .18s ease !important;
+
+  cursor: pointer !important;
+}
+
+
+.galeria-modern-buttons button:hover {
+  background:
+    #057f91 !important;
+
+  transform:
+    translateY(-2px) !important;
+
+  box-shadow:
+    0 12px 22px rgba(7, 157, 178, .30) !important;
+}
+
+
+/* =========================================================
+   SLIDER
+========================================================= */
+
+.galeria-modern-slider {
+  width: 100% !important;
+
+  display: flex !important;
+
+  gap: 16px !important;
+
+  overflow-x: auto !important;
+
+  overflow-y: hidden !important;
+
+  scroll-behavior: smooth !important;
+
+  scroll-snap-type:
+    x mandatory !important;
+
+  padding:
+    3px 2px 12px 2px !important;
+
+  scrollbar-width:
+    thin !important;
+
+  scrollbar-color:
+    rgba(9, 154, 173, .35)
+    transparent !important;
+}
+
+
+/* SCROLLBAR CHROME */
+
+.galeria-modern-slider::-webkit-scrollbar {
+  height: 6px !important;
+}
+
+
+.galeria-modern-slider::-webkit-scrollbar-track {
+  background:
+    transparent !important;
+}
+
+
+.galeria-modern-slider::-webkit-scrollbar-thumb {
+  background:
+    rgba(9, 154, 173, .30) !important;
+
+  border-radius:
+    999px !important;
+}
+
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.galeria-modern-card {
+  flex:
+    0 0 31.5% !important;
+
+  min-width:
+    270px !important;
+
+  background:
+    #ffffff !important;
+
+  border-radius:
+    20px !important;
+
+  overflow:
+    hidden !important;
+
+  border:
+    1px solid rgba(15, 23, 42, .08) !important;
+
+  box-shadow:
+    0 9px 24px rgba(15, 23, 42, .08) !important;
+
+  scroll-snap-align:
+    start !important;
+
+  transition:
+    transform .22s ease,
+    box-shadow .22s ease !important;
+}
+
+
+.galeria-modern-card:hover {
+  transform:
+    translateY(-5px) !important;
+
+  box-shadow:
+    0 17px 34px rgba(15, 23, 42, .14) !important;
+}
+
+
+/* =========================================================
+   IMÁGENES Y VIDEOS
+========================================================= */
+
+.galeria-modern-media {
+  width:
+    100% !important;
+
+  aspect-ratio:
+    4 / 3 !important;
+
+  overflow:
+    hidden !important;
+
+  background:
+    #eef6f7 !important;
+}
+
+
+.galeria-modern-media img,
+.galeria-modern-media video {
+  width:
+    100% !important;
+
+  height:
+    100% !important;
+
+  object-fit:
+    cover !important;
+
+  display:
+    block !important;
+}
+
+
+.galeria-modern-media img {
+  transition:
+    transform .35s ease !important;
+}
+
+
+.galeria-modern-card:hover
+.galeria-modern-media img {
+  transform:
+    scale(1.04) !important;
+}
+
+
+/* VIDEO */
+
+.galeria-modern-media video {
+  background:
+    #111827 !important;
+}
+
+
+/* =========================================================
+   PIE DE CADA CARD
+========================================================= */
+
+.galeria-modern-card-footer {
+  min-height:
+    75px !important;
+
+  padding:
+    14px 16px !important;
+
+  display:
+    flex !important;
+
+  flex-direction:
+    column !important;
+
+  justify-content:
+    center !important;
+
+  gap:
+    3px !important;
+}
+
+
+.galeria-modern-card-footer span {
+  color:
+    #079db2 !important;
+
+  font-size:
+    .66rem !important;
+
+  font-weight:
+    1000 !important;
+
+  letter-spacing:
+    .7px !important;
+
+  text-transform:
+    uppercase !important;
+}
+
+
+.galeria-modern-card-footer strong {
+  color:
+    #172033 !important;
+
+  font-size:
+    .92rem !important;
+
+  font-weight:
+    1000 !important;
+
+  line-height:
+    1.25 !important;
+}
+
+
+/* =========================================================
+   CARD FINAL
+========================================================= */
+
+.galeria-final-card {
+  width:
+    fit-content !important;
+
+  max-width:
+    100% !important;
+
+  margin:
+    32px auto 10px auto !important;
+
+  padding:
+    16px 26px !important;
+
+  border-radius:
+    18px !important;
+
+  background:
+    rgba(9, 154, 173, .09) !important;
+
+  border:
+    1px solid rgba(9, 154, 173, .18) !important;
+
+  text-align:
+    center !important;
+
+  display:
+    flex !important;
+
+  flex-direction:
+    column !important;
+
+  gap:
+    5px !important;
+}
+
+
+.galeria-final-card strong {
+  color:
+    #1f2937 !important;
+
+  font-size:
+    .92rem !important;
+
+  font-weight:
+    900 !important;
+}
+
+
+.galeria-final-card span {
+  color:
+    #079db2 !important;
+
+  font-size:
+    .83rem !important;
+
+  font-weight:
+    900 !important;
+
+  text-transform:
+    uppercase !important;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 992px) {
+
+  .galeria-modern-card {
+    flex:
+      0 0 45% !important;
+
+    min-width:
+      45% !important;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .galeria-modern-page {
+    padding-top:
+      5px !important;
+
+    padding-bottom:
+      35px !important;
+  }
+
+
+  /* HEADER PRINCIPAL */
+
+  .galeria-public-hero {
+    width:
+      calc(100% - 4px) !important;
+
+    margin:
+      14px auto 22px auto !important;
+
+    padding:
+      21px 17px !important;
+
+    border-radius:
+      21px !important;
+
+    border-left-width:
+      5px !important;
+  }
+
+
+  .galeria-public-badge {
+    font-size:
+      .72rem !important;
+
+    padding:
+      7px 11px !important;
+
+    margin-bottom:
+      11px !important;
+  }
+
+
+  .galeria-public-title {
+    font-size:
+      1.75rem !important;
+
+    line-height:
+      1.08 !important;
+
+    margin-bottom:
+      10px !important;
+  }
+
+
+  .galeria-public-description {
+    font-size:
+      .86rem !important;
+
+    line-height:
+      1.5 !important;
+  }
+
+
+  /* PANELES */
+
+  .galeria-modern-panel {
+    padding:
+      18px 12px !important;
+
+    border-radius:
+      20px !important;
+
+    margin-bottom:
+      18px !important;
+  }
+
+
+  .galeria-modern-header {
+    align-items:
+      center !important;
+
+    gap:
+      8px !important;
+
+    margin-bottom:
+      16px !important;
+  }
+
+
+  .galeria-modern-header h3 {
+    font-size:
+      1.12rem !important;
+  }
+
+
+  .galeria-modern-header p {
+    font-size:
+      .72rem !important;
+
+    line-height:
+      1.3 !important;
+
+    max-width:
+      230px !important;
+  }
+
+
+  .galeria-modern-kicker {
+    font-size:
+      .66rem !important;
+
+    margin-bottom:
+      5px !important;
+  }
+
+
+  /* FLECHAS */
+
+  .galeria-modern-buttons {
+    gap:
+      5px !important;
+  }
+
+
+  .galeria-modern-buttons button {
+    width:
+      34px !important;
+
+    height:
+      34px !important;
+
+    min-width:
+      34px !important;
+
+    font-size:
+      .78rem !important;
+  }
+
+
+  /* SLIDER */
+
+  .galeria-modern-slider {
+    gap:
+      11px !important;
+
+    padding-bottom:
+      9px !important;
+  }
+
+
+  /* CARDS */
+
+  .galeria-modern-card {
+    flex:
+      0 0 82% !important;
+
+    min-width:
+      82% !important;
+
+    border-radius:
+      16px !important;
+  }
+
+
+  .galeria-modern-card-footer {
+    min-height:
+      64px !important;
+
+    padding:
+      11px 13px !important;
+  }
+
+
+  .galeria-modern-card-footer span {
+    font-size:
+      .60rem !important;
+  }
+
+
+  .galeria-modern-card-footer strong {
+    font-size:
+      .82rem !important;
+  }
+
+
+  /* FINAL */
+
+  .galeria-final-card {
+    width:
+      calc(100% - 6px) !important;
+
+    padding:
+      14px !important;
+
+    margin-top:
+      22px !important;
+  }
+
+
+  .galeria-final-card strong {
+    font-size:
+      .80rem !important;
+  }
+
+
+  .galeria-final-card span {
+    font-size:
+      .72rem !important;
+  }
+
+}
+
+
+/* =========================================================
+   LOGIN MÉDICO - DR. REUMA
+========================================================= */
+
+.login-medico-page {
+  min-height: calc(100vh - 90px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 45px 18px 70px;
+
+  position: relative;
+}
+
+
+/* CARD */
+
+.login-medico-card {
+  width: 100%;
+  max-width: 520px;
+
+  background: rgba(255, 255, 255, 0.96);
+
+  border-radius: 30px;
+
+  padding: 36px 38px 28px;
+
+  border: 1px solid rgba(9, 154, 173, 0.16);
+
+  border-top: 7px solid #079db2;
+
+  box-shadow:
+    0 24px 60px rgba(15, 23, 42, 0.15);
+
+  backdrop-filter: blur(12px);
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.login-medico-header {
+  text-align: center;
+
+  margin-bottom: 30px;
+}
+
+
+.login-medico-logo-wrap {
+  width: 100px;
+  height: 100px;
+
+  margin: 0 auto 14px;
+
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: white;
+
+  box-shadow:
+    0 12px 30px rgba(7, 157, 178, 0.15);
+}
+
+
+.login-medico-logo {
+  width: 88px;
+  height: 88px;
+
+  object-fit: contain;
+}
+
+
+.login-medico-badge {
+  width: fit-content;
+
+  margin: 0 auto 12px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  padding: 7px 13px;
+
+  border-radius: 999px;
+
+  background: rgba(9, 154, 173, 0.11);
+
+  color: #079db2;
+
+  font-size: .75rem;
+  font-weight: 900;
+
+  text-transform: uppercase;
+}
+
+
+.login-medico-title {
+  margin: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  line-height: 1;
+}
+
+
+.login-medico-title span {
+  color: #00bcd4;
+
+  font-size: 2.3rem;
+  font-weight: 1000;
+
+  letter-spacing: .5px;
+}
+
+
+.login-medico-title strong {
+  margin-top: 5px;
+
+  color: #111827;
+
+  font-size: 2.3rem;
+  font-weight: 1000;
+
+  letter-spacing: .5px;
+}
+
+
+.login-medico-subtitle {
+  max-width: 360px;
+
+  margin: 15px auto 0;
+
+  color: #64748b;
+
+  font-size: .88rem;
+  font-weight: 600;
+
+  line-height: 1.45;
+}
+
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.login-medico-form {
+  display: flex;
+  flex-direction: column;
+
+  gap: 18px;
+}
+
+
+.login-medico-field label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #374151;
+
+  font-size: .78rem;
+  font-weight: 900;
+}
+
+
+.login-medico-input-wrap {
+  position: relative;
+
+  width: 100%;
+}
+
+
+.login-medico-input-wrap input {
+  width: 100%;
+  height: 54px;
+
+  padding:
+    0 52px 0 48px;
+
+  border-radius: 15px;
+
+  border:
+    1px solid #d7e7ea;
+
+  background:
+    #fbfeff;
+
+  color:
+    #111827;
+
+  font-size:
+    .95rem;
+
+  font-weight:
+    650;
+
+  outline:
+    none;
+
+  transition:
+    all .2s ease;
+}
+
+
+.login-medico-input-wrap input:focus {
+  border-color:
+    #079db2;
+
+  box-shadow:
+    0 0 0 4px rgba(7, 157, 178, 0.12);
+
+  background:
+    white;
+}
+
+
+.login-medico-input-wrap input::placeholder {
+  color:
+    #9ca3af;
+
+  font-weight:
+    500;
+}
+
+
+/* ICONO IZQUIERDO */
+
+.login-medico-input-icon {
+  position:
+    absolute;
+
+  left:
+    16px;
+
+  top:
+    50%;
+
+  transform:
+    translateY(-50%);
+
+  color:
+    #079db2;
+
+  font-size:
+    1rem;
+
+  pointer-events:
+    none;
+}
+
+
+/* OJO */
+
+.login-medico-password-toggle {
+  position:
+    absolute;
+
+  right:
+    15px;
+
+  top:
+    50%;
+
+  transform:
+    translateY(-50%);
+
+  width:
+    34px;
+
+  height:
+    34px;
+
+  border:
+    none;
+
+  background:
+    transparent;
+
+  color:
+    #079db2;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  font-size:
+    1rem;
+
+  cursor:
+    pointer;
+
+  border-radius:
+    50%;
+}
+
+
+.login-medico-password-toggle:hover {
+  background:
+    rgba(9, 154, 173, 0.10);
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.login-medico-error {
+  padding:
+    11px 14px;
+
+  border-radius:
+    13px;
+
+  background:
+    #fff1f2;
+
+  border:
+    1px solid #fecdd3;
+
+  color:
+    #be123c;
+
+  font-size:
+    .82rem;
+
+  font-weight:
+    800;
+
+  text-align:
+    center;
+}
+
+
+/* =========================================================
+   BOTÓN
+========================================================= */
+
+.login-medico-submit {
+  width:
+    100%;
+
+  height:
+    54px;
+
+  margin-top:
+    2px;
+
+  border:
+    none;
+
+  border-radius:
+    16px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #079db2,
+      #06717f
+    );
+
+  color:
+    white;
+
+  font-size:
+    .95rem;
+
+  font-weight:
+    1000;
+
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  gap:
+    10px;
+
+  box-shadow:
+    0 15px 30px rgba(7, 157, 178, 0.28);
+
+  cursor:
+    pointer;
+
+  transition:
+    .2s ease;
+}
+
+
+.login-medico-submit:hover:not(:disabled) {
+  transform:
+    translateY(-2px);
+
+  box-shadow:
+    0 19px 35px rgba(7, 157, 178, 0.35);
+}
+
+
+.login-medico-submit:disabled {
+  opacity:
+    .70;
+
+  cursor:
+    wait;
+}
+
+
+/* SPINNER */
+
+.login-medico-spinner {
+  width:
+    17px;
+
+  height:
+    17px;
+
+  border:
+    2px solid rgba(255,255,255,.35);
+
+  border-top-color:
+    white;
+
+  border-radius:
+    50%;
+
+  animation:
+    loginSpin .7s linear infinite;
+}
+
+
+@keyframes loginSpin {
+  to {
+    transform:
+      rotate(360deg);
+  }
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.login-medico-footer {
+  margin-top:
+    23px;
+
+  padding-top:
+    17px;
+
+  border-top:
+    1px solid #e5edef;
+
+  display:
+    flex;
+
+  justify-content:
+    center;
+
+  align-items:
+    center;
+
+  gap:
+    7px;
+
+  color:
+    #94a3b8;
+
+  font-size:
+    .72rem;
+
+  font-weight:
+    800;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .login-medico-page {
+    min-height:
+      calc(100vh - 70px);
+
+    padding:
+      28px 12px 45px;
+  }
+
+
+  .login-medico-card {
+    max-width:
+      100%;
+
+    padding:
+      28px 18px 23px;
+
+    border-radius:
+      23px;
+  }
+
+
+  .login-medico-logo-wrap {
+    width:
+      82px;
+
+    height:
+      82px;
+  }
+
+
+  .login-medico-logo {
+    width:
+      72px;
+
+    height:
+      72px;
+  }
+
+
+  .login-medico-title span,
+  .login-medico-title strong {
+    font-size:
+      1.9rem;
+  }
+
+
+  .login-medico-subtitle {
+    font-size:
+      .8rem;
+  }
+
+
+  .login-medico-input-wrap input {
+    height:
+      52px;
+
+    font-size:
+      16px;
+  }
+
+
+  .login-medico-submit {
+    height:
+      52px;
+  }
+
+}
+
+/* =========================================================
+   HERO SIN FLASH
+========================================================= */
+
+.hero-images-stack {
+  position: absolute !important;
+  inset: 0 !important;
+
+  width: 100% !important;
+  height: 100% !important;
+
+  overflow: hidden !important;
+}
+
+.hero-stack-img {
+  position: absolute !important;
+  inset: 0 !important;
+
+  width: 100% !important;
+  height: 100% !important;
+
+  object-fit: cover !important;
+
+  opacity: 0 !important;
+  visibility: hidden !important;
+
+  transition: none !important;
+  animation: none !important;
+
+  pointer-events: none !important;
+}
+
+.hero-stack-img-active {
+  opacity: 1 !important;
+  visibility: visible !important;
+
+  z-index: 1 !important;
+}

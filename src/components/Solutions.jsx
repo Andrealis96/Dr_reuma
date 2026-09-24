@@ -11,6 +11,7 @@ import dolorrodillas from "../assets/dolorrodillas.webp";
 import hormigueo from "../assets/hormigueo.webp";
 import dermatomiositis from "../assets/dermatomiositis.webp";
 import lupus from "../assets/lupus.webp";
+import { FaStethoscope } from "react-icons/fa";
 import { Helmet } from "react-helmet-async";
 import {
   FaHandHoldingMedical,
@@ -111,25 +112,33 @@ const solutions = [
     function Solutions() {
     return (
         <section className="solutions-section">
-        <div className="container solutions-container py-5 ">
+        <div className="container solutions-container  ">
 
-        <h3 className="subtitle-general mb-5 ">
-        <span className="subtitle-celeste"> ¿QUÉ ENFERMEDAD REUMATOLÓGICA</span>
-        <span className="subtitle-negro"> PODRÍAS TENER?</span>
-        </h3>
-        <p className="solutions-description  mb-5">
+        <div className="public-section-hero">
 
-        El <span className="fw-bold">dolor articular</span>,
-        la <span className="fw-bold">inflamación</span>,
-        el <span className="fw-bold">cansancio </span>
-        y la <span className="fw-bold">rigidez </span>
-        pueden ser señales de una <span className="fw-bold"> enfermedad reumatológica </span>
-        o <span className="fw-bold">autoinmune</span>.
-        Conoce algunas de las patologías que diagnosticamos,
-        tratamos y acompañamos en <span className="fw-bold celeste"> DR. REUMA </span>
-        mediante una atención médica cercana, personalizada y enfocada en mejorar tu <span className="fw-bold"> calidad de vida</span>.
+  <div className="public-section-badge">
+    <FaStethoscope />
+    Reumatología
+  </div>
 
-        </p>
+  <h2 className="public-section-title">
+    <span className="title-celeste">
+      ¿QUÉ ENFERMEDAD REUMATOLÓGICA
+    </span>{" "}
+    <span className="title-negro">
+      PODRÍAS TENER?
+    </span>
+  </h2>
+
+  <p className="public-section-description">
+    El dolor articular, la inflamación, el cansancio y la rigidez pueden ser
+    señales de una enfermedad reumatológica o autoinmune. Conoce algunas de
+    las patologías que diagnosticamos, tratamos y acompañamos en{" "}
+    <strong className="celeste">DR. REUMA</strong> mediante una atención médica
+    cercana, personalizada y enfocada en mejorar tu calidad de vida.
+  </p>
+
+</div>
 
         <div className="row g-4">
 

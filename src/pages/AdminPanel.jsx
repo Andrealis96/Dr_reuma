@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 
 import {
   FaUserInjured,
-  FaComments,
   FaFlask,
   FaCalendarAlt,
   FaShieldAlt,
@@ -25,14 +24,6 @@ function AdminPanel() {
       icon: <FaCalendarAlt />,
       path: "/admin/citas",
       className: "admin-modern-citas",
-    },
-    
-    {
-      title: "Comentarios",
-      description: "Gestionar testimonios y respuestas.",
-      icon: <FaComments />,
-      path: "/admin/comentarios",
-      className: "admin-modern-comentarios",
     },
     {
       title: "Laboratorios",

@@ -8,7 +8,8 @@ import {
   FaPlayCircle, 
   FaCalendarCheck,
   FaStethoscope,
-  FaWhatsapp
+  FaWhatsapp,
+  FaClock
 } from "react-icons/fa";
 
 import { Link } from "react-router-dom";
@@ -38,9 +39,111 @@ const images = [
 
 function Welcome() {
   return (
-    <section className="welcome-section">
+  <section className="welcome-section">
 
-      <div className="container">
+    {/* ACCESOS RÁPIDOS SOBRE EL HERO */}
+    <div className="welcome-quick-wrap">
+
+      <div className="welcome-quick-grid">
+
+        {/* TURNOS */}
+        <Link
+          to="/servicios"
+          className="welcome-quick-card welcome-quick-turnos"
+        >
+          <div className="welcome-quick-icon">
+            <FaCalendarCheck />
+          </div>
+
+          <h3>Turnos</h3>
+
+          <p>
+            Lunes a viernes de 15 a 18 hs <br />
+            Jueves de 10 a 12 hs <br />
+            Sabados 10 a 12 hs
+          </p>
+
+          <span className="welcome-quick-button">
+            Agendar turno →
+          </span>
+        </Link>
+
+        {/* UBICACIÓN */}
+        <a
+          href="https://maps.app.goo.gl/iJ6E4Vr4gTCNvQXw8"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="welcome-quick-card welcome-quick-ubicacion"
+        >
+          <div className="welcome-quick-icon">
+            <FaMapMarkerAlt />
+          </div>
+
+          <h3>Ubicación</h3>
+
+          <p>
+            Clínica San Agustín <br />
+            Neuquén Capital <br />
+            San Martín 1355
+
+          </p>
+
+          <span className="welcome-quick-button">
+            Ver ubicación →
+          </span>
+        </a>
+
+        {/* HORARIOS */}
+        <div className="welcome-quick-card welcome-quick-horarios">
+
+          <div className="welcome-quick-icon">
+            <FaClock />
+          </div>
+
+          <h3>Atención</h3>
+
+          <p>
+            Enfermedades Reumatológicas y autoinmunes. <br />
+            Infiltraciones , Capiloroscopia, antención de calidad. <br />
+            
+          </p>
+
+          <Link
+            to="/diagnosticos"
+            className="welcome-quick-button"
+          >
+            Reumatología →
+          </Link>
+
+        </div>
+
+        {/* WHATSAPP */}
+        <a
+          href="https://wa.me/5492995095471"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="welcome-quick-card welcome-quick-whatsapp"
+        >
+          <div className="welcome-quick-icon">
+            <FaWhatsapp />
+          </div>
+
+          <h3>WhatsApp</h3>
+
+          <p>
+            Contacto directo Turnos y SobreTurnos
+          </p>
+
+          <span className="welcome-quick-button">
+            Escribir ahora →
+          </span>
+        </a>
+
+      </div>
+
+    </div>
+
+    <div className="container">
 
         {/* TITULO */}
         <h1 className="title-general welcome-title text-center py-3 ly-text text-uppercase">
@@ -76,76 +179,40 @@ function Welcome() {
   </span>
 </p>
 
-<div className="welcome-cta-group">
+{/* BENEFICIOS */}
+<motion.div
+  className="welcome-benefits-inline"
+  initial={{ opacity: 0, y: 25 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.6 }}
+  viewport={{ once: true }}
+>
+  <div className="benefits benefits-line">
+    {benefits.map((item, index) => (
+      <motion.div
+        key={index}
+        className="benefit-item benefit-item-line"
+        initial={{ opacity: 0, y: 15 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ delay: index * 0.12 }}
+        viewport={{ once: true }}
+      >
+        <span className="benefit-icon">
+          {item.icon}
+        </span>
 
-  <Link to="/servicios" className="welcome-cta welcome-cta-primary">
-    <span className="welcome-cta-icon">
-      <FaCalendarCheck />
-    </span>
+        <span>{item.text}</span>
+      </motion.div>
+    ))}
+  </div>
+</motion.div>
 
-    <span className="welcome-cta-text">
-      <strong>Solicitar turno</strong>
-      <small>Consulta reumatológica</small>
-    </span>
-  </Link>
-
-  <Link to="/diagnosticos" className="welcome-cta welcome-cta-dark">
-    <span className="welcome-cta-icon">
-      <FaStethoscope />
-    </span>
-
-    <span className="welcome-cta-text">
-      <strong>Diagnósticos</strong>
-      <small>Enfermedades reumatológicas</small>
-    </span>
-  </Link>
-
-  <a
-    href="https://wa.me/5492995095471"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="welcome-cta welcome-cta-whatsapp"
-  >
-    <span className="welcome-cta-icon">
-      <FaWhatsapp />
-    </span>
-
-    <span className="welcome-cta-text">
-      <strong>WhatsApp</strong>
-      <small>Consulta rápida</small>
-    </span>
-  </a>
-
-   <a
-    href="https://maps.app.goo.gl/iJ6E4Vr4gTCNvQXw8"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="welcome-cta welcome-cta-primary"
-  >
-    <span className="welcome-cta-icon">
-      <FaMapMarkerAlt/>
-    </span>
-
-    <span className="welcome-cta-text">
-      <strong>UBICACIÓN</strong>
-      <small>Reumatólogo en Neuquén</small>
-    </span>
-  </a>
-
-  
-
-</div>
           </div>
 
           {/* VIDEO */}
           <div className="col-lg-5 d-flex justify-content-center mt-4 mt-lg-0">
 
             <div className="doctor-video-container">
-
-              <div className="video-badge">
-                <FaPlayCircle className="fs-1 celeste"/>
-                <span>Mensaje del Dr. Reuma</span>
-              </div>
 
               <video
                 className="doctor-video"
@@ -159,45 +226,7 @@ function Welcome() {
 
             </div>
 
-          </div>
-
-          <div className="col-12">
-
-  <motion.div
-    initial={{ opacity: 0, y: 40 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.6 }}
-    viewport={{ once: true }}
-  >
-
-    <div className="benefits benefits-line mt-4">
-
-      {benefits.map((item, index) => (
-
-        <motion.div
-          key={index}
-          className="benefit-item benefit-item-line"
-          initial={{ opacity: 0, x: -20 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ delay: index * 0.15 }}
-          viewport={{ once: true }}
-        >
-
-          <span className="benefit-icon">
-            {item.icon}
-          </span>
-
-          <span>{item.text}</span>
-
-        </motion.div>
-
-      ))}
-
-    </div>
-
-  </motion.div>
-
-</div>          
+          </div>        
         </div>
 
         {/* SLIDER PACIENTES */}
