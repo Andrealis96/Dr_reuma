@@ -124,50 +124,173 @@ const [eventos, setEventos] = useState([]);
   const [citaComprobanteActual, setCitaComprobanteActual] = useState(null);
 
   // ================= FIRESTORE =================
-  const notificarNuevaCitaWeb = (cita) => {
-  const nombre = capitalizarNombre(cita.nombre || "Paciente");
-  const fecha = cita.fecha || "-";
-  const hora = cita.hora || "-";
+const notificarNuevaCitaWeb = (cita) => {
+
+  if (!cita?.id) return;
+
+  const STORAGE_KEY = "drreuma_citas_web_notificadas";
+
+  // ==========================================
+  // LEER CITAS QUE YA FUERON NOTIFICADAS
+  // ==========================================
+
+  let citasNotificadas = [];
+
+  try {
+    citasNotificadas = JSON.parse(
+      localStorage.getItem(STORAGE_KEY) || "[]"
+    );
+  } catch (error) {
+    citasNotificadas = [];
+  }
+
+
+  // ==========================================
+  // SI YA LA NOTIFICAMOS, NO HACER NADA
+  // ==========================================
+
+  if (citasNotificadas.includes(cita.id)) {
+    return;
+  }
+
+
+  // ==========================================
+  // MARCARLA COMO NOTIFICADA ANTES DE SONAR
+  // ==========================================
+
+  const nuevasNotificadas = [
+    ...citasNotificadas,
+    cita.id
+  ];
+
+  // Dejamos máximo las últimas 300
+  const listaFinal =
+    nuevasNotificadas.slice(-300);
+
+  try {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(listaFinal)
+    );
+  } catch (error) {
+    console.warn(
+      "No se pudo guardar la notificación:",
+      error
+    );
+  }
+
+
+  // ==========================================
+  // DATOS DE LA CITA
+  // ==========================================
+
+  const nombre =
+    capitalizarNombre(
+      cita.nombre || "Paciente"
+    );
+
+  const fecha =
+    cita.fecha || "-";
+
+  const hora =
+    cita.hora || "-";
+
+
+  // ==========================================
+  // TOAST
+  // ==========================================
 
   Swal.fire({
     toast: true,
     position: "top-end",
     icon: "info",
+
     title: "Nueva cita web",
+
     html: `
       <strong>${nombre}</strong><br/>
       ${fecha} · ${hora} hs
     `,
+
     showConfirmButton: false,
+
     timer: 7000,
+
     timerProgressBar: true
   });
 
+
+  // ==========================================
+  // SONIDO
+  // ==========================================
+
   try {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    const audioCtx = new AudioContext();
-    const oscillator = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
+
+    const AudioContext =
+      window.AudioContext ||
+      window.webkitAudioContext;
+
+    const audioCtx =
+      new AudioContext();
+
+    const oscillator =
+      audioCtx.createOscillator();
+
+    const gainNode =
+      audioCtx.createGain();
+
 
     oscillator.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
 
-    oscillator.frequency.value = 880;
-    gainNode.gain.value = 0.06;
+    gainNode.connect(
+      audioCtx.destination
+    );
+
+
+    oscillator.frequency.value =
+      880;
+
+    gainNode.gain.value =
+      0.06;
+
 
     oscillator.start();
-    oscillator.stop(audioCtx.currentTime + 0.18);
+
+    oscillator.stop(
+      audioCtx.currentTime + 0.18
+    );
+
+
   } catch (error) {
-    console.warn("No se pudo reproducir sonido de notificación:", error);
+
+    console.warn(
+      "No se pudo reproducir sonido de notificación:",
+      error
+    );
+
   }
 
-  if ("Notification" in window && Notification.permission === "granted") {
-    new Notification("Nueva cita web - Dr. Reuma", {
-      body: `${nombre} - ${fecha} ${hora} hs`
-    });
+
+  // ==========================================
+  // NOTIFICACIÓN DEL NAVEGADOR
+  // ==========================================
+
+  if (
+    "Notification" in window &&
+    Notification.permission === "granted"
+  ) {
+
+    new Notification(
+      "Nueva cita web - Dr. Reuma",
+      {
+        body:
+          `${nombre} - ${fecha} ${hora} hs`
+      }
+    );
+
   }
+
 };
-
 useEffect(() => {
   if ("Notification" in window && Notification.permission === "default") {
     Notification.requestPermission();
