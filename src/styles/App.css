@@ -14986,3 +14986,2172 @@ transform:scale(1.07);
   }
 
 }
+
+/* =========================================================
+   HISTORIA PACIENTE
+   FILA DE 3 TARJETAS
+========================================================= */
+
+.historia-info-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.65fr)
+    minmax(190px, 0.65fr)
+    minmax(280px, 0.9fr);
+
+  gap: 18px;
+
+  align-items: stretch;
+}
+
+
+/* =========================================================
+   TARJETA GENERAL
+========================================================= */
+
+.historia-info-card {
+  background: rgba(255, 255, 255, 0.94);
+
+  border-radius: 22px;
+
+  border: 1px solid rgba(7, 156, 175, 0.08);
+
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.055);
+
+  padding: 20px;
+
+  min-width: 0;
+}
+
+
+/* =========================================================
+   PACIENTE
+========================================================= */
+
+.historia-info-paciente {
+  border-left:
+    6px solid #079caf;
+
+  display: flex;
+  align-items: center;
+}
+
+
+.historia-info-paciente
+.historia-paciente-info-main {
+  width: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 22px;
+}
+
+
+.historia-info-paciente
+.historia-paciente-avatar {
+  width: 112px;
+  height: 112px;
+
+  flex-shrink: 0;
+
+  object-fit: cover;
+
+  border-radius: 22px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 5px 18px rgba(0, 0, 0, 0.08);
+}
+
+
+.historia-paciente-datos {
+  flex: 1;
+
+  min-width: 0;
+}
+
+
+.historia-paciente-datos h3 {
+  margin:
+    0
+    0
+    13px
+    0;
+
+  font-size: 25px;
+
+  font-weight: 900;
+
+  color: #111111;
+}
+
+
+/* GRID DATOS */
+
+.historia-info-paciente
+.historia-paciente-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(90px, 1fr));
+
+  gap: 10px;
+}
+
+
+.historia-info-paciente
+.historia-paciente-grid > div {
+  background: #eaf7f9;
+
+  border-radius: 16px;
+
+  padding: 12px 13px;
+
+  min-width: 0;
+}
+
+
+.historia-info-paciente
+.historia-paciente-grid span {
+  display: block;
+
+  margin-bottom: 5px;
+
+  font-size: 11px;
+
+  font-weight: 700;
+
+  color: #66757c;
+}
+
+
+.historia-info-paciente
+.historia-paciente-grid strong {
+  display: block;
+
+  font-size: 13px;
+
+  font-weight: 900;
+
+  color: #111111;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   TÍTULO CARDS DERECHAS
+========================================================= */
+
+.historia-info-card-header {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin-bottom: 14px;
+
+  font-size: 11px;
+
+  font-weight: 900;
+
+  color: #078fa1;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.5px;
+}
+
+
+.historia-info-card-header svg {
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   ACCESOS RÁPIDOS
+========================================================= */
+
+.historia-info-accesos {
+  display: flex;
+
+  flex-direction: column;
+}
+
+
+.historia-accesos-lista {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+
+.historia-acceso-nuevo {
+  display: flex;
+
+  align-items: center;
+
+  gap: 9px;
+
+  width: 100%;
+
+  min-height: 43px;
+
+  padding:
+    9px
+    11px;
+
+  border-radius: 12px;
+
+  border:
+    1px solid #bde5e9;
+
+  background: #e9f8fa;
+
+  color: #078fa1 !important;
+
+  font-size: 11px;
+
+  font-weight: 800;
+
+  text-decoration: none !important;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.historia-acceso-nuevo > svg:first-child {
+  flex-shrink: 0;
+
+  font-size: 14px;
+}
+
+
+.historia-acceso-flecha {
+  margin-left: auto;
+
+  flex-shrink: 0;
+
+  font-size: 9px;
+
+  opacity: 0.6;
+}
+
+
+.historia-acceso-nuevo:hover {
+  background: #079caf;
+
+  color: #ffffff !important;
+
+  transform:
+    translateY(-2px);
+
+  box-shadow:
+    0 6px 15px
+    rgba(7, 156, 175, 0.2);
+}
+
+
+/* =========================================================
+   INTERNOS
+========================================================= */
+
+.historia-info-internos {
+  display: flex;
+
+  flex-direction: column;
+}
+
+
+.historia-internos-lista {
+  display: flex;
+
+  flex-direction: column;
+}
+
+
+.historia-interno-fila {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 12px;
+
+  padding:
+    7px
+    4px;
+
+  border-bottom:
+    1px solid #edf2f3;
+}
+
+
+.historia-interno-fila:last-child {
+  border-bottom: none;
+}
+
+
+.historia-interno-fila span {
+  min-width: 0;
+
+  font-size: 10.5px;
+
+  font-weight: 600;
+
+  color: #4b5563;
+}
+
+
+.historia-interno-fila strong {
+  flex-shrink: 0;
+
+  padding:
+    4px
+    7px;
+
+  border-radius: 7px;
+
+  background: #e7f7f9;
+
+  color: #078fa1;
+
+  font-size: 11px;
+
+  font-weight: 900;
+}
+
+
+/* =========================================================
+   NOTEBOOK / TABLET GRANDE
+========================================================= */
+
+@media (max-width: 1150px) {
+
+  .historia-info-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+
+  .historia-info-paciente {
+    grid-column:
+      1 / -1;
+  }
+
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .historia-info-paciente
+  .historia-paciente-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+
+/* =========================================================
+   CELULAR
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .historia-info-grid {
+    grid-template-columns: 1fr;
+
+    gap: 12px;
+  }
+
+
+  .historia-info-paciente {
+    grid-column: auto;
+
+    padding: 16px;
+  }
+
+
+  .historia-info-paciente
+  .historia-paciente-info-main {
+    align-items: flex-start;
+
+    gap: 14px;
+  }
+
+
+  .historia-info-paciente
+  .historia-paciente-avatar {
+    width: 74px;
+    height: 74px;
+
+    border-radius: 16px;
+  }
+
+
+  .historia-paciente-datos h3 {
+    font-size: 18px;
+
+    line-height: 1.15;
+  }
+
+
+  .historia-info-paciente
+  .historia-paciente-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    gap: 7px;
+  }
+
+
+  .historia-info-paciente
+  .historia-paciente-grid > div {
+    padding: 9px 10px;
+
+    border-radius: 12px;
+  }
+
+
+  .historia-info-card {
+    border-radius: 17px;
+
+    padding: 15px;
+  }
+
+
+  .historia-accesos-lista {
+    display: grid;
+
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+
+/* =========================================================
+   CELULAR PEQUEÑO
+========================================================= */
+
+@media (max-width: 480px) {
+
+  .historia-info-paciente
+  .historia-paciente-info-main {
+    flex-direction: column;
+  }
+
+
+  .historia-info-paciente
+  .historia-paciente-avatar {
+    width: 70px;
+    height: 70px;
+  }
+
+
+  .historia-paciente-datos {
+    width: 100%;
+  }
+
+
+  .historia-accesos-lista {
+    grid-template-columns: 1fr;
+  }
+
+
+  .historia-interno-fila span {
+    font-size: 11px;
+  }
+
+}
+
+/* =========================================================
+   HISTORIA PACIENTE - DASHBOARD SUPERIOR
+========================================================= */
+
+.historia-badge-externo {
+  width: fit-content;
+  margin-bottom: 12px;
+}
+
+
+/* =========================================================
+   GRID PRINCIPAL
+========================================================= */
+
+.historia-dashboard-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(520px, 1.7fr)
+    minmax(210px, 0.65fr)
+    minmax(290px, 0.9fr);
+
+  gap: 18px;
+
+  align-items: stretch;
+}
+
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.historia-dashboard-card {
+  min-width: 0;
+
+  background: rgba(255, 255, 255, 0.95);
+
+  border: 1px solid rgba(7, 156, 175, 0.1);
+
+  border-radius: 22px;
+
+  padding: 20px;
+
+  box-shadow:
+    0 8px 25px rgba(0, 0, 0, 0.055);
+}
+
+
+/* =========================================================
+   CARD PACIENTE
+========================================================= */
+
+.historia-dashboard-paciente {
+  display: flex;
+  flex-direction: column;
+
+  border-left: 6px solid #079caf;
+}
+
+
+/* TÍTULO */
+
+.historia-dashboard-paciente-header {
+  margin-bottom: 18px;
+}
+
+.historia-dashboard-paciente-header h1 {
+  margin: 0 0 4px 0;
+
+  color: #08b3cb;
+
+  font-size: clamp(23px, 2vw, 34px);
+
+  line-height: 1.05;
+
+  font-weight: 900;
+}
+
+.historia-dashboard-fecha {
+  margin-bottom: 4px;
+
+  color: #111111;
+
+  font-size: 15px;
+
+  font-weight: 900;
+}
+
+.historia-dashboard-paciente-header p {
+  margin: 0;
+
+  color: #6b7280;
+
+  font-size: 11px;
+
+  font-weight: 500;
+}
+
+
+/* =========================================================
+   DATOS PACIENTE
+========================================================= */
+
+.historia-dashboard-paciente-info {
+  display: flex;
+
+  align-items: center;
+
+  gap: 18px;
+
+  flex: 1;
+}
+
+
+.historia-dashboard-avatar {
+  width: 96px;
+  height: 96px;
+
+  flex-shrink: 0;
+
+  object-fit: cover;
+
+  border-radius: 20px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 5px 18px rgba(0, 0, 0, 0.09);
+}
+
+
+.historia-dashboard-paciente-datos {
+  flex: 1;
+
+  min-width: 0;
+}
+
+
+.historia-dashboard-paciente-datos h3 {
+  margin:
+    0
+    0
+    12px
+    0;
+
+  font-size: 22px;
+
+  line-height: 1.1;
+
+  font-weight: 900;
+
+  color: #111111;
+}
+
+
+.historia-dashboard-datos-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(85px, 1fr));
+
+  gap: 8px;
+}
+
+
+.historia-dashboard-datos-grid > div {
+  min-width: 0;
+
+  padding: 10px 11px;
+
+  border-radius: 14px;
+
+  background: #eaf7f9;
+}
+
+
+.historia-dashboard-datos-grid span {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #647078;
+
+  font-size: 10px;
+
+  font-weight: 700;
+}
+
+
+.historia-dashboard-datos-grid strong {
+  display: block;
+
+  color: #111;
+
+  font-size: 12px;
+
+  font-weight: 900;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   BOTONES DEL PACIENTE
+========================================================= */
+
+.historia-dashboard-acciones {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 9px;
+
+  margin-top: 18px;
+}
+
+
+.historia-dashboard-accion {
+  min-width: 0;
+  min-height: 48px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  padding: 9px 10px;
+
+  border-radius: 13px;
+
+  border: 1px solid #b8e2e7;
+
+  font-size: 10.5px;
+
+  font-weight: 800;
+
+  text-align: center;
+
+  text-decoration: none !important;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+
+.historia-dashboard-accion svg {
+  flex-shrink: 0;
+
+  font-size: 13px;
+}
+
+
+/* AGENDAR */
+
+.historia-dashboard-accion-primary {
+  background: #079caf;
+
+  border-color: #079caf;
+
+  color: white !important;
+}
+
+
+/* HISTORIAS */
+
+.historia-dashboard-accion-secondary {
+  background: #eaf7f9;
+
+  color: #078fa1 !important;
+}
+
+
+/* CONSULTAS */
+
+.historia-dashboard-accion-consultas {
+  flex-direction: row;
+
+  background: #079caf;
+
+  border-color: #079caf;
+
+  color: white;
+}
+
+
+.historia-dashboard-accion-consultas strong {
+  font-size: 16px;
+
+  line-height: 1;
+}
+
+
+.historia-dashboard-accion:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 5px 14px rgba(7, 156, 175, 0.18);
+}
+
+
+/* =========================================================
+   TÍTULO ACCESOS / INTERNOS
+========================================================= */
+
+.historia-dashboard-card-title {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin-bottom: 14px;
+
+  color: #078fa1;
+
+  font-size: 11px;
+
+  font-weight: 900;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.4px;
+}
+
+
+/* =========================================================
+   ACCESOS
+========================================================= */
+
+.historia-dashboard-accesos-lista {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 9px;
+}
+
+
+.historia-dashboard-acceso {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  width: 100%;
+
+  min-height: 42px;
+
+  padding: 9px 10px;
+
+  border: 1px solid #b7e3e8;
+
+  border-radius: 12px;
+
+  background: #eaf8fa;
+
+  color: #078fa1 !important;
+
+  font-size: 10.5px;
+
+  font-weight: 800;
+
+  text-decoration: none !important;
+
+  transition: 0.2s ease;
+}
+
+
+.historia-dashboard-acceso-externo {
+  margin-left: auto;
+
+  font-size: 9px;
+
+  opacity: 0.6;
+}
+
+
+.historia-dashboard-acceso:hover {
+  background: #079caf;
+
+  color: white !important;
+
+  transform: translateY(-2px);
+}
+
+
+/* =========================================================
+   INTERNOS
+========================================================= */
+
+.historia-dashboard-internos-lista {
+  display: flex;
+
+  flex-direction: column;
+}
+
+
+.historia-dashboard-interno {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 12px;
+
+  padding: 7px 3px;
+
+  border-bottom: 1px solid #edf1f2;
+}
+
+
+.historia-dashboard-interno:last-child {
+  border-bottom: none;
+}
+
+
+.historia-dashboard-interno span {
+  color: #4b5563;
+
+  font-size: 10px;
+
+  font-weight: 600;
+}
+
+
+.historia-dashboard-interno strong {
+  flex-shrink: 0;
+
+  padding: 4px 7px;
+
+  border-radius: 7px;
+
+  background: #e6f7f9;
+
+  color: #078fa1;
+
+  font-size: 10px;
+
+  font-weight: 900;
+}
+
+
+/* =========================================================
+   NOTEBOOK / TABLET
+========================================================= */
+
+@media (max-width: 1150px) {
+
+  .historia-dashboard-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+
+  .historia-dashboard-paciente {
+    grid-column: 1 / -1;
+  }
+
+}
+
+
+/* =========================================================
+   CELULAR
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .historia-dashboard-grid {
+    grid-template-columns: 1fr;
+
+    gap: 12px;
+  }
+
+
+  .historia-dashboard-paciente {
+    grid-column: auto;
+  }
+
+
+  .historia-dashboard-card {
+    padding: 16px;
+
+    border-radius: 17px;
+  }
+
+
+  .historia-dashboard-paciente-header h1 {
+    font-size: 23px;
+  }
+
+
+  .historia-dashboard-paciente-info {
+    align-items: flex-start;
+  }
+
+
+  .historia-dashboard-avatar {
+    width: 72px;
+    height: 72px;
+
+    border-radius: 15px;
+  }
+
+
+  .historia-dashboard-paciente-datos h3 {
+    font-size: 17px;
+  }
+
+
+  .historia-dashboard-datos-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+
+  .historia-dashboard-acciones {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+
+}
+
+
+/* =========================================================
+   CELULAR PEQUEÑO
+========================================================= */
+
+@media (max-width: 500px) {
+
+  .historia-dashboard-paciente-info {
+    flex-direction: column;
+  }
+
+
+  .historia-dashboard-paciente-datos {
+    width: 100%;
+  }
+
+
+  .historia-dashboard-acciones {
+    grid-template-columns: 1fr;
+  }
+
+
+  .historia-dashboard-accion {
+    min-height: 44px;
+
+    justify-content: flex-start;
+  }
+
+}
+
+/* =========================================================
+   HISTORIA CLÍNICA
+   CARD PRINCIPAL DEL PACIENTE
+========================================================= */
+
+.historia-resumen-superior {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto;
+
+  gap: 25px;
+
+  align-items: stretch;
+
+  padding: 24px;
+
+  background: rgba(255, 255, 255, 0.96);
+
+  border: 1px solid rgba(7, 156, 175, 0.1);
+
+  border-left: 6px solid #079caf;
+
+  border-radius: 22px;
+
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.055);
+}
+
+
+/* =========================================================
+   TÍTULO
+========================================================= */
+
+.historia-resumen-titulo {
+  margin-bottom: 20px;
+}
+
+.historia-resumen-titulo h1 {
+  margin: 0 0 5px 0;
+
+  color: #08afc6;
+
+  font-size: clamp(26px, 2.2vw, 36px);
+
+  line-height: 1.05;
+
+  font-weight: 900;
+}
+
+.historia-resumen-titulo > strong {
+  display: block;
+
+  color: #111;
+
+  font-size: 15px;
+
+  font-weight: 900;
+}
+
+.historia-resumen-titulo p {
+  margin: 5px 0 0 0;
+
+  color: #667078;
+
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   DATOS DEL PACIENTE
+========================================================= */
+
+.historia-resumen-datos {
+  display: flex;
+
+  align-items: center;
+
+  gap: 20px;
+}
+
+.historia-resumen-avatar {
+  width: 100px;
+  height: 100px;
+
+  flex-shrink: 0;
+
+  object-fit: cover;
+
+  border-radius: 20px;
+
+  background: #fff;
+
+  box-shadow:
+    0 5px 18px rgba(0, 0, 0, 0.09);
+}
+
+.historia-resumen-datos-contenido {
+  flex: 1;
+
+  min-width: 0;
+}
+
+.historia-resumen-datos-contenido h3 {
+  margin: 0 0 13px 0;
+
+  color: #111;
+
+  font-size: 24px;
+
+  font-weight: 900;
+}
+
+.historia-resumen-datos-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(100px, 1fr));
+
+  gap: 9px;
+}
+
+.historia-resumen-datos-grid > div {
+  min-width: 0;
+
+  padding: 11px 12px;
+
+  background: #eaf7f9;
+
+  border-radius: 14px;
+}
+
+.historia-resumen-datos-grid span {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #68777d;
+
+  font-size: 11px;
+
+  font-weight: 700;
+}
+
+.historia-resumen-datos-grid strong {
+  display: block;
+
+  color: #111;
+
+  font-size: 13px;
+
+  font-weight: 900;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   BOTONES DERECHA
+========================================================= */
+
+.historia-resumen-acciones {
+  width: 350px;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 10px;
+
+  align-self: center;
+}
+
+.historia-resumen-accion {
+  min-height: 90px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  padding: 12px 9px;
+
+  border-radius: 18px;
+
+  border: 1px solid #b8e2e7;
+
+  font-size: 11px;
+
+  font-weight: 800;
+
+  text-align: center;
+
+  text-decoration: none !important;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.historia-resumen-accion svg {
+  font-size: 16px;
+}
+
+.historia-resumen-accion-principal,
+.historia-resumen-accion-consultas {
+  background: #079caf;
+
+  border-color: #079caf;
+
+  color: white !important;
+}
+
+.historia-resumen-accion-secundaria {
+  background: #eaf7f9;
+
+  color: #078fa1 !important;
+}
+
+.historia-resumen-accion-consultas strong {
+  font-size: 25px;
+
+  line-height: 1;
+}
+
+.historia-resumen-accion:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 7px 18px rgba(7, 156, 175, 0.18);
+}
+
+
+/* =========================================================
+   FILA INFERIOR
+========================================================= */
+
+.historia-utilidades-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(240px, 0.55fr)
+    minmax(0, 1.45fr);
+
+  gap: 16px;
+
+  align-items: stretch;
+}
+
+
+/* =========================================================
+   CARDS INFERIORES
+========================================================= */
+
+.historia-utilidad-card {
+  min-width: 0;
+
+  padding: 18px;
+
+  background: rgba(255, 255, 255, 0.96);
+
+  border: 1px solid rgba(7, 156, 175, 0.1);
+
+  border-radius: 20px;
+
+  box-shadow:
+    0 7px 20px rgba(0, 0, 0, 0.05);
+}
+
+.historia-utilidad-titulo {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin-bottom: 14px;
+
+  color: #078fa1;
+
+  font-size: 11px;
+
+  font-weight: 900;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.4px;
+}
+
+
+/* =========================================================
+   ACCESOS RÁPIDOS
+========================================================= */
+
+.historia-utilidad-accesos-lista {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+.historia-utilidad-acceso {
+  min-height: 46px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 9px;
+
+  padding: 10px 12px;
+
+  border: 1px solid #b8e2e7;
+
+  border-radius: 12px;
+
+  background: #eaf8fa;
+
+  color: #078fa1 !important;
+
+  font-size: 11px;
+
+  font-weight: 800;
+
+  text-decoration: none !important;
+
+  transition: 0.2s ease;
+}
+
+.historia-utilidad-externo {
+  margin-left: auto;
+
+  font-size: 9px;
+
+  opacity: 0.6;
+}
+
+.historia-utilidad-acceso:hover {
+  background: #079caf;
+
+  color: white !important;
+
+  transform: translateY(-2px);
+}
+
+
+/* =========================================================
+   INTERNOS - DOS POR FILA
+========================================================= */
+
+.historia-internos-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 8px 12px;
+}
+
+.historia-interno-card {
+  min-width: 0;
+
+  min-height: 42px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 10px;
+
+  padding: 8px 10px;
+
+  background: #f7fbfc;
+
+  border: 1px solid #e3eff1;
+
+  border-radius: 10px;
+}
+
+.historia-interno-card span {
+  min-width: 0;
+
+  color: #4b5563;
+
+  font-size: 10.5px;
+
+  font-weight: 600;
+
+  line-height: 1.2;
+}
+
+.historia-interno-card strong {
+  flex-shrink: 0;
+
+  padding: 4px 7px;
+
+  background: #e1f5f7;
+
+  border-radius: 7px;
+
+  color: #078fa1;
+
+  font-size: 11px;
+
+  font-weight: 900;
+}
+
+
+/* =========================================================
+   NOTEBOOK
+========================================================= */
+
+@media (max-width: 1150px) {
+
+  .historia-resumen-superior {
+    grid-template-columns: 1fr;
+  }
+
+  .historia-resumen-acciones {
+    width: 100%;
+
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+
+  .historia-resumen-accion {
+    min-height: 58px;
+
+    flex-direction: row;
+  }
+
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .historia-resumen-datos-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .historia-utilidades-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+
+/* =========================================================
+   CELULAR
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .historia-resumen-superior {
+    padding: 17px;
+
+    border-radius: 17px;
+  }
+
+  .historia-resumen-titulo h1 {
+    font-size: 23px;
+  }
+
+  .historia-resumen-datos {
+    align-items: flex-start;
+  }
+
+  .historia-resumen-avatar {
+    width: 72px;
+    height: 72px;
+
+    border-radius: 15px;
+  }
+
+  .historia-resumen-datos-contenido h3 {
+    font-size: 18px;
+  }
+
+  .historia-resumen-acciones {
+    gap: 7px;
+  }
+
+  .historia-resumen-accion {
+    min-height: 52px;
+
+    padding: 8px;
+
+    font-size: 10px;
+  }
+
+  .historia-resumen-accion-consultas strong {
+    font-size: 17px;
+  }
+
+  .historia-internos-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+
+/* =========================================================
+   CELULAR PEQUEÑO
+========================================================= */
+
+@media (max-width: 520px) {
+
+  .historia-resumen-datos {
+    flex-direction: column;
+  }
+
+  .historia-resumen-datos-contenido {
+    width: 100%;
+  }
+
+  .historia-resumen-acciones {
+    grid-template-columns: 1fr;
+  }
+
+  .historia-resumen-accion {
+    justify-content: flex-start;
+
+    flex-direction: row;
+  }
+
+  .historia-internos-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+/* =========================================================
+   AJUSTE COMPACTO
+   ACCESOS + INTERNOS
+========================================================= */
+
+
+/* FILA INFERIOR */
+
+.historia-utilidades-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(330px, 0.62fr)
+    minmax(0, 1.38fr);
+
+  gap: 14px;
+
+  align-items: stretch;
+}
+
+
+/* =========================================================
+   CARDS MÁS COMPACTOS
+========================================================= */
+
+.historia-utilidad-card {
+  padding: 14px 16px;
+
+  border-radius: 18px;
+}
+
+
+/* TÍTULOS */
+
+.historia-utilidad-titulo {
+  margin-bottom: 10px;
+
+  font-size: 10.5px;
+}
+
+
+/* =========================================================
+   ACCESOS RÁPIDOS
+   LOS DOS EN UNA SOLA FILA
+========================================================= */
+
+.historia-utilidad-accesos-lista {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 8px;
+}
+
+
+.historia-utilidad-acceso {
+  min-height: 38px;
+
+  padding: 7px 9px;
+
+  border-radius: 10px;
+
+  font-size: 10px;
+
+  gap: 7px;
+}
+
+
+.historia-utilidad-acceso > svg:first-child {
+  flex-shrink: 0;
+
+  font-size: 12px;
+}
+
+
+.historia-utilidad-externo {
+  font-size: 8px;
+}
+
+
+/* =========================================================
+   INTERNOS
+   4 COLUMNAS
+========================================================= */
+
+.historia-internos-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 7px;
+}
+
+
+/* CADA INTERNO */
+
+.historia-interno-card {
+  min-width: 0;
+
+  min-height: 36px;
+
+  padding: 6px 8px;
+
+  gap: 6px;
+
+  border-radius: 9px;
+}
+
+
+.historia-interno-card span {
+  font-size: 9.5px;
+
+  line-height: 1.15;
+
+  font-weight: 600;
+}
+
+
+.historia-interno-card strong {
+  flex-shrink: 0;
+
+  padding: 3px 5px;
+
+  border-radius: 6px;
+
+  font-size: 9.5px;
+}
+
+
+/* =========================================================
+   NOTEBOOK
+========================================================= */
+
+@media (max-width: 1200px) {
+
+  .historia-utilidades-grid {
+    grid-template-columns:
+      minmax(280px, 0.6fr)
+      minmax(0, 1.4fr);
+  }
+
+
+  .historia-internos-grid {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .historia-utilidades-grid {
+    grid-template-columns: 1fr;
+  }
+
+
+  .historia-internos-grid {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+
+}
+
+
+/* =========================================================
+   CELULAR
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .historia-utilidad-card {
+    padding: 13px;
+  }
+
+
+  .historia-utilidad-accesos-lista {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+
+  .historia-internos-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+
+  .historia-interno-card span {
+    font-size: 10px;
+  }
+
+}
+
+
+/* =========================================================
+   CELULAR PEQUEÑO
+========================================================= */
+
+@media (max-width: 480px) {
+
+  .historia-utilidad-accesos-lista {
+    grid-template-columns: 1fr;
+  }
+
+
+  .historia-internos-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+/* =========================================================
+   AJUSTE FINAL
+   ACCESOS ANGOSTO + INTERNOS MÁS AMPLIO
+========================================================= */
+
+
+/* FILA INFERIOR */
+
+.historia-utilidades-grid {
+  display: grid;
+
+  /* Accesos pequeño / Internos grande */
+  grid-template-columns:
+    minmax(210px, 0.32fr)
+    minmax(0, 1.68fr);
+
+  gap: 14px;
+
+  align-items: stretch;
+}
+
+
+/* =========================================================
+   ACCESOS RÁPIDOS
+   SOLO 1 COLUMNA
+========================================================= */
+
+.historia-utilidad-accesos {
+  padding: 14px;
+}
+
+
+.historia-utilidad-accesos-lista {
+  display: grid;
+
+  grid-template-columns: 1fr;
+
+  gap: 8px;
+}
+
+
+.historia-utilidad-acceso {
+  min-height: 39px;
+
+  padding: 8px 10px;
+
+  border-radius: 10px;
+
+  font-size: 11px;
+
+  gap: 7px;
+}
+
+
+.historia-utilidad-acceso > svg:first-child {
+  font-size: 13px;
+}
+
+
+.historia-utilidad-externo {
+  margin-left: auto;
+
+  font-size: 9px;
+}
+
+
+/* =========================================================
+   INTERNOS MÁS ANCHO
+========================================================= */
+
+.historia-utilidad-internos {
+  padding: 14px 16px;
+}
+
+
+/* 4 COLUMNAS EN PC */
+
+.historia-internos-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 8px;
+}
+
+
+/* CADA INTERNO */
+
+.historia-interno-card {
+  min-width: 0;
+
+  min-height: 39px;
+
+  padding: 7px 9px;
+
+  gap: 8px;
+
+  border-radius: 9px;
+}
+
+
+/* TEXTO MÁS GRANDE */
+
+.historia-interno-card span {
+  font-size: 10.8px;
+
+  line-height: 1.2;
+
+  font-weight: 600;
+
+  color: #46545b;
+}
+
+
+/* NÚMERO MÁS GRANDE */
+
+.historia-interno-card strong {
+  flex-shrink: 0;
+
+  padding: 4px 7px;
+
+  border-radius: 7px;
+
+  font-size: 10.8px;
+
+  font-weight: 900;
+}
+
+
+/* TÍTULOS */
+
+.historia-utilidad-titulo {
+  margin-bottom: 10px;
+
+  font-size: 11px;
+}
+
+
+/* =========================================================
+   NOTEBOOK
+========================================================= */
+
+@media (max-width: 1150px) {
+
+  .historia-utilidades-grid {
+    grid-template-columns:
+      minmax(200px, 0.35fr)
+      minmax(0, 1.65fr);
+  }
+
+
+  .historia-internos-grid {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .historia-utilidades-grid {
+    grid-template-columns: 1fr;
+  }
+
+
+  .historia-utilidad-accesos-lista {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+
+  .historia-internos-grid {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+
+}
+
+
+/* =========================================================
+   CELULAR
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .historia-utilidad-accesos-lista {
+    grid-template-columns: 1fr;
+  }
+
+
+  .historia-internos-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+
+  .historia-interno-card span {
+    font-size: 11px;
+  }
+
+
+  .historia-interno-card strong {
+    font-size: 11px;
+  }
+
+}
+
+
+/* CELULAR PEQUEÑO */
+
+@media (max-width: 480px) {
+
+  .historia-internos-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+/* =========================================================
+   MAYOR CONTRASTE / LEGIBILIDAD
+========================================================= */
+
+
+/* =========================================================
+   DATOS DEL PACIENTE
+========================================================= */
+
+/* Edad, DNI, Nacimiento, Obra social */
+.historia-resumen-datos-grid span {
+  color: #111111 !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+}
+
+/* Valores */
+.historia-resumen-datos-grid strong {
+  color: #000000 !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+}
+
+
+/* =========================================================
+   ACCESOS RÁPIDOS
+========================================================= */
+
+.historia-utilidad-acceso {
+  color: #000000 !important;
+
+  font-size: 11.5px !important;
+
+  font-weight: 800 !important;
+}
+
+/* Mantener iconos celestes */
+.historia-utilidad-acceso > svg {
+  color: #079caf !important;
+}
+
+/* Flechita externa */
+.historia-utilidad-externo {
+  color: #079caf !important;
+}
+
+
+/* Al pasar el mouse */
+.historia-utilidad-acceso:hover {
+  background: #079caf !important;
+  color: #ffffff !important;
+}
+
+.historia-utilidad-acceso:hover svg {
+  color: #ffffff !important;
+}
+
+
+/* =========================================================
+   INTERNOS CLÍNICA
+========================================================= */
+
+/* Nombre del sector */
+.historia-interno-card span {
+  color: #000000 !important;
+
+  font-size: 11.5px !important;
+
+  font-weight: 700 !important;
+
+  line-height: 1.2;
+}
+
+
+/* NÚMERO DE INTERNO */
+.historia-interno-card strong {
+  color: #000000 !important;
+
+  font-size: 12px !important;
+
+  font-weight: 900 !important;
+
+  background: #dff4f6 !important;
+}
+
+
+/* =========================================================
+   TÍTULOS
+========================================================= */
+
+.historia-utilidad-titulo {
+  color: #078fa1 !important;
+
+  font-size: 11.5px !important;
+
+  font-weight: 900 !important;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .historia-interno-card span {
+    font-size: 12px !important;
+  }
+
+  .historia-interno-card strong {
+    font-size: 12px !important;
+  }
+
+  .historia-utilidad-acceso {
+    font-size: 12px !important;
+  }
+
+  .historia-resumen-datos-grid span {
+    font-size: 11px !important;
+  }
+
+  .historia-resumen-datos-grid strong {
+    font-size: 13px !important;
+  }
+
+}

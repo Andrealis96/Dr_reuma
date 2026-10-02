@@ -24,7 +24,11 @@ import {
   FaPencilAlt,
   FaTimes,
   FaCalendarAlt,
-  FaFolderOpen
+  FaFolderOpen,
+  FaFlask,
+  FaXRay,
+  FaExternalLinkAlt,
+  FaPhoneAlt
 } from "react-icons/fa";
 
 import jsPDF from "jspdf";
@@ -1498,119 +1502,101 @@ const cantidadConsultas = consultas.length;
   </div>
 ) : (
   <div className="container-fluid historia-paciente-container py-4 mb-5">
-          {/* HEADER */}
-          <div className="historia-paciente-hero">
-  <div className="historia-paciente-hero-texto">
-    <div className="historia-paciente-badge">
-      <FaFilePdf />
-      <span>Historia clínica digital</span>
-    </div>
 
-    <h1 className="subtitle-general text-start mb-2">
-      <span className="subtitle-celeste">HISTORIA CLÍNICA</span>{" "}
-      <span className="subtitle-celeste">DEL PACIENTE</span>
-    </h1>
+  {/* =====================================================
+    HISTORIA CLÍNICA DIGITAL
+===================================================== */}
 
-    <div className="historia-paciente-fecha-hoy">
-      {fechaHoyHistoriaPacienteTexto.toUpperCase()}
-    </div>
-
-    <p className="historia-paciente-subtitle">
-      Registro evolutivo, plantillas médicas, diagnósticos y generación de PDF.
-    </p>
-  </div>
-
-  <div className="historia-paciente-hero-actions">
-
- <Link
-  to="/admin/citas"
-  className="historia-header-action historia-header-agenda"
-  onClick={async (e) => {
-    e.preventDefault();
-
-    const puedeSalir = await confirmarSalidaConCambios();
-
-    if (puedeSalir) {
-      navigate("/admin/citas");
-    }
-  }}
->
-  <FaCalendarAlt />
-  Agendar cita
-</Link>
-
-<Link
-  to="/admin/historias"
-  className="historia-header-action historia-header-volver"
-  onClick={async (e) => {
-    e.preventDefault();
-
-    const puedeSalir = await confirmarSalidaConCambios();
-
-    if (puedeSalir) {
-      navigate("/admin/historias");
-    }
-  }}
->
-  <FaFolderOpen />
-  Historias clínicas
-</Link>
-
-  <button
-    type="button"
-    className="historia-paciente-action-card historia-paciente-action-counter"
-    onClick={irAConsultasRegistradas}
-    title="Ver consultas registradas"
-  >
-    <strong>{cantidadConsultas}</strong>
-    <span>Consultas</span>
-  </button>
-
+<div className="historia-paciente-badge historia-badge-externo">
+  <FaFilePdf />
+  <span>Historia clínica digital</span>
 </div>
 
-</div>
-<br />
+{/* =====================================================
+    CARD PRINCIPAL DEL PACIENTE
+===================================================== */}
 
-         {/* CARD PACIENTE */}
-<div className="historia-paciente-card historia-paciente-card-con-accesos mb-4">
+<div className="historia-resumen-superior mb-3">
 
-  {/* DATOS DEL PACIENTE */}
-  <div className="historia-paciente-info-main">
 
-    <img
-      src={obtenerIconoSexo()}
-      alt="usuario"
-      className="historia-paciente-avatar"
-    />
+  {/* INFORMACIÓN DEL PACIENTE */}
 
-    <div>
+  <div className="historia-resumen-contenido">
 
-      <h3>{paciente.nombre}</h3>
+    <div className="historia-resumen-titulo">
 
-      <div className="historia-paciente-grid">
+      <h1>
+        HISTORIA CLÍNICA DEL PACIENTE
+      </h1>
 
-        <div>
-          <span>Edad</span>
-          <strong>
-            {calcularEdad(paciente.fechaNacimiento)} años
-          </strong>
-        </div>
+      <strong>
+        {fechaHoyHistoriaPacienteTexto.toUpperCase()}
+      </strong>
 
-        <div>
-          <span>DNI</span>
-          <strong>{paciente.dni}</strong>
-        </div>
+      <p>
+        Registro evolutivo, diagnósticos y documentación médica.
+      </p>
 
-        <div>
-          <span>Nacimiento</span>
-          <strong>
-            {formatearFecha(paciente.fechaNacimiento)}
-          </strong>
-        </div>
+    </div>
 
-        <div>
-          <span>Obra social</span>
-          <strong>{paciente.obraSocial}</strong>
+
+    <div className="historia-resumen-datos">
+
+      <img
+        src={obtenerIconoSexo()}
+        alt="usuario"
+        className="historia-resumen-avatar"
+      />
+
+
+      <div className="historia-resumen-datos-contenido">
+
+        <h3>
+          {paciente.nombre}
+        </h3>
+
+
+        <div className="historia-resumen-datos-grid">
+
+          <div>
+            <span>Edad</span>
+
+            <strong>
+              {calcularEdad(
+                paciente.fechaNacimiento
+              )} años
+            </strong>
+          </div>
+
+
+          <div>
+            <span>DNI</span>
+
+            <strong>
+              {paciente.dni}
+            </strong>
+          </div>
+
+
+          <div>
+            <span>Nacimiento</span>
+
+            <strong>
+              {formatearFecha(
+                paciente.fechaNacimiento
+              )}
+            </strong>
+          </div>
+
+
+          <div>
+            <span>Obra social</span>
+
+            <strong>
+              {paciente.obraSocial}
+            </strong>
+          </div>
+
         </div>
 
       </div>
@@ -1620,30 +1606,230 @@ const cantidadConsultas = consultas.length;
   </div>
 
 
-  {/* ACCESOS RÁPIDOS */}
-  <div className="historia-paciente-accesos">
 
-    <span className="historia-paciente-accesos-titulo">
-      Accesos rápidos
-    </span>
+  {/* BOTONES DEL LADO DERECHO */}
 
-    <a
-      href="https://pacientes.lebensalud.com/"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="historia-paciente-acceso-link"
-      title="Abrir portal de Leben Salud"
+  <div className="historia-resumen-acciones">
+
+
+    <Link
+      to="/admin/citas"
+      className="historia-resumen-accion historia-resumen-accion-principal"
+      onClick={async (e) => {
+
+        e.preventDefault();
+
+        const puedeSalir =
+          await confirmarSalidaConCambios();
+
+        if (puedeSalir) {
+          navigate("/admin/citas");
+        }
+
+      }}
     >
 
-      <span className="historia-paciente-acceso-icono">
-        🧪
-      </span>
+      <FaCalendarAlt />
+
       <span>
-        LEBEN SALUD
+        Agendar cita
       </span>
-    </a>
+
+    </Link>
+
+
+
+    <Link
+      to="/admin/historias"
+      className="historia-resumen-accion historia-resumen-accion-secundaria"
+      onClick={async (e) => {
+
+        e.preventDefault();
+
+        const puedeSalir =
+          await confirmarSalidaConCambios();
+
+        if (puedeSalir) {
+          navigate("/admin/historias");
+        }
+
+      }}
+    >
+
+      <FaFolderOpen />
+
+      <span>
+        Historias clínicas
+      </span>
+
+    </Link>
+
+
+
+    <button
+      type="button"
+      className="historia-resumen-accion historia-resumen-accion-consultas"
+      onClick={irAConsultasRegistradas}
+      title="Ver consultas registradas"
+    >
+
+      <strong>
+        {cantidadConsultas}
+      </strong>
+
+      <span>
+        Consultas
+      </span>
+
+    </button>
 
   </div>
+
+</div>
+
+
+
+{/* =====================================================
+    FILA INFERIOR
+    ACCESOS + INTERNOS
+===================================================== */}
+
+<div className="historia-utilidades-grid mb-4">
+
+
+  {/* =================================================
+      ACCESOS RÁPIDOS
+  ================================================= */}
+
+  <div className="historia-utilidad-card historia-utilidad-accesos">
+
+    <div className="historia-utilidad-titulo">
+
+      <FaExternalLinkAlt />
+
+      <span>
+        Accesos rápidos
+      </span>
+
+    </div>
+
+
+    <div className="historia-utilidad-accesos-lista">
+
+
+      <a
+        href="https://pacientes.lebensalud.com/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="historia-utilidad-acceso"
+      >
+
+        <FaFlask />
+
+        <span>
+          Leben Salud
+        </span>
+
+        <FaExternalLinkAlt
+          className="historia-utilidad-externo"
+        />
+
+      </a>
+
+
+
+      <a
+        href="https://imagenes.clinicasanagustin.com.ar/viewer/index.php"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="historia-utilidad-acceso"
+      >
+
+        <FaXRay />
+
+        <span>
+          Img. San Agustín
+        </span>
+
+        <FaExternalLinkAlt
+          className="historia-utilidad-externo"
+        />
+
+      </a>
+
+
+    </div>
+
+  </div>
+
+
+
+  {/* =================================================
+      INTERNOS CLÍNICA
+  ================================================= */}
+
+  <div className="historia-utilidad-card historia-utilidad-internos">
+
+    <div className="historia-utilidad-titulo">
+
+      <FaPhoneAlt />
+
+      <span>
+        Internos Clínica
+      </span>
+
+    </div>
+
+
+    <div className="historia-internos-grid">
+
+
+      <div className="historia-interno-card">
+        <span>Admisión general</span>
+        <strong>1009</strong>
+      </div>
+
+
+      <div className="historia-interno-card">
+        <span>Informe de imágenes</span>
+        <strong>1006</strong>
+      </div>
+
+
+      <div className="historia-interno-card">
+        <span>Admisión de imágenes</span>
+        <strong>1014</strong>
+      </div>
+
+
+      <div className="historia-interno-card">
+        <span>Admisión de laboratorio</span>
+        <strong>1041</strong>
+      </div>
+
+
+      <div className="historia-interno-card">
+        <span>Sala médicos internación</span>
+        <strong>1021</strong>
+      </div>
+
+
+      <div className="historia-interno-card">
+        <span>Consultorios de guardia</span>
+        <strong>1011 · 1012</strong>
+      </div>
+
+
+      <div className="historia-interno-card">
+        <span>Médicos de terapia</span>
+        <strong>1016</strong>
+      </div>
+
+
+    </div>
+
+  </div>
+
 </div>
 
           {/* NUEVA CONSULTA */}
