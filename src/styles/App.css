@@ -14831,3 +14831,158 @@ transform:scale(1.07);
 .chat-presencia-offline .chat-presencia-punto {
   background: #aab4bd;
 }
+
+/* =========================================================
+   HISTORIA PACIENTE - ACCESOS RÁPIDOS
+========================================================= */
+
+.historia-paciente-card-con-accesos {
+  display: flex !important;
+
+  align-items: center !important;
+  justify-content: space-between !important;
+
+  gap: 28px !important;
+}
+
+
+/* =========================================================
+   CONTENEDOR ACCESOS
+========================================================= */
+
+.historia-paciente-accesos {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+
+  gap: 7px;
+
+  margin-left: auto;
+
+  flex-shrink: 0;
+}
+
+
+/* =========================================================
+   TÍTULO
+========================================================= */
+
+.historia-paciente-accesos-titulo {
+  font-size: 10px;
+
+  font-weight: 800;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.6px;
+
+  color: #718096;
+}
+
+
+/* =========================================================
+   BOTÓN / LINK LEBEN SALUD
+========================================================= */
+
+.historia-paciente-acceso-link {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  min-width: 145px;
+
+  padding: 10px 14px;
+
+  border-radius: 12px;
+
+  background: #e6f7f9;
+
+  border: 1px solid #bce7eb;
+
+  color: #078fa1 !important;
+
+  font-size: 12px;
+
+  font-weight: 800;
+
+  text-decoration: none !important;
+
+  box-shadow:
+    0 3px 10px rgba(0, 0, 0, 0.05);
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+/* HOVER */
+
+.historia-paciente-acceso-link:hover {
+  background: #079caf;
+
+  color: #ffffff !important;
+
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 6px 16px rgba(7, 156, 175, 0.22);
+}
+
+
+/* ICONO */
+
+.historia-paciente-acceso-icono {
+  font-size: 15px;
+
+  line-height: 1;
+}
+
+
+/* FLECHA EXTERNA */
+
+.historia-paciente-acceso-externo {
+  font-size: 13px;
+
+  margin-left: 2px;
+
+  opacity: 0.8;
+}
+
+
+/* =========================================================
+   TABLET / CELULAR
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .historia-paciente-card-con-accesos {
+    flex-direction: column !important;
+
+    align-items: stretch !important;
+
+    gap: 18px !important;
+  }
+
+
+  .historia-paciente-accesos {
+    width: 100%;
+
+    margin-left: 0;
+
+    align-items: flex-start;
+  }
+
+
+  .historia-paciente-acceso-link {
+    width: 100%;
+
+    min-width: 0;
+  }
+
+}

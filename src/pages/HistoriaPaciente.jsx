@@ -1571,48 +1571,80 @@ const cantidadConsultas = consultas.length;
 </div>
 <br />
 
-          {/* CARD PACIENTE */}
-          <div className="historia-paciente-card mb-4">
+         {/* CARD PACIENTE */}
+<div className="historia-paciente-card historia-paciente-card-con-accesos mb-4">
 
-            <div className="historia-paciente-info-main">
+  {/* DATOS DEL PACIENTE */}
+  <div className="historia-paciente-info-main">
 
-              <img
-                src={obtenerIconoSexo()}
-                alt="usuario"
-                className="historia-paciente-avatar"
-              />
+    <img
+      src={obtenerIconoSexo()}
+      alt="usuario"
+      className="historia-paciente-avatar"
+    />
 
-              <div>
-                <h3>{paciente.nombre}</h3>
+    <div>
 
-                <div className="historia-paciente-grid">
+      <h3>{paciente.nombre}</h3>
 
-                  <div>
-                    <span>Edad</span>
-                    <strong>{calcularEdad(paciente.fechaNacimiento)} años</strong>
-                  </div>
+      <div className="historia-paciente-grid">
 
-                  <div>
-                    <span>DNI</span>
-                    <strong>{paciente.dni}</strong>
-                  </div>
+        <div>
+          <span>Edad</span>
+          <strong>
+            {calcularEdad(paciente.fechaNacimiento)} años
+          </strong>
+        </div>
 
-                  <div>
-                    <span>Nacimiento</span>
-                    <strong>{formatearFecha(paciente.fechaNacimiento)}</strong>
-                  </div>
+        <div>
+          <span>DNI</span>
+          <strong>{paciente.dni}</strong>
+        </div>
 
-                  <div>
-                    <span>Obra social</span>
-                    <strong>{paciente.obraSocial}</strong>
-                  </div>
+        <div>
+          <span>Nacimiento</span>
+          <strong>
+            {formatearFecha(paciente.fechaNacimiento)}
+          </strong>
+        </div>
 
-                </div>
-              </div>
+        <div>
+          <span>Obra social</span>
+          <strong>{paciente.obraSocial}</strong>
+        </div>
 
-            </div>
+      </div>
 
-          </div>
+    </div>
+
+  </div>
+
+
+  {/* ACCESOS RÁPIDOS */}
+  <div className="historia-paciente-accesos">
+
+    <span className="historia-paciente-accesos-titulo">
+      Accesos rápidos
+    </span>
+
+    <a
+      href="https://pacientes.lebensalud.com/"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="historia-paciente-acceso-link"
+      title="Abrir portal de Leben Salud"
+    >
+
+      <span className="historia-paciente-acceso-icono">
+        🧪
+      </span>
+      <span>
+        LEBEN SALUD
+      </span>
+    </a>
+
+  </div>
+</div>
 
           {/* NUEVA CONSULTA */}
           <form onSubmit={guardarConsulta}>
