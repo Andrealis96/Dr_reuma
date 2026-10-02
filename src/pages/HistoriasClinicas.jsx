@@ -2340,101 +2340,64 @@ const pacientesFiltrados = useMemo(() => {
     </div>
 
 
-    <div className="historias-internos-lista">
+<div className="historias-internos-lista">
 
+  <div className="historias-interno-fila">
+    <span>Admisión general</span>
+    <strong>1009</strong>
+  </div>
 
-      <div className="historias-interno-fila">
+  <div className="historias-interno-fila">
+    <span>Informe de imágenes</span>
+    <strong>1006</strong>
+  </div>
 
-        <span>
-          Admisión general
-        </span>
+  <div className="historias-interno-fila">
+    <span>Admisión de imágenes</span>
+    <strong>1014</strong>
+  </div>
 
-        <strong>
-          1009
-        </strong>
+  <div className="historias-interno-fila">
+    <span>Bioquímico de laboratorio</span>
+    <strong>1041</strong>
+  </div>
 
-      </div>
+  <div className="historias-interno-fila">
+    <span>Admisión de laboratorio</span>
+    <strong>1031</strong>
+  </div>
 
+  <div className="historias-interno-fila">
+    <span>Sala médicos internación</span>
+    <strong>1021</strong>
+  </div>
 
-      <div className="historias-interno-fila">
+  <div className="historias-interno-fila">
+    <span>Consultorios de guardia</span>
+    <strong>1011 · 1012</strong>
+  </div>
 
-        <span>
-          Informe de imágenes
-        </span>
+  <div className="historias-interno-fila">
+    <span>Médicos de terapia</span>
+    <strong>1016</strong>
+  </div>
 
-        <strong>
-          1006
-        </strong>
+  <div className="historias-interno-fila">
+    <span>Planta baja consultorio</span>
+    <strong>1100</strong>
+  </div>
 
-      </div>
+  <div className="historias-interno-fila">
+    <span>Primer piso consultorio</span>
+    <strong>1110</strong>
+  </div>
 
+  <div className="historias-interno-fila">
+    <span>Cuarto piso consultorio</span>
+    <strong>1140</strong>
+  </div>
 
-      <div className="historias-interno-fila">
-
-        <span>
-          Admisión de imágenes
-        </span>
-
-        <strong>
-          1014
-        </strong>
-
-      </div>
-
-
-      <div className="historias-interno-fila">
-
-        <span>
-          Admisión de laboratorio
-        </span>
-
-        <strong>
-          1041
-        </strong>
-
-      </div>
-
-
-      <div className="historias-interno-fila">
-
-        <span>
-          Sala médicos internación
-        </span>
-
-        <strong>
-          1021
-        </strong>
-
-      </div>
-
-
-      <div className="historias-interno-fila">
-
-        <span>
-          Consultorios de guardia
-        </span>
-
-        <strong>
-          1011 · 1012
-        </strong>
-
-      </div>
-
-
-      <div className="historias-interno-fila">
-
-        <span>
-          Médicos de terapia
-        </span>
-
-        <strong>
-          1016
-        </strong>
-
-      </div>
-
-
-    </div>
+</div>
 
   </div>
 

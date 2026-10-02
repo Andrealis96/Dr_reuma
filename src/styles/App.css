@@ -17425,3 +17425,970 @@ transform:scale(1.07);
 .historias-form-actions {
   margin-top: 14px !important;
 }
+
+/* =========================================================
+   NUEVO DISEÑO HISTORIA PACIENTE
+   IZQUIERDA PACIENTE / DERECHA INTERNOS
+========================================================= */
+
+.historia-nuevo-dashboard {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    335px;
+
+  gap: 16px;
+
+  align-items: stretch;
+}
+
+
+/* =========================================================
+   COLUMNA IZQUIERDA
+========================================================= */
+
+.historia-nuevo-columna-paciente {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 14px;
+}
+
+
+/* =========================================================
+   CARD PACIENTE
+========================================================= */
+
+.historia-nuevo-paciente-card {
+  background: rgba(255, 255, 255, 0.96);
+
+  border: 1px solid rgba(7, 156, 175, 0.12);
+
+  border-left: 6px solid #079caf;
+
+  border-radius: 22px;
+
+  padding: 22px 24px;
+
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.055);
+}
+
+
+/* =========================================================
+   CABECERA PACIENTE
+========================================================= */
+
+.historia-nuevo-paciente-header {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: flex-start;
+
+  gap: 20px;
+
+  margin-bottom: 20px;
+}
+
+
+.historia-nuevo-paciente-header h1 {
+  margin: 0 0 5px 0;
+
+  color: #09abc1;
+
+  font-size: clamp(25px, 2vw, 34px);
+
+  line-height: 1.05;
+
+  font-weight: 900;
+}
+
+
+.historia-nuevo-paciente-header > div > strong {
+  display: block;
+
+  color: #000000;
+
+  font-size: 14px;
+
+  font-weight: 900;
+}
+
+
+.historia-nuevo-paciente-header p {
+  margin: 5px 0 0;
+
+  color: #333333;
+
+  font-size: 11.5px;
+
+  font-weight: 500;
+}
+
+
+/* =========================================================
+   CONSULTAS
+========================================================= */
+
+.historia-nuevo-consultas {
+  width: 92px;
+  min-width: 92px;
+  height: 76px;
+
+  border: 0;
+
+  border-radius: 17px;
+
+  background: #079caf;
+
+  color: #ffffff;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 8px 18px rgba(7, 156, 175, 0.18);
+}
+
+
+.historia-nuevo-consultas strong {
+  font-size: 25px;
+
+  line-height: 1;
+
+  font-weight: 900;
+}
+
+
+.historia-nuevo-consultas span {
+  margin-top: 5px;
+
+  font-size: 10.5px;
+
+  font-weight: 800;
+}
+
+
+/* =========================================================
+   DATOS PACIENTE
+========================================================= */
+
+.historia-nuevo-paciente-datos {
+  display: flex;
+
+  align-items: center;
+
+  gap: 20px;
+}
+
+
+.historia-nuevo-avatar {
+  width: 100px;
+  height: 100px;
+
+  flex-shrink: 0;
+
+  object-fit: cover;
+
+  border-radius: 20px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 5px 17px rgba(0, 0, 0, 0.09);
+}
+
+
+.historia-nuevo-datos-contenido {
+  flex: 1;
+
+  min-width: 0;
+}
+
+
+.historia-nuevo-datos-contenido h3 {
+  margin: 0 0 13px;
+
+  color: #000000;
+
+  font-size: 24px;
+
+  font-weight: 900;
+}
+
+
+.historia-nuevo-datos-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 9px;
+}
+
+
+.historia-nuevo-datos-grid > div {
+  min-width: 0;
+
+  padding: 11px 12px;
+
+  border-radius: 14px;
+
+  background: #eaf7f9;
+}
+
+
+.historia-nuevo-datos-grid span {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #000000;
+
+  font-size: 11px;
+
+  font-weight: 700;
+}
+
+
+.historia-nuevo-datos-grid strong {
+  display: block;
+
+  color: #000000;
+
+  font-size: 13.5px;
+
+  font-weight: 900;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   ACCESOS RÁPIDOS
+========================================================= */
+
+.historia-nuevo-accesos-card {
+  padding: 15px 17px;
+
+  background: rgba(255, 255, 255, 0.96);
+
+  border: 1px solid rgba(7, 156, 175, 0.12);
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.045);
+}
+
+
+.historia-nuevo-seccion-titulo {
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  margin-bottom: 10px;
+
+  color: #078fa1;
+
+  font-size: 11px;
+
+  font-weight: 900;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.4px;
+}
+
+
+.historia-nuevo-accesos-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 9px;
+}
+
+
+/* BOTONES */
+
+.historia-nuevo-acceso {
+  min-height: 55px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  padding: 10px;
+
+  border: 1px solid #a9dce2;
+
+  border-radius: 13px;
+
+  background: #eaf7f9;
+
+  color: #078fa1 !important;
+
+  text-decoration: none !important;
+
+  text-align: center;
+
+  font-size: 11px;
+
+  font-weight: 900;
+
+  transition: 0.2s ease;
+}
+
+
+.historia-nuevo-acceso svg {
+  flex-shrink: 0;
+
+  font-size: 14px;
+}
+
+
+/* AGENDAR MÁS FUERTE */
+
+.historia-nuevo-acceso-principal {
+  background: #079caf;
+
+  border-color: #079caf;
+
+  color: #ffffff !important;
+}
+
+
+.historia-nuevo-acceso:hover {
+  background: #079caf;
+
+  border-color: #079caf;
+
+  color: #ffffff !important;
+
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 6px 15px rgba(7, 156, 175, 0.2);
+}
+
+
+/* =========================================================
+   INTERNOS DERECHA
+========================================================= */
+
+.historia-nuevo-internos-card {
+  padding: 17px;
+
+  background: rgba(255, 255, 255, 0.96);
+
+  border: 1px solid rgba(7, 156, 175, 0.14);
+
+  border-radius: 22px;
+
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.055);
+}
+
+
+/* HEADER */
+
+.historia-nuevo-internos-header {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin-bottom: 12px;
+}
+
+
+.historia-nuevo-internos-icono {
+  width: 40px;
+  height: 40px;
+
+  flex-shrink: 0;
+
+  border-radius: 12px;
+
+  background: #079caf;
+
+  color: white;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  font-size: 15px;
+}
+
+
+.historia-nuevo-internos-header h3 {
+  margin: 0;
+
+  color: #000000;
+
+  font-size: 17px;
+
+  font-weight: 900;
+}
+
+
+.historia-nuevo-internos-header p {
+  margin: 2px 0 0;
+
+  color: #444444;
+
+  font-size: 10px;
+
+  font-weight: 600;
+}
+
+
+/* LISTA */
+
+.historia-nuevo-internos-lista {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 6px;
+}
+
+
+.historia-nuevo-interno {
+  min-height: 34px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 8px;
+
+  padding: 6px 8px;
+
+  background: #f5fbfc;
+
+  border: 1px solid #dcecef;
+
+  border-radius: 9px;
+}
+
+
+.historia-nuevo-interno span {
+  color: #000000;
+
+  font-size: 15px;
+
+  line-height: 1.15;
+
+  font-weight: 700;
+}
+
+
+.historia-nuevo-interno strong {
+  flex-shrink: 0;
+
+  padding: 3px 6px;
+
+  border-radius: 6px;
+
+  background: #dff5f7;
+
+  color: #000000;
+
+  font-size: 10.5px;
+
+  font-weight: 900;
+}
+
+
+/* =========================================================
+   RESPONSIVE TABLET
+========================================================= */
+
+@media (max-width: 1050px) {
+
+  .historia-nuevo-dashboard {
+    grid-template-columns:
+      minmax(0, 1fr)
+      300px;
+  }
+
+
+  .historia-nuevo-datos-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+
+  .historia-nuevo-accesos-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+
+/* =========================================================
+   CELULAR / TABLET VERTICAL
+========================================================= */
+
+@media (max-width: 800px) {
+
+  .historia-nuevo-dashboard {
+    grid-template-columns: 1fr;
+  }
+
+
+  .historia-nuevo-internos-card {
+    order: 2;
+  }
+
+}
+
+
+/* =========================================================
+   CELULAR
+========================================================= */
+
+@media (max-width: 576px) {
+
+  .historia-nuevo-paciente-card {
+    padding: 16px;
+
+    border-radius: 18px;
+  }
+
+
+  .historia-nuevo-paciente-header {
+    gap: 10px;
+  }
+
+
+  .historia-nuevo-paciente-header h1 {
+    font-size: 21px;
+  }
+
+
+  .historia-nuevo-consultas {
+    width: 72px;
+    min-width: 72px;
+
+    height: 66px;
+  }
+
+
+  .historia-nuevo-consultas strong {
+    font-size: 21px;
+  }
+
+
+  .historia-nuevo-paciente-datos {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 12px;
+  }
+
+
+  .historia-nuevo-avatar {
+    width: 72px;
+    height: 72px;
+  }
+
+
+  .historia-nuevo-datos-contenido {
+    width: 100%;
+  }
+
+
+  .historia-nuevo-datos-contenido h3 {
+    font-size: 19px;
+  }
+
+
+  .historia-nuevo-datos-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+
+  .historia-nuevo-accesos-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+
+  .historia-nuevo-interno span,
+  .historia-nuevo-interno strong {
+    font-size: 11px;
+  }
+
+}
+
+
+/* CELULAR MUY PEQUEÑO */
+
+@media (max-width: 400px) {
+
+  .historia-nuevo-accesos-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+/* =========================================================
+   INTERNOS CLÍNICA - LISTADO COMPACTO
+========================================================= */
+
+.historia-nuevo-internos-card {
+  padding: 13px 15px !important;
+
+  /* que mida solamente lo necesario */
+  height: fit-content !important;
+  align-self: start !important;
+}
+
+
+/* HEADER MÁS COMPACTO */
+
+.historia-nuevo-internos-header {
+  gap: 8px !important;
+
+  margin-bottom: 6px !important;
+}
+
+
+.historia-nuevo-internos-icono {
+  width: 34px !important;
+  height: 34px !important;
+
+  border-radius: 10px !important;
+
+  font-size: 13px !important;
+}
+
+
+.historia-nuevo-internos-header h3 {
+  font-size: 15px !important;
+
+  line-height: 1.1 !important;
+}
+
+
+.historia-nuevo-internos-header p {
+  margin-top: 1px !important;
+
+  font-size: 9px !important;
+}
+
+
+/* =========================================================
+   LISTA REAL
+========================================================= */
+
+.historia-nuevo-internos-lista {
+  display: flex !important;
+
+  flex-direction: column !important;
+
+  gap: 0 !important;
+}
+
+
+/* CADA FILA */
+
+.historia-nuevo-interno {
+  min-height: 0 !important;
+
+  display: flex !important;
+
+  align-items: center !important;
+
+  justify-content: space-between !important;
+
+  gap: 10px !important;
+
+  padding: 5px 2px !important;
+
+  background: transparent !important;
+
+  border: none !important;
+
+  border-bottom:
+    1px solid #e2ecee !important;
+
+  border-radius: 0 !important;
+}
+
+
+/* ÚLTIMA FILA SIN LÍNEA */
+
+.historia-nuevo-interno:last-child {
+  border-bottom: none !important;
+}
+
+
+/* NOMBRE */
+
+.historia-nuevo-interno span {
+  color: #000000 !important;
+
+  font-size: 10.5px !important;
+
+  font-weight: 700 !important;
+
+  line-height: 1.15 !important;
+}
+
+
+/* NÚMERO */
+
+.historia-nuevo-interno strong {
+  flex-shrink: 0 !important;
+
+  min-width: 58px;
+
+  padding: 0 !important;
+
+  background: transparent !important;
+
+  color: #000000 !important;
+
+  font-size: 10.5px !important;
+
+  font-weight: 900 !important;
+
+  text-align: right !important;
+}
+
+
+/* =========================================================
+   APROVECHAR UN POCO MÁS EL ANCHO IZQUIERDO
+========================================================= */
+
+.historia-nuevo-dashboard {
+  grid-template-columns:
+    minmax(0, 1fr)
+    305px !important;
+}
+
+
+/* =========================================================
+   CELULAR
+========================================================= */
+
+@media (max-width: 800px) {
+
+  .historia-nuevo-dashboard {
+    grid-template-columns: 1fr !important;
+  }
+
+
+  .historia-nuevo-internos-card {
+    width: 100% !important;
+  }
+
+
+  .historia-nuevo-interno {
+    padding: 7px 2px !important;
+  }
+
+
+  .historia-nuevo-interno span,
+  .historia-nuevo-interno strong {
+    font-size: 12px !important;
+  }
+
+}
+
+
+/* =========================================================
+   HISTORIAS CLÍNICAS
+   INTERNOS - LISTADO COMPACTO
+========================================================= */
+
+.historias-internos-card {
+  padding: 14px 16px !important;
+
+  height: fit-content !important;
+
+  align-self: start !important;
+}
+
+
+/* HEADER */
+
+.historias-internos-header {
+  margin-bottom: 7px !important;
+
+  gap: 8px !important;
+}
+
+
+.historias-internos-icono {
+  width: 36px !important;
+  height: 36px !important;
+
+  border-radius: 10px !important;
+
+  font-size: 14px !important;
+}
+
+
+.historias-internos-header h4 {
+  font-size: 17px !important;
+
+  line-height: 1.1 !important;
+}
+
+
+.historias-internos-header p {
+  margin-top: 2px !important;
+
+  font-size: 10px !important;
+}
+
+
+/* =========================================================
+   LISTADO
+========================================================= */
+
+.historias-internos-lista {
+  display: flex !important;
+
+  flex-direction: column !important;
+
+  gap: 0 !important;
+}
+
+
+/* FILA */
+
+.historias-interno-fila {
+  min-height: 0 !important;
+
+  display: flex !important;
+
+  align-items: center !important;
+
+  justify-content: space-between !important;
+
+  gap: 10px !important;
+
+  padding: 6px 2px !important;
+
+  background: transparent !important;
+
+  border: none !important;
+
+  border-bottom:
+    1px solid #dce7e9 !important;
+
+  border-radius: 0 !important;
+}
+
+
+.historias-interno-fila:last-child {
+  border-bottom: none !important;
+}
+
+
+/* TEXTO */
+
+.historias-interno-fila span {
+  color: #000000 !important;
+
+  font-size: 11px !important;
+
+  font-weight: 700 !important;
+
+  line-height: 1.15 !important;
+}
+
+
+/* NÚMERO */
+
+.historias-interno-fila strong {
+  flex-shrink: 0 !important;
+
+  min-width: 65px;
+
+  padding: 0 !important;
+
+  background: transparent !important;
+
+  color: #000000 !important;
+
+  font-size: 11px !important;
+
+  font-weight: 900 !important;
+
+  text-align: right !important;
+}
+
+
+/* =========================================================
+   FORMULARIO + INTERNOS
+========================================================= */
+
+.historias-form-internos-grid {
+  align-items: start !important;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    300px !important;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .historias-form-internos-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+}
+
+
+/* =========================================================
+   CELULAR
+========================================================= */
+
+@media (max-width: 576px) {
+
+  .historias-interno-fila {
+    padding: 8px 2px !important;
+  }
+
+
+  .historias-interno-fila span,
+  .historias-interno-fila strong {
+    font-size: 12px !important;
+  }
+
+}

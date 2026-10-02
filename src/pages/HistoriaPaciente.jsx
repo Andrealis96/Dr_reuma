@@ -206,31 +206,113 @@ const [guardandoConsulta, setGuardandoConsulta] = useState(false);
   }, [id]);
 
 const convertirFechaNacimientoADate = (valor = "") => {
+
   if (!valor) return null;
 
-  const texto = valor.toString().trim();
+  const texto = valor
+    .toString()
+    .trim();
 
-  // Formato viejo: AAAA-MM-DD
-  if (/^\d{4}-\d{2}-\d{2}$/.test(texto)) {
-    const [anio, mes, dia] = texto.split("-").map(Number);
-    return new Date(anio, mes - 1, dia);
+
+  let dia;
+  let mes;
+  let anio;
+
+
+  // ==========================================
+  // AAAA-MM-DD o AAAA/MM/DD
+  // ==========================================
+
+  if (
+    /^\d{4}[-/]\d{1,2}[-/]\d{1,2}$/.test(texto)
+  ) {
+
+    const partes =
+      texto
+        .split(/[-/]/)
+        .map(Number);
+
+    anio = partes[0];
+    mes = partes[1];
+    dia = partes[2];
+
   }
 
-  // Formato con slash tipo: AAAA/MM/DD
-  if (/^\d{4}\/\d{2}\/\d{2}$/.test(texto)) {
-    const [anio, mes, dia] = texto.split("/").map(Number);
-    return new Date(anio, mes - 1, dia);
+
+  // ==========================================
+  // DD-MM-AAAA / DD/MM/AAAA
+  // También acepta DD-MM-AA
+  // ==========================================
+
+  else if (
+    /^\d{1,2}[-/]\d{1,2}[-/]\d{2,4}$/.test(texto)
+  ) {
+
+    const partes =
+      texto
+        .split(/[-/]/)
+        .map(Number);
+
+    dia = partes[0];
+    mes = partes[1];
+    anio = partes[2];
+
+
+    // Si viene con año de 2 dígitos:
+    // 61 -> 1961
+    // 78 -> 1978
+    // 05 -> 2005
+    // 20 -> 2020
+
+    if (anio < 100) {
+
+      const anioActual =
+        new Date().getFullYear();
+
+      const dosDigitosActual =
+        anioActual % 100;
+
+
+      anio =
+        anio <= dosDigitosActual
+          ? 2000 + anio
+          : 1900 + anio;
+
+    }
+
   }
 
-  // Formato nuevo: DD-MM-AAAA o DD/MM/AAAA
-  if (/^\d{2}[-/]\d{2}[-/]\d{4}$/.test(texto)) {
-    const partes = texto.split(/[-/]/).map(Number);
-    const [dia, mes, anio] = partes;
-    return new Date(anio, mes - 1, dia);
+
+  else {
+
+    return null;
+
   }
 
-  const fechaTemporal = new Date(texto);
-  return isNaN(fechaTemporal.getTime()) ? null : fechaTemporal;
+
+  const fecha =
+    new Date(
+      anio,
+      mes - 1,
+      dia
+    );
+
+
+  // Validación para evitar fechas imposibles
+
+  if (
+    fecha.getFullYear() !== anio ||
+    fecha.getMonth() !== mes - 1 ||
+    fecha.getDate() !== dia
+  ) {
+
+    return null;
+
+  }
+
+
+  return fecha;
+
 };
 
 const calcularEdad = (fecha) => {
@@ -1513,88 +1595,129 @@ const cantidadConsultas = consultas.length;
 </div>
 
 {/* =====================================================
-    CARD PRINCIPAL DEL PACIENTE
+    PACIENTE + INTERNOS
 ===================================================== */}
 
-<div className="historia-resumen-superior mb-3">
+<div className="historia-nuevo-dashboard mb-4">
 
 
-  {/* INFORMACIÓN DEL PACIENTE */}
+  {/* =================================================
+      COLUMNA IZQUIERDA
+      PACIENTE + ACCESOS
+  ================================================= */}
 
-  <div className="historia-resumen-contenido">
-
-    <div className="historia-resumen-titulo">
-
-      <h1>
-        HISTORIA CLÍNICA DEL PACIENTE
-      </h1>
-
-      <strong>
-        {fechaHoyHistoriaPacienteTexto.toUpperCase()}
-      </strong>
-
-      <p>
-        Registro evolutivo, diagnósticos y documentación médica.
-      </p>
-
-    </div>
+  <div className="historia-nuevo-columna-paciente">
 
 
-    <div className="historia-resumen-datos">
+    {/* CARD PACIENTE */}
 
-      <img
-        src={obtenerIconoSexo()}
-        alt="usuario"
-        className="historia-resumen-avatar"
-      />
+    <div className="historia-nuevo-paciente-card">
 
 
-      <div className="historia-resumen-datos-contenido">
+      {/* CABECERA DEL CARD */}
 
-        <h3>
-          {paciente.nombre}
-        </h3>
+      <div className="historia-nuevo-paciente-header">
 
+        <div>
 
-        <div className="historia-resumen-datos-grid">
+          <h1>
+            HISTORIA CLÍNICA DEL PACIENTE
+          </h1>
 
-          <div>
-            <span>Edad</span>
+          <strong>
+            {fechaHoyHistoriaPacienteTexto.toUpperCase()}
+          </strong>
 
-            <strong>
-              {calcularEdad(
-                paciente.fechaNacimiento
-              )} años
-            </strong>
-          </div>
+          <p>
+            Registro evolutivo, diagnósticos y documentación médica.
+          </p>
 
-
-          <div>
-            <span>DNI</span>
-
-            <strong>
-              {paciente.dni}
-            </strong>
-          </div>
+        </div>
 
 
-          <div>
-            <span>Nacimiento</span>
+        {/* NÚMERO DE CONSULTAS */}
 
-            <strong>
-              {formatearFecha(
-                paciente.fechaNacimiento
-              )}
-            </strong>
-          </div>
+        <button
+          type="button"
+          className="historia-nuevo-consultas"
+          onClick={irAConsultasRegistradas}
+          title="Ver consultas registradas"
+        >
+
+          <strong>
+            {cantidadConsultas}
+          </strong>
+
+          <span>
+            Consultas
+          </span>
+
+        </button>
+
+      </div>
 
 
-          <div>
-            <span>Obra social</span>
+      {/* DATOS DEL PACIENTE */}
 
-            <strong>
-              {paciente.obraSocial}
-            </strong>
+      <div className="historia-nuevo-paciente-datos">
+
+        <img
+          src={obtenerIconoSexo()}
+          alt="usuario"
+          className="historia-nuevo-avatar"
+        />
+
+
+        <div className="historia-nuevo-datos-contenido">
+
+          <h3>
+            {paciente.nombre}
+          </h3>
+
+
+          <div className="historia-nuevo-datos-grid">
+
+
+            <div>
+              <span>Edad</span>
+
+              <strong>
+                {calcularEdad(
+                  paciente.fechaNacimiento
+                )} años
+              </strong>
+            </div>
+
+
+            <div>
+              <span>DNI</span>
+
+              <strong>
+                {paciente.dni}
+              </strong>
+            </div>
+
+
+            <div>
+              <span>Nacimiento</span>
+
+              <strong>
+                {formatearFecha(
+                  paciente.fechaNacimiento
+                )}
+              </strong>
+            </div>
+
+
+            <div>
+              <span>Obra social</span>
+
+              <strong>
+                {paciente.obraSocial}
+              </strong>
+            </div>
+
+
           </div>
 
         </div>
@@ -1603,160 +1726,121 @@ const cantidadConsultas = consultas.length;
 
     </div>
 
-  </div>
 
 
+    {/* =================================================
+        ACCESOS RÁPIDOS
+    ================================================= */}
 
-  {/* BOTONES DEL LADO DERECHO */}
+    <div className="historia-nuevo-accesos-card">
 
-  <div className="historia-resumen-acciones">
+      <div className="historia-nuevo-seccion-titulo">
 
-
-    <Link
-      to="/admin/citas"
-      className="historia-resumen-accion historia-resumen-accion-principal"
-      onClick={async (e) => {
-
-        e.preventDefault();
-
-        const puedeSalir =
-          await confirmarSalidaConCambios();
-
-        if (puedeSalir) {
-          navigate("/admin/citas");
-        }
-
-      }}
-    >
-
-      <FaCalendarAlt />
-
-      <span>
-        Agendar cita
-      </span>
-
-    </Link>
-
-
-
-    <Link
-      to="/admin/historias"
-      className="historia-resumen-accion historia-resumen-accion-secundaria"
-      onClick={async (e) => {
-
-        e.preventDefault();
-
-        const puedeSalir =
-          await confirmarSalidaConCambios();
-
-        if (puedeSalir) {
-          navigate("/admin/historias");
-        }
-
-      }}
-    >
-
-      <FaFolderOpen />
-
-      <span>
-        Historias clínicas
-      </span>
-
-    </Link>
-
-
-
-    <button
-      type="button"
-      className="historia-resumen-accion historia-resumen-accion-consultas"
-      onClick={irAConsultasRegistradas}
-      title="Ver consultas registradas"
-    >
-
-      <strong>
-        {cantidadConsultas}
-      </strong>
-
-      <span>
-        Consultas
-      </span>
-
-    </button>
-
-  </div>
-
-</div>
-
-
-
-{/* =====================================================
-    FILA INFERIOR
-    ACCESOS + INTERNOS
-===================================================== */}
-
-<div className="historia-utilidades-grid mb-4">
-
-
-  {/* =================================================
-      ACCESOS RÁPIDOS
-  ================================================= */}
-
-  <div className="historia-utilidad-card historia-utilidad-accesos">
-
-    <div className="historia-utilidad-titulo">
-
-      <FaExternalLinkAlt />
-
-      <span>
-        Accesos rápidos
-      </span>
-
-    </div>
-
-
-    <div className="historia-utilidad-accesos-lista">
-
-
-      <a
-        href="https://pacientes.lebensalud.com/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="historia-utilidad-acceso"
-      >
-
-        <FaFlask />
+        <FaExternalLinkAlt />
 
         <span>
-          Leben Salud
+          Accesos rápidos
         </span>
 
-        <FaExternalLinkAlt
-          className="historia-utilidad-externo"
-        />
-
-      </a>
+      </div>
 
 
+      <div className="historia-nuevo-accesos-grid">
 
-      <a
-        href="https://imagenes.clinicasanagustin.com.ar/viewer/index.php"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="historia-utilidad-acceso"
-      >
 
-        <FaXRay />
+        {/* LEBEN */}
 
-        <span>
-          Img. San Agustín
-        </span>
+        <a
+          href="https://pacientes.lebensalud.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="historia-nuevo-acceso"
+        >
 
-        <FaExternalLinkAlt
-          className="historia-utilidad-externo"
-        />
+          <FaFlask />
 
-      </a>
+          <span>
+            Leben Salud
+          </span>
 
+        </a>
+
+
+        {/* IMÁGENES */}
+
+        <a
+          href="https://imagenes.clinicasanagustin.com.ar/viewer/index.php"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="historia-nuevo-acceso"
+        >
+
+          <FaXRay />
+
+          <span>
+            Imágenes San Agustín
+          </span>
+
+        </a>
+
+
+        {/* HISTORIAS CLÍNICAS */}
+
+        <Link
+          to="/admin/historias"
+          className="historia-nuevo-acceso"
+          onClick={async (e) => {
+
+            e.preventDefault();
+
+            const puedeSalir =
+              await confirmarSalidaConCambios();
+
+            if (puedeSalir) {
+              navigate("/admin/historias");
+            }
+
+          }}
+        >
+
+          <FaFolderOpen />
+
+          <span>
+            Historias clínicas
+          </span>
+
+        </Link>
+
+
+        {/* AGENDAR */}
+
+        <Link
+          to="/admin/citas"
+          className="historia-nuevo-acceso historia-nuevo-acceso-principal"
+          onClick={async (e) => {
+
+            e.preventDefault();
+
+            const puedeSalir =
+              await confirmarSalidaConCambios();
+
+            if (puedeSalir) {
+              navigate("/admin/citas");
+            }
+
+          }}
+        >
+
+          <FaCalendarAlt />
+
+          <span>
+            Agendar cita
+          </span>
+
+        </Link>
+
+
+      </div>
 
     </div>
 
@@ -1765,64 +1849,99 @@ const cantidadConsultas = consultas.length;
 
 
   {/* =================================================
+      COLUMNA DERECHA
       INTERNOS CLÍNICA
   ================================================= */}
 
-  <div className="historia-utilidad-card historia-utilidad-internos">
+  <div className="historia-nuevo-internos-card">
 
-    <div className="historia-utilidad-titulo">
+    <div className="historia-nuevo-internos-header">
 
-      <FaPhoneAlt />
+      <div className="historia-nuevo-internos-icono">
+        <FaPhoneAlt />
+      </div>
 
-      <span>
-        Internos Clínica
-      </span>
+      <div>
+
+        <h3>
+          Internos Clínica
+        </h3>
+
+        <p>
+          Números de acceso rápido
+        </p>
+
+      </div>
 
     </div>
 
 
-    <div className="historia-internos-grid">
+    <div className="historia-nuevo-internos-lista">
 
 
-      <div className="historia-interno-card">
+      <div className="historia-nuevo-interno">
         <span>Admisión general</span>
         <strong>1009</strong>
       </div>
 
 
-      <div className="historia-interno-card">
+      <div className="historia-nuevo-interno">
         <span>Informe de imágenes</span>
         <strong>1006</strong>
       </div>
 
 
-      <div className="historia-interno-card">
+      <div className="historia-nuevo-interno">
         <span>Admisión de imágenes</span>
         <strong>1014</strong>
       </div>
 
 
-      <div className="historia-interno-card">
-        <span>Admisión de laboratorio</span>
+      <div className="historia-nuevo-interno">
+        <span>Bioquímico de laboratorio</span>
         <strong>1041</strong>
       </div>
 
 
-      <div className="historia-interno-card">
+      <div className="historia-nuevo-interno">
+        <span>Admisión de laboratorio</span>
+        <strong>1031</strong>
+      </div>
+
+
+      <div className="historia-nuevo-interno">
         <span>Sala médicos internación</span>
         <strong>1021</strong>
       </div>
 
 
-      <div className="historia-interno-card">
+      <div className="historia-nuevo-interno">
         <span>Consultorios de guardia</span>
         <strong>1011 · 1012</strong>
       </div>
 
 
-      <div className="historia-interno-card">
+      <div className="historia-nuevo-interno">
         <span>Médicos de terapia</span>
         <strong>1016</strong>
+      </div>
+
+
+      <div className="historia-nuevo-interno">
+        <span>Planta baja consultorio</span>
+        <strong>1100</strong>
+      </div>
+
+
+      <div className="historia-nuevo-interno">
+        <span>Primer piso consultorio</span>
+        <strong>1110</strong>
+      </div>
+
+
+      <div className="historia-nuevo-interno">
+        <span>Cuarto piso consultorio</span>
+        <strong>1140</strong>
       </div>
 
 
