@@ -17155,3 +17155,273 @@ transform:scale(1.07);
   }
 
 }
+
+/* =========================================================
+   HISTORIAS CLÍNICAS
+   NUEVO PACIENTE + INTERNOS
+========================================================= */
+
+.historias-form-internos-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 2.25fr)
+    minmax(300px, 0.75fr);
+
+  gap: 18px;
+
+  align-items: stretch;
+}
+
+
+/* =========================================================
+   FORMULARIO
+========================================================= */
+
+.historias-form-card-grid {
+  margin-bottom: 0 !important;
+
+  height: 100%;
+}
+
+
+/* =========================================================
+   CARD INTERNOS
+========================================================= */
+
+.historias-internos-card {
+  height: 100%;
+
+  padding: 20px;
+
+  background: rgba(235, 250, 252, 0.96);
+
+  border: 1px solid #b9e5ea;
+
+  border-radius: 24px;
+
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.05);
+}
+
+
+/* =========================================================
+   HEADER INTERNOS
+========================================================= */
+
+.historias-internos-header {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  margin-bottom: 14px;
+}
+
+
+.historias-internos-icono {
+  width: 46px;
+  height: 46px;
+
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 14px;
+
+  background: #079caf;
+
+  color: #ffffff;
+
+  font-size: 17px;
+}
+
+
+.historias-internos-header h4 {
+  margin: 0;
+
+  color: #111111;
+
+  font-size: 19px;
+
+  font-weight: 900;
+}
+
+
+.historias-internos-header p {
+  margin: 2px 0 0 0;
+
+  color: #525c61;
+
+  font-size: 11px;
+
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   LISTADO INTERNOS
+========================================================= */
+
+.historias-internos-lista {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 7px;
+}
+
+
+.historias-interno-fila {
+  min-height: 37px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 10px;
+
+  padding: 7px 9px;
+
+  background: rgba(255, 255, 255, 0.86);
+
+  border: 1px solid #d5eaed;
+
+  border-radius: 10px;
+}
+
+
+/* NOMBRE */
+
+.historias-interno-fila span {
+  color: #000000;
+
+  font-size: 11.5px;
+
+  font-weight: 700;
+
+  line-height: 1.15;
+}
+
+
+/* NÚMERO */
+
+.historias-interno-fila strong {
+  flex-shrink: 0;
+
+  padding: 4px 7px;
+
+  border-radius: 7px;
+
+  background: #dff5f7;
+
+  color: #000000;
+
+  font-size: 11.5px;
+
+  font-weight: 900;
+}
+
+
+/* =========================================================
+   HOVER
+========================================================= */
+
+.historias-interno-fila:hover {
+  background: #ffffff;
+
+  border-color: #9ddce3;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1050px) {
+
+  .historias-form-internos-grid {
+    grid-template-columns:
+      minmax(0, 1.8fr)
+      minmax(280px, 0.8fr);
+  }
+
+}
+
+
+/* =========================================================
+   CELULAR / TABLET VERTICAL
+========================================================= */
+
+@media (max-width: 850px) {
+
+  .historias-form-internos-grid {
+    grid-template-columns: 1fr;
+  }
+
+
+  .historias-internos-card {
+    height: auto;
+  }
+
+}
+
+
+/* =========================================================
+   CELULAR
+========================================================= */
+
+@media (max-width: 576px) {
+
+  .historias-internos-card {
+    padding: 16px;
+
+    border-radius: 18px;
+  }
+
+
+  .historias-internos-header h4 {
+    font-size: 17px;
+  }
+
+
+  .historias-interno-fila {
+    min-height: 40px;
+  }
+
+
+  .historias-interno-fila span,
+  .historias-interno-fila strong {
+    font-size: 12px;
+  }
+
+}
+
+/* AJUSTE FINAL DE ALTURAS */
+
+.historias-form-card-grid {
+  min-height: 0 !important;
+  height: auto !important;
+}
+
+.historias-internos-card {
+  height: auto !important;
+  align-self: stretch;
+}
+
+.historias-form-internos-grid {
+  align-items: stretch;
+}
+
+.historias-form-card-grid {
+  padding-bottom: 18px !important;
+}
+
+.historias-form-actions {
+  margin-top: 14px !important;
+}

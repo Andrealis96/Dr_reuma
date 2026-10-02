@@ -34,7 +34,8 @@ import {
   FaCalendarAlt,
   FaUserCheck,
   FaClock,
-  FaWhatsapp
+  FaWhatsapp,
+  FaPhoneAlt
 } from "react-icons/fa";
 
 import maleAvatar from "../assets/user-male.png";
@@ -2029,276 +2030,416 @@ const pacientesFiltrados = useMemo(() => {
       
        */}
 
-      {/* FORMULARIO */}
+{/* =====================================================
+    NUEVO PACIENTE + INTERNOS CLÍNICA
+===================================================== */}
 
-      <div
-        ref={nuevoPacienteRef}
-        className="historias-form-card mb-4"
-      >
+<div className="historias-form-internos-grid mb-4">
 
-        <div className="historias-form-title">
 
-          <div className="historias-form-icon">
+  {/* =================================================
+      NUEVO / EDITAR PACIENTE
+  ================================================= */}
 
-            <FaUserPlus />
+  <div
+    ref={nuevoPacienteRef}
+    className="historias-form-card historias-form-card-grid"
+  >
 
-          </div>
+    <div className="historias-form-title">
 
-          <div>
+      <div className="historias-form-icon">
+        <FaUserPlus />
+      </div>
 
-            <h4>
+      <div>
 
-              {editando
-                ? "Editar paciente"
-                : "Nuevo paciente"}
+        <h4>
+          {editando
+            ? "Editar paciente"
+            : "Nuevo paciente"}
+        </h4>
 
-            </h4>
+        <p>
+          Completa los datos para la historia clínica.
+        </p>
 
-            <p>
+      </div>
 
-              Completa los datos para la historia clínica.
+    </div>
 
-            </p>
 
-          </div>
+    <form
+      onSubmit={
+        editando
+          ? guardarEdicion
+          : crearPaciente
+      }
+    >
+
+      <div className="row g-3">
+
+
+        {/* NOMBRE */}
+
+        <div className="col-12 col-md-6">
+
+          <label className="historias-label">
+            Nombre completo
+          </label>
+
+          <input
+            className="form-control historias-input"
+            placeholder="Ej: Juan Pérez"
+            value={nombre}
+            onChange={(e) =>
+              setNombre(
+                e.target.value
+              )
+            }
+            required
+          />
 
         </div>
 
-        <form
-          onSubmit={
-            editando
-              ? guardarEdicion
-              : crearPaciente
-          }
-        >
 
-          <div className="row g-3">
+        {/* DNI */}
 
-            <div className="col-12 col-md-6">
+        <div className="col-12 col-md-6">
 
-              <label className="historias-label">
+          <label className="historias-label">
+            DNI
+          </label>
 
-                Nombre completo
+          <input
+            className="form-control historias-input"
+            placeholder="Ej: 12345678"
+            value={dni}
+            onChange={(e) =>
+              setDni(
+                e.target.value
+              )
+            }
+            required
+          />
 
-              </label>
+        </div>
 
-              <input
-                className="form-control historias-input"
-                placeholder="Ej: Juan Pérez"
-                value={nombre}
-                onChange={(e) =>
-                  setNombre(
-                    e.target.value
-                  )
-                }
-                required
-              />
 
-            </div>
+        {/* FECHA NACIMIENTO */}
 
-            <div className="col-12 col-md-6">
+        <div className="col-12 col-md-4">
 
-              <label className="historias-label">
+          <label className="historias-label">
+            Fecha de nacimiento
+          </label>
 
-                DNI
+          <input
+            type="text"
+            inputMode="numeric"
+            placeholder="DD-MM-AAAA"
+            maxLength="10"
+            className="form-control historias-input"
+            value={fechaNacimiento}
+            onChange={(e) => {
 
-              </label>
+              let valor =
+                e.target.value.replace(
+                  /\D/g,
+                  ""
+                );
 
-              <input
-                className="form-control historias-input"
-                placeholder="Ej: 12345678"
-                value={dni}
-                onChange={(e) =>
-                  setDni(
-                    e.target.value
-                  )
-                }
-                required
-              />
 
-            </div>
+              if (
+                valor.length > 8
+              ) {
 
-            <div className="col-12 col-md-4">
-
-              <label className="historias-label">
-
-                Fecha de nacimiento
-
-              </label>
-
-              <input
-                type="text"
-                inputMode="numeric"
-                placeholder="DD-MM-AAAA"
-                maxLength="10"
-                className="form-control historias-input"
-                value={
-                  fechaNacimiento
-                }
-                onChange={(e) => {
-
-                  let valor =
-                    e.target.value.replace(
-                      /\D/g,
-                      ""
-                    );
-
-                  if (
-                    valor.length >
+                valor =
+                  valor.slice(
+                    0,
                     8
-                  ) {
-                    valor =
-                      valor.slice(
-                        0,
-                        8
-                      );
-                  }
-
-                  if (
-                    valor.length >=
-                    5
-                  ) {
-                    valor =
-                      `${valor.slice(
-                        0,
-                        2
-                      )}-${valor.slice(
-                        2,
-                        4
-                      )}-${valor.slice(
-                        4
-                      )}`;
-                  } else if (
-                    valor.length >=
-                    3
-                  ) {
-                    valor =
-                      `${valor.slice(
-                        0,
-                        2
-                      )}-${valor.slice(
-                        2
-                      )}`;
-                  }
-
-                  setFechaNacimiento(
-                    valor
                   );
 
-                }}
-                required
-              />
+              }
 
-            </div>
 
-            <div className="col-12 col-md-4">
+              if (
+                valor.length >= 5
+              ) {
 
-              <label className="historias-label">
+                valor =
+                  `${valor.slice(
+                    0,
+                    2
+                  )}-${valor.slice(
+                    2,
+                    4
+                  )}-${valor.slice(
+                    4
+                  )}`;
 
-                Obra social
+              } else if (
+                valor.length >= 3
+              ) {
 
-              </label>
+                valor =
+                  `${valor.slice(
+                    0,
+                    2
+                  )}-${valor.slice(
+                    2
+                  )}`;
 
-              <input
-                className="form-control historias-input"
-                placeholder="Ej: ISSN / OSDE / Particular"
-                value={obraSocial}
-                onChange={(e) =>
-                  setObraSocial(
-                    e.target.value
-                  )
-                }
-                required
-              />
+              }
 
-            </div>
 
-            <div className="col-12 col-md-4">
+              setFechaNacimiento(
+                valor
+              );
 
-              <label className="historias-label">
+            }}
+            required
+          />
 
-                Sexo
+        </div>
 
-              </label>
 
-              <select
-                className="form-select historias-input"
-                value={sexo}
-                onChange={(e) =>
-                  setSexo(
-                    e.target.value
-                  )
-                }
-                required
-              >
+        {/* OBRA SOCIAL */}
 
-                <option value="">
+        <div className="col-12 col-md-4">
 
-                  Seleccione sexo
+          <label className="historias-label">
+            Obra social
+          </label>
 
-                </option>
+          <input
+            className="form-control historias-input"
+            placeholder="Ej: ISSN / OSDE / Particular"
+            value={obraSocial}
+            onChange={(e) =>
+              setObraSocial(
+                e.target.value
+              )
+            }
+            required
+          />
 
-                <option value="Masculino">
+        </div>
 
-                  Masculino
 
-                </option>
+        {/* SEXO */}
 
-                <option value="Femenino">
+        <div className="col-12 col-md-4">
 
-                  Femenino
+          <label className="historias-label">
+            Sexo
+          </label>
 
-                </option>
+          <select
+            className="form-select historias-input"
+            value={sexo}
+            onChange={(e) =>
+              setSexo(
+                e.target.value
+              )
+            }
+            required
+          >
 
-              </select>
+            <option value="">
+              Seleccione sexo
+            </option>
 
-            </div>
+            <option value="Masculino">
+              Masculino
+            </option>
 
-          </div>
+            <option value="Femenino">
+              Femenino
+            </option>
 
-          <div className="historias-form-actions">
+          </select>
 
-            <button className="historias-save-btn">
+        </div>
 
-              {editando ? (
-                <>
-                  <FaCheckCircle />
-
-                  Guardar cambios
-                </>
-              ) : (
-                <>
-                  <FaPlus />
-
-                  Guardar paciente
-                </>
-              )}
-
-            </button>
-
-            {editando && (
-
-              <button
-                type="button"
-                className="historias-cancel-btn"
-                onClick={
-                  cancelarEdicion
-                }
-              >
-
-                <FaTimes />
-
-                Cancelar
-
-              </button>
-
-            )}
-
-          </div>
-
-        </form>
 
       </div>
+
+
+      {/* BOTONES */}
+
+      <div className="historias-form-actions">
+
+        <button className="historias-save-btn">
+
+          {editando ? (
+            <>
+              <FaCheckCircle />
+              Guardar cambios
+            </>
+          ) : (
+            <>
+              <FaPlus />
+              Guardar paciente
+            </>
+          )}
+
+        </button>
+
+
+        {editando && (
+
+          <button
+            type="button"
+            className="historias-cancel-btn"
+            onClick={
+              cancelarEdicion
+            }
+          >
+
+            <FaTimes />
+
+            Cancelar
+
+          </button>
+
+        )}
+
+      </div>
+
+    </form>
+
+  </div>
+
+
+
+  {/* =================================================
+      INTERNOS CLÍNICA
+  ================================================= */}
+
+  <div className="historias-internos-card">
+
+    <div className="historias-internos-header">
+
+      <div className="historias-internos-icono">
+        <FaPhoneAlt />
+      </div>
+
+      <div>
+
+        <h4>
+          Internos Clínica
+        </h4>
+
+        <p>
+          Números de acceso rápido.
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <div className="historias-internos-lista">
+
+
+      <div className="historias-interno-fila">
+
+        <span>
+          Admisión general
+        </span>
+
+        <strong>
+          1009
+        </strong>
+
+      </div>
+
+
+      <div className="historias-interno-fila">
+
+        <span>
+          Informe de imágenes
+        </span>
+
+        <strong>
+          1006
+        </strong>
+
+      </div>
+
+
+      <div className="historias-interno-fila">
+
+        <span>
+          Admisión de imágenes
+        </span>
+
+        <strong>
+          1014
+        </strong>
+
+      </div>
+
+
+      <div className="historias-interno-fila">
+
+        <span>
+          Admisión de laboratorio
+        </span>
+
+        <strong>
+          1041
+        </strong>
+
+      </div>
+
+
+      <div className="historias-interno-fila">
+
+        <span>
+          Sala médicos internación
+        </span>
+
+        <strong>
+          1021
+        </strong>
+
+      </div>
+
+
+      <div className="historias-interno-fila">
+
+        <span>
+          Consultorios de guardia
+        </span>
+
+        <strong>
+          1011 · 1012
+        </strong>
+
+      </div>
+
+
+      <div className="historias-interno-fila">
+
+        <span>
+          Médicos de terapia
+        </span>
+
+        <strong>
+          1016
+        </strong>
+
+      </div>
+
+
+    </div>
+
+  </div>
+
+
+</div>
 
       {/* TÍTULO LISTADO DE PACIENTES */}
 
