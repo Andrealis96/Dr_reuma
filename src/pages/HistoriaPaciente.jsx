@@ -174,10 +174,33 @@ const [guardandoConsulta, setGuardandoConsulta] = useState(false);
       }));
 
       datos.sort((a, b) => {
-        const fechaA = new Date(a.fecha?.split("/").reverse().join("-"));
-        const fechaB = new Date(b.fecha?.split("/").reverse().join("-"));
-        return fechaB - fechaA;
-      });
+
+  const fechaA = convertirConsultaADateResumen(a);
+  const fechaB = convertirConsultaADateResumen(b);
+
+
+  // Si ambas fechas son válidas:
+  // más reciente primero
+  if (fechaA && fechaB) {
+    return fechaB - fechaA;
+  }
+
+
+  // Si solo B tiene fecha válida
+  if (!fechaA && fechaB) {
+    return 1;
+  }
+
+
+  // Si solo A tiene fecha válida
+  if (fechaA && !fechaB) {
+    return -1;
+  }
+
+
+  return 0;
+
+});
 
       setConsultas(datos);
     });
@@ -506,6 +529,96 @@ const convertirConsultaADateResumen = (consulta) => {
   return fechaDate;
 };
 
+/* =========================================================
+   PRECARGAR DIAGNÓSTICOS DE LA ÚLTIMA CONSULTA
+========================================================= */
+
+useEffect(() => {
+
+  // Si estoy editando una consulta anterior,
+  // no tocar sus diagnósticos
+  if (consultaEditando) return;
+
+
+  // Primera consulta del paciente:
+  // no hay nada para precargar
+  if (!consultas || consultas.length === 0) {
+    return;
+  }
+
+
+  // Buscar realmente la consulta más reciente
+  // usando fecha + hora / creado
+  const ultimaConsulta = consultas.reduce(
+    (ultima, actual) => {
+
+      if (!ultima) {
+        return actual;
+      }
+
+      const fechaActual =
+        convertirConsultaADateResumen(actual);
+
+      const fechaUltima =
+        convertirConsultaADateResumen(ultima);
+
+
+      if (!fechaActual) {
+        return ultima;
+      }
+
+      if (!fechaUltima) {
+        return actual;
+      }
+
+
+      return fechaActual > fechaUltima
+        ? actual
+        : ultima;
+
+    },
+    null
+  );
+
+
+  if (!ultimaConsulta) return;
+
+
+  // Obtener diagnósticos de esa última consulta
+  const diagnosticosUltimos =
+    obtenerDiagnosticosConsulta(ultimaConsulta)
+      .map((diagnostico) =>
+        diagnostico
+          ?.toString()
+          .trim()
+          .toUpperCase()
+      )
+      .filter(Boolean);
+
+
+  if (diagnosticosUltimos.length === 0) {
+    return;
+  }
+
+
+  /*
+   * Solo precargarlos si todavía no seleccionaste
+   * manualmente ningún diagnóstico.
+   *
+   * Así NO pisa lo que el médico esté seleccionando.
+   */
+  setDiagnosticosSeleccionados((actuales) => {
+
+    if (actuales.length > 0) {
+      return actuales;
+    }
+
+    return [...new Set(diagnosticosUltimos)];
+
+  });
+
+}, [consultas, consultaEditando]);
+
 const formatearFechaResumenPaciente = (fechaDate) => {
   return fechaDate
     .toLocaleDateString("es-AR", {
@@ -804,102 +917,197 @@ const marcarCitaComoAsistio = async (consultaGuardada = {}) => {
 };
 
 const guardarConsulta = async (e) => {
+
   e.preventDefault();
 
   if (guardandoConsultaRef.current) return;
 
-  guardandoConsultaRef.current = true;
-  setGuardandoConsulta(true);
 
-  try {
-    const diagnosticosFinales = diagnosticosSeleccionados.map((d) =>
+  const diagnosticosFinales =
+    diagnosticosSeleccionados.map((d) =>
       d.toUpperCase()
     );
 
-    if (diagnosticosFinales.length === 0) {
-      alert("Selecciona al menos un diagnóstico.");
-      return;
-    }
 
-    const dataConsulta = {
-      fecha: consultaEditando?.fecha || new Date().toLocaleDateString("es-AR"),
-      hora: consultaEditando?.hora || new Date().toLocaleTimeString("es-AR", {
+  if (diagnosticosFinales.length === 0) {
+
+    alert("Selecciona al menos un diagnóstico.");
+
+    return;
+
+  }
+
+
+  guardandoConsultaRef.current = true;
+  setGuardandoConsulta(true);
+
+
+  const dataConsulta = {
+
+    fecha:
+      consultaEditando?.fecha ||
+      new Date().toLocaleDateString("es-AR"),
+
+    hora:
+      consultaEditando?.hora ||
+      new Date().toLocaleTimeString("es-AR", {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false
       }),
-      diagnosticos: diagnosticosFinales,
-      diagnostico: diagnosticosFinales.join(" - "),
-      historia,
-      actualizado: new Date()
-    };
+
+    diagnosticos: diagnosticosFinales,
+
+    diagnostico:
+      diagnosticosFinales.join(" - "),
+
+    historia,
+
+    actualizado: new Date()
+
+  };
+
+
+  try {
+
+    /* ==========================================
+       1. GUARDAR LO IMPORTANTE
+       ESTA ES LA ÚNICA PARTE QUE ESPERAMOS
+    ========================================== */
 
     if (consultaEditando) {
+
       await updateDoc(
-        doc(db, "historiasClinicas", id, "consultas", consultaEditando.id),
+        doc(
+          db,
+          "historiasClinicas",
+          id,
+          "consultas",
+          consultaEditando.id
+        ),
         dataConsulta
       );
 
-      // ✅ La consulta ya quedó guardada: apagar alerta inmediatamente
-      marcarConsultaComoGuardada();
+    } else {
 
-      try {
-        await recalcularResumenPaciente();
-      } catch (errorResumen) {
-        console.error("La consulta se guardó, pero no se pudo recalcular resumen:", errorResumen);
-      }
+      await addDoc(
+        collection(
+          db,
+          "historiasClinicas",
+          id,
+          "consultas"
+        ),
+        {
+          ...dataConsulta,
+          creado: new Date()
+        }
+      );
 
-      try {
-        await marcarCitaComoAsistio(dataConsulta);
-      } catch (errorAgenda) {
-        console.error("La consulta se guardó, pero no se pudo sincronizar con agenda:", errorAgenda);
-      }
-
-      limpiarFormularioConsulta();
-      setMensajeGuardado("Consulta actualizada");
-      setMostrarModal(true);
-
-      setTimeout(() => {
-        setMostrarModal(false);
-      }, 2500);
-
-      return;
     }
 
-    await addDoc(collection(db, "historiasClinicas", id, "consultas"), {
-      ...dataConsulta,
-      creado: new Date()
-    });
 
-    // ✅ La consulta ya quedó guardada: apagar alerta inmediatamente
+    /* ==========================================
+       2. LA CONSULTA YA ESTÁ GUARDADA
+       RESPONDER INMEDIATAMENTE AL USUARIO
+    ========================================== */
+
     marcarConsultaComoGuardada();
 
-    try {
-      await recalcularResumenPaciente();
-    } catch (errorResumen) {
-      console.error("La consulta se guardó, pero no se pudo recalcular resumen:", errorResumen);
-    }
+    const eraEdicion = Boolean(consultaEditando);
 
-    try {
-      await marcarCitaComoAsistio(dataConsulta);
-    } catch (errorAgenda) {
-      console.error("La consulta se guardó, pero no se pudo sincronizar con agenda:", errorAgenda);
-    }
 
     limpiarFormularioConsulta();
-    setMensajeGuardado("Consulta guardada");
+
+
+    setMensajeGuardado(
+      eraEdicion
+        ? "Consulta actualizada"
+        : "Consulta guardada"
+    );
+
+
     setMostrarModal(true);
 
+
     setTimeout(() => {
+
       setMostrarModal(false);
-    }, 2500);
-  } catch (error) {
-    console.error("Error guardando consulta:", error);
-    alert("No se pudo guardar la consulta. Revisá la consola.");
-  } finally {
+
+    }, 1800);
+
+
+    /* ==========================================
+       3. LIBERAR EL BOTÓN YA
+    ========================================== */
+
     guardandoConsultaRef.current = false;
+
     setGuardandoConsulta(false);
+
+
+    /* ==========================================
+       4. TAREAS SECUNDARIAS
+       NO BLOQUEAN EL GUARDADO
+    ========================================== */
+
+    Promise.allSettled([
+
+      recalcularResumenPaciente(),
+
+      marcarCitaComoAsistio(dataConsulta)
+
+    ]).then((resultados) => {
+
+      resultados.forEach(
+        (resultado, index) => {
+
+          if (
+            resultado.status === "rejected"
+          ) {
+
+            if (index === 0) {
+
+              console.error(
+                "Consulta guardada, pero no se pudo actualizar el resumen:",
+                resultado.reason
+              );
+
+            } else {
+
+              console.error(
+                "Consulta guardada, pero no se pudo sincronizar la agenda:",
+                resultado.reason
+              );
+
+            }
+
+          }
+
+        }
+      );
+
+    });
+
+
+  } catch (error) {
+
+    console.error(
+      "Error guardando consulta:",
+      error
+    );
+
+
+    alert(
+      "No se pudo guardar la consulta. Revisá la conexión."
+    );
+
+
+    guardandoConsultaRef.current = false;
+
+    setGuardandoConsulta(false);
+
   }
+
 };
 
 const eliminarConsulta = async (cid) => {
@@ -1649,7 +1857,7 @@ const cantidadConsultas = consultas.length;
           </strong>
 
           <span>
-            Consultas
+            CONSULTAS
           </span>
 
         </button>
@@ -1760,7 +1968,7 @@ const cantidadConsultas = consultas.length;
           <FaFlask />
 
           <span>
-            Leben Salud
+            LLEBEN SALUD
           </span>
 
         </a>
@@ -1778,7 +1986,7 @@ const cantidadConsultas = consultas.length;
           <FaXRay />
 
           <span>
-            Imágenes San Agustín
+           IMÁGENES SAN AGUSTÍN
           </span>
 
         </a>
@@ -1788,7 +1996,7 @@ const cantidadConsultas = consultas.length;
 
         <Link
           to="/admin/historias"
-          className="historia-nuevo-acceso"
+          className="historia-nuevo-acceso historia-nuevo-acceso-principal"
           onClick={async (e) => {
 
             e.preventDefault();
@@ -1806,7 +2014,7 @@ const cantidadConsultas = consultas.length;
           <FaFolderOpen />
 
           <span>
-            Historias clínicas
+            HISTORIAS CLÍNICAS
           </span>
 
         </Link>
@@ -1834,7 +2042,7 @@ const cantidadConsultas = consultas.length;
           <FaCalendarAlt />
 
           <span>
-            Agendar cita
+            AGENDAR CITA
           </span>
 
         </Link>
@@ -2088,14 +2296,41 @@ const cantidadConsultas = consultas.length;
 </div>
 
 {diagnosticosSeleccionados.length > 0 && (
+
   <div className="historia-diagnosticos-seleccionados mb-3">
+
     {diagnosticosSeleccionados.map((d, index) => (
-      <span key={`${d}-${index}`}>
-        <strong className="diag-num">{index + 1}.</strong>
+
+      <span
+        key={`${d}-${index}`}
+        className="diagnostico-chip"
+      >
+
+        <strong className="diag-num">
+          {index + 1}.
+        </strong>
+
         {d.toUpperCase()}
+
+
+        <button
+          type="button"
+          className="diagnostico-chip-remove"
+          onClick={() => toggleDiagnostico(d)}
+          title={`Quitar ${d}`}
+          aria-label={`Quitar ${d}`}
+        >
+
+          <FaTimes />
+
+        </button>
+
       </span>
+
     ))}
+
   </div>
+
 )}
 
 

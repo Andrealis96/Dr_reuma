@@ -17748,7 +17748,7 @@ transform:scale(1.07);
 
   text-align: center;
 
-  font-size: 11px;
+  font-size: 14px;
 
   font-weight: 900;
 
@@ -17759,7 +17759,7 @@ transform:scale(1.07);
 .historia-nuevo-acceso svg {
   flex-shrink: 0;
 
-  font-size: 14px;
+  font-size: 15px;
 }
 
 
@@ -17771,6 +17771,7 @@ transform:scale(1.07);
   border-color: #079caf;
 
   color: #ffffff !important;
+  font-size: 15px;
 }
 
 
@@ -18391,4 +18392,96 @@ transform:scale(1.07);
     font-size: 12px !important;
   }
 
+}
+
+/* =========================================================
+   DIAGNÓSTICOS SELECCIONADOS
+   ROJOS + BOTÓN X
+========================================================= */
+
+.historia-diagnosticos-seleccionados {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+
+/* CHIP */
+
+.historia-diagnosticos-seleccionados .diagnostico-chip {
+  display: inline-flex !important;
+
+  align-items: center !important;
+
+  gap: 6px !important;
+
+  background: #dc3545 !important;
+
+  color: #ffffff !important;
+
+  padding:
+    6px
+    7px
+    6px
+    10px !important;
+
+  border-radius: 999px !important;
+
+  font-size: 0.75rem !important;
+
+  font-weight: 900 !important;
+
+  box-shadow:
+    0 3px 8px rgba(220, 53, 69, 0.18);
+}
+
+
+/* NÚMERO */
+
+.historia-diagnosticos-seleccionados
+.diagnostico-chip
+.diag-num {
+  color: #ffffff !important;
+
+  font-weight: 1000;
+}
+
+
+/* X */
+
+.diagnostico-chip-remove {
+  width: 22px;
+  height: 22px;
+
+  flex-shrink: 0;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.2);
+
+  color: #ffffff;
+
+  font-size: 10px;
+
+  cursor: pointer;
+
+  transition: 0.18s ease;
+}
+
+
+.diagnostico-chip-remove:hover {
+  background: #ffffff;
+
+  color: #dc3545 important;
+
+  transform: scale(1.08);
 }
