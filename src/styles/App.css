@@ -18485,3 +18485,91 @@ transform:scale(1.07);
 
   transform: scale(1.08);
 }
+
+/* =========================================================
+   CHAT - SEPARADOR DE FECHAS
+========================================================= */
+
+.chat-fecha-separador {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: 12px 0 15px;
+}
+
+.chat-fecha-separador::before,
+.chat-fecha-separador::after {
+  content: "";
+
+  height: 1px;
+
+  flex: 1;
+
+  background: #dce8ea;
+}
+
+.chat-fecha-separador span {
+  margin: 0 9px;
+
+  padding: 4px 9px;
+
+  border-radius: 999px;
+
+  background: #e8f6f8;
+
+  color: #53656b;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   VISTO MÁS LEGIBLE
+========================================================= */
+
+.chat-mensaje-estado {
+  font-size: 10px !important;
+}
+
+.chat-mensaje-visto {
+  color: #0797a8 !important;
+
+  font-weight: 700 !important;
+}
+
+
+/* =========================================================
+   CONTADOR DE NO LEÍDOS MÁS GRANDE
+========================================================= */
+
+.chat-interno-contador {
+  top: -8px !important;
+  right: -8px !important;
+
+  min-width: 28px !important;
+  height: 28px !important;
+
+  padding: 0 7px !important;
+
+  border: 3px solid #ffffff !important;
+
+  font-size: 13px !important;
+  font-weight: 1000 !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  line-height: 1 !important;
+
+  box-shadow:
+    0 3px 9px
+    rgba(0, 0, 0, 0.20) !important;
+}

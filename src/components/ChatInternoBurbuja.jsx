@@ -1,6 +1,7 @@
 import {
+  Fragment,
   useEffect,
-  useRef,
+  useRef, 
   useState
 } from "react";
 
@@ -51,6 +52,18 @@ function ChatInternoBurbuja() {
   const mensajesFinalRef = useRef(null);
 
   const marcandoLeidosRef = useRef(false);
+
+  const chatBodyRef = useRef(null);
+
+const primeraCargaMensajesRef = useRef(true);
+
+const audioContextRef = useRef(null);
+
+const tituloOriginalRef = useRef(
+  typeof document !== "undefined"
+    ? document.title.replace(/^\(\d+\+?\)\s*/, "")
+    : "Dr. Reuma"
+);
 
   const timeoutEscribiendoRef = useRef(null);
 
@@ -234,68 +247,258 @@ function ChatInternoBurbuja() {
     obtenerNombreDesdeUsuario(usuario);
 
 
-  // =========================================================
-  // MENSAJES EN TIEMPO REAL
-  // =========================================================
+// =========================================================
+// MENSAJES EN TIEMPO REAL
+// TRAER LOS ÚLTIMOS 60
+// =========================================================
 
-  useEffect(() => {
+useEffect(() => {
 
-    if (!usuario) return;
-
-
-    const qMensajes = query(
-
-      collection(
-        db,
-        "chatInternoMensajes"
-      ),
-
-      orderBy(
-        "createdAt",
-        "asc"
-      ),
-
-      limit(100)
-
-    );
+  if (!usuario) return;
 
 
-    const unsubscribe = onSnapshot(
+  const qMensajes = query(
 
-      qMensajes,
+    collection(
+      db,
+      "chatInternoMensajes"
+    ),
 
-      (snapshot) => {
+    orderBy(
+      "createdAt",
+      "desc"
+    ),
 
-        const datos =
-          snapshot.docs.map(
-            (documento) => ({
-              id: documento.id,
-              ...documento.data()
-            })
-          );
+    limit(60)
+
+  );
 
 
-        setMensajes(datos);
+  const unsubscribe = onSnapshot(
 
-      },
+    qMensajes,
 
-      (error) => {
+    (snapshot) => {
 
-        console.error(
-          "Error cargando chat interno:",
-          error
-        );
+      /*
+       * Firestore los trae:
+       * nuevo -> viejo
+       *
+       * Nosotros los invertimos:
+       * viejo -> nuevo
+       * para mostrarlos correctamente.
+       */
+
+      const datos =
+  snapshot.docs
+    .map((documento) => ({
+      id: documento.id,
+
+      ...documento.data({
+        serverTimestamps: "estimate"
+      })
+    }))
+    .reverse();
+
+
+      /*
+       * SONIDO
+       *
+       * No sonar cuando entra por primera
+       * vez a la página y Firestore carga
+       * todos los mensajes anteriores.
+       */
+
+      if (
+        !primeraCargaMensajesRef.current
+      ) {
+
+        const mensajesNuevosDeOtro =
+          snapshot
+            .docChanges()
+            .filter(
+              (cambio) =>
+                cambio.type === "added" &&
+                cambio.doc.data().autorUid !==
+                  usuario.uid
+            );
+
+
+        if (
+          mensajesNuevosDeOtro.length > 0
+        ) {
+
+          reproducirSonidoMensaje();
+
+        }
 
       }
 
+
+      primeraCargaMensajesRef.current =
+        false;
+
+
+      setMensajes(datos);
+
+    },
+
+    (error) => {
+
+      console.error(
+        "Error cargando chat interno:",
+        error
+      );
+
+    }
+
+  );
+
+
+  return () => unsubscribe();
+
+}, [usuario?.uid]);
+
+// =========================================================
+// SONIDO DE MENSAJE NUEVO
+// =========================================================
+
+useEffect(() => {
+
+  const activarAudio = async () => {
+
+    try {
+
+      if (!audioContextRef.current) {
+
+        const AudioContext =
+          window.AudioContext ||
+          window.webkitAudioContext;
+
+        if (!AudioContext) return;
+
+        audioContextRef.current =
+          new AudioContext();
+
+      }
+
+      if (
+        audioContextRef.current.state ===
+        "suspended"
+      ) {
+
+        await audioContextRef.current.resume();
+
+      }
+
+    } catch (error) {
+
+      console.warn(
+        "No se pudo activar audio:",
+        error
+      );
+
+    }
+
+  };
+
+
+  window.addEventListener(
+    "pointerdown",
+    activarAudio,
+    { once: true }
+  );
+
+
+  return () => {
+
+    window.removeEventListener(
+      "pointerdown",
+      activarAudio
     );
 
+  };
 
-    return () => unsubscribe();
-
-  }, [usuario?.uid]);
+}, []);
 
 
+const reproducirSonidoMensaje = () => {
+
+  try {
+
+    const ctx =
+      audioContextRef.current;
+
+    if (
+      !ctx ||
+      ctx.state !== "running"
+    ) {
+      return;
+    }
+
+
+    const ahora =
+      ctx.currentTime;
+
+
+    [740, 980].forEach(
+      (frecuencia, index) => {
+
+        const oscillator =
+          ctx.createOscillator();
+
+        const gain =
+          ctx.createGain();
+
+
+        oscillator.connect(gain);
+
+        gain.connect(
+          ctx.destination
+        );
+
+
+        oscillator.frequency.value =
+          frecuencia;
+
+
+        gain.gain.setValueAtTime(
+          0.0001,
+          ahora
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+          0.08,
+          ahora + 0.01 + index * 0.08
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+          0.0001,
+          ahora + 0.12 + index * 0.08
+        );
+
+
+        oscillator.start(
+          ahora + index * 0.08
+        );
+
+        oscillator.stop(
+          ahora + 0.15 + index * 0.08
+        );
+
+      }
+    );
+
+  } catch (error) {
+
+    console.warn(
+      "No se pudo reproducir sonido:",
+      error
+    );
+
+  }
+
+};
   // =========================================================
   // ESCUCHAR ESTADOS DEL CHAT
   // Escribiendo + presencia
@@ -819,27 +1022,150 @@ function ChatInternoBurbuja() {
         }
       );
 
-
-  const hayOtroEnLinea =
-    otrosUsuariosEnLinea.length > 0;
-
-
-  const otroUsuarioEnLinea =
-    otrosUsuariosEnLinea[0];
+const hayOtroEnLinea =
+  otrosUsuariosEnLinea.length > 0;
 
 
-  const nombreOtroUsuario =
-    otroUsuarioEnLinea
-      ? (
-          perfiles[
-            otroUsuarioEnLinea.uid
-          ]?.nombre ||
+const otroUsuarioEnLinea =
+  otrosUsuariosEnLinea[0];
 
-          otroUsuarioEnLinea.nombre ||
 
-          "Miembro del equipo"
-        )
-      : "";
+/* =========================================================
+   OTRO USUARIO AUNQUE ESTÉ DESCONECTADO
+========================================================= */
+
+const otrosUsuariosChat =
+  Object.values(estadosChat)
+    .filter((estado) => {
+
+      if (!usuario) return false;
+
+      return (
+        estado.uid !== usuario.uid
+      );
+
+    });
+
+
+const otroUsuarioMasReciente =
+  [...otrosUsuariosChat]
+    .sort((a, b) => {
+
+      const fechaA =
+        a.ultimaConexion?.toMillis?.() || 0;
+
+      const fechaB =
+        b.ultimaConexion?.toMillis?.() || 0;
+
+      return fechaB - fechaA;
+
+    })[0] || null;
+
+
+/*
+ * Si está conectado usamos ese.
+ * Si está desconectado usamos su último estado.
+ */
+
+const otroUsuarioHeader =
+  otroUsuarioEnLinea ||
+  otroUsuarioMasReciente;
+
+
+const nombreOtroUsuario =
+  otroUsuarioHeader
+    ? (
+        perfiles[
+          otroUsuarioHeader.uid
+        ]?.nombre ||
+
+        otroUsuarioHeader.nombre ||
+
+        "Miembro del equipo"
+      )
+    : "";
+
+
+    const formatearUltimaConexion = (
+  timestamp
+) => {
+
+  if (!timestamp?.toDate) {
+    return "Sin conexión";
+  }
+
+
+  const fecha =
+    timestamp.toDate();
+
+  const ahora =
+    new Date();
+
+
+  const hoy =
+    new Date(
+      ahora.getFullYear(),
+      ahora.getMonth(),
+      ahora.getDate()
+    );
+
+
+  const fechaConexion =
+    new Date(
+      fecha.getFullYear(),
+      fecha.getMonth(),
+      fecha.getDate()
+    );
+
+
+  const diferenciaDias =
+    Math.round(
+      (
+        hoy -
+        fechaConexion
+      ) / 86400000
+    );
+
+
+  const hora =
+    fecha.toLocaleTimeString(
+      "es-AR",
+      {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      }
+    );
+
+
+  if (diferenciaDias === 0) {
+
+    return `Última vez hoy · ${hora}`;
+
+  }
+
+
+  if (diferenciaDias === 1) {
+
+    return `Última vez ayer · ${hora}`;
+
+  }
+
+
+  const fechaTexto =
+    fecha.toLocaleDateString(
+      "es-AR",
+      {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric"
+      }
+    );
+
+
+  return `Última vez ${fechaTexto} · ${hora}`;
+
+};
 
 
   // =========================================================
@@ -877,6 +1203,63 @@ function ChatInternoBurbuja() {
 
       }
     );
+
+    // =========================================================
+// CONTADOR EN PESTAÑA DEL NAVEGADOR
+// =========================================================
+
+useEffect(() => {
+
+  if (
+    typeof document === "undefined"
+  ) {
+    return;
+  }
+
+
+  const cantidad =
+    mensajesNoLeidos.length;
+
+
+  if (cantidad > 0) {
+
+    const contador =
+      cantidad > 99
+        ? "99+"
+        : cantidad;
+
+
+    document.title =
+      `(${contador}) ${tituloOriginalRef.current}`;
+
+  } else {
+
+    document.title =
+      tituloOriginalRef.current;
+
+  }
+
+}, [mensajesNoLeidos.length]);
+
+
+/* Restaurar título al salir */
+
+useEffect(() => {
+
+  return () => {
+
+    if (
+      typeof document !== "undefined"
+    ) {
+
+      document.title =
+        tituloOriginalRef.current;
+
+    }
+
+  };
+
+}, []);
 
 
   // =========================================================
@@ -931,14 +1314,17 @@ function ChatInternoBurbuja() {
 
 
             batch.update(
-              mensajeRef,
-              {
-                leidoPor:
-                  arrayUnion(
-                    usuario.uid
-                  )
-              }
-            );
+            mensajeRef,
+            {
+              leidoPor:
+                arrayUnion(
+                  usuario.uid
+                ),
+
+              [`vistoPor.${usuario.uid}`]:
+                serverTimestamp()
+            }
+          );
 
           }
         );
@@ -986,32 +1372,93 @@ function ChatInternoBurbuja() {
           usuario?.uid
       );
 
+// =========================================================
+// SCROLL DEL CHAT
+// SIEMPRE PEGADO AL ÚLTIMO MENSAJE
+// =========================================================
 
-  // =========================================================
-  // SCROLL AUTOMÁTICO
-  // =========================================================
+const irAlFinalChat = () => {
 
-  useEffect(() => {
+  const body =
+    chatBodyRef.current;
 
-    if (!abierto) return;
+  if (!body) return;
 
 
+  body.scrollTop =
+    body.scrollHeight;
+
+
+  mensajesFinalRef.current
+    ?.scrollIntoView({
+      behavior: "auto",
+      block: "end"
+    });
+
+};
+
+
+useEffect(() => {
+
+  if (!abierto) return;
+
+
+  /*
+   * Primer intento inmediatamente
+   * después del render.
+   */
+
+  const frame =
+    requestAnimationFrame(() => {
+
+      irAlFinalChat();
+
+    });
+
+
+  /*
+   * Segundo intento cuando el DOM
+   * ya terminó de acomodar burbujas,
+   * fechas, visto, etc.
+   */
+
+  const timer1 =
     setTimeout(() => {
 
-      mensajesFinalRef.current
-        ?.scrollIntoView({
-          behavior:
-            "smooth"
-        });
+      irAlFinalChat();
 
-    }, 80);
+    }, 40);
 
-  }, [
-    abierto,
-    mensajes.length,
-    usuariosEscribiendo.length
-  ]);
 
+  /*
+   * Tercer pequeño ajuste.
+   * Útil cuando Firebase reemplaza
+   * el serverTimestamp.
+   */
+
+  const timer2 =
+    setTimeout(() => {
+
+      irAlFinalChat();
+
+    }, 150);
+
+
+  return () => {
+
+    cancelAnimationFrame(frame);
+
+    clearTimeout(timer1);
+
+    clearTimeout(timer2);
+
+  };
+
+}, [
+  abierto,
+  mensajes,
+  usuariosEscribiendo.length
+]);
 
   // =========================================================
   // ENVIAR MENSAJE
@@ -1176,6 +1623,168 @@ function ChatInternoBurbuja() {
 
   };
 
+  // =========================================================
+// FECHAS DEL CHAT
+// =========================================================
+
+const obtenerFechaMensaje = (
+  createdAt
+) => {
+
+  if (!createdAt?.toDate) {
+    return null;
+  }
+
+  return createdAt.toDate();
+
+};
+
+
+const mismoDia = (
+  fechaA,
+  fechaB
+) => {
+
+  if (!fechaA || !fechaB) {
+    return false;
+  }
+
+  return (
+    fechaA.getFullYear() ===
+      fechaB.getFullYear() &&
+    fechaA.getMonth() ===
+      fechaB.getMonth() &&
+    fechaA.getDate() ===
+      fechaB.getDate()
+  );
+
+};
+
+
+const capitalizarPrimera = (
+  texto = ""
+) => {
+
+  if (!texto) return "";
+
+  return (
+    texto.charAt(0).toUpperCase() +
+    texto.slice(1)
+  );
+
+};
+
+
+const formatearDiaChat = (
+  createdAt
+) => {
+
+  const fecha =
+    obtenerFechaMensaje(createdAt);
+
+  if (!fecha) return "";
+
+
+  const hoy =
+    new Date();
+
+  const ayer =
+    new Date();
+
+  ayer.setDate(
+    hoy.getDate() - 1
+  );
+
+
+  const diaSemana =
+    capitalizarPrimera(
+      fecha.toLocaleDateString(
+        "es-AR",
+        {
+          weekday: "long"
+        }
+      )
+    );
+
+
+  if (
+    mismoDia(
+      fecha,
+      hoy
+    )
+  ) {
+
+    return `Hoy · ${diaSemana}`;
+
+  }
+
+
+  if (
+    mismoDia(
+      fecha,
+      ayer
+    )
+  ) {
+
+    return `Ayer · ${diaSemana}`;
+
+  }
+
+
+  const inicioHoy =
+    new Date(
+      hoy.getFullYear(),
+      hoy.getMonth(),
+      hoy.getDate()
+    );
+
+
+  const inicioFecha =
+    new Date(
+      fecha.getFullYear(),
+      fecha.getMonth(),
+      fecha.getDate()
+    );
+
+
+  const diferenciaDias =
+    Math.floor(
+      (
+        inicioHoy -
+        inicioFecha
+      ) /
+      86400000
+    );
+
+
+  // Última semana:
+  // Lunes / Martes / Miércoles...
+
+  if (
+    diferenciaDias >= 0 &&
+    diferenciaDias < 7
+  ) {
+
+    return diaSemana;
+
+  }
+
+
+  // Mensajes anteriores
+
+  const fechaTexto =
+    fecha.toLocaleDateString(
+      "es-AR",
+      {
+        day: "numeric",
+        month: "short"
+      }
+    );
+
+
+  return `${diaSemana} · ${fechaTexto}`;
+
+};
 
   // =========================================================
   // INICIALES
@@ -1288,7 +1897,14 @@ function ChatInternoBurbuja() {
 
                   {hayOtroEnLinea
                     ? `${nombreOtroUsuario} · En línea`
-                    : "Sin conexión"}
+
+                    : otroUsuarioHeader?.ultimaConexion
+
+                      ? `${nombreOtroUsuario} · ${formatearUltimaConexion(
+                          otroUsuarioHeader.ultimaConexion
+                        )}`
+
+                      : "Sin conexión"}
 
                 </span>
 
@@ -1318,8 +1934,10 @@ function ChatInternoBurbuja() {
               MENSAJES
           ================================================= */}
 
-          <div className="chat-interno-body">
-
+          <div
+            ref={chatBodyRef}
+            className="chat-interno-body"
+          >
 
             {mensajes.length === 0 ? (
 
@@ -1340,161 +1958,237 @@ function ChatInternoBurbuja() {
             ) : (
 
               mensajes.map(
-                (mensaje) => {
+  (mensaje, index) => {
 
-                  const esMio =
-                    mensaje.autorUid ===
-                    usuario?.uid;
-
-
-                  const perfilAutor =
-                    perfiles[
-                      mensaje.autorUid
-                    ] || {};
+    const esMio =
+      mensaje.autorUid ===
+      usuario?.uid;
 
 
-                  const nombreAutor =
-                    perfilAutor.nombre ||
-                    mensaje.autorNombre ||
-                    "Usuario";
+    const perfilAutor =
+      perfiles[
+        mensaje.autorUid
+      ] || {};
 
 
-                  const fotoAutor =
-                    perfilAutor.fotoUrl ||
-                    "";
+    const nombreAutor =
+      perfilAutor.nombre ||
+      mensaje.autorNombre ||
+      "Usuario";
 
 
-                  const lectores =
-                    Array.isArray(
-                      mensaje.leidoPor
-                    )
-                      ? mensaje.leidoPor.filter(
-                          (uid) =>
-                            uid !==
-                            mensaje.autorUid
-                        )
-                      : [];
+    const fotoAutor =
+      perfilAutor.fotoUrl ||
+      "";
 
 
-                  const fueVisto =
-                    lectores.length > 0;
+    /* =========================
+       VISTO
+    ========================= */
+
+    const lectores =
+      Array.isArray(
+        mensaje.leidoPor
+      )
+        ? mensaje.leidoPor.filter(
+            (uid) =>
+              uid !==
+              mensaje.autorUid
+          )
+        : [];
 
 
-                  const primerLector =
-                    lectores[0];
+    const fueVisto =
+      lectores.length > 0;
 
 
-                  const nombreLector =
-                    perfiles[
-                      primerLector
-                    ]?.nombre ||
-                    "";
+    const primerLector =
+      lectores[0];
 
 
-                  const esUltimoMensajeMio =
-                    esMio &&
-                    ultimoMensajeMio?.id ===
-                      mensaje.id;
+    const nombreLector =
+      perfiles[
+        primerLector
+      ]?.nombre || "";
 
 
-                  return (
-
-                    <div
-                      key={mensaje.id}
-                      className={
-                        esMio
-                          ? "chat-mensaje-fila chat-mensaje-mio"
-                          : "chat-mensaje-fila chat-mensaje-otro"
-                      }
-                    >
-
-
-                      {!esMio && (
-
-                        <div className="chat-mensaje-avatar">
-
-                          {fotoAutor ? (
-
-                            <img
-                              src={fotoAutor}
-                              alt={nombreAutor}
-                            />
-
-                          ) : (
-
-                            obtenerIniciales(
-                              nombreAutor
-                            )
-
-                          )}
-
-                        </div>
-
-                      )}
+    const horaVisto =
+      primerLector &&
+      mensaje.vistoPor?.[
+        primerLector
+      ]
+        ? formatearHora(
+            mensaje.vistoPor[
+              primerLector
+            ]
+          )
+        : "";
 
 
-                      <div className="chat-mensaje-contenido">
+    const esUltimoMensajeMio =
+      esMio &&
+      ultimoMensajeMio?.id ===
+        mensaje.id;
 
 
-                        {!esMio && (
+    /* =========================
+       SEPARADOR DE FECHA
+    ========================= */
 
-                          <span className="chat-mensaje-autor">
-
-                            {nombreAutor}
-
-                          </span>
-
-                        )}
-
-
-                        <div className="chat-mensaje-burbuja">
-
-                          <span>
-                            {mensaje.texto}
-                          </span>
-
-                        </div>
+    const fechaActual =
+      obtenerFechaMensaje(
+        mensaje.createdAt
+      );
 
 
-                        <small className="chat-mensaje-hora">
+    const fechaAnterior =
+      index > 0
+        ? obtenerFechaMensaje(
+            mensajes[index - 1]
+              .createdAt
+          )
+        : null;
 
-                          {formatearHora(
-                            mensaje.createdAt
-                          )}
 
-                        </small>
+    const mostrarFecha =
+  Boolean(fechaActual) &&
+  (
+    index === 0 ||
+    !mismoDia(
+      fechaActual,
+      fechaAnterior
+    )
+  );
 
 
-                        {esUltimoMensajeMio && (
+    return (
 
-                          <small
-                            className={
-                              fueVisto
-                                ? "chat-mensaje-estado chat-mensaje-visto"
-                                : "chat-mensaje-estado"
-                            }
-                          >
+      <Fragment
+        key={mensaje.id}
+      >
 
-                            {fueVisto
-                              ? `✓✓ Visto${
-                                  nombreLector
-                                    ? ` por ${nombreLector}`
-                                    : ""
-                                }`
-                              : "✓ Enviado"}
 
-                          </small>
+        {/* FECHA */}
 
-                        )}
+        {mostrarFecha && (
 
-                      </div>
+          <div className="chat-fecha-separador">
 
-                    </div>
+            <span>
+              {formatearDiaChat(
+                mensaje.createdAt
+              )}
+            </span>
 
-                  );
+          </div>
 
+        )}
+
+
+        {/* MENSAJE */}
+
+        <div
+          className={
+            esMio
+              ? "chat-mensaje-fila chat-mensaje-mio"
+              : "chat-mensaje-fila chat-mensaje-otro"
+          }
+        >
+
+
+          {!esMio && (
+
+            <div className="chat-mensaje-avatar">
+
+              {fotoAutor ? (
+
+                <img
+                  src={fotoAutor}
+                  alt={nombreAutor}
+                />
+
+              ) : (
+
+                obtenerIniciales(
+                  nombreAutor
+                )
+
+              )}
+
+            </div>
+
+          )}
+
+
+          <div className="chat-mensaje-contenido">
+
+
+            {!esMio && (
+
+              <span className="chat-mensaje-autor">
+
+                {nombreAutor}
+
+              </span>
+
+            )}
+
+
+            <div className="chat-mensaje-burbuja">
+
+              <span>
+                {mensaje.texto}
+              </span>
+
+            </div>
+
+
+            <small className="chat-mensaje-hora">
+
+              {formatearHora(
+                mensaje.createdAt
+              )}
+
+            </small>
+
+
+            {esUltimoMensajeMio && (
+
+              <small
+                className={
+                  fueVisto
+                    ? "chat-mensaje-estado chat-mensaje-visto"
+                    : "chat-mensaje-estado"
                 }
-              )
+              >
+
+                {fueVisto
+                  ? `✓✓ Visto${
+                      nombreLector
+                        ? ` por ${nombreLector}`
+                        : ""
+                    }${
+                      horaVisto
+                        ? ` · ${horaVisto}`
+                        : ""
+                    }`
+                  : "✓ Enviado"}
+
+              </small>
+
+            )}
+
+
+          </div>
+
+        </div>
+
+      </Fragment>
+
+    );
+
+  }
+)
 
             )}
 
@@ -1606,9 +2300,47 @@ function ChatInternoBurbuja() {
         <button
           type="button"
           className="chat-interno-burbuja"
-          onClick={() =>
-            setAbierto(true)
-          }
+          onClick={() => {
+
+  setAbierto(true);
+
+  // En cuanto abro el chat,
+  // ya estoy viendo los mensajes.
+  setMensajes((anteriores) =>
+    anteriores.map((mensaje) => {
+
+      if (
+        mensaje.autorUid === usuario?.uid
+      ) {
+        return mensaje;
+      }
+
+      const leidoPorActual =
+        Array.isArray(mensaje.leidoPor)
+          ? mensaje.leidoPor
+          : [];
+
+      if (
+        leidoPorActual.includes(
+          usuario.uid
+        )
+      ) {
+        return mensaje;
+      }
+
+      return {
+        ...mensaje,
+
+        leidoPor: [
+          ...leidoPorActual,
+          usuario.uid
+        ]
+      };
+
+    })
+  );
+
+}}
           aria-label="Abrir chat interno"
         >
 
