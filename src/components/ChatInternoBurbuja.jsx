@@ -1,7 +1,7 @@
 import {
   Fragment,
   useEffect,
-  useRef, 
+  useRef,
   useState
 } from "react";
 
@@ -44,9 +44,21 @@ function ChatInternoBurbuja() {
 
   const [estadosChat, setEstadosChat] = useState({});
 
-  // Hace que "En línea" y "Escribiendo"
-  // se recalculen aunque no llegue un snapshot nuevo.
   const [, setReloj] = useState(Date.now());
+
+
+  /* =========================================================
+     VENTANA REALMENTE ACTIVA
+  ========================================================= */
+
+  const [ventanaActiva, setVentanaActiva] = useState(
+    typeof document !== "undefined"
+      ? (
+          document.visibilityState === "visible" &&
+          document.hasFocus()
+        )
+      : true
+  );
 
 
   const mensajesFinalRef = useRef(null);
@@ -55,15 +67,18 @@ function ChatInternoBurbuja() {
 
   const chatBodyRef = useRef(null);
 
-const primeraCargaMensajesRef = useRef(true);
+  const primeraCargaMensajesRef = useRef(true);
 
-const audioContextRef = useRef(null);
+  const audioContextRef = useRef(null);
 
-const tituloOriginalRef = useRef(
-  typeof document !== "undefined"
-    ? document.title.replace(/^\(\d+\+?\)\s*/, "")
-    : "Dr. Reuma"
-);
+  const tituloOriginalRef = useRef(
+    typeof document !== "undefined"
+      ? document.title.replace(
+          /^\(\d+\+?\)\s*/,
+          ""
+        )
+      : "Dr. Reuma"
+  );
 
   const timeoutEscribiendoRef = useRef(null);
 
@@ -75,9 +90,67 @@ const tituloOriginalRef = useRef(
   const usuario = auth.currentUser;
 
 
-  // =========================================================
-  // NOMBRE AUTOMÁTICO DESDE FIREBASE AUTH
-  // =========================================================
+  /* =========================================================
+     DETECTAR SI REALMENTE ESTOY MIRANDO ESTA VENTANA
+  ========================================================= */
+
+  useEffect(() => {
+
+    const actualizarVentanaActiva = () => {
+
+      const activa =
+        document.visibilityState === "visible" &&
+        document.hasFocus();
+
+      setVentanaActiva(activa);
+
+    };
+
+
+    window.addEventListener(
+      "focus",
+      actualizarVentanaActiva
+    );
+
+    window.addEventListener(
+      "blur",
+      actualizarVentanaActiva
+    );
+
+    document.addEventListener(
+      "visibilitychange",
+      actualizarVentanaActiva
+    );
+
+
+    actualizarVentanaActiva();
+
+
+    return () => {
+
+      window.removeEventListener(
+        "focus",
+        actualizarVentanaActiva
+      );
+
+      window.removeEventListener(
+        "blur",
+        actualizarVentanaActiva
+      );
+
+      document.removeEventListener(
+        "visibilitychange",
+        actualizarVentanaActiva
+      );
+
+    };
+
+  }, []);
+
+
+  /* =========================================================
+     NOMBRE AUTOMÁTICO
+  ========================================================= */
 
   const obtenerNombreDesdeUsuario = (user) => {
 
@@ -112,9 +185,9 @@ const tituloOriginalRef = useRef(
   };
 
 
-  // =========================================================
-  // CREAR PERFIL INTERNO SI NO EXISTE
-  // =========================================================
+  /* =========================================================
+     CREAR PERFIL SI NO EXISTE
+  ========================================================= */
 
   useEffect(() => {
 
@@ -141,7 +214,8 @@ const tituloOriginalRef = useRef(
           await setDoc(
             perfilRef,
             {
-              uid: usuario.uid,
+              uid:
+                usuario.uid,
 
               email:
                 usuario.email || "",
@@ -154,7 +228,8 @@ const tituloOriginalRef = useRef(
               rol:
                 "Equipo Dr. Reuma",
 
-              fotoUrl: "",
+              fotoUrl:
+                "",
 
               creadoAt:
                 serverTimestamp()
@@ -180,9 +255,9 @@ const tituloOriginalRef = useRef(
   }, [usuario?.uid]);
 
 
-  // =========================================================
-  // ESCUCHAR PERFILES DEL EQUIPO
-  // =========================================================
+  /* =========================================================
+     ESCUCHAR PERFILES
+  ========================================================= */
 
   useEffect(() => {
 
@@ -204,16 +279,24 @@ const tituloOriginalRef = useRef(
         snapshot.docs.forEach(
           (documento) => {
 
-            mapaPerfiles[documento.id] = {
-              id: documento.id,
+            mapaPerfiles[
+              documento.id
+            ] = {
+
+              id:
+                documento.id,
+
               ...documento.data()
+
             };
 
           }
         );
 
 
-        setPerfiles(mapaPerfiles);
+        setPerfiles(
+          mapaPerfiles
+        );
 
       },
 
@@ -229,172 +312,181 @@ const tituloOriginalRef = useRef(
     );
 
 
-    return () => unsubscribe();
+    return () =>
+      unsubscribe();
 
   }, [usuario?.uid]);
 
 
-  // =========================================================
-  // PERFIL DEL USUARIO ACTUAL
-  // =========================================================
+  /* =========================================================
+     PERFIL ACTUAL
+  ========================================================= */
 
   const perfilActual =
-    perfiles[usuario?.uid];
+    perfiles[
+      usuario?.uid
+    ];
 
 
   const nombreUsuario =
     perfilActual?.nombre ||
-    obtenerNombreDesdeUsuario(usuario);
+    obtenerNombreDesdeUsuario(
+      usuario
+    );
 
 
-// =========================================================
-// MENSAJES EN TIEMPO REAL
-// TRAER LOS ÚLTIMOS 60
-// =========================================================
+  /* =========================================================
+     SONIDO
+     ACTIVAR AUDIO DESPUÉS DEL PRIMER CLICK
+  ========================================================= */
 
-useEffect(() => {
+  useEffect(() => {
 
-  if (!usuario) return;
+    const activarAudio = async () => {
 
-
-  const qMensajes = query(
-
-    collection(
-      db,
-      "chatInternoMensajes"
-    ),
-
-    orderBy(
-      "createdAt",
-      "desc"
-    ),
-
-    limit(60)
-
-  );
-
-
-  const unsubscribe = onSnapshot(
-
-    qMensajes,
-
-    (snapshot) => {
-
-      /*
-       * Firestore los trae:
-       * nuevo -> viejo
-       *
-       * Nosotros los invertimos:
-       * viejo -> nuevo
-       * para mostrarlos correctamente.
-       */
-
-      const datos =
-  snapshot.docs
-    .map((documento) => ({
-      id: documento.id,
-
-      ...documento.data({
-        serverTimestamps: "estimate"
-      })
-    }))
-    .reverse();
-
-
-      /*
-       * SONIDO
-       *
-       * No sonar cuando entra por primera
-       * vez a la página y Firestore carga
-       * todos los mensajes anteriores.
-       */
-
-      if (
-        !primeraCargaMensajesRef.current
-      ) {
-
-        const mensajesNuevosDeOtro =
-          snapshot
-            .docChanges()
-            .filter(
-              (cambio) =>
-                cambio.type === "added" &&
-                cambio.doc.data().autorUid !==
-                  usuario.uid
-            );
-
+      try {
 
         if (
-          mensajesNuevosDeOtro.length > 0
+          !audioContextRef.current
         ) {
 
-          reproducirSonidoMensaje();
+          const AudioContext =
+            window.AudioContext ||
+            window.webkitAudioContext;
+
+
+          if (!AudioContext) {
+            return;
+          }
+
+
+          audioContextRef.current =
+            new AudioContext();
 
         }
 
+
+        if (
+          audioContextRef.current.state ===
+          "suspended"
+        ) {
+
+          await audioContextRef.current.resume();
+
+        }
+
+      } catch (error) {
+
+        console.warn(
+          "No se pudo activar audio:",
+          error
+        );
+
       }
 
-
-      primeraCargaMensajesRef.current =
-        false;
+    };
 
 
-      setMensajes(datos);
+    window.addEventListener(
+      "pointerdown",
+      activarAudio,
+      {
+        once: true
+      }
+    );
 
-    },
 
-    (error) => {
+    return () => {
 
-      console.error(
-        "Error cargando chat interno:",
-        error
+      window.removeEventListener(
+        "pointerdown",
+        activarAudio
       );
 
-    }
+    };
 
-  );
+  }, []);
 
 
-  return () => unsubscribe();
+  /* =========================================================
+     UN SOLO SONIDO POR MENSAJE
+  ========================================================= */
 
-}, [usuario?.uid]);
-
-// =========================================================
-// SONIDO DE MENSAJE NUEVO
-// =========================================================
-
-useEffect(() => {
-
-  const activarAudio = async () => {
+  const reproducirSonidoMensaje = () => {
 
     try {
 
-      if (!audioContextRef.current) {
+      const ctx =
+        audioContextRef.current;
 
-        const AudioContext =
-          window.AudioContext ||
-          window.webkitAudioContext;
-
-        if (!AudioContext) return;
-
-        audioContextRef.current =
-          new AudioContext();
-
-      }
 
       if (
-        audioContextRef.current.state ===
-        "suspended"
+        !ctx ||
+        ctx.state !== "running"
       ) {
 
-        await audioContextRef.current.resume();
+        return;
 
       }
+
+
+      const ahora =
+        ctx.currentTime;
+
+
+      const oscillator =
+        ctx.createOscillator();
+
+
+      const gain =
+        ctx.createGain();
+
+
+      oscillator.connect(
+        gain
+      );
+
+      gain.connect(
+        ctx.destination
+      );
+
+
+      oscillator.frequency.value =
+        880;
+
+
+      gain.gain.setValueAtTime(
+        0.0001,
+        ahora
+      );
+
+
+      gain.gain.exponentialRampToValueAtTime(
+        0.065,
+        ahora + 0.01
+      );
+
+
+      gain.gain.exponentialRampToValueAtTime(
+        0.0001,
+        ahora + 0.13
+      );
+
+
+      oscillator.start(
+        ahora
+      );
+
+
+      oscillator.stop(
+        ahora + 0.15
+      );
+
 
     } catch (error) {
 
       console.warn(
-        "No se pudo activar audio:",
+        "No se pudo reproducir sonido:",
         error
       );
 
@@ -403,106 +495,127 @@ useEffect(() => {
   };
 
 
-  window.addEventListener(
-    "pointerdown",
-    activarAudio,
-    { once: true }
-  );
+  /* =========================================================
+     MENSAJES EN TIEMPO REAL
+     ÚLTIMOS 60
+  ========================================================= */
+
+  useEffect(() => {
+
+    if (!usuario) return;
 
 
-  return () => {
+    primeraCargaMensajesRef.current =
+      true;
 
-    window.removeEventListener(
-      "pointerdown",
-      activarAudio
+
+    const qMensajes = query(
+
+      collection(
+        db,
+        "chatInternoMensajes"
+      ),
+
+      orderBy(
+        "createdAt",
+        "desc"
+      ),
+
+      limit(60)
+
     );
 
-  };
 
-}, []);
+    const unsubscribe =
+      onSnapshot(
 
+        qMensajes,
 
-const reproducirSonidoMensaje = () => {
+        (snapshot) => {
 
-  try {
+          const datos =
+            snapshot.docs
+              .map(
+                (documento) => ({
 
-    const ctx =
-      audioContextRef.current;
+                  id:
+                    documento.id,
 
-    if (
-      !ctx ||
-      ctx.state !== "running"
-    ) {
-      return;
-    }
+                  ...documento.data({
+                    serverTimestamps:
+                      "estimate"
+                  })
 
-
-    const ahora =
-      ctx.currentTime;
-
-
-    [740, 980].forEach(
-      (frecuencia, index) => {
-
-        const oscillator =
-          ctx.createOscillator();
-
-        const gain =
-          ctx.createGain();
+                })
+              )
+              .reverse();
 
 
-        oscillator.connect(gain);
+          /* =========================================
+             SONAR SOLO POR MENSAJES NUEVOS DE OTRO
+          ========================================= */
 
-        gain.connect(
-          ctx.destination
-        );
+          if (
+            !primeraCargaMensajesRef.current
+          ) {
 
+            const mensajesNuevosDeOtro =
+              snapshot
+                .docChanges()
+                .filter(
+                  (cambio) =>
 
-        oscillator.frequency.value =
-          frecuencia;
+                    cambio.type ===
+                      "added" &&
 
-
-        gain.gain.setValueAtTime(
-          0.0001,
-          ahora
-        );
-
-        gain.gain.exponentialRampToValueAtTime(
-          0.08,
-          ahora + 0.01 + index * 0.08
-        );
-
-        gain.gain.exponentialRampToValueAtTime(
-          0.0001,
-          ahora + 0.12 + index * 0.08
-        );
+                    cambio.doc.data()
+                      .autorUid !==
+                      usuario.uid
+                );
 
 
-        oscillator.start(
-          ahora + index * 0.08
-        );
+            if (
+              mensajesNuevosDeOtro.length > 0
+            ) {
 
-        oscillator.stop(
-          ahora + 0.15 + index * 0.08
-        );
+              reproducirSonidoMensaje();
 
-      }
-    );
+            }
 
-  } catch (error) {
+          }
 
-    console.warn(
-      "No se pudo reproducir sonido:",
-      error
-    );
 
-  }
+          primeraCargaMensajesRef.current =
+            false;
 
-};
-  // =========================================================
-  // ESCUCHAR ESTADOS DEL CHAT
-  // Escribiendo + presencia
-  // =========================================================
+
+          setMensajes(
+            datos
+          );
+
+        },
+
+        (error) => {
+
+          console.error(
+            "Error cargando chat interno:",
+            error
+          );
+
+        }
+
+      );
+
+
+    return () =>
+      unsubscribe();
+
+  }, [usuario?.uid]);
+
+
+  /* =========================================================
+     ESCUCHAR ESTADOS DEL CHAT
+  ========================================================= */
 
   useEffect(() => {
 
@@ -524,16 +637,24 @@ const reproducirSonidoMensaje = () => {
         snapshot.docs.forEach(
           (documento) => {
 
-            estados[documento.id] = {
-              uid: documento.id,
+            estados[
+              documento.id
+            ] = {
+
+              uid:
+                documento.id,
+
               ...documento.data()
+
             };
 
           }
         );
 
 
-        setEstadosChat(estados);
+        setEstadosChat(
+          estados
+        );
 
       },
 
@@ -549,14 +670,15 @@ const reproducirSonidoMensaje = () => {
     );
 
 
-    return () => unsubscribe();
+    return () =>
+      unsubscribe();
 
   }, [usuario?.uid]);
 
 
-  // =========================================================
-  // RELOJ INTERNO
-  // =========================================================
+  /* =========================================================
+     RELOJ INTERNO
+  ========================================================= */
 
   useEffect(() => {
 
@@ -571,15 +693,16 @@ const reproducirSonidoMensaje = () => {
 
 
     return () =>
-      clearInterval(intervalo);
+      clearInterval(
+        intervalo
+      );
 
   }, []);
 
 
-  // =========================================================
-  // PRESENCIA
-  // EN LÍNEA / SIN CONEXIÓN
-  // =========================================================
+  /* =========================================================
+     PRESENCIA
+  ========================================================= */
 
   useEffect(() => {
 
@@ -593,47 +716,46 @@ const reproducirSonidoMensaje = () => {
     );
 
 
-    const marcarEnLinea = async () => {
+    const marcarEnLinea =
+      async () => {
 
-      try {
+        try {
 
-        await setDoc(
-          estadoRef,
-          {
-            uid:
-              usuario.uid,
+          await setDoc(
+            estadoRef,
+            {
+              uid:
+                usuario.uid,
 
-            nombre:
-              nombreUsuario,
+              nombre:
+                nombreUsuario,
 
-            enLinea:
-              true,
+              enLinea:
+                true,
 
-            ultimaConexion:
-              serverTimestamp()
-          },
-          {
-            merge: true
-          }
-        );
+              ultimaConexion:
+                serverTimestamp()
+            },
+            {
+              merge: true
+            }
+          );
 
-      } catch (error) {
+        } catch (error) {
 
-        console.error(
-          "Error actualizando presencia:",
-          error
-        );
+          console.error(
+            "Error actualizando presencia:",
+            error
+          );
 
-      }
+        }
 
-    };
+      };
 
 
-    // Marcamos online apenas entra.
     marcarEnLinea();
 
 
-    // Heartbeat cada 20 segundos.
     const intervaloPresencia =
       setInterval(() => {
 
@@ -664,7 +786,9 @@ const reproducirSonidoMensaje = () => {
         {
           merge: true
         }
-      ).catch(() => {});
+      ).catch(
+        () => {}
+      );
 
     };
 
@@ -674,9 +798,9 @@ const reproducirSonidoMensaje = () => {
   ]);
 
 
-  // =========================================================
-  // ACTUALIZAR "ESCRIBIENDO..."
-  // =========================================================
+  /* =========================================================
+     ESTADO ESCRIBIENDO
+  ========================================================= */
 
   const actualizarEstadoEscribiendo =
     async (
@@ -691,11 +815,9 @@ const reproducirSonidoMensaje = () => {
         Date.now();
 
 
-      // Evita escribir en Firestore con cada tecla.
-      // Mientras escribe, actualiza como máximo
-      // aproximadamente una vez por segundo.
-
-      if (estaEscribiendo) {
+      if (
+        estaEscribiendo
+      ) {
 
         const tiempoDesdeUltimoPing =
           ahora -
@@ -730,7 +852,9 @@ const reproducirSonidoMensaje = () => {
         estaEscribiendo;
 
 
-      if (estaEscribiendo) {
+      if (
+        estaEscribiendo
+      ) {
 
         ultimoPingEscrituraRef.current =
           ahora;
@@ -780,11 +904,13 @@ const reproducirSonidoMensaje = () => {
     };
 
 
-  // =========================================================
-  // CAMBIO DEL INPUT
-  // =========================================================
+  /* =========================================================
+     INPUT
+  ========================================================= */
 
-  const manejarCambioTexto = (e) => {
+  const manejarCambioTexto = (
+    e
+  ) => {
 
     const nuevoTexto =
       e.target.value;
@@ -835,9 +961,9 @@ const reproducirSonidoMensaje = () => {
   };
 
 
-  // =========================================================
-  // LIMPIAR "ESCRIBIENDO" AL SALIR
-  // =========================================================
+  /* =========================================================
+     LIMPIAR ESCRIBIENDO AL SALIR
+  ========================================================= */
 
   useEffect(() => {
 
@@ -854,7 +980,9 @@ const reproducirSonidoMensaje = () => {
       }
 
 
-      if (usuario) {
+      if (
+        usuario
+      ) {
 
         setDoc(
 
@@ -882,7 +1010,9 @@ const reproducirSonidoMensaje = () => {
             merge: true
           }
 
-        ).catch(() => {});
+        ).catch(
+          () => {}
+        );
 
       }
 
@@ -894,9 +1024,9 @@ const reproducirSonidoMensaje = () => {
   ]);
 
 
-  // =========================================================
-  // QUIÉN ESTÁ ESCRIBIENDO
-  // =========================================================
+  /* =========================================================
+     QUIÉN ESTÁ ESCRIBIENDO
+  ========================================================= */
 
   const usuariosEscribiendo =
     Object.values(
@@ -938,9 +1068,6 @@ const reproducirSonidoMensaje = () => {
               estado.updatedAt.toMillis();
 
 
-            // Si quedó colgado por alguna razón,
-            // deja de mostrar escribiendo.
-
             if (
               antiguedad > 6000
             ) {
@@ -958,9 +1085,9 @@ const reproducirSonidoMensaje = () => {
       );
 
 
-  // =========================================================
-  // USUARIOS EN LÍNEA
-  // =========================================================
+  /* =========================================================
+     USUARIOS EN LÍNEA
+  ========================================================= */
 
   const otrosUsuariosEnLinea =
     Object.values(
@@ -1002,10 +1129,6 @@ const reproducirSonidoMensaje = () => {
               estado.ultimaConexion.toMillis();
 
 
-            // El heartbeat es cada 20 segundos.
-            // Después de 45 segundos sin actualizar
-            // se considera desconectado.
-
             if (
               tiempo > 45000
             ) {
@@ -1022,155 +1145,198 @@ const reproducirSonidoMensaje = () => {
         }
       );
 
-const hayOtroEnLinea =
-  otrosUsuariosEnLinea.length > 0;
+
+  const hayOtroEnLinea =
+    otrosUsuariosEnLinea.length > 0;
 
 
-const otroUsuarioEnLinea =
-  otrosUsuariosEnLinea[0];
+  const otroUsuarioEnLinea =
+    otrosUsuariosEnLinea[0];
 
 
-/* =========================================================
-   OTRO USUARIO AUNQUE ESTÉ DESCONECTADO
-========================================================= */
+  /* =========================================================
+     ÚLTIMO USUARIO AUNQUE ESTÉ DESCONECTADO
+  ========================================================= */
 
-const otrosUsuariosChat =
-  Object.values(estadosChat)
-    .filter((estado) => {
+  const otrosUsuariosChat =
+    Object.values(
+      estadosChat
+    )
+      .filter(
+        (estado) => {
 
-      if (!usuario) return false;
+          if (!usuario) {
+            return false;
+          }
 
-      return (
-        estado.uid !== usuario.uid
+
+          return (
+            estado.uid !==
+            usuario.uid
+          );
+
+        }
       );
 
-    });
+
+  const otroUsuarioMasReciente =
+    [...otrosUsuariosChat]
+      .sort(
+        (a, b) => {
+
+          const fechaA =
+            a.ultimaConexion
+              ?.toMillis?.() || 0;
 
 
-const otroUsuarioMasReciente =
-  [...otrosUsuariosChat]
-    .sort((a, b) => {
-
-      const fechaA =
-        a.ultimaConexion?.toMillis?.() || 0;
-
-      const fechaB =
-        b.ultimaConexion?.toMillis?.() || 0;
-
-      return fechaB - fechaA;
-
-    })[0] || null;
+          const fechaB =
+            b.ultimaConexion
+              ?.toMillis?.() || 0;
 
 
-/*
- * Si está conectado usamos ese.
- * Si está desconectado usamos su último estado.
- */
+          return (
+            fechaB -
+            fechaA
+          );
 
-const otroUsuarioHeader =
-  otroUsuarioEnLinea ||
-  otroUsuarioMasReciente;
-
-
-const nombreOtroUsuario =
-  otroUsuarioHeader
-    ? (
-        perfiles[
-          otroUsuarioHeader.uid
-        ]?.nombre ||
-
-        otroUsuarioHeader.nombre ||
-
-        "Miembro del equipo"
-      )
-    : "";
+        }
+      )[0] || null;
 
 
-    const formatearUltimaConexion = (
-  timestamp
-) => {
-
-  if (!timestamp?.toDate) {
-    return "Sin conexión";
-  }
+  const otroUsuarioHeader =
+    otroUsuarioEnLinea ||
+    otroUsuarioMasReciente;
 
 
-  const fecha =
-    timestamp.toDate();
+  const nombreOtroUsuario =
+    otroUsuarioHeader
+      ? (
+          perfiles[
+            otroUsuarioHeader.uid
+          ]?.nombre ||
 
-  const ahora =
-    new Date();
+          otroUsuarioHeader.nombre ||
+
+          "Miembro del equipo"
+        )
+      : "";
 
 
-  const hoy =
-    new Date(
-      ahora.getFullYear(),
-      ahora.getMonth(),
-      ahora.getDate()
+  /* =========================================================
+     ÚLTIMA CONEXIÓN
+  ========================================================= */
+
+  const formatearUltimaConexion = (
+    timestamp
+  ) => {
+
+    if (
+      !timestamp?.toDate
+    ) {
+
+      return "Sin conexión";
+
+    }
+
+
+    const fecha =
+      timestamp.toDate();
+
+
+    const ahora =
+      new Date();
+
+
+    const hoy =
+      new Date(
+        ahora.getFullYear(),
+        ahora.getMonth(),
+        ahora.getDate()
+      );
+
+
+    const fechaConexion =
+      new Date(
+        fecha.getFullYear(),
+        fecha.getMonth(),
+        fecha.getDate()
+      );
+
+
+    const diferenciaDias =
+      Math.round(
+        (
+          hoy -
+          fechaConexion
+        ) /
+        86400000
+      );
+
+
+    const hora =
+      fecha.toLocaleTimeString(
+        "es-AR",
+        {
+          hour:
+            "2-digit",
+
+          minute:
+            "2-digit",
+
+          hour12:
+            false
+        }
+      );
+
+
+    if (
+      diferenciaDias === 0
+    ) {
+
+      return (
+        `Última vez hoy · ${hora}`
+      );
+
+    }
+
+
+    if (
+      diferenciaDias === 1
+    ) {
+
+      return (
+        `Última vez ayer · ${hora}`
+      );
+
+    }
+
+
+    const fechaTexto =
+      fecha.toLocaleDateString(
+        "es-AR",
+        {
+          day:
+            "2-digit",
+
+          month:
+            "2-digit",
+
+          year:
+            "numeric"
+        }
+      );
+
+
+    return (
+      `Última vez ${fechaTexto} · ${hora}`
     );
 
-
-  const fechaConexion =
-    new Date(
-      fecha.getFullYear(),
-      fecha.getMonth(),
-      fecha.getDate()
-    );
+  };
 
 
-  const diferenciaDias =
-    Math.round(
-      (
-        hoy -
-        fechaConexion
-      ) / 86400000
-    );
-
-
-  const hora =
-    fecha.toLocaleTimeString(
-      "es-AR",
-      {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false
-      }
-    );
-
-
-  if (diferenciaDias === 0) {
-
-    return `Última vez hoy · ${hora}`;
-
-  }
-
-
-  if (diferenciaDias === 1) {
-
-    return `Última vez ayer · ${hora}`;
-
-  }
-
-
-  const fechaTexto =
-    fecha.toLocaleDateString(
-      "es-AR",
-      {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric"
-      }
-    );
-
-
-  return `Última vez ${fechaTexto} · ${hora}`;
-
-};
-
-
-  // =========================================================
-  // MENSAJES NO LEÍDOS
-  // =========================================================
+  /* =========================================================
+     MENSAJES NO LEÍDOS
+  ========================================================= */
 
   const mensajesNoLeidos =
     mensajes.filter(
@@ -1204,73 +1370,97 @@ const nombreOtroUsuario =
       }
     );
 
-    // =========================================================
-// CONTADOR EN PESTAÑA DEL NAVEGADOR
-// =========================================================
 
-useEffect(() => {
+  /* =========================================================
+     CONTADOR EN PESTAÑA
+  ========================================================= */
 
-  if (
-    typeof document === "undefined"
-  ) {
-    return;
-  }
-
-
-  const cantidad =
-    mensajesNoLeidos.length;
-
-
-  if (cantidad > 0) {
-
-    const contador =
-      cantidad > 99
-        ? "99+"
-        : cantidad;
-
-
-    document.title =
-      `(${contador}) ${tituloOriginalRef.current}`;
-
-  } else {
-
-    document.title =
-      tituloOriginalRef.current;
-
-  }
-
-}, [mensajesNoLeidos.length]);
-
-
-/* Restaurar título al salir */
-
-useEffect(() => {
-
-  return () => {
+  useEffect(() => {
 
     if (
-      typeof document !== "undefined"
+      typeof document ===
+      "undefined"
     ) {
+
+      return;
+
+    }
+
+
+    const cantidad =
+      mensajesNoLeidos.length;
+
+
+    if (
+      cantidad > 0
+    ) {
+
+      const contador =
+        cantidad > 99
+          ? "99+"
+          : cantidad;
+
+
+      document.title =
+        `(${contador}) ${tituloOriginalRef.current}`;
+
+    } else {
 
       document.title =
         tituloOriginalRef.current;
 
     }
 
-  };
+  }, [
+    mensajesNoLeidos.length
+  ]);
 
-}, []);
+
+  useEffect(() => {
+
+    return () => {
+
+      if (
+        typeof document !==
+        "undefined"
+      ) {
+
+        document.title =
+          tituloOriginalRef.current;
+
+      }
+
+    };
+
+  }, []);
 
 
-  // =========================================================
-  // MARCAR COMO LEÍDOS
-  // =========================================================
+  /* =========================================================
+     MARCAR COMO LEÍDO
+     SOLO SI REALMENTE ESTOY VIENDO LA VENTANA
+  ========================================================= */
 
   useEffect(() => {
 
     if (!abierto) return;
 
     if (!usuario) return;
+
+
+    /*
+     * IMPORTANTE:
+     * si estoy en otra pestaña,
+     * otra ventana o Chrome minimizado,
+     * NO marcar como visto.
+     */
+
+    if (
+      !ventanaActiva
+    ) {
+
+      return;
+
+    }
 
 
     if (
@@ -1291,62 +1481,66 @@ useEffect(() => {
     }
 
 
-    const marcarLeidos = async () => {
+    const marcarLeidos =
+      async () => {
 
-      marcandoLeidosRef.current =
-        true;
-
-
-      try {
-
-        const batch =
-          writeBatch(db);
+        marcandoLeidosRef.current =
+          true;
 
 
-        mensajesNoLeidos.forEach(
-          (mensaje) => {
+        try {
 
-            const mensajeRef = doc(
-              db,
-              "chatInternoMensajes",
-              mensaje.id
-            );
+          const batch =
+            writeBatch(db);
 
 
-            batch.update(
-            mensajeRef,
-            {
-              leidoPor:
-                arrayUnion(
-                  usuario.uid
-                ),
+          mensajesNoLeidos.forEach(
+            (mensaje) => {
 
-              [`vistoPor.${usuario.uid}`]:
-                serverTimestamp()
+              const mensajeRef =
+                doc(
+                  db,
+                  "chatInternoMensajes",
+                  mensaje.id
+                );
+
+
+              batch.update(
+                mensajeRef,
+                {
+                  leidoPor:
+                    arrayUnion(
+                      usuario.uid
+                    ),
+
+                  [`vistoPor.${usuario.uid}`]:
+                    serverTimestamp()
+                }
+              );
+
             }
           );
 
-          }
-        );
+
+          await batch.commit();
 
 
-        await batch.commit();
+        } catch (error) {
 
-      } catch (error) {
+          console.error(
+            "Error marcando mensajes como leídos:",
+            error
+          );
 
-        console.error(
-          "Error marcando mensajes como leídos:",
-          error
-        );
 
-      } finally {
+        } finally {
 
-        marcandoLeidosRef.current =
-          false;
+          marcandoLeidosRef.current =
+            false;
 
-      }
+        }
 
-    };
+      };
 
 
     marcarLeidos();
@@ -1354,14 +1548,14 @@ useEffect(() => {
   }, [
     abierto,
     mensajes,
-    usuario?.uid
+    usuario?.uid,
+    ventanaActiva
   ]);
 
 
-  // =========================================================
-  // ÚLTIMO MENSAJE PROPIO
-  // PARA MOSTRAR VISTO
-  // =========================================================
+  /* =========================================================
+     ÚLTIMO MENSAJE MÍO
+  ========================================================= */
 
   const ultimoMensajeMio =
     [...mensajes]
@@ -1372,196 +1566,223 @@ useEffect(() => {
           usuario?.uid
       );
 
-// =========================================================
-// SCROLL DEL CHAT
-// SIEMPRE PEGADO AL ÚLTIMO MENSAJE
-// =========================================================
 
-const irAlFinalChat = () => {
+  /* =========================================================
+     SCROLL
+  ========================================================= */
 
-  const body =
-    chatBodyRef.current;
+  const irAlFinalChat = () => {
 
-  if (!body) return;
+    const body =
+      chatBodyRef.current;
 
 
-  body.scrollTop =
-    body.scrollHeight;
+    if (!body) return;
 
 
-  mensajesFinalRef.current
-    ?.scrollIntoView({
-      behavior: "auto",
-      block: "end"
-    });
-
-};
+    body.scrollTop =
+      body.scrollHeight;
 
 
-useEffect(() => {
+    mensajesFinalRef.current
+      ?.scrollIntoView({
+        behavior:
+          "auto",
 
-  if (!abierto) return;
-
-
-  /*
-   * Primer intento inmediatamente
-   * después del render.
-   */
-
-  const frame =
-    requestAnimationFrame(() => {
-
-      irAlFinalChat();
-
-    });
-
-
-  /*
-   * Segundo intento cuando el DOM
-   * ya terminó de acomodar burbujas,
-   * fechas, visto, etc.
-   */
-
-  const timer1 =
-    setTimeout(() => {
-
-      irAlFinalChat();
-
-    }, 40);
-
-
-  /*
-   * Tercer pequeño ajuste.
-   * Útil cuando Firebase reemplaza
-   * el serverTimestamp.
-   */
-
-  const timer2 =
-    setTimeout(() => {
-
-      irAlFinalChat();
-
-    }, 150);
-
-
-  return () => {
-
-    cancelAnimationFrame(frame);
-
-    clearTimeout(timer1);
-
-    clearTimeout(timer2);
+        block:
+          "end"
+      });
 
   };
 
-}, [
-  abierto,
-  mensajes,
-  usuariosEscribiendo.length
-]);
 
-  // =========================================================
-  // ENVIAR MENSAJE
-  // =========================================================
+  useEffect(() => {
 
-  const enviarMensaje = async (e) => {
-
-    e.preventDefault();
+    if (!abierto) return;
 
 
-    if (!usuario) return;
+    const frame =
+      requestAnimationFrame(
+        () => {
+
+          irAlFinalChat();
+
+        }
+      );
 
 
-    const mensajeLimpio =
-      texto.trim();
+    const timer1 =
+      setTimeout(
+        () => {
+
+          irAlFinalChat();
+
+        },
+        40
+      );
 
 
-    if (!mensajeLimpio) {
-      return;
-    }
+    const timer2 =
+      setTimeout(
+        () => {
+
+          irAlFinalChat();
+
+        },
+        150
+      );
 
 
-    if (enviando) {
-      return;
-    }
+    return () => {
 
-
-    setEnviando(
-      true
-    );
-
-
-    if (
-      timeoutEscribiendoRef.current
-    ) {
+      cancelAnimationFrame(
+        frame
+      );
 
       clearTimeout(
-        timeoutEscribiendoRef.current
+        timer1
       );
 
-    }
-
-
-    actualizarEstadoEscribiendo(
-      false
-    );
-
-
-    try {
-
-      await addDoc(
-
-        collection(
-          db,
-          "chatInternoMensajes"
-        ),
-
-        {
-          texto:
-            mensajeLimpio,
-
-          autorUid:
-            usuario.uid,
-
-          autorNombre:
-            nombreUsuario,
-
-          autorEmail:
-            usuario.email || "",
-
-          createdAt:
-            serverTimestamp(),
-
-          leidoPor:
-            [usuario.uid]
-        }
-
+      clearTimeout(
+        timer2
       );
 
+    };
 
-      setTexto("");
+  }, [
+    abierto,
+    mensajes,
+    usuariosEscribiendo.length
+  ]);
 
-    } catch (error) {
 
-      console.error(
-        "Error enviando mensaje:",
-        error
-      );
+  /* =========================================================
+     ENVIAR MENSAJE
+  ========================================================= */
 
-    } finally {
+  const enviarMensaje =
+    async (e) => {
+
+      e.preventDefault();
+
+
+      if (!usuario) return;
+
+
+      const mensajeLimpio =
+        texto.trim();
+
+
+      if (!mensajeLimpio) {
+        return;
+      }
+
+
+      if (enviando) {
+        return;
+      }
+
 
       setEnviando(
+        true
+      );
+
+
+      if (
+        timeoutEscribiendoRef.current
+      ) {
+
+        clearTimeout(
+          timeoutEscribiendoRef.current
+        );
+
+      }
+
+
+      actualizarEstadoEscribiendo(
         false
       );
 
-    }
 
-  };
+      try {
+
+        await addDoc(
+
+          collection(
+            db,
+            "chatInternoMensajes"
+          ),
+
+          {
+            texto:
+              mensajeLimpio,
+
+            autorUid:
+              usuario.uid,
+
+            autorNombre:
+              nombreUsuario,
+
+            autorEmail:
+              usuario.email || "",
+
+            createdAt:
+              serverTimestamp(),
+
+            leidoPor:
+              [
+                usuario.uid
+              ]
+          }
+
+        );
 
 
-  // =========================================================
-  // MINIMIZAR CHAT
-  // =========================================================
+        setTexto("");
+
+
+        setTimeout(
+          () => {
+
+            irAlFinalChat();
+
+          },
+          20
+        );
+
+
+        setTimeout(
+          () => {
+
+            irAlFinalChat();
+
+          },
+          120
+        );
+
+
+      } catch (error) {
+
+        console.error(
+          "Error enviando mensaje:",
+          error
+        );
+
+
+      } finally {
+
+        setEnviando(
+          false
+        );
+
+      }
+
+    };
+
+
+  /* =========================================================
+     MINIMIZAR
+  ========================================================= */
 
   const minimizarChat = () => {
 
@@ -1588,9 +1809,9 @@ useEffect(() => {
   };
 
 
-  // =========================================================
-  // HORA
-  // =========================================================
+  /* =========================================================
+     HORA
+  ========================================================= */
 
   const formatearHora = (
     createdAt
@@ -1623,172 +1844,201 @@ useEffect(() => {
 
   };
 
-  // =========================================================
-// FECHAS DEL CHAT
-// =========================================================
 
-const obtenerFechaMensaje = (
-  createdAt
-) => {
+  /* =========================================================
+     FECHAS
+  ========================================================= */
 
-  if (!createdAt?.toDate) {
-    return null;
-  }
+  const obtenerFechaMensaje = (
+    createdAt
+  ) => {
 
-  return createdAt.toDate();
+    if (
+      !createdAt?.toDate
+    ) {
 
-};
+      return null;
 
-
-const mismoDia = (
-  fechaA,
-  fechaB
-) => {
-
-  if (!fechaA || !fechaB) {
-    return false;
-  }
-
-  return (
-    fechaA.getFullYear() ===
-      fechaB.getFullYear() &&
-    fechaA.getMonth() ===
-      fechaB.getMonth() &&
-    fechaA.getDate() ===
-      fechaB.getDate()
-  );
-
-};
+    }
 
 
-const capitalizarPrimera = (
-  texto = ""
-) => {
+    return createdAt.toDate();
 
-  if (!texto) return "";
-
-  return (
-    texto.charAt(0).toUpperCase() +
-    texto.slice(1)
-  );
-
-};
+  };
 
 
-const formatearDiaChat = (
-  createdAt
-) => {
+  const mismoDia = (
+    fechaA,
+    fechaB
+  ) => {
 
-  const fecha =
-    obtenerFechaMensaje(createdAt);
+    if (
+      !fechaA ||
+      !fechaB
+    ) {
 
-  if (!fecha) return "";
+      return false;
 
-
-  const hoy =
-    new Date();
-
-  const ayer =
-    new Date();
-
-  ayer.setDate(
-    hoy.getDate() - 1
-  );
+    }
 
 
-  const diaSemana =
-    capitalizarPrimera(
+    return (
+      fechaA.getFullYear() ===
+        fechaB.getFullYear() &&
+
+      fechaA.getMonth() ===
+        fechaB.getMonth() &&
+
+      fechaA.getDate() ===
+        fechaB.getDate()
+    );
+
+  };
+
+
+  const capitalizarPrimera = (
+    texto = ""
+  ) => {
+
+    if (!texto) return "";
+
+
+    return (
+      texto.charAt(0)
+        .toUpperCase() +
+      texto.slice(1)
+    );
+
+  };
+
+
+  const formatearDiaChat = (
+    createdAt
+  ) => {
+
+    const fecha =
+      obtenerFechaMensaje(
+        createdAt
+      );
+
+
+    if (!fecha) {
+      return "";
+    }
+
+
+    const hoy =
+      new Date();
+
+
+    const ayer =
+      new Date();
+
+
+    ayer.setDate(
+      hoy.getDate() - 1
+    );
+
+
+    const diaSemana =
+      capitalizarPrimera(
+        fecha.toLocaleDateString(
+          "es-AR",
+          {
+            weekday:
+              "long"
+          }
+        )
+      );
+
+
+    if (
+      mismoDia(
+        fecha,
+        hoy
+      )
+    ) {
+
+      return (
+        `Hoy · ${diaSemana}`
+      );
+
+    }
+
+
+    if (
+      mismoDia(
+        fecha,
+        ayer
+      )
+    ) {
+
+      return (
+        `Ayer · ${diaSemana}`
+      );
+
+    }
+
+
+    const inicioHoy =
+      new Date(
+        hoy.getFullYear(),
+        hoy.getMonth(),
+        hoy.getDate()
+      );
+
+
+    const inicioFecha =
+      new Date(
+        fecha.getFullYear(),
+        fecha.getMonth(),
+        fecha.getDate()
+      );
+
+
+    const diferenciaDias =
+      Math.floor(
+        (
+          inicioHoy -
+          inicioFecha
+        ) /
+        86400000
+      );
+
+
+    if (
+      diferenciaDias >= 0 &&
+      diferenciaDias < 7
+    ) {
+
+      return diaSemana;
+
+    }
+
+
+    const fechaTexto =
       fecha.toLocaleDateString(
         "es-AR",
         {
-          weekday: "long"
+          day:
+            "numeric",
+
+          month:
+            "short"
         }
-      )
+      );
+
+
+    return (
+      `${diaSemana} · ${fechaTexto}`
     );
 
-
-  if (
-    mismoDia(
-      fecha,
-      hoy
-    )
-  ) {
-
-    return `Hoy · ${diaSemana}`;
-
-  }
+  };
 
 
-  if (
-    mismoDia(
-      fecha,
-      ayer
-    )
-  ) {
-
-    return `Ayer · ${diaSemana}`;
-
-  }
-
-
-  const inicioHoy =
-    new Date(
-      hoy.getFullYear(),
-      hoy.getMonth(),
-      hoy.getDate()
-    );
-
-
-  const inicioFecha =
-    new Date(
-      fecha.getFullYear(),
-      fecha.getMonth(),
-      fecha.getDate()
-    );
-
-
-  const diferenciaDias =
-    Math.floor(
-      (
-        inicioHoy -
-        inicioFecha
-      ) /
-      86400000
-    );
-
-
-  // Última semana:
-  // Lunes / Martes / Miércoles...
-
-  if (
-    diferenciaDias >= 0 &&
-    diferenciaDias < 7
-  ) {
-
-    return diaSemana;
-
-  }
-
-
-  // Mensajes anteriores
-
-  const fechaTexto =
-    fecha.toLocaleDateString(
-      "es-AR",
-      {
-        day: "numeric",
-        month: "short"
-      }
-    );
-
-
-  return `${diaSemana} · ${fechaTexto}`;
-
-};
-
-  // =========================================================
-  // INICIALES
-  // =========================================================
+  /* =========================================================
+     INICIALES
+  ========================================================= */
 
   const obtenerIniciales = (
     nombre = ""
@@ -1829,9 +2079,9 @@ const formatearDiaChat = (
   };
 
 
-  // =========================================================
-  // RENDER
-  // =========================================================
+  /* =========================================================
+     RENDER
+  ========================================================= */
 
   return (
     <>
@@ -1850,7 +2100,6 @@ const formatearDiaChat = (
           <div className="chat-interno-header">
 
             <div className="chat-interno-header-identidad">
-
 
               <div className="chat-interno-avatar-principal">
 
@@ -1887,7 +2136,9 @@ const formatearDiaChat = (
                 <span
                   className={
                     hayOtroEnLinea
+
                       ? "chat-presencia chat-presencia-online"
+
                       : "chat-presencia chat-presencia-offline"
                   }
                 >
@@ -1896,6 +2147,7 @@ const formatearDiaChat = (
 
 
                   {hayOtroEnLinea
+
                     ? `${nombreOtroUsuario} · En línea`
 
                     : otroUsuarioHeader?.ultimaConexion
@@ -1958,256 +2210,278 @@ const formatearDiaChat = (
             ) : (
 
               mensajes.map(
-  (mensaje, index) => {
+                (
+                  mensaje,
+                  index
+                ) => {
 
-    const esMio =
-      mensaje.autorUid ===
-      usuario?.uid;
+                  const esMio =
+                    mensaje.autorUid ===
+                    usuario?.uid;
 
 
-    const perfilAutor =
-      perfiles[
-        mensaje.autorUid
-      ] || {};
+                  const perfilAutor =
+                    perfiles[
+                      mensaje.autorUid
+                    ] || {};
 
 
-    const nombreAutor =
-      perfilAutor.nombre ||
-      mensaje.autorNombre ||
-      "Usuario";
+                  const nombreAutor =
+                    perfilAutor.nombre ||
+                    mensaje.autorNombre ||
+                    "Usuario";
 
 
-    const fotoAutor =
-      perfilAutor.fotoUrl ||
-      "";
+                  const fotoAutor =
+                    perfilAutor.fotoUrl ||
+                    "";
 
 
-    /* =========================
-       VISTO
-    ========================= */
+                  /* =========================
+                     VISTO
+                  ========================= */
 
-    const lectores =
-      Array.isArray(
-        mensaje.leidoPor
-      )
-        ? mensaje.leidoPor.filter(
-            (uid) =>
-              uid !==
-              mensaje.autorUid
-          )
-        : [];
+                  const lectores =
+                    Array.isArray(
+                      mensaje.leidoPor
+                    )
+                      ? mensaje.leidoPor.filter(
+                          (uid) =>
+                            uid !==
+                            mensaje.autorUid
+                        )
+                      : [];
 
 
-    const fueVisto =
-      lectores.length > 0;
+                  const fueVisto =
+                    lectores.length > 0;
 
 
-    const primerLector =
-      lectores[0];
+                  const primerLector =
+                    lectores[0];
 
 
-    const nombreLector =
-      perfiles[
-        primerLector
-      ]?.nombre || "";
+                  const nombreLector =
+                    perfiles[
+                      primerLector
+                    ]?.nombre || "";
 
 
-    const horaVisto =
-      primerLector &&
-      mensaje.vistoPor?.[
-        primerLector
-      ]
-        ? formatearHora(
-            mensaje.vistoPor[
-              primerLector
-            ]
-          )
-        : "";
+                  const horaVisto =
+                    primerLector &&
+                    mensaje.vistoPor?.[
+                      primerLector
+                    ]
 
+                      ? formatearHora(
+                          mensaje.vistoPor[
+                            primerLector
+                          ]
+                        )
 
-    const esUltimoMensajeMio =
-      esMio &&
-      ultimoMensajeMio?.id ===
-        mensaje.id;
+                      : "";
 
 
-    /* =========================
-       SEPARADOR DE FECHA
-    ========================= */
+                  const esUltimoMensajeMio =
+                    esMio &&
+                    ultimoMensajeMio?.id ===
+                      mensaje.id;
 
-    const fechaActual =
-      obtenerFechaMensaje(
-        mensaje.createdAt
-      );
 
+                  /* =========================
+                     FECHA
+                  ========================= */
 
-    const fechaAnterior =
-      index > 0
-        ? obtenerFechaMensaje(
-            mensajes[index - 1]
-              .createdAt
-          )
-        : null;
+                  const fechaActual =
+                    obtenerFechaMensaje(
+                      mensaje.createdAt
+                    );
 
 
-    const mostrarFecha =
-  Boolean(fechaActual) &&
-  (
-    index === 0 ||
-    !mismoDia(
-      fechaActual,
-      fechaAnterior
-    )
-  );
+                  const fechaAnterior =
+                    index > 0
 
+                      ? obtenerFechaMensaje(
+                          mensajes[
+                            index - 1
+                          ].createdAt
+                        )
 
-    return (
+                      : null;
 
-      <Fragment
-        key={mensaje.id}
-      >
 
+                  const mostrarFecha =
+                    Boolean(
+                      fechaActual
+                    ) &&
+                    (
+                      index === 0 ||
 
-        {/* FECHA */}
+                      !mismoDia(
+                        fechaActual,
+                        fechaAnterior
+                      )
+                    );
 
-        {mostrarFecha && (
 
-          <div className="chat-fecha-separador">
+                  return (
 
-            <span>
-              {formatearDiaChat(
-                mensaje.createdAt
-              )}
-            </span>
+                    <Fragment
+                      key={
+                        mensaje.id
+                      }
+                    >
 
-          </div>
+                      {/* FECHA */}
 
-        )}
+                      {mostrarFecha && (
 
+                        <div className="chat-fecha-separador">
 
-        {/* MENSAJE */}
+                          <span>
 
-        <div
-          className={
-            esMio
-              ? "chat-mensaje-fila chat-mensaje-mio"
-              : "chat-mensaje-fila chat-mensaje-otro"
-          }
-        >
+                            {formatearDiaChat(
+                              mensaje.createdAt
+                            )}
 
+                          </span>
 
-          {!esMio && (
+                        </div>
 
-            <div className="chat-mensaje-avatar">
+                      )}
 
-              {fotoAutor ? (
 
-                <img
-                  src={fotoAutor}
-                  alt={nombreAutor}
-                />
+                      {/* MENSAJE */}
 
-              ) : (
+                      <div
+                        className={
+                          esMio
 
-                obtenerIniciales(
-                  nombreAutor
-                )
+                            ? "chat-mensaje-fila chat-mensaje-mio"
 
-              )}
+                            : "chat-mensaje-fila chat-mensaje-otro"
+                        }
+                      >
 
-            </div>
 
-          )}
+                        {!esMio && (
 
+                          <div className="chat-mensaje-avatar">
 
-          <div className="chat-mensaje-contenido">
+                            {fotoAutor ? (
 
+                              <img
+                                src={
+                                  fotoAutor
+                                }
+                                alt={
+                                  nombreAutor
+                                }
+                              />
 
-            {!esMio && (
+                            ) : (
 
-              <span className="chat-mensaje-autor">
+                              obtenerIniciales(
+                                nombreAutor
+                              )
 
-                {nombreAutor}
+                            )}
 
-              </span>
+                          </div>
 
-            )}
+                        )}
 
 
-            <div className="chat-mensaje-burbuja">
+                        <div className="chat-mensaje-contenido">
 
-              <span>
-                {mensaje.texto}
-              </span>
 
-            </div>
+                          {!esMio && (
 
+                            <span className="chat-mensaje-autor">
 
-            <small className="chat-mensaje-hora">
+                              {nombreAutor}
 
-              {formatearHora(
-                mensaje.createdAt
-              )}
+                            </span>
 
-            </small>
+                          )}
 
 
-            {esUltimoMensajeMio && (
+                          <div className="chat-mensaje-burbuja">
 
-              <small
-                className={
-                  fueVisto
-                    ? "chat-mensaje-estado chat-mensaje-visto"
-                    : "chat-mensaje-estado"
+                            <span>
+
+                              {mensaje.texto}
+
+                            </span>
+
+                          </div>
+
+
+                          <small className="chat-mensaje-hora">
+
+                            {formatearHora(
+                              mensaje.createdAt
+                            )}
+
+                          </small>
+
+
+                          {esUltimoMensajeMio && (
+
+                            <small
+                              className={
+                                fueVisto
+
+                                  ? "chat-mensaje-estado chat-mensaje-visto"
+
+                                  : "chat-mensaje-estado"
+                              }
+                            >
+
+                              {fueVisto
+
+                                ? `✓✓ Visto${
+                                    nombreLector
+                                      ? ` por ${nombreLector}`
+                                      : ""
+                                  }${
+                                    horaVisto
+                                      ? ` · ${horaVisto}`
+                                      : ""
+                                  }`
+
+                                : "✓ Enviado"}
+
+                            </small>
+
+                          )}
+
+                        </div>
+
+                      </div>
+
+                    </Fragment>
+
+                  );
+
                 }
-              >
-
-                {fueVisto
-                  ? `✓✓ Visto${
-                      nombreLector
-                        ? ` por ${nombreLector}`
-                        : ""
-                    }${
-                      horaVisto
-                        ? ` · ${horaVisto}`
-                        : ""
-                    }`
-                  : "✓ Enviado"}
-
-              </small>
-
-            )}
-
-
-          </div>
-
-        </div>
-
-      </Fragment>
-
-    );
-
-  }
-)
+              )
 
             )}
 
 
             {/* =================================================
-                ESCRIBIENDO...
+                ESCRIBIENDO
             ================================================= */}
 
             {usuariosEscribiendo.length > 0 && (
 
               <div className="chat-escribiendo">
 
-
                 <div className="chat-escribiendo-puntos">
 
                   <span></span>
-
                   <span></span>
-
                   <span></span>
 
                 </div>
@@ -2216,11 +2490,16 @@ const formatearDiaChat = (
                 <small>
 
                   {usuariosEscribiendo.length === 1
+
                     ? `${
                         perfiles[
-                          usuariosEscribiendo[0].uid
+                          usuariosEscribiendo[0]
+                            .uid
                         ]?.nombre ||
-                        usuariosEscribiendo[0].nombre ||
+
+                        usuariosEscribiendo[0]
+                          .nombre ||
+
                         "Alguien"
                       } está escribiendo...`
 
@@ -2255,14 +2534,17 @@ const formatearDiaChat = (
 
             <input
               type="text"
-              value={texto}
+              value={
+                texto
+              }
               onChange={
                 manejarCambioTexto
               }
-              onBlur={() =>
-                actualizarEstadoEscribiendo(
-                  false
-                )
+              onBlur={
+                () =>
+                  actualizarEstadoEscribiendo(
+                    false
+                  )
               }
               placeholder="Escribir mensaje..."
               maxLength={1000}
@@ -2300,47 +2582,24 @@ const formatearDiaChat = (
         <button
           type="button"
           className="chat-interno-burbuja"
+
           onClick={() => {
 
-  setAbierto(true);
+            /*
+             * SOLO abrir.
+             *
+             * NO modificamos leidoPor localmente.
+             * El efecto de arriba decidirá
+             * si realmente puede marcarse
+             * como visto.
+             */
 
-  // En cuanto abro el chat,
-  // ya estoy viendo los mensajes.
-  setMensajes((anteriores) =>
-    anteriores.map((mensaje) => {
+            setAbierto(
+              true
+            );
 
-      if (
-        mensaje.autorUid === usuario?.uid
-      ) {
-        return mensaje;
-      }
+          }}
 
-      const leidoPorActual =
-        Array.isArray(mensaje.leidoPor)
-          ? mensaje.leidoPor
-          : [];
-
-      if (
-        leidoPorActual.includes(
-          usuario.uid
-        )
-      ) {
-        return mensaje;
-      }
-
-      return {
-        ...mensaje,
-
-        leidoPor: [
-          ...leidoPorActual,
-          usuario.uid
-        ]
-      };
-
-    })
-  );
-
-}}
           aria-label="Abrir chat interno"
         >
 
@@ -2352,7 +2611,9 @@ const formatearDiaChat = (
             <span className="chat-interno-contador">
 
               {mensajesNoLeidos.length > 99
+
                 ? "99+"
+
                 : mensajesNoLeidos.length}
 
             </span>
