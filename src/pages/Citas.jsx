@@ -1560,26 +1560,16 @@ const descargarComprobanteImagen = async (cita) => {
      SIN EMOJIS PARA EVITAR LOS �
   ========================================== */
 
-  const textoCompartir =
-    `Hola ${capitalizarNombre(
-      cita.nombre || ""
-    )}, te recordamos tu cita con el Dr. Tony Vélez (Reumatólogo).\n\n` +
+const textoWhatsapp =
+  `Hola ${capitalizarNombre(cita.nombre || "")}, te enviamos la información de tu cita con el Dr. Tony Vélez (Reumatólogo).\n\n` +
 
-    `Fecha: ${formatearFechaComprobante(
-      cita.fecha
-    )}\n` +
+  `- *Fecha:* ${formatearFechaComprobante(cita.fecha)}\n` +
 
-    `Hora: ${cita.hora} hs\n` +
+  `- *Hora:* ${cita.hora} hs\n` +
 
-    `Lugar: ${obtenerLugarCita(
-      cita
-    )}\n\n` +
+  `- *Lugar:* ${obtenerLugarCita(cita)}\n\n` +
 
-    `Por favor, confirma tu asistencia. Si necesitas reprogramar, comunícate con nosotros.\n\n` +
-
-    `Dr. Reuma`;
-
-
+  `Muchas gracias por agendar con Dr. Reuma. Cualquier consulta, no dudes en comunicarte con nosotros.`;
   /* ==========================================
      PARA PC PREPARAMOS WHATSAPP
   ========================================== */
@@ -1763,179 +1753,77 @@ const descargarComprobanteImagen = async (cita) => {
        CELULAR
        COMPARTIR FOTO + TEXTO
     ===================================================== */
+if (esMovil) {
 
-    if (esMovil) {
+  const numero =
+    normalizarTelefonoWhatsapp(
+      cita.telefono,
+      true
+    );
 
-      const puedeCompartir =
-        navigator.share &&
-        (
-          !navigator.canShare ||
-          navigator.canShare({
-            files: [archivo]
-          })
+
+  const mensajeWhatsapp =
+    encodeURIComponent(
+      textoWhatsapp
+    );
+
+
+  const urlWhatsapp =
+    `https://wa.me/${numero}?text=${mensajeWhatsapp}`;
+
+
+  /* ==========================================
+     1. COMPARTIR / GUARDAR EL JPG
+  ========================================== */
+
+  if (
+    navigator.share &&
+    navigator.canShare?.({
+      files: [archivo]
+    })
+  ) {
+
+    try {
+
+      await navigator.share({
+        files: [archivo],
+        title: "Comprobante de cita - Dr. Reuma"
+      });
+
+    } catch (error) {
+
+      /*
+       * Si cancelas el menú compartir
+       * igualmente abrimos el WhatsApp.
+       */
+
+      if (
+        error?.name !== "AbortError"
+      ) {
+
+        console.error(
+          "Error compartiendo comprobante:",
+          error
         );
-
-
-      if (puedeCompartir) {
-
-        try {
-
-          await navigator.share({
-            files: [archivo],
-
-            title:
-              "Comprobante de cita - Dr. Reuma",
-
-            text:
-              textoCompartir
-          });
-
-
-        } catch (errorCompartir) {
-
-          /*
-           * Si simplemente cerraste
-           * la ventana de compartir,
-           * no hacemos nada.
-           */
-
-          if (
-            errorCompartir?.name ===
-            "AbortError"
-          ) {
-
-            return;
-
-          }
-
-
-          /*
-           * Algunos celulares pierden
-           * el permiso del click mientras
-           * html2canvas genera la imagen.
-           *
-           * En ese caso mostramos UN SOLO
-           * botón para compartir.
-           */
-
-          await Swal.fire({
-
-            icon: "success",
-
-            title:
-              "Comprobante listo",
-
-            text:
-              "Toca Compartir para enviarlo por WhatsApp.",
-
-            confirmButtonText:
-              "Compartir",
-
-            confirmButtonColor:
-              "#079aaa",
-
-            showCancelButton:
-              true,
-
-            cancelButtonText:
-              "Cancelar",
-
-            preConfirm: async () => {
-
-              try {
-
-                await navigator.share({
-                  files: [archivo],
-
-                  title:
-                    "Comprobante de cita - Dr. Reuma",
-
-                  text:
-                    textoCompartir
-                });
-
-
-                return true;
-
-
-              } catch (error) {
-
-                if (
-                  error?.name ===
-                  "AbortError"
-                ) {
-
-                  return false;
-
-                }
-
-
-                Swal.showValidationMessage(
-                  "No se pudo abrir el menú para compartir."
-                );
-
-
-                return false;
-
-              }
-
-            }
-
-          });
-
-        }
-
-
-        return;
 
       }
 
-
-      /* ==========================================
-         FALLBACK MÓVIL
-    ========================================== */
-
-      const urlImagen =
-        URL.createObjectURL(blob);
-
-
-      const link =
-        document.createElement("a");
-
-
-      link.href =
-        urlImagen;
-
-      link.download =
-        nombreArchivo;
-
-
-      document.body.appendChild(
-        link
-      );
-
-
-      link.click();
-
-
-      document.body.removeChild(
-        link
-      );
-
-
-      setTimeout(() => {
-
-        URL.revokeObjectURL(
-          urlImagen
-        );
-
-      }, 2000);
-
-
-      return;
-
     }
 
+  }
+
+
+  /* ==========================================
+     2. ABRIR EL WHATSAPP DEL PACIENTE
+     NO HAY QUE BUSCAR EL CONTACTO
+  ========================================== */
+
+  window.location.href =
+    urlWhatsapp;
+
+
+  return;
+}
 
     /* =====================================================
        COMPUTADORA
