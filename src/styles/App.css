@@ -18707,16 +18707,14 @@ transform:scale(1.07);
 
 
 /* =========================================================
-   COMPROBANTE MÉDICO - DR. REUMA
+   COMPROBANTE PREMIUM B
+   CLÍNICA PRIVADA / WHATSAPP
 ========================================================= */
 
-.comprobante-medico {
-  width: 640px;
-
-  background: #ffffff;
-
+.comprobante-premium-b {
+  width: 720px;
+  background: #f3f7f8;
   color: #111827;
-
   overflow: hidden;
 
   font-family:
@@ -18729,112 +18727,110 @@ transform:scale(1.07);
 }
 
 
-/* BARRA SUPERIOR */
-
-.comprobante-medico-barra {
-  width: 100%;
-  height: 8px;
-
-  background: #079aaa;
-}
-
-
 /* =========================================================
-   HEADER
+   HEADER OSCURO
 ========================================================= */
 
-.comprobante-medico-header {
-  display: flex;
+.premium-b-header {
+  min-height: 125px;
 
-  align-items: center;
+  display: flex;
   justify-content: space-between;
+  align-items: center;
 
   gap: 20px;
 
-  padding: 24px 30px 18px;
+  padding: 24px 30px;
+
+  background: #102f36;
 }
 
 
-.comprobante-medico-marca {
+.premium-b-identidad {
   display: flex;
-
   align-items: center;
-
-  gap: 13px;
+  gap: 14px;
 }
 
 
-.comprobante-medico-logo {
-  width: 68px;
-  height: 68px;
+.premium-b-logo {
+  width: 84px;
+  height: 84px;
+
+  padding: 5px;
 
   object-fit: contain;
+
+  background: #ffffff;
+
+  border-radius: 50%;
 }
 
 
-.comprobante-medico-marca-texto {
+.premium-b-identidad > div {
   display: flex;
-
   flex-direction: column;
 }
 
 
-.comprobante-medico-marca-texto strong {
-  color: #079aaa;
+.premium-b-identidad strong {
+  color: #ffffff;
 
-  font-size: 17px;
+  font-size: 24px;
+
+  line-height: 1.1;
 
   font-weight: 900;
-
-  letter-spacing: 0.6px;
 }
 
 
-.comprobante-medico-marca-texto span {
-  margin-top: 2px;
+.premium-b-identidad span {
+  margin-top: 5px;
 
-  color: #111827;
+  color: #b9d8dd;
 
-  font-size: 13px;
-
-  font-weight: 800;
-}
-
-
-.comprobante-medico-marca-texto small {
-  margin-top: 1px;
-
-  color: #6b7280;
-
-  font-size: 11px;
+  font-size: 17px;
 
   font-weight: 600;
 }
 
 
-/* CONFIRMADO */
+/* TURNO CONFIRMADO */
 
-.comprobante-medico-estado {
+.premium-b-confirmado {
   display: flex;
 
   align-items: center;
 
-  gap: 5px;
+  justify-content: center;
 
-  color: #168447;
+  gap: 8px;
 
-  font-size: 10px;
+  padding: 11px 15px;
+
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  color: #16834b;
+
+  font-size: 15px;
 
   font-weight: 900;
-
-  letter-spacing: 0.4px;
 
   white-space: nowrap;
 }
 
 
-.comprobante-medico-estado svg {
-  font-size: 13px;
+.premium-b-confirmado svg {
+  width: 18px;
+  height: 18px;
+
+  flex: 0 0 18px;
+
+  display: block;
+
+  overflow: visible;
 }
 
 
@@ -18842,19 +18838,35 @@ transform:scale(1.07);
    TÍTULO
 ========================================================= */
 
-.comprobante-medico-titulo {
-  padding: 10px 30px 5px;
+.premium-b-titulo {
+  padding: 24px 30px 14px;
+
+  color: #079aaa;
+
+  font-size: 22px;
+
+  font-weight: 950;
+
+  letter-spacing: 1.5px;
 }
 
 
-.comprobante-medico-titulo span {
-  color: #079aaa;
+/* =========================================================
+   CARD PRINCIPAL
+========================================================= */
 
-  font-size: 12px;
+.premium-b-card {
+  margin: 0 24px 22px;
 
-  font-weight: 900;
+  padding: 22px;
 
-  letter-spacing: 1.5px;
+  background: #ffffff;
+
+  border-radius: 22px;
+
+  box-shadow:
+    0 8px 28px
+    rgba(16, 47, 54, 0.08);
 }
 
 
@@ -18862,25 +18874,43 @@ transform:scale(1.07);
    PACIENTE + PRECIO
 ========================================================= */
 
+.premium-b-paciente-row {
+  display: flex;
 
-.comprobante-medico-paciente {
-  flex: 1;
+  align-items: stretch;
 
-  min-width: 0;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  margin-bottom: 18px;
 }
 
 
-.comprobante-medico-paciente small,
-.comprobante-medico-valor small,
-.comprobante-medico-dato small,
-.comprobante-medico-fila small {
+.premium-b-paciente {
+  flex: 1;
+
+  min-width: 0;
+
+  padding: 17px 18px;
+
+  border-radius: 16px;
+
+  background: #f4fafb;
+}
+
+
+.premium-b-paciente small,
+.premium-b-precio small,
+.premium-b-dato small,
+.premium-b-contacto small {
   display: block;
 
-  margin-bottom: 5px;
+  margin-bottom: 6px;
 
-  color: #727b86;
+  color: #68727d;
 
-  font-size: 9px;
+  font-size: 13px;
 
   font-weight: 900;
 
@@ -18888,184 +18918,167 @@ transform:scale(1.07);
 }
 
 
-.comprobante-medico-paciente h1 {
+.premium-b-paciente h1 {
   margin: 0;
 
-  color: #111827;
+  color: #101820;
 
-  font-size: 29px;
+  font-size: 34px;
 
-  line-height: 1.08;
+  line-height: 1.05;
 
-  font-weight: 850;
+  font-weight: 950;
 }
 
 
 /* PRECIO */
 
-.comprobante-medico-valor {
-  min-width: 142px;
+.premium-b-precio {
+  width: 220px;
 
-  text-align: right;
+  flex-shrink: 0;
 
-  padding-left: 18px;
+  display: flex;
 
-  border-left: 3px solid #e6b83f;
+  flex-direction: column;
+
+  justify-content: center;
+
+  padding: 16px 17px;
+
+  border-radius: 16px;
+
+  background: #b4232f;
 }
 
 
-.comprobante-medico-valor strong {
-  display: block;
+.premium-b-precio small {
+  color: #ffdfe2;
+}
 
-  color: #111827;
 
-  font-size: 27px;
+.premium-b-precio strong {
+  color: #ffffff;
+
+  font-size: 34px;
 
   line-height: 1;
 
-  font-weight: 900;
+  font-weight: 950;
 }
 
 
-.comprobante-medico-valor span {
-  display: block;
+.premium-b-precio span {
+  margin-top: 7px;
 
-  margin-top: 6px;
-
-  color: #6b7280;
-
-  font-size: 9px;
-
-  font-weight: 700;
-}
-
-
-/* =========================================================
-   FECHA + HORA
-========================================================= */
-
-
-.comprobante-medico-dato {
-  display: flex;
-
-  align-items: flex-start;
-
-  gap: 11px;
-}
-
-
-.comprobante-medico-dato svg {
-  margin-top: 2px;
-
-  color: #079aaa;
-
-  font-size: 16px;
-
-  flex-shrink: 0;
-}
-
-
-.comprobante-medico-dato strong {
-  display: block;
-
-  color: #111827;
+  color: #ffffff;
 
   font-size: 13px;
 
-  line-height: 1.35;
+  font-weight: 650;
 
-  font-weight: 800;
+  opacity: 0.92;
 }
 
 
 /* =========================================================
-   FILAS
+   DATOS DE CITA
 ========================================================= */
 
-.comprobante-medico-principal {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 24px;
-  margin: 0 30px;
-  padding: 10px 0 18px;
-}
-
-.comprobante-medico-datos {
+.premium-b-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin: 0 30px;
-  padding: 18px 0 12px;
-}
 
-.comprobante-medico-fila {
-  display: flex;
-  align-items: flex-start;
+  grid-template-columns: 1.45fr 0.8fr;
+
   gap: 12px;
-  margin: 0 30px;
-  padding: 14px 0;
 }
 
 
-.comprobante-medico-fila > svg {
-  margin-top: 2px;
+.premium-b-dato {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 13px;
+
+  padding: 17px;
+
+  border-radius: 16px;
+
+  background: #f8fafb;
+
+  border: 1px solid #e6edef;
+}
+
+
+.premium-b-full {
+  grid-column: 1 / -1;
+}
+
+
+/* ICONOS */
+
+.premium-b-icono {
+  width: 44px;
+  height: 44px;
+
+  min-width: 44px;
+  min-height: 44px;
+
+  flex: 0 0 44px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 12px;
+
+  background: #dff4f6;
 
   color: #079aaa;
 
-  font-size: 17px;
-
-  flex-shrink: 0;
+  overflow: visible;
 }
 
 
-.comprobante-medico-fila strong {
+.premium-b-icono svg {
+  width: 20px;
+  height: 20px;
+
+  display: block;
+
+  flex: 0 0 20px;
+
+  overflow: visible;
+}
+
+
+/* TEXTO */
+
+.premium-b-dato > div:last-child {
+  min-width: 0;
+}
+
+
+.premium-b-dato strong {
   display: block;
 
   color: #111827;
 
-  font-size: 13px;
+  font-size: 22px;
 
-  line-height: 1.45;
-
-  font-weight: 750;
-}
-
-
-/* =========================================================
-   INFORMACIÓN IMPORTANTE
-========================================================= */
-
-.comprobante-medico-aviso {
-  margin: 22px 30px;
-
-  padding-left: 14px;
-
-  border-left: 4px solid #e9a51a;
-}
-
-
-.comprobante-medico-aviso strong {
-  display: block;
-
-  color: #111827;
-
-  font-size: 12px;
+  line-height: 1.28;
 
   font-weight: 850;
 }
 
 
-.comprobante-medico-aviso p {
-  margin: 5px 0 0;
+.premium-b-dato strong span {
+  display: block;
 
-  color: #58616c;
-
-  font-size: 11px;
-
-  line-height: 1.5;
-
-  font-weight: 500;
+  margin-top: 4px;
 }
 
 
@@ -19073,49 +19086,71 @@ transform:scale(1.07);
    FOOTER
 ========================================================= */
 
-.comprobante-medico-footer {
+.premium-b-footer {
   display: flex;
 
   align-items: center;
+
   justify-content: space-between;
 
   gap: 20px;
 
-  padding: 17px 30px 20px;
+  padding: 19px 30px 22px;
 
-  background: #f6fafb;
+  background: #e6f1f3;
 }
 
 
-.comprobante-medico-footer div {
+.premium-b-contacto {
   display: flex;
 
   align-items: center;
 
-  gap: 6px;
+  gap: 11px;
+}
+
+
+.premium-b-contacto > svg {
+  width: 23px;
+  height: 23px;
+
+  flex: 0 0 23px;
 
   color: #079aaa;
+
+  display: block;
+
+  overflow: visible;
 }
 
 
-.comprobante-medico-footer div svg {
-  font-size: 14px;
+.premium-b-contacto strong {
+  display: block;
+
+  color: #079aaa;
+
+  font-size: 18px;
+
+  font-weight: 900;
 }
 
 
-.comprobante-medico-footer div strong {
+.premium-b-footer > span {
+  color: #63717a;
+
   font-size: 12px;
 
-  font-weight: 850;
+  font-weight: 700;
+
+  text-align: right;
 }
 
 
-.comprobante-medico-footer > span {
-  color: #6b7280;
+/* =========================================================
+   SEGURIDAD PARA HTML2CANVAS
+========================================================= */
 
-  font-size: 10px;
-
-  font-weight: 600;
-
-  text-align: right;
+.comprobante-premium-b,
+.comprobante-premium-b * {
+  box-sizing: border-box;
 }

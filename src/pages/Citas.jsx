@@ -1966,9 +1966,10 @@ const abrirWhatsappBusinessPaciente = (usarNueve = true) => {
 
   const mensaje = encodeURIComponent(
     `Hola ${capitalizarNombre(citaComprobanteActual.nombre || "")}, te enviamos el comprobante de tu cita con Dr. Reuma. Te esperamos.\n\n` +
-    `Fecha: ${formatearFechaComprobante(citaComprobanteActual.fecha)}\n` +
-    `Hora: ${citaComprobanteActual.hora} hs\n` +
-    `Lugar: ${obtenerLugarCita(citaComprobanteActual)}`
+    `- Fecha: ${formatearFechaComprobante(citaComprobanteActual.fecha)}\n` +
+    `- Hora: ${citaComprobanteActual.hora} hs\n` +
+    `- Lugar: ${obtenerLugarCita(citaComprobanteActual)}`
+    `Muchas gracias por agendar con el DR.REUMA, cualquier consulta no dudes en comunicarte con nosotros.`
   );
 
   const urlWeb = `https://wa.me/${numero}?text=${mensaje}`;
@@ -2024,6 +2025,7 @@ const abrirWhatsappCita = (cita, usarNueve = true, tipoMensaje = "recordatorio")
     `- Fecha: ${formatearFechaComprobante(cita.fecha)}\n` +
     `- Hora: ${cita.hora} hs\n` +
     `- Lugar: ${obtenerLugarCita(cita)}\n\n` +
+    `En caso de no CONFIRMAR tu asistencia, tu turno puede quedar CANCELADO.\n\n` +
     `Te esperamos.\n\n` +
     `Dr. Reuma`;
 }
@@ -3233,223 +3235,197 @@ horariosDisponibles.map(h => {
 {citaParaDescargar && (
 
   <div
-    className="comprobante-medico"
     ref={comprobanteRef}
+    className="comprobante-premium-b"
   >
 
-    {/* BARRA SUPERIOR */}
-    <div className="comprobante-medico-barra" />
+    {/* HEADER */}
+    <div className="premium-b-header">
 
-
-    {/* CABECERA */}
-    <div className="comprobante-medico-header">
-
-      <div className="comprobante-medico-marca">
+      <div className="premium-b-identidad">
 
         <img
           src={logo}
           alt="Dr. Reuma"
-          className="comprobante-medico-logo"
+          className="premium-b-logo"
         />
 
-        <div className="comprobante-medico-marca-texto">
-
-          <strong>
-            DR. REUMA
-          </strong>
-
-          <span>
-            Dr. Tony Vélez
-          </span>
-
-          <small>
-            Médico Reumatólogo
-          </small>
-
+        <div>
+          <strong>Dr. Tony Vélez</strong>
+          <span>Médico Reumatólogo</span>
         </div>
 
       </div>
 
 
-      <div className="comprobante-medico-estado">
-
+      <div className="premium-b-confirmado">
         <FaCheckCircle />
-
-        <span>
-          TURNO CONFIRMADO
-        </span>
-
+        <span>TURNO CONFIRMADO</span>
       </div>
 
     </div>
 
 
     {/* TÍTULO */}
-    <div className="comprobante-medico-titulo">
-
-      <span>
-        COMPROBANTE DE CITA
-      </span>
-
+    <div className="premium-b-titulo">
+      COMPROBANTE DE CITA
     </div>
 
 
-    {/* PACIENTE + PRECIO */}
-    <div className="comprobante-medico-principal">
+    {/* CARD PRINCIPAL */}
+    <div className="premium-b-card">
 
-      <div className="comprobante-medico-paciente">
+      {/* PACIENTE + PRECIO */}
+      <div className="premium-b-paciente-row">
 
-        <small>
-          PACIENTE
-        </small>
+        <div className="premium-b-paciente">
 
-        <h1>
-          {capitalizarNombre(
-            citaParaDescargar?.nombre || ""
-          )}
-        </h1>
+          <small>PACIENTE</small>
 
-      </div>
+          <h1>
+            {capitalizarNombre(
+              citaParaDescargar?.nombre || ""
+            )}
+          </h1>
 
-
-      <div className="comprobante-medico-valor">
-
-        <small>
-          VALOR CONSULTA
-        </small>
-
-        <strong>
-          {obtenerValorConsultaCita(
-            citaParaDescargar
-          )}
-        </strong>
-
-        <span>
-          {obtenerTextoTipoConsulta(
-            citaParaDescargar
-          )}
-        </span>
-
-      </div>
-
-    </div>
+        </div>
 
 
-    {/* FECHA + HORA */}
-    <div className="comprobante-medico-datos">
+        <div className="premium-b-precio">
 
-      <div className="comprobante-medico-dato">
-
-        <FaCalendarAlt />
-
-        <div>
-
-          <small>
-            FECHA
-          </small>
+          <small>VALOR CONSULTA</small>
 
           <strong>
-            {formatearFechaComprobante(
-              citaParaDescargar?.fecha
+            {obtenerValorConsultaCita(
+              citaParaDescargar
             )}
           </strong>
 
-        </div>
-
-      </div>
-
-
-      <div className="comprobante-medico-dato">
-
-        <FaClock />
-
-        <div>
-
-          <small>
-            HORA
-          </small>
-
-          <strong>
-            {citaParaDescargar?.hora} hs
-          </strong>
+          <span>
+            {obtenerTextoTipoConsulta(
+              citaParaDescargar
+            )}
+          </span>
 
         </div>
 
       </div>
 
-    </div>
+
+      {/* FECHA + HORA */}
+      <div className="premium-b-grid">
+
+        <div className="premium-b-dato">
+
+          <div className="premium-b-icono">
+            <FaCalendarAlt />
+          </div>
+
+          <div>
+            <small>FECHA</small>
+
+            <strong>
+              {formatearFechaComprobante(
+                citaParaDescargar?.fecha
+              )}
+            </strong>
+          </div>
+
+        </div>
 
 
-    {/* LUGAR */}
-    <div className="comprobante-medico-fila">
+        <div className="premium-b-dato">
 
-      <FaMapMarkerAlt />
+          <div className="premium-b-icono">
+            <FaClock />
+          </div>
 
-      <div>
+          <div>
+            <small>HORA</small>
 
-        <small>
-          LUGAR
-        </small>
+            <strong>
+              {citaParaDescargar?.hora} hs
+            </strong>
+          </div>
 
-        <strong>
-          {obtenerLugarCita(
-            citaParaDescargar
-          )}
-        </strong>
+        </div>
+
+
+        {/* LUGAR */}
+        <div className="premium-b-dato premium-b-full">
+
+          <div className="premium-b-icono">
+            <FaMapMarkerAlt />
+          </div>
+
+          <div>
+            <small>LUGAR</small>
+
+            {citaParaDescargar?.tipo === "virtual" ? (
+
+              <strong>
+                Consulta por videollamada
+              </strong>
+
+            ) : (
+
+              <strong>
+                San Martín 1355
+                <span>
+                  Consultorios Externos · Clínica San Agustín
+                </span>
+                <span>
+                  Neuquén Capital
+                </span>
+              </strong>
+
+            )}
+
+          </div>
+
+        </div>
+
+
+        {/* MÉDICO */}
+        <div className="premium-b-dato premium-b-full">
+
+          <div className="premium-b-icono">
+            <FaUserMd />
+          </div>
+
+          <div>
+            <small>MÉDICO ESPECIALISTA</small>
+
+            <strong>
+              Dr. Tony Vélez
+              <span>Reumatólogo</span>
+            </strong>
+          </div>
+
+        </div>
 
       </div>
-
-    </div>
-
-
-    {/* MÉDICO */}
-    <div className="comprobante-medico-fila">
-
-      <FaUserMd />
-
-      <div>
-
-        <small>
-          MÉDICO ESPECIALISTA
-        </small>
-
-        <strong>
-          Dr. Tony Vélez · Reumatólogo
-        </strong>
-
-      </div>
-
-    </div>
-
-
-    {/* AVISO */}
-    <div className="comprobante-medico-aviso">
-
-      <strong>
-        Información importante
-      </strong>
-
-      <p>
-        Presentarse 15 minutos antes del horario asignado.
-        En caso de cancelación, avisar con anticipación.
-      </p>
 
     </div>
 
 
     {/* FOOTER */}
-    <div className="comprobante-medico-footer">
+    <div className="premium-b-footer">
 
-      <div>
+      <div className="premium-b-contacto">
+
         <FaWhatsapp />
 
-        <strong>
-          +54 9 299 509 5471
-        </strong>
+        <div>
+          <small>WHATSAPP</small>
+          <strong>+54 9 299 509 5471</strong>
+        </div>
+
       </div>
 
+
       <span>
-        San Martín 1355 · Neuquén Capital
+        Clínica San Agustín · Neuquén
       </span>
 
     </div>
