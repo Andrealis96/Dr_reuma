@@ -18573,3 +18573,131 @@ transform:scale(1.07);
     0 3px 9px
     rgba(0, 0, 0, 0.20) !important;
 }
+
+/* =========================================================
+   FULLCALENDAR - PACIENTE NO ASISTIÓ
+========================================================= */
+
+.fc .evento-no-asistio {
+  background: #dc3545 !important;
+
+  border: 1px solid #a71d2a !important;
+
+  color: #ffffff !important;
+
+  box-shadow:
+    0 3px 8px rgba(220, 53, 69, 0.28) !important;
+}
+
+
+/* HORA */
+
+.fc .evento-no-asistio .fc-event-time {
+  color: #ffffff !important;
+
+  font-weight: 1000 !important;
+}
+
+
+/* PACIENTE + NO ASISTIÓ */
+
+.fc .evento-no-asistio .fc-event-title {
+  color: #ffffff !important;
+
+  font-weight: 900 !important;
+}
+
+
+/* HOVER */
+
+.fc .evento-no-asistio:hover {
+  background: #bb2d3b !important;
+
+  border-color: #8f1d28 !important;
+}
+
+/* =========================================================
+   CALENDARIO - HORA + ESTADO + PACIENTE
+========================================================= */
+
+.evento-calendario-custom {
+  width: 100% !important;
+
+  min-width: 0 !important;
+}
+
+
+.evento-calendario-linea {
+  display: flex !important;
+
+  align-items: center !important;
+
+  gap: 5px !important;
+
+  min-width: 0 !important;
+}
+
+
+.evento-calendario-hora {
+  flex-shrink: 0 !important;
+
+  color: #ffffff !important;
+
+  font-weight: 1000 !important;
+}
+
+
+/* NO ASISTIÓ AL LADO DE LA HORA */
+
+.evento-no-asistio-label {
+  display: inline-flex !important;
+
+  align-items: center !important;
+
+  justify-content: center !important;
+
+  flex-shrink: 0 !important;
+
+  padding: 1px 5px !important;
+
+  border-radius: 999px !important;
+
+  background: #ffffff !important;
+
+  color: #b42330 !important;
+
+  font-size: 0.59rem !important;
+
+  font-weight: 1000 !important;
+
+  line-height: 1.35 !important;
+
+  white-space: nowrap !important;
+}
+
+
+/* NOMBRE ABAJO */
+
+.evento-calendario-nombre {
+  margin-top: 1px !important;
+
+  color: #000000 !important;
+
+  font-weight: 700 !important;
+
+  line-height: 1.15 !important;
+
+  overflow: hidden !important;
+
+  text-overflow: ellipsis !important;
+
+  white-space: nowrap !important;
+}
+
+
+/* EN EL EVENTO ROJO EL NOMBRE BLANCO */
+
+.fc .evento-no-asistio
+.evento-calendario-nombre {
+  color: #ffffff !important;
+}

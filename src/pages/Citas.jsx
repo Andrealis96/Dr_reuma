@@ -74,6 +74,25 @@ const [historiasPacientes, setHistoriasPacientes] = useState(() => {
 
 const [eventos, setEventos] = useState([]);
 
+const [relojEstadosCitas, setRelojEstadosCitas] = useState(
+  Date.now()
+);
+
+useEffect(() => {
+
+  const intervalo = setInterval(() => {
+
+    setRelojEstadosCitas(
+      Date.now()
+    );
+
+  }, 60000);
+
+
+  return () =>
+    clearInterval(intervalo);
+
+}, []);
 
   const [showModal, setShowModal] = useState(false);
   const [citaEditar, setCitaEditar] = useState(null);
@@ -353,33 +372,114 @@ useEffect(() => {
   return () => unsub();
 }, []);
 
-  useEffect(() => {
-  const eventosCitas = citasDB.map(c => ({
-    id: c.id,
-    title: c.nombre,
-    start: `${c.fecha}T${c.hora}`,
-    classNames: [`evento-${c.tipo}`],
-    extendedProps: {
-      ...c,
-      tipoEvento: "cita"
-    }
-  }));
+useEffect(() => {
 
-  const eventosHorasBloqueadas = bloqueosHora
-    .filter(b => b.activo)
-    .map(b => ({
-      id: `bloqueo-hora-${b.id}`,
-      title: "Bloqueada",
-      start: `${b.fecha}T${normalizarHora(b.hora)}`,
-      classNames: ["evento-hora-bloqueada"],
-      extendedProps: {
-        ...b,
-        tipoEvento: "bloqueoHora"
+  const eventosCitas =
+    citasDB.map((c) => {
+
+      const estado =
+        obtenerEstadoCitaTexto(c);
+
+
+      const clases = [
+        `evento-${c.tipo}`
+      ];
+
+
+      /* ============================
+         NO ASISTIÓ
+      ============================ */
+
+      if (
+        estado === "No asistió"
+      ) {
+
+        clases.push(
+          "evento-no-asistio"
+        );
+
       }
-    }));
 
-  setEventos([...eventosCitas, ...eventosHorasBloqueadas]);
-}, [citasDB, bloqueosHora]);
+
+      return {
+
+        id:
+          c.id,
+
+        title: c.nombre,
+
+        start:
+          `${c.fecha}T${c.hora}`,
+
+        classNames:
+          clases,
+
+        extendedProps: {
+
+          ...c,
+
+          estadoVisual:
+            estado,
+
+          tipoEvento:
+            "cita"
+
+        }
+
+      };
+
+    });
+
+
+  const eventosHorasBloqueadas =
+    bloqueosHora
+      .filter(
+        (b) => b.activo
+      )
+      .map(
+        (b) => ({
+
+          id:
+            `bloqueo-hora-${b.id}`,
+
+          title:
+            "Bloqueada",
+
+          start:
+            `${b.fecha}T${normalizarHora(
+              b.hora
+            )}`,
+
+          classNames:
+            [
+              "evento-hora-bloqueada"
+            ],
+
+          extendedProps: {
+
+            ...b,
+
+            tipoEvento:
+              "bloqueoHora"
+
+          }
+
+        })
+      );
+
+
+  setEventos([
+    ...eventosCitas,
+    ...eventosHorasBloqueadas
+  ]);
+
+
+}, [
+  citasDB,
+  bloqueosHora,
+  historiasPacientes,
+  relojEstadosCitas
+]);
 
 useEffect(() => {
   if (!diaSeleccionado) return;
@@ -917,6 +1017,44 @@ const pacienteTieneConsultaEnFechaCita = (cita) => {
   return fechaUltimaConsulta === cita.fecha;
 };
 
+const citaYaPaso = (cita) => {
+
+  if (
+    !cita?.fecha ||
+    !cita?.hora
+  ) {
+    return false;
+  }
+
+
+  const hora =
+    normalizarHora(cita.hora);
+
+
+  const fechaHoraCita =
+    new Date(
+      `${cita.fecha}T${hora}:00`
+    );
+
+
+  if (
+    Number.isNaN(
+      fechaHoraCita.getTime()
+    )
+  ) {
+    return false;
+  }
+
+
+  // Apenas llega la hora del turno,
+  // si no hay consulta registrada,
+  // puede pasar a "No asistió".
+  return (
+    Date.now() >=
+    fechaHoraCita.getTime()
+  );
+
+};
 const obtenerEstadoCitaTexto = (cita) => {
   // 1. Tiene consulta realmente guardada ese día
   if (pacienteTieneConsultaEnFechaCita(cita)) {
@@ -939,10 +1077,13 @@ const obtenerEstadoCitaTexto = (cita) => {
     return "No asistió";
   }
 
-  // 4. La fecha ya pasó y nunca se registró consulta
-  if (cita.fecha < obtenerHoyLocal()) {
-    return "No asistió";
-  }
+  // 4. El turno ya pasó + 30 minutos
+// y no existe consulta registrada
+if (
+  citaYaPaso(cita )
+) {
+  return "No asistió";
+} 
 
   // 5. Solo puede seguir Confirmado si el turno todavía no pasó de día
   if (
@@ -1403,78 +1544,312 @@ const obtenerTextoTipoConsulta = (cita) => {
 };
 
 const descargarComprobanteImagen = (cita) => {
+
   if (descargandoComprobante) return;
 
+
+  /* ==========================================
+     1. ABRIR WHATSAPP INMEDIATAMENTE
+     Esto ocurre directamente desde el click,
+     por eso Chrome NO lo bloquea.
+  ========================================== */
+
+  if (cita?.telefono) {
+
+    const numero =
+      normalizarTelefonoWhatsapp(
+        cita.telefono,
+        true
+      );
+
+
+    if (numero) {
+
+      const mensaje =
+        encodeURIComponent(
+
+          `Hola ${capitalizarNombre(
+            cita.nombre || ""
+          )}, te enviamos el comprobante de tu cita con Dr. Reuma. Te esperamos.\n\n` +
+
+          `📅 Fecha: ${formatearFechaComprobante(
+            cita.fecha
+          )}\n` +
+
+          `🕐 Hora: ${cita.hora} hs\n` +
+
+          `📍 Lugar: ${obtenerLugarCita(
+            cita
+          )}`
+
+        );
+
+
+      const esMovil =
+        /Android|iPhone|iPad|iPod/i.test(
+          navigator.userAgent
+        );
+
+
+      const urlWhatsapp =
+        esMovil
+
+          ? `https://wa.me/${numero}?text=${mensaje}`
+
+          : `https://web.whatsapp.com/send?phone=${numero}&text=${mensaje}`;
+
+
+      window.open(
+        urlWhatsapp,
+        "_blank"
+      );
+
+    }
+
+  } else {
+
+    Swal.fire({
+      icon: "warning",
+      title: "Sin teléfono",
+      text: "El comprobante se descargará, pero el paciente no tiene teléfono registrado."
+    });
+
+  }
+
+
+  /* ==========================================
+     2. GENERAR COMPROBANTE
+  ========================================== */
+
   setDescargandoComprobante(true);
+
   setCitaParaDescargar(cita);
+
 };
 
 useEffect(() => {
-  if (!citaParaDescargar || !descargandoComprobante) return;
+
+  if (
+    !citaParaDescargar ||
+    !descargandoComprobante
+  ) {
+    return;
+  }
+
 
   let cancelado = false;
 
+
   const generarImagen = async () => {
+
     try {
-      await new Promise((resolve) => {
-        requestAnimationFrame(() => {
-          requestAnimationFrame(resolve);
-        });
-      });
 
-      if (!comprobanteRef.current) return;
+      /* Esperar solamente un render */
 
-      const canvas = await html2canvas(comprobanteRef.current, {
-        scale: 3,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-      });
+      await new Promise(
+        (resolve) =>
+          requestAnimationFrame(resolve)
+      );
 
-      canvas.toBlob((blob) => {
-        if (!blob || cancelado) return;
 
-        const nombreSeguro = (citaParaDescargar.nombre || "paciente")
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .replace(/\s+/g, "-")
-          .replace(/[^\w-]/g, "");
+      if (
+        !comprobanteRef.current ||
+        cancelado
+      ) {
+        return;
+      }
 
-        const horaSegura = (citaParaDescargar.hora || "")
-          .replace(/:/g, "-")
-          .replace(/[^\w-]/g, "");
 
-        const fechaSegura = (citaParaDescargar.fecha || "")
-          .replace(/[^\w-]/g, "");
+      /* ==========================================
+         GENERAR MÁS RÁPIDO
+      ========================================== */
 
-        const file = new File(
-          [blob],
-          `cita-${nombreSeguro}-${fechaSegura}-${horaSegura}.jpg`,
-          { type: "image/jpeg" }
+      const canvas =
+        await html2canvas(
+          comprobanteRef.current,
+          {
+            /*
+             * Antes estaba en 3.
+             *
+             * 2 conserva muy buena calidad
+             * y procesa MUCHOS menos píxeles.
+             */
+            scale: 2,
+
+            useCORS: true,
+
+            backgroundColor:
+              "#ffffff",
+
+            logging: false
+          }
         );
 
-        const url = URL.createObjectURL(blob);
 
-        setPreviewComprobanteFile(file);
-        setPreviewComprobanteUrl(url);
-        setCitaComprobanteActual(citaParaDescargar);
+      /* ==========================================
+         CONVERTIR A JPG
+      ========================================== */
 
-        setCitaParaDescargar(null);
-        setDescargandoComprobante(false);
-              }, "image/jpeg", 0.95);
+      const blob =
+        await new Promise(
+          (resolve) => {
+
+            canvas.toBlob(
+              resolve,
+              "image/jpeg",
+              0.90
+            );
+
+          }
+        );
+
+
+      if (
+        !blob ||
+        cancelado
+      ) {
+        return;
+      }
+
+
+      /* ==========================================
+         NOMBRE DEL ARCHIVO
+      ========================================== */
+
+      const nombreSeguro =
+        (
+          citaParaDescargar.nombre ||
+          "paciente"
+        )
+          .normalize("NFD")
+          .replace(
+            /[\u0300-\u036f]/g,
+            ""
+          )
+          .replace(
+            /\s+/g,
+            "-"
+          )
+          .replace(
+            /[^\w-]/g,
+            ""
+          );
+
+
+      const fechaSegura =
+        (
+          citaParaDescargar.fecha ||
+          ""
+        )
+          .replace(
+            /[^\w-]/g,
+            ""
+          );
+
+
+      const horaSegura =
+        (
+          citaParaDescargar.hora ||
+          ""
+        )
+          .replace(
+            /:/g,
+            "-"
+          )
+          .replace(
+            /[^\w-]/g,
+            ""
+          );
+
+
+      const nombreArchivo =
+        `cita-${nombreSeguro}-${fechaSegura}-${horaSegura}.jpg`;
+
+
+      /* ==========================================
+         DESCARGA AUTOMÁTICA
+      ========================================== */
+
+      const url =
+        URL.createObjectURL(blob);
+
+
+      const link =
+        document.createElement("a");
+
+
+      link.href =
+        url;
+
+
+      link.download =
+        nombreArchivo;
+
+
+      link.style.display =
+        "none";
+
+
+      document.body.appendChild(
+        link
+      );
+
+
+      link.click();
+
+
+      document.body.removeChild(
+        link
+      );
+
+
+      setTimeout(() => {
+
+        URL.revokeObjectURL(url);
+
+      }, 1500);
+
+
+      /* ==========================================
+         TERMINAR
+      ========================================== */
+
+      setCitaParaDescargar(null);
+
+      setDescargandoComprobante(false);
+
 
     } catch (error) {
-      console.error("Error al generar comprobante:", error);
+
+      console.error(
+        "Error generando comprobante:",
+        error
+      );
+
+
       setCitaParaDescargar(null);
+
       setDescargandoComprobante(false);
+
     }
+
   };
+
 
   generarImagen();
 
+
   return () => {
+
     cancelado = true;
+
   };
-}, [citaParaDescargar, descargandoComprobante]);
+
+
+}, [
+  citaParaDescargar,
+  descargandoComprobante
+]);
 
 const compartirComprobante = async () => {
   if (!previewComprobanteFile) return;
@@ -2302,6 +2677,82 @@ const tieneNota = notasAgenda.some(
   }, 50);
 }}
 
+eventContent={(arg) => {
+
+  const datos =
+    arg.event.extendedProps || {};
+
+
+  // BLOQUEOS DE HORA
+  if (
+    datos.tipoEvento ===
+    "bloqueoHora"
+  ) {
+
+    return (
+      <div className="evento-calendario-custom">
+
+        <div className="evento-calendario-linea">
+
+          <strong>
+            {arg.timeText}
+          </strong>
+
+        </div>
+
+        <div className="evento-calendario-nombre">
+
+          {arg.event.title}
+
+        </div>
+
+      </div>
+    );
+
+  }
+
+
+  const noAsistio =
+    datos.estadoVisual ===
+    "No asistió";
+
+
+  return (
+    <div className="evento-calendario-custom">
+
+      <div className="evento-calendario-linea">
+
+        <strong className="evento-calendario-hora">
+
+          {arg.timeText}
+
+        </strong>
+
+
+        {noAsistio && (
+
+          <span className="evento-no-asistio-label">
+
+            NO ASISTIÓ
+
+          </span>
+
+        )}
+
+      </div>
+
+
+      <div className="evento-calendario-nombre">
+
+        {arg.event.title}
+
+      </div>
+
+    </div>
+  );
+
+}}
+
 eventClick={(info) => {
   const fechaEvento = info.event.startStr.split("T")[0];
   const datosEvento = info.event.extendedProps || "";
@@ -2867,54 +3318,6 @@ horariosDisponibles.map(h => {
           Gracias por confiar en Dr. Reuma
         </small>
       </div>
-
-    </div>
-  </div>
-)}
-{previewComprobanteUrl && (
-  <div className="comprobante-preview-overlay">
-    <div className="comprobante-preview-card">
-
-      <button
-        type="button"
-        className="comprobante-preview-close"
-        onClick={cerrarPreviewComprobante}
-      >
-        ×
-      </button>
-
-      <img
-        src={previewComprobanteUrl}
-        alt="Comprobante de cita"
-        className="comprobante-preview-img"
-      />
-
-<div className="comprobante-preview-actions">
-  <button
-    type="button"
-    className="btn-comprobante-download"
-    onClick={descargarPreviewComprobante}
-  >
-    Descargar imagen
-  </button>
-
-<button
-  type="button"
-  className="btn-comprobante-whatsapp-business"
-  onClick={() => abrirWhatsappBusinessPaciente(true)}
->
-  Abrir WhatsApp Business
-</button>
-
-<button
-  type="button"
-  className="btn-comprobante-whatsapp-alt"
-  onClick={() => abrirWhatsappBusinessPaciente(false)}
->
-  Abrir sin 9
-</button>
-
-</div>
 
     </div>
   </div>
