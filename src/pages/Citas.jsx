@@ -50,6 +50,7 @@ import {
 
 import Swal from "sweetalert2";
 import { db } from "../firebase";
+import { flushSync } from "react-dom";
 
 function Citas() {
   const calendarRef = useRef(null);
@@ -1543,16 +1544,21 @@ const obtenerTextoTipoConsulta = (cita) => {
   return "Efectivo / Transferencia" ;
 };
 
-const descargarComprobanteImagen = (cita) => {
+const descargarComprobanteImagen = async (cita) => {
 
   if (descargandoComprobante) return;
 
 
   /* ==========================================
-     1. ABRIR WHATSAPP INMEDIATAMENTE
-     Esto ocurre directamente desde el click,
-     por eso Chrome NO lo bloquea.
+     PREPARAR WHATSAPP
+     Abrimos una pestaña VACÍA ahora,
+     mientras todavía estamos dentro del click.
   ========================================== */
+
+  let ventanaWhatsapp = null;
+
+  let urlWhatsapp = "";
+
 
   if (cita?.telefono) {
 
@@ -1591,265 +1597,266 @@ const descargarComprobanteImagen = (cita) => {
         );
 
 
-      const urlWhatsapp =
+      urlWhatsapp =
         esMovil
-
           ? `https://wa.me/${numero}?text=${mensaje}`
-
           : `https://web.whatsapp.com/send?phone=${numero}&text=${mensaje}`;
 
 
-      window.open(
-        urlWhatsapp,
-        "_blank"
-      );
+      /*
+       * Reservamos la pestaña.
+       * Así Chrome no la bloquea después.
+       */
+
+      ventanaWhatsapp =
+        window.open(
+          "about:blank",
+          "_blank"
+        );
 
     }
-
-  } else {
-
-    Swal.fire({
-      icon: "warning",
-      title: "Sin teléfono",
-      text: "El comprobante se descargará, pero el paciente no tiene teléfono registrado."
-    });
 
   }
 
 
-  /* ==========================================
-     2. GENERAR COMPROBANTE
-  ========================================== */
+  try {
 
-  setDescargandoComprobante(true);
+    /* ==========================================
+       MOSTRAR EL COMPROBANTE OCULTO
+       INMEDIATAMENTE EN EL DOM
+    ========================================== */
 
-  setCitaParaDescargar(cita);
+    flushSync(() => {
+
+      setDescargandoComprobante(true);
+
+      setCitaParaDescargar(cita);
+
+    });
+
+
+    const elemento =
+      comprobanteRef.current;
+
+
+    if (!elemento) {
+
+      throw new Error(
+        "No se encontró el comprobante para generar."
+      );
+
+    }
+
+
+    /* ==========================================
+       GENERAR JPG
+       MÁS RÁPIDO
+    ========================================== */
+
+    const canvas =
+      await html2canvas(
+        elemento,
+        {
+          scale: 1.5,
+
+          useCORS: true,
+
+          backgroundColor:
+            "#ffffff",
+
+          logging: false
+        }
+      );
+
+
+    const blob =
+      await new Promise(
+        (resolve) => {
+
+          canvas.toBlob(
+            resolve,
+            "image/jpeg",
+            0.88
+          );
+
+        }
+      );
+
+
+    if (!blob) {
+
+      throw new Error(
+        "No se pudo crear la imagen."
+      );
+
+    }
+
+
+    /* ==========================================
+       NOMBRE DEL ARCHIVO
+    ========================================== */
+
+    const nombreSeguro =
+      (
+        cita.nombre ||
+        "paciente"
+      )
+        .normalize("NFD")
+        .replace(
+          /[\u0300-\u036f]/g,
+          ""
+        )
+        .replace(
+          /\s+/g,
+          "-"
+        )
+        .replace(
+          /[^\w-]/g,
+          ""
+        );
+
+
+    const fechaSegura =
+      (
+        cita.fecha ||
+        ""
+      )
+        .replace(
+          /[^\w-]/g,
+          ""
+        );
+
+
+    const horaSegura =
+      (
+        cita.hora ||
+        ""
+      )
+        .replace(
+          /:/g,
+          "-"
+        )
+        .replace(
+          /[^\w-]/g,
+          ""
+        );
+
+
+    const nombreArchivo =
+      `cita-${nombreSeguro}-${fechaSegura}-${horaSegura}.jpg`;
+
+
+    /* ==========================================
+       DESCARGAR AUTOMÁTICAMENTE
+    ========================================== */
+
+    const urlImagen =
+      URL.createObjectURL(blob);
+
+
+    const link =
+      document.createElement("a");
+
+
+    link.href =
+      urlImagen;
+
+
+    link.download =
+      nombreArchivo;
+
+
+    link.style.display =
+      "none";
+
+
+    document.body.appendChild(
+      link
+    );
+
+
+    link.click();
+
+
+    document.body.removeChild(
+      link
+    );
+
+
+    setTimeout(() => {
+
+      URL.revokeObjectURL(
+        urlImagen
+      );
+
+    }, 2000);
+
+
+    /* ==========================================
+       AHORA ABRIR WHATSAPP
+    ========================================== */
+
+    if (
+      ventanaWhatsapp &&
+      urlWhatsapp
+    ) {
+
+      ventanaWhatsapp.location.href =
+        urlWhatsapp;
+
+    } else if (
+      urlWhatsapp
+    ) {
+
+      // Fallback por si Chrome bloqueó
+      // la pestaña vacía
+
+      window.location.href =
+        urlWhatsapp;
+
+    }
+
+
+  } catch (error) {
+
+    console.error(
+      "Error generando comprobante:",
+      error
+    );
+
+
+    if (
+      ventanaWhatsapp &&
+      !ventanaWhatsapp.closed
+    ) {
+
+      ventanaWhatsapp.close();
+
+    }
+
+
+    Swal.fire({
+      icon: "error",
+      title: "No se pudo generar",
+      text: "No se pudo crear el comprobante en JPG."
+    });
+
+
+  } finally {
+
+    setCitaParaDescargar(
+      null
+    );
+
+    setDescargandoComprobante(
+      false
+    );
+
+  }
 
 };
 
-useEffect(() => {
 
-  if (
-    !citaParaDescargar ||
-    !descargandoComprobante
-  ) {
-    return;
-  }
-
-
-  let cancelado = false;
-
-
-  const generarImagen = async () => {
-
-    try {
-
-      /* Esperar solamente un render */
-
-      await new Promise(
-        (resolve) =>
-          requestAnimationFrame(resolve)
-      );
-
-
-      if (
-        !comprobanteRef.current ||
-        cancelado
-      ) {
-        return;
-      }
-
-
-      /* ==========================================
-         GENERAR MÁS RÁPIDO
-      ========================================== */
-
-      const canvas =
-        await html2canvas(
-          comprobanteRef.current,
-          {
-            /*
-             * Antes estaba en 3.
-             *
-             * 2 conserva muy buena calidad
-             * y procesa MUCHOS menos píxeles.
-             */
-            scale: 2,
-
-            useCORS: true,
-
-            backgroundColor:
-              "#ffffff",
-
-            logging: false
-          }
-        );
-
-
-      /* ==========================================
-         CONVERTIR A JPG
-      ========================================== */
-
-      const blob =
-        await new Promise(
-          (resolve) => {
-
-            canvas.toBlob(
-              resolve,
-              "image/jpeg",
-              0.90
-            );
-
-          }
-        );
-
-
-      if (
-        !blob ||
-        cancelado
-      ) {
-        return;
-      }
-
-
-      /* ==========================================
-         NOMBRE DEL ARCHIVO
-      ========================================== */
-
-      const nombreSeguro =
-        (
-          citaParaDescargar.nombre ||
-          "paciente"
-        )
-          .normalize("NFD")
-          .replace(
-            /[\u0300-\u036f]/g,
-            ""
-          )
-          .replace(
-            /\s+/g,
-            "-"
-          )
-          .replace(
-            /[^\w-]/g,
-            ""
-          );
-
-
-      const fechaSegura =
-        (
-          citaParaDescargar.fecha ||
-          ""
-        )
-          .replace(
-            /[^\w-]/g,
-            ""
-          );
-
-
-      const horaSegura =
-        (
-          citaParaDescargar.hora ||
-          ""
-        )
-          .replace(
-            /:/g,
-            "-"
-          )
-          .replace(
-            /[^\w-]/g,
-            ""
-          );
-
-
-      const nombreArchivo =
-        `cita-${nombreSeguro}-${fechaSegura}-${horaSegura}.jpg`;
-
-
-      /* ==========================================
-         DESCARGA AUTOMÁTICA
-      ========================================== */
-
-      const url =
-        URL.createObjectURL(blob);
-
-
-      const link =
-        document.createElement("a");
-
-
-      link.href =
-        url;
-
-
-      link.download =
-        nombreArchivo;
-
-
-      link.style.display =
-        "none";
-
-
-      document.body.appendChild(
-        link
-      );
-
-
-      link.click();
-
-
-      document.body.removeChild(
-        link
-      );
-
-
-      setTimeout(() => {
-
-        URL.revokeObjectURL(url);
-
-      }, 1500);
-
-
-      /* ==========================================
-         TERMINAR
-      ========================================== */
-
-      setCitaParaDescargar(null);
-
-      setDescargandoComprobante(false);
-
-
-    } catch (error) {
-
-      console.error(
-        "Error generando comprobante:",
-        error
-      );
-
-
-      setCitaParaDescargar(null);
-
-      setDescargandoComprobante(false);
-
-    }
-
-  };
-
-
-  generarImagen();
-
-
-  return () => {
-
-    cancelado = true;
-
-  };
-
-
-}, [
-  citaParaDescargar,
-  descargandoComprobante
-]);
 
 const compartirComprobante = async () => {
   if (!previewComprobanteFile) return;
@@ -3222,105 +3229,233 @@ horariosDisponibles.map(h => {
     </div>
   </div>
 )}
+
 {citaParaDescargar && (
 
-  <div className="servicio-comprobante-hidden">
-    <div ref={comprobanteRef} className="servicio-comprobante-card">
+  <div
+    className="comprobante-medico"
+    ref={comprobanteRef}
+  >
 
-      <div className="servicio-comprobante-topbar" />
+    {/* BARRA SUPERIOR */}
+    <div className="comprobante-medico-barra" />
 
-      <div className="servicio-comprobante-header">
+
+    {/* CABECERA */}
+    <div className="comprobante-medico-header">
+
+      <div className="comprobante-medico-marca">
+
         <img
           src={logo}
           alt="Dr. Reuma"
-          className="servicio-comprobante-logo"
-          crossOrigin="anonymous"
+          className="comprobante-medico-logo"
         />
 
-        <div className="servicio-comprobante-badge">
-          <FaCheckCircle />
-          Turno confirmado
+        <div className="comprobante-medico-marca-texto">
+
+          <strong>
+            DR. REUMA
+          </strong>
+
+          <span>
+            Dr. Tony Vélez
+          </span>
+
+          <small>
+            Médico Reumatólogo
+          </small>
+
         </div>
 
-        <h2>COMPROBANTE DE CITA</h2>
-
-        <p>
-          Dr. Reuma · Especialista en enfermedades Autoinmunes y Reumatológicas
-        </p>
       </div>
 
-      <div className="servicio-comprobante-paciente">
-        <span>Paciente</span>
 
-        <h3>
-          {capitalizarNombre(citaParaDescargar?.nombre || "Paciente")}
-        </h3>
+      <div className="comprobante-medico-estado">
 
-        <div className="servicio-comprobante-chips">
-          <div>
-            <FaCalendarAlt />
-            {formatearFechaComprobante(citaParaDescargar?.fecha)}
-          </div>
+        <FaCheckCircle />
 
-          <div>
-            <FaClock />
-            {citaParaDescargar?.hora || "--:--"} hs
-          </div>
-        </div>
-      </div>
+        <span>
+          TURNO CONFIRMADO
+        </span>
 
-      <div className="servicio-comprobante-box">
-        <h4>
-          <FaMapMarkerAlt />
-          Lugar:
-        </h4>
-
-        <p>
-          {obtenerLugarCita(citaParaDescargar)}
-        </p>
-      </div>
-
-      <div className="servicio-comprobante-box servicio-comprobante-medico-unico">
-  <div className="servicio-comprobante-medico-info">
-    <h4>
-      <FaUserMd />
-      Médico Especialista:
-    </h4>
-
-    <p>
-      Dr. Tony Vélez - Reumatólogo
-    </p>
-  </div>
-
-<div className="servicio-comprobante-valor-inline">
-  <span>Valor consulta</span>
-  <strong>{obtenerValorConsultaCita(citaParaDescargar)}</strong>
-  <small>{obtenerTextoTipoConsulta(citaParaDescargar)}</small>
-</div>
-</div>
-
-      <div className="servicio-comprobante-note">
-        <strong>Nota importante</strong>
-
-        <p>
-          En caso de cancelación, por favor avisar al médico con antelación.  <br />
-          Presentarse 15 minutos antes del horario asignado.
-        </p>
-      </div>
-
-      <div className="servicio-comprobante-footer">
-        <strong>
-          <FaWhatsapp />
-          WhatsApp: +54 9 299 509 5471
-        </strong>
-
-        <small>
-          Gracias por confiar en Dr. Reuma
-        </small>
       </div>
 
     </div>
+
+
+    {/* TÍTULO */}
+    <div className="comprobante-medico-titulo">
+
+      <span>
+        COMPROBANTE DE CITA
+      </span>
+
+    </div>
+
+
+    {/* PACIENTE + PRECIO */}
+    <div className="comprobante-medico-principal">
+
+      <div className="comprobante-medico-paciente">
+
+        <small>
+          PACIENTE
+        </small>
+
+        <h1>
+          {capitalizarNombre(
+            citaParaDescargar?.nombre || ""
+          )}
+        </h1>
+
+      </div>
+
+
+      <div className="comprobante-medico-valor">
+
+        <small>
+          VALOR CONSULTA
+        </small>
+
+        <strong>
+          {obtenerValorConsultaCita(
+            citaParaDescargar
+          )}
+        </strong>
+
+        <span>
+          {obtenerTextoTipoConsulta(
+            citaParaDescargar
+          )}
+        </span>
+
+      </div>
+
+    </div>
+
+
+    {/* FECHA + HORA */}
+    <div className="comprobante-medico-datos">
+
+      <div className="comprobante-medico-dato">
+
+        <FaCalendarAlt />
+
+        <div>
+
+          <small>
+            FECHA
+          </small>
+
+          <strong>
+            {formatearFechaComprobante(
+              citaParaDescargar?.fecha
+            )}
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <div className="comprobante-medico-dato">
+
+        <FaClock />
+
+        <div>
+
+          <small>
+            HORA
+          </small>
+
+          <strong>
+            {citaParaDescargar?.hora} hs
+          </strong>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    {/* LUGAR */}
+    <div className="comprobante-medico-fila">
+
+      <FaMapMarkerAlt />
+
+      <div>
+
+        <small>
+          LUGAR
+        </small>
+
+        <strong>
+          {obtenerLugarCita(
+            citaParaDescargar
+          )}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    {/* MÉDICO */}
+    <div className="comprobante-medico-fila">
+
+      <FaUserMd />
+
+      <div>
+
+        <small>
+          MÉDICO ESPECIALISTA
+        </small>
+
+        <strong>
+          Dr. Tony Vélez · Reumatólogo
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    {/* AVISO */}
+    <div className="comprobante-medico-aviso">
+
+      <strong>
+        Información importante
+      </strong>
+
+      <p>
+        Presentarse 15 minutos antes del horario asignado.
+        En caso de cancelación, avisar con anticipación.
+      </p>
+
+    </div>
+
+
+    {/* FOOTER */}
+    <div className="comprobante-medico-footer">
+
+      <div>
+        <FaWhatsapp />
+
+        <strong>
+          +54 9 299 509 5471
+        </strong>
+      </div>
+
+      <span>
+        San Martín 1355 · Neuquén Capital
+      </span>
+
+    </div>
+
   </div>
+
 )}
 
 </div>
