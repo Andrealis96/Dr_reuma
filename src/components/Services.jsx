@@ -510,27 +510,46 @@ const handleSubmit = async (e) => {
     const dniLimpio = limpiarDniPaciente(form.Dni);
     const telefonoLimpio = limpiarTelefono10(form.telefono);
 
+    const nombreNormalizado = form.nombre
+  .trim()
+  .toLowerCase()
+  .split(/\s+/)
+  .map(
+    palabra =>
+      palabra.charAt(0).toUpperCase() +
+      palabra.slice(1)
+  )
+  .join(" ");
+
     const historiaClinicaId = await buscarOCrearHistoriaDesdeServices({
-      ...form,
-      Dni: dniLimpio,
-      telefono: telefonoLimpio
-    });
+  ...form,
+
+  nombre: nombreNormalizado,
+
+  Dni: dniLimpio,
+
+  telefono: telefonoLimpio
+});
 
     const citaFinal = {
-      ...form,
-      Dni: dniLimpio,
-      telefono: telefonoLimpio,
+  ...form,
 
-      historiaClinicaId,
-      pacienteId: historiaClinicaId,
+  nombre: nombreNormalizado,
 
-      estadoCita: "pendiente",
-      estadoConfirmacion: "pendiente",
-      estadoAsistencia: "pendiente",
+  Dni: dniLimpio,
 
-      origen: "web",
-      createdAt: new Date()
-    };
+  telefono: telefonoLimpio,
+
+  historiaClinicaId,
+  pacienteId: historiaClinicaId,
+
+  estadoCita: "pendiente",
+  estadoConfirmacion: "pendiente",
+  estadoAsistencia: "pendiente",
+
+  origen: "web",
+  createdAt: new Date()
+};
 
     await addDoc(collection(db, "citas"), citaFinal);
 
@@ -1190,99 +1209,246 @@ const cerrarPreviewComprobantePaciente = () => {
 )}
 
 {citaGuardada && (
+
   <div className="servicio-comprobante-hidden">
-    <div ref={comprobantePacienteRef} className="servicio-comprobante-card">
 
-      <div className="servicio-comprobante-topbar" />
+    <div
+      ref={comprobantePacienteRef}
+      className="comprobante-premium-b"
+    >
 
-      <div className="servicio-comprobante-header">
-        <img
-          src={DrReumaLogo}
-          alt="Dr. Reuma"
-          className="servicio-comprobante-logo"
-          crossOrigin="anonymous"
-        />
+      {/* HEADER */}
+      <div className="premium-b-header">
 
-        <div className="servicio-comprobante-badge">
+        <div className="premium-b-identidad">
+
+          <img
+            src={DrReumaLogo}
+            alt="Dr. Reuma"
+            className="premium-b-logo"
+            crossOrigin="anonymous"
+          />
+
+          <div>
+            <strong>Dr. Tony Vélez</strong>
+            <span>Médico Reumatólogo</span>
+          </div>
+
+        </div>
+
+
+        <div className="premium-b-confirmado">
+
           <FaCheckCircle />
-          Turno confirmado
+
+          <span>
+            TURNO CONFIRMADO
+          </span>
+
         </div>
 
-        <h2>COMPROBANTE DE CITA</h2>
-        <p>Dr. Reuma · Especialista en Enfermedades Autoinmunes y Reumatologicas </p>
       </div>
 
-      <div className="servicio-comprobante-paciente">
-        <span>Paciente</span>
-        <h3>{citaGuardada.nombre}</h3>
 
-        <div className="servicio-comprobante-chips">
-          <div>
-            <FaCalendarAlt />
-            {formatearFechaComprobante(citaGuardada.fecha)}
+      {/* TÍTULO */}
+      <div className="premium-b-titulo">
+        COMPROBANTE DE CITA
+      </div>
+
+
+      {/* CARD PRINCIPAL */}
+      <div className="premium-b-card">
+
+        {/* PACIENTE + PRECIO */}
+        <div className="premium-b-paciente-row">
+
+          <div className="premium-b-paciente">
+
+            <small>
+              PACIENTE
+            </small>
+
+            <h1>
+              {citaGuardada.nombre}
+            </h1>
+
           </div>
 
-          <div>
-            <FaClock />
-            {citaGuardada.hora} hs
+
+          <div className="premium-b-precio">
+
+            <small>
+              VALOR CONSULTA
+            </small>
+
+            <strong>
+              {obtenerValorConsultaComprobante(
+                citaGuardada
+              )}
+            </strong>
+
+            <span>
+              {citaGuardada?.tipo === "virtual"
+                ? "Consulta virtual"
+                : "Efectivo / Transferencia"}
+            </span>
+
           </div>
+
         </div>
+
+
+        {/* DATOS */}
+        <div className="premium-b-grid">
+
+          {/* FECHA */}
+          <div className="premium-b-dato">
+
+            <div className="premium-b-icono">
+              <FaCalendarAlt />
+            </div>
+
+            <div>
+
+              <small>
+                FECHA
+              </small>
+
+              <strong>
+                {formatearFechaComprobante(
+                  citaGuardada.fecha
+                )}
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          {/* HORA */}
+          <div className="premium-b-dato">
+
+            <div className="premium-b-icono">
+              <FaClock />
+            </div>
+
+            <div>
+
+              <small>
+                HORA
+              </small>
+
+              <strong>
+                {citaGuardada.hora} hs
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          {/* LUGAR */}
+          <div className="premium-b-dato premium-b-full">
+
+            <div className="premium-b-icono">
+              <FaMapMarkerAlt />
+            </div>
+
+            <div>
+
+              <small>
+                LUGAR
+              </small>
+
+              {citaGuardada?.tipo === "virtual" ? (
+
+                <strong>
+                  Consulta por videollamada
+                </strong>
+
+              ) : (
+
+                <strong>
+                  San Martín 1355
+
+                  <span>
+                    Consultorios Externos · Clínica San Agustín
+                  </span>
+
+                  <span>
+                    Neuquén Capital
+                  </span>
+                </strong>
+
+              )}
+
+            </div>
+
+          </div>
+
+
+          {/* MÉDICO */}
+          <div className="premium-b-dato premium-b-full">
+
+            <div className="premium-b-icono">
+              <FaUserMd />
+            </div>
+
+            <div>
+
+              <small>
+                MÉDICO ESPECIALISTA
+              </small>
+
+              <strong>
+                Dr. Tony Vélez
+
+                <span>
+                  Reumatólogo
+                </span>
+              </strong>
+
+            </div>
+
+          </div>
+
+        </div>
+
       </div>
 
-      <div className="servicio-comprobante-box">
-        <h4>
-          <FaMapMarkerAlt />
-          Lugar
-        </h4>
 
-        <p>{obtenerLugarComprobante(citaGuardada)}</p>
-      </div>
+      {/* FOOTER */}
+      <div className="premium-b-footer">
 
-      <div className="servicio-comprobante-box servicio-comprobante-medico-unico">
-  <div className="servicio-comprobante-medico-info">
-    <h4>
-      <FaUserMd />
-      Médico
-    </h4>
+        <div className="premium-b-contacto">
 
-    <p>
-      Dr. Tony Vélez - Reumatólogo
-    </p>
-  </div>
-
-  <div className="servicio-comprobante-valor-inline">
-    <span>Valor consulta</span>
-    <strong>{obtenerValorConsultaComprobante(citaGuardada)}</strong>
-    <small>
-      {citaGuardada?.tipo === "virtual"
-        ? "Consulta virtual"
-        : "Efectivo / Transferencia" }
-    </small>
-  </div>
-</div>
-
-      <div className="servicio-comprobante-note">
-        <strong>Nota importante</strong>
-
-        <p>
-          En caso de cancelación, por favor avisar con antelación.
-          Presentarse 15 minutos antes del horario asignado.
-        </p>
-      </div>
-
-      <div className="servicio-comprobante-footer">
-        <strong>
           <FaWhatsapp />
-          WhatsApp: +54 9 299 509 5471
-        </strong>
 
-        <small>
-          Gracias por confiar en Dr. Reuma
-        </small>
+          <div>
+
+            <small>
+              WHATSAPP
+            </small>
+
+            <strong>
+              +54 9 299 509 5471
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <span>
+          Clínica San Agustín · Neuquén
+        </span>
+
       </div>
 
     </div>
+
   </div>
+
 )}
   </div>
 </div>

@@ -407,7 +407,7 @@ useEffect(() => {
         id:
           c.id,
 
-        title: c.nombre,
+       title: capitalizarNombre(c.nombre || ""),
 
         start:
           `${c.fecha}T${c.hora}`,
@@ -1335,22 +1335,36 @@ const guardarCita = async (data) => {
     );
 
   const dataLimpia = {
-    ...data,
-    tipo: tipoCorrecto,
-    telefono: limpiarTelefono10(data.telefono),
+  ...data,
 
-    estadoCita: cambioFechaOHora
-      ? "pendiente"
-      : data.estadoCita || citaEditar?.estadoCita || "pendiente",
+  nombre: capitalizarNombre(
+    data.nombre?.trim() || ""
+  ),
 
-    estadoConfirmacion: cambioFechaOHora
-      ? "pendiente"
-      : data.estadoConfirmacion || citaEditar?.estadoConfirmacion || "pendiente",
+  tipo: tipoCorrecto,
 
-    estadoAsistencia: cambioFechaOHora
-      ? "pendiente"
-      : data.estadoAsistencia || citaEditar?.estadoAsistencia || "pendiente"
-  };
+  telefono: limpiarTelefono10(
+    data.telefono
+  ),
+
+  estadoCita: cambioFechaOHora
+    ? "pendiente"
+    : data.estadoCita ||
+      citaEditar?.estadoCita ||
+      "pendiente",
+
+  estadoConfirmacion: cambioFechaOHora
+    ? "pendiente"
+    : data.estadoConfirmacion ||
+      citaEditar?.estadoConfirmacion ||
+      "pendiente",
+
+  estadoAsistencia: cambioFechaOHora
+    ? "pendiente"
+    : data.estadoAsistencia ||
+      citaEditar?.estadoAsistencia ||
+      "pendiente"
+};
 
   // 🔒 Validar horario ocupado usando dataLimpia, NO dataFinal
   const q = query(
@@ -2772,72 +2786,108 @@ eventContent={(arg) => {
     arg.event.extendedProps || {};
 
 
-  // BLOQUEOS DE HORA
+  /* =========================
+     HORARIO BLOQUEADO
+  ========================= */
+
   if (
     datos.tipoEvento ===
     "bloqueoHora"
   ) {
 
     return (
+
       <div className="evento-calendario-custom">
 
         <div className="evento-calendario-linea">
 
-          <strong>
+          <strong className="evento-calendario-hora">
             {arg.timeText}
           </strong>
 
         </div>
 
+
         <div className="evento-calendario-nombre">
-
           {arg.event.title}
-
         </div>
 
       </div>
+
     );
 
   }
 
 
-  const noAsistio =
-    datos.estadoVisual ===
-    "No asistió";
+  /* =========================
+     ESTADO DE LA CITA
+  ========================= */
+
+  const estado =
+    datos.estadoVisual ||
+    "Pendiente";
+
+
+  const claseEstado =
+    estado === "Asistió"
+      ? "evento-estado-asistio"
+
+      : estado === "Confirmado"
+      ? "evento-estado-confirmado"
+
+      : estado === "No asistió"
+      ? "evento-estado-no-asistio"
+
+      : "evento-estado-pendiente";
 
 
   return (
+
     <div className="evento-calendario-custom">
+
+      {/* HORA */}
 
       <div className="evento-calendario-linea">
 
         <strong className="evento-calendario-hora">
-
           {arg.timeText}
-
         </strong>
-
-
-        {noAsistio && (
-
-          <span className="evento-no-asistio-label">
-
-            NO ASISTIÓ
-
-          </span>
-
-        )}
 
       </div>
 
 
+      {/* ESTADO */}
+
+      <div
+        className={`evento-estado-badge ${claseEstado}`}
+      >
+
+        {/* PC */}
+        <span className="evento-estado-desktop">
+          {estado.toUpperCase()}
+        </span>
+
+
+        {/* CELULAR */}
+        <span className="evento-estado-mobile">
+
+          {estado === "No asistió"
+            ? "AUSENTE"
+            : estado.toUpperCase()}
+
+        </span>
+
+      </div>
+
+
+      {/* NOMBRE */}
+
       <div className="evento-calendario-nombre">
-
         {arg.event.title}
-
       </div>
 
     </div>
+
   );
 
 }}

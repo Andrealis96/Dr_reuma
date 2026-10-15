@@ -18646,39 +18646,6 @@ transform:scale(1.07);
   font-weight: 1000 !important;
 }
 
-
-/* NO ASISTIÓ AL LADO DE LA HORA */
-
-.evento-no-asistio-label {
-  display: inline-flex !important;
-
-  align-items: center !important;
-
-  justify-content: center !important;
-
-  flex-shrink: 0 !important;
-
-  padding: 1px 5px !important;
-
-  border-radius: 999px !important;
-
-  background: #ffffff !important;
-
-  color: #b42330 !important;
-
-  font-size: 0.59rem !important;
-
-  font-weight: 1000 !important;
-
-  line-height: 1.35 !important;
-
-  white-space: nowrap !important;
-}
-
-
-
-
-
 /* NOMBRE ABAJO */
 
 .evento-calendario-nombre {
@@ -19153,4 +19120,406 @@ transform:scale(1.07);
 .comprobante-premium-b,
 .comprobante-premium-b * {
   box-sizing: border-box;
+}
+
+
+
+/* ==========================================
+   CITA NO ASISTIÓ - CALENDARIO
+========================================== */
+
+.fc .evento-no-asistio {
+  background: #dc3545 !important;
+  border-color: #dc3545 !important;
+  color: white !important;
+}
+
+.fc .evento-no-asistio .evento-calendario-custom {
+  width: 100%;
+  overflow: hidden;
+}
+
+.fc .evento-no-asistio .evento-calendario-hora {
+  color: white !important;
+}
+
+.fc .evento-no-asistio-label {
+  display: block;
+  width: 100%;
+
+  margin: 1px 0;
+
+  color: white !important;
+
+  font-size: 9px;
+  line-height: 1.05;
+
+  font-weight: 1000;
+
+  white-space: nowrap;
+  overflow: hidden;
+
+  text-align: left;
+}
+
+.fc .evento-no-asistio .evento-calendario-nombre {
+  color: white !important;
+}
+
+
+/* CELULAR */
+@media (max-width: 768px) {
+
+  .fc .evento-no-asistio-label {
+    font-size: 7px !important;
+    letter-spacing: -0.2px !important;
+  }
+
+  .fc .evento-no-asistio .evento-calendario-hora {
+    font-size: 9px !important;
+  }
+
+  .fc .evento-no-asistio .evento-calendario-nombre {
+    font-size: 9px !important;
+  }
+
+}
+
+
+
+
+/* =====================================================
+   NO ASISTIÓ - CORRECCIÓN DEFINITIVA CALENDARIO
+===================================================== */
+
+.fc .evento-no-asistio {
+  background: #dc3545 !important;
+  border-color: #dc3545 !important;
+  color: white !important;
+}
+
+.fc .evento-no-asistio .evento-calendario-custom {
+  width: 100% !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+.fc .evento-no-asistio .evento-calendario-hora {
+  color: white !important;
+}
+
+.fc .evento-no-asistio-label {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  width: auto !important;
+  max-width: 100% !important;
+
+  margin: 2px 0 !important;
+  padding: 2px 5px !important;
+
+  background: white !important;
+  color: #dc3545 !important;
+
+  border-radius: 5px !important;
+
+  font-size: 8px !important;
+  line-height: 1 !important;
+  font-weight: 1000 !important;
+
+  white-space: nowrap !important;
+  overflow: visible !important;
+}
+
+.fc .evento-no-asistio .evento-calendario-nombre {
+  color: white !important;
+}
+
+
+/* =====================================================
+   CELULAR
+===================================================== */
+
+@media (max-width: 768px) {
+
+  .fc .evento-no-asistio-label {
+    font-size: 0 !important;
+    padding: 3px 5px !important;
+    min-height: 13px !important;
+  }
+
+  .fc .evento-no-asistio-label::after {
+    content: "AUSENTE";
+
+    display: block;
+
+    color: #dc3545;
+
+    font-size: 7px;
+    line-height: 1;
+
+    font-weight: 1000;
+
+    letter-spacing: 0;
+    white-space: nowrap;
+  }
+
+  .fc .evento-no-asistio .evento-calendario-hora {
+    font-size: 9px !important;
+    line-height: 1.05 !important;
+  }
+
+  .fc .evento-no-asistio .evento-calendario-nombre {
+    font-size: 8px !important;
+    line-height: 1.05 !important;
+  }
+}
+
+
+
+
+/* =====================================================
+   ESTADOS DENTRO DEL CALENDARIO
+===================================================== */
+
+.fc .evento-calendario-custom {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+
+.fc .evento-calendario-hora {
+  display: block;
+
+  font-size: 11px;
+  line-height: 1.05;
+
+  font-weight: 1000;
+}
+
+
+.fc .evento-calendario-nombre {
+  margin-top: 2px;
+
+  font-size: 11px;
+  line-height: 1.05;
+
+  font-weight: 750;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+/* =====================================================
+   BADGE GENERAL
+===================================================== */
+
+.fc .evento-estado-badge {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: fit-content;
+  max-width: 100%;
+
+  margin: 2px 0 1px;
+
+  padding: 2px 5px;
+
+  border-radius: 5px;
+
+  font-size: 7px;
+  line-height: 1;
+
+  font-weight: 1000;
+
+  letter-spacing: 0.1px;
+
+  white-space: nowrap;
+
+  box-sizing: border-box;
+}
+
+
+/* =====================================================
+   PENDIENTE
+===================================================== */
+
+.fc .evento-estado-pendiente {
+  background: #fff3cd !important;
+
+  color: #856404 !important;
+
+  border: 1px solid #e6c34d !important;
+}
+
+
+/* =====================================================
+   CONFIRMADO
+===================================================== */
+
+.fc .evento-estado-confirmado {
+  background: #ffffff !important;
+
+  color: #087b35 !important;
+
+  border: 1px solid rgba(255,255,255,0.85) !important;
+}
+
+
+/* =====================================================
+   ASISTIÓ
+===================================================== */
+
+.fc .evento-estado-asistio {
+  background: #d8f5e3 !important;
+
+  color: #075c2a !important;
+
+  border: 1px solid #b7e6c8 !important;
+}
+
+
+/* =====================================================
+   NO ASISTIÓ
+===================================================== */
+
+.fc .evento-estado-no-asistio {
+  background: #ffffff !important;
+
+  color: #dc3545 !important;
+
+  border: 1px solid white !important;
+}
+
+
+/* CITA AUSENTE COMPLETA ROJA */
+
+.fc .evento-no-asistio {
+  background: #dc3545 !important;
+
+  border-color: #dc3545 !important;
+
+  color: white !important;
+}
+
+
+.fc .evento-no-asistio .evento-calendario-hora,
+.fc .evento-no-asistio .evento-calendario-nombre {
+  color: white !important;
+}
+
+
+/* =====================================================
+   PC / CELULAR
+===================================================== */
+
+.evento-estado-desktop {
+  display: inline;
+}
+
+
+.evento-estado-mobile {
+  display: none;
+}
+
+
+@media (max-width: 768px) {
+
+  .evento-estado-desktop {
+    display: none !important;
+  }
+
+  .evento-estado-mobile {
+    display: inline !important;
+  }
+
+  /* HORA */
+  .fc .evento-calendario-hora {
+    font-size: 11px !important;
+    line-height: 1.05 !important;
+    font-weight: 1000 !important;
+  }
+
+  /* ESTADO */
+  .fc .evento-estado-badge {
+    font-size: 7.5px !important;
+    line-height: 1 !important;
+
+    padding: 3px 5px !important;
+    margin: 2px 0 2px !important;
+
+    font-weight: 1000 !important;
+    letter-spacing: 0 !important;
+  }
+
+  /* NOMBRE */
+  .fc .evento-calendario-nombre {
+    font-size: 10.5px !important;
+    line-height: 1.08 !important;
+
+    font-weight: 850 !important;
+
+    margin-top: 2px !important;
+
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+}
+
+/* HORA */
+.fc .evento-calendario-hora {
+  display: block;
+
+  font-size: 13px !important;
+  line-height: 1.05 !important;
+
+  font-weight: 1000 !important;
+}
+
+
+/* NOMBRE */
+.fc .evento-calendario-nombre {
+  margin-top: 3px !important;
+
+  font-size: 12px !important;
+  line-height: 1.08 !important;
+
+  font-weight: 800 !important;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+/* ESTADO */
+.fc .evento-estado-badge {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: fit-content;
+  max-width: 100%;
+
+  margin: 3px 0 1px;
+
+  padding: 3px 6px;
+
+  border-radius: 5px;
+
+  font-size: 8.5px !important;
+  line-height: 1 !important;
+
+  font-weight: 1000 !important;
+
+  white-space: nowrap;
 }
