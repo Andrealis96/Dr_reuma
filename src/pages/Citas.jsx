@@ -1549,18 +1549,49 @@ const descargarComprobanteImagen = async (cita) => {
   if (descargandoComprobante) return;
 
 
+  const esMovil =
+    /Android|iPhone|iPad|iPod/i.test(
+      navigator.userAgent
+    );
+
+
   /* ==========================================
-     PREPARAR WHATSAPP
-     Abrimos una pestaña VACÍA ahora,
-     mientras todavía estamos dentro del click.
+     TEXTO LIMPIO
+     SIN EMOJIS PARA EVITAR LOS �
+  ========================================== */
+
+  const textoCompartir =
+    `Hola ${capitalizarNombre(
+      cita.nombre || ""
+    )}, te recordamos tu cita con el Dr. Tony Vélez (Reumatólogo).\n\n` +
+
+    `Fecha: ${formatearFechaComprobante(
+      cita.fecha
+    )}\n` +
+
+    `Hora: ${cita.hora} hs\n` +
+
+    `Lugar: ${obtenerLugarCita(
+      cita
+    )}\n\n` +
+
+    `Por favor, confirma tu asistencia. Si necesitas reprogramar, comunícate con nosotros.\n\n` +
+
+    `Dr. Reuma`;
+
+
+  /* ==========================================
+     PARA PC PREPARAMOS WHATSAPP
   ========================================== */
 
   let ventanaWhatsapp = null;
-
   let urlWhatsapp = "";
 
 
-  if (cita?.telefono) {
+  if (
+    !esMovil &&
+    cita?.telefono
+  ) {
 
     const numero =
       normalizarTelefonoWhatsapp(
@@ -1573,40 +1604,13 @@ const descargarComprobanteImagen = async (cita) => {
 
       const mensaje =
         encodeURIComponent(
-
-          `Hola ${capitalizarNombre(
-            cita.nombre || ""
-          )}, te enviamos el comprobante de tu cita con Dr. Reuma. Te esperamos.\n\n` +
-
-          `📅 Fecha: ${formatearFechaComprobante(
-            cita.fecha
-          )}\n` +
-
-          `🕐 Hora: ${cita.hora} hs\n` +
-
-          `📍 Lugar: ${obtenerLugarCita(
-            cita
-          )}`
-
-        );
-
-
-      const esMovil =
-        /Android|iPhone|iPad|iPod/i.test(
-          navigator.userAgent
+          textoCompartir
         );
 
 
       urlWhatsapp =
-        esMovil
-          ? `https://wa.me/${numero}?text=${mensaje}`
-          : `https://web.whatsapp.com/send?phone=${numero}&text=${mensaje}`;
+        `https://web.whatsapp.com/send?phone=${numero}&text=${mensaje}`;
 
-
-      /*
-       * Reservamos la pestaña.
-       * Así Chrome no la bloquea después.
-       */
 
       ventanaWhatsapp =
         window.open(
@@ -1622,8 +1626,7 @@ const descargarComprobanteImagen = async (cita) => {
   try {
 
     /* ==========================================
-       MOSTRAR EL COMPROBANTE OCULTO
-       INMEDIATAMENTE EN EL DOM
+       MOSTRAR COMPROBANTE EN DOM
     ========================================== */
 
     flushSync(() => {
@@ -1642,7 +1645,7 @@ const descargarComprobanteImagen = async (cita) => {
     if (!elemento) {
 
       throw new Error(
-        "No se encontró el comprobante para generar."
+        "No se encontró el comprobante."
       );
 
     }
@@ -1650,7 +1653,6 @@ const descargarComprobanteImagen = async (cita) => {
 
     /* ==========================================
        GENERAR JPG
-       MÁS RÁPIDO
     ========================================== */
 
     const canvas =
@@ -1676,7 +1678,7 @@ const descargarComprobanteImagen = async (cita) => {
           canvas.toBlob(
             resolve,
             "image/jpeg",
-            0.88
+            0.9
           );
 
         }
@@ -1735,10 +1737,6 @@ const descargarComprobanteImagen = async (cita) => {
         .replace(
           /:/g,
           "-"
-        )
-        .replace(
-          /[^\w-]/g,
-          ""
         );
 
 
@@ -1747,8 +1745,202 @@ const descargarComprobanteImagen = async (cita) => {
 
 
     /* ==========================================
-       DESCARGAR AUTOMÁTICAMENTE
+       CREAR ARCHIVO
     ========================================== */
+
+    const archivo =
+      new File(
+        [blob],
+        nombreArchivo,
+        {
+          type: "image/jpeg",
+          lastModified: Date.now()
+        }
+      );
+
+
+    /* =====================================================
+       CELULAR
+       COMPARTIR FOTO + TEXTO
+    ===================================================== */
+
+    if (esMovil) {
+
+      const puedeCompartir =
+        navigator.share &&
+        (
+          !navigator.canShare ||
+          navigator.canShare({
+            files: [archivo]
+          })
+        );
+
+
+      if (puedeCompartir) {
+
+        try {
+
+          await navigator.share({
+            files: [archivo],
+
+            title:
+              "Comprobante de cita - Dr. Reuma",
+
+            text:
+              textoCompartir
+          });
+
+
+        } catch (errorCompartir) {
+
+          /*
+           * Si simplemente cerraste
+           * la ventana de compartir,
+           * no hacemos nada.
+           */
+
+          if (
+            errorCompartir?.name ===
+            "AbortError"
+          ) {
+
+            return;
+
+          }
+
+
+          /*
+           * Algunos celulares pierden
+           * el permiso del click mientras
+           * html2canvas genera la imagen.
+           *
+           * En ese caso mostramos UN SOLO
+           * botón para compartir.
+           */
+
+          await Swal.fire({
+
+            icon: "success",
+
+            title:
+              "Comprobante listo",
+
+            text:
+              "Toca Compartir para enviarlo por WhatsApp.",
+
+            confirmButtonText:
+              "Compartir",
+
+            confirmButtonColor:
+              "#079aaa",
+
+            showCancelButton:
+              true,
+
+            cancelButtonText:
+              "Cancelar",
+
+            preConfirm: async () => {
+
+              try {
+
+                await navigator.share({
+                  files: [archivo],
+
+                  title:
+                    "Comprobante de cita - Dr. Reuma",
+
+                  text:
+                    textoCompartir
+                });
+
+
+                return true;
+
+
+              } catch (error) {
+
+                if (
+                  error?.name ===
+                  "AbortError"
+                ) {
+
+                  return false;
+
+                }
+
+
+                Swal.showValidationMessage(
+                  "No se pudo abrir el menú para compartir."
+                );
+
+
+                return false;
+
+              }
+
+            }
+
+          });
+
+        }
+
+
+        return;
+
+      }
+
+
+      /* ==========================================
+         FALLBACK MÓVIL
+    ========================================== */
+
+      const urlImagen =
+        URL.createObjectURL(blob);
+
+
+      const link =
+        document.createElement("a");
+
+
+      link.href =
+        urlImagen;
+
+      link.download =
+        nombreArchivo;
+
+
+      document.body.appendChild(
+        link
+      );
+
+
+      link.click();
+
+
+      document.body.removeChild(
+        link
+      );
+
+
+      setTimeout(() => {
+
+        URL.revokeObjectURL(
+          urlImagen
+        );
+
+      }, 2000);
+
+
+      return;
+
+    }
+
+
+    /* =====================================================
+       COMPUTADORA
+       DEJAMOS EL FLUJO QUE YA FUNCIONA
+    ===================================================== */
 
     const urlImagen =
       URL.createObjectURL(blob);
@@ -1793,7 +1985,7 @@ const descargarComprobanteImagen = async (cita) => {
 
 
     /* ==========================================
-       AHORA ABRIR WHATSAPP
+       ABRIR WHATSAPP EN PC
     ========================================== */
 
     if (
@@ -1808,11 +2000,10 @@ const descargarComprobanteImagen = async (cita) => {
       urlWhatsapp
     ) {
 
-      // Fallback por si Chrome bloqueó
-      // la pestaña vacía
-
-      window.location.href =
-        urlWhatsapp;
+      window.open(
+        urlWhatsapp,
+        "_blank"
+      );
 
     }
 
@@ -1838,7 +2029,7 @@ const descargarComprobanteImagen = async (cita) => {
     Swal.fire({
       icon: "error",
       title: "No se pudo generar",
-      text: "No se pudo crear el comprobante en JPG."
+      text: "No se pudo crear el comprobante."
     });
 
 
@@ -1848,6 +2039,7 @@ const descargarComprobanteImagen = async (cita) => {
       null
     );
 
+
     setDescargandoComprobante(
       false
     );
@@ -1855,7 +2047,6 @@ const descargarComprobanteImagen = async (cita) => {
   }
 
 };
-
 
 
 const compartirComprobante = async () => {
@@ -2032,10 +2223,11 @@ const abrirWhatsappCita = (cita, usarNueve = true, tipoMensaje = "recordatorio")
 
   if (tipoMensaje === "comprobante") {
     texto =
-      `Hola ${capitalizarNombre(cita.nombre || "")}, te enviamos el comprobante de tu cita con Dr. Reuma. Te esperamos.\n\n` +
-      `Fecha: ${formatearFechaComprobante(cita.fecha)}\n` +
-      `Hora: ${cita.hora} hs\n` +
-      `Lugar: ${obtenerLugarCita(cita)}`;
+      `- Hola ${capitalizarNombre(cita.nombre || "")}, te enviamos el comprobante de tu cita con Dr. Reuma. Te esperamos.\n\n` +
+      `- Fecha: ${formatearFechaComprobante(cita.fecha)}\n` +
+      `- Hora: ${cita.hora} hs\n` +
+      `- Lugar: ${obtenerLugarCita(cita)}`+
+      `Gracias por agendar con el DR.REUMA, cualquier consulta no dudes en comunicarte con nosotros.`;
   }
 
   const mensaje = encodeURIComponent(texto);
