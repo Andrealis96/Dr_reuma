@@ -2303,7 +2303,7 @@ return (
 
       
 {/* BUSCADOR DE CITAS */}
-<div className="buscador-citas-card mb-4">
+<div className="buscador-citas-card mb-4 d-none">
 
   <div className="buscador-citas-input-wrap">
     <FaSearch className="buscador-citas-icon" />
@@ -2452,8 +2452,7 @@ return (
 
 </div>
 
-
-      {/* CALENDARIO (SIN SCROLL FORZADO) */}
+{/* CALENDARIO (SIN SCROLL FORZADO) */}
       <div className="card p-3">
         <FullCalendar
   ref={calendarRef}
