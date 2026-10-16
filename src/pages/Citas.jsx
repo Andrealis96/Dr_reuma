@@ -8,6 +8,7 @@ import ModalCita from "../components/ModalCita";
 import ModalDetalle from "../components/ModalDetalle";
 import html2canvas from "html2canvas";
 import logo from "../assets/DrReumaLogo.png";
+import { useSearchParams } from "react-router-dom";
 import {
   FaChevronLeft,
   FaChevronRight,
@@ -51,6 +52,11 @@ import { db } from "../firebase";
 import { flushSync } from "react-dom";
 
 function Citas() {
+
+  const [
+  searchParams,
+  setSearchParams
+] = useSearchParams();
   const calendarRef = useRef(null);
   const primeraCargaCitasRef = useRef(true);
   const [citasDB, setCitasDB] = useState(() => {
@@ -61,6 +67,7 @@ function Citas() {
     return [];
   }
 });
+
 
 const [historiasPacientes, setHistoriasPacientes] = useState(() => {
   try {
@@ -351,6 +358,61 @@ useEffect(() => {
 
   return () => unsubscribe();
 }, []);
+
+useEffect(() => {
+
+  const citaId =
+    searchParams.get("detalle");
+
+
+  if (
+    !citaId ||
+    citasDB.length === 0
+  ) {
+    return;
+  }
+
+
+  const cita =
+    citasDB.find(
+      c => c.id === citaId
+    );
+
+
+  if (!cita) {
+    return;
+  }
+
+
+  setCitaTablaSeleccionadaId(
+    cita.id
+  );
+
+  setCitaSeleccionada(
+    cita
+  );
+
+  setShowDetalle(
+    true
+  );
+
+
+  /* Quitamos el parámetro para que
+     no vuelva a abrirse al cerrar */
+
+  setSearchParams(
+    {},
+    {
+      replace: true
+    }
+  );
+
+
+}, [
+  citasDB,
+  searchParams,
+  setSearchParams
+]);
 
 useEffect(() => {
   const unsub = onSnapshot(collection(db, "historiasClinicas"), (snap) => {
@@ -1013,6 +1075,8 @@ const pacienteTieneConsultaEnFechaCita = (cita) => {
   return fechaUltimaConsulta === cita.fecha;
 };
 
+const HORAS_GRACIA_NO_ASISTIO = 2;
+
 const citaYaPaso = (cita) => {
 
   if (
@@ -1022,16 +1086,13 @@ const citaYaPaso = (cita) => {
     return false;
   }
 
-
   const hora =
     normalizarHora(cita.hora);
-
 
   const fechaHoraCita =
     new Date(
       `${cita.fecha}T${hora}:00`
     );
-
 
   if (
     Number.isNaN(
@@ -1041,16 +1102,20 @@ const citaYaPaso = (cita) => {
     return false;
   }
 
+  const limiteNoAsistio =
+    fechaHoraCita.getTime() +
+    HORAS_GRACIA_NO_ASISTIO *
+      60 *
+      60 *
+      1000;
 
-  // Apenas llega la hora del turno,
-  // si no hay consulta registrada,
-  // puede pasar a "No asistió".
   return (
     Date.now() >=
-    fechaHoraCita.getTime()
+    limiteNoAsistio
   );
-
 };
+
+
 const obtenerEstadoCitaTexto = (cita) => {
   // 1. Tiene consulta realmente guardada ese día
   if (pacienteTieneConsultaEnFechaCita(cita)) {

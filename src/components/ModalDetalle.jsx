@@ -61,7 +61,11 @@ function ModalDetalle({
   return (
     <Modal show={show} onHide={onHide} centered>
 
-      <Modal.Header className="cabecera-detallecita" closeButton>
+      <Modal.Header
+  className="cabecera-detallecita"
+  closeButton
+  closeVariant="white"
+>
         <Modal.Title className="titulo-detallecita">
           <FaCalendarAlt className="me-2" />
           DETALLE DE LA CITA
