@@ -19523,3 +19523,899 @@ transform:scale(1.07);
 
   white-space: nowrap;
 }
+
+
+
+
+/* =========================================================
+   NUEVO LAYOUT ADMINISTRATIVO
+========================================================= */
+
+.admin-layout-nuevo {
+  min-height: 100vh;
+  background: transparent;
+  position: relative;
+}
+
+
+/* =========================================================
+   SIDEBAR DERECHA
+========================================================= */
+
+.admin-sidebar-derecha {
+  position: fixed;
+
+  top: 0;
+  right: 0;
+  bottom: 0;
+
+  width: 245px;
+
+  z-index: 1200;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 24px 16px 18px;
+
+  background: #102f36;
+
+  color: white;
+
+  box-shadow:
+    -8px 0 30px
+    rgba(0, 0, 0, 0.12);
+}
+
+
+/* =========================================================
+   LOGO / CABECERA
+========================================================= */
+
+.admin-sidebar-header {
+  display: flex;
+
+  align-items: center;
+
+  gap: 13px;
+
+  padding: 4px 6px 24px;
+
+  margin-bottom: 15px;
+
+  border-bottom:
+    1px solid rgba(255,255,255,0.10);
+}
+
+
+.admin-sidebar-logo {
+  width: 58px;
+  height: 58px;
+
+  object-fit: contain;
+
+  padding: 3px;
+
+  border-radius: 50%;
+
+  background: white;
+}
+
+
+.admin-sidebar-header > div {
+  display: flex;
+  flex-direction: column;
+
+  min-width: 0;
+}
+
+
+.admin-sidebar-header strong {
+  color: white;
+
+  font-size: 17px;
+
+  font-weight: 1000;
+
+  line-height: 1.1;
+}
+
+
+.admin-sidebar-header span {
+  margin-top: 4px;
+
+  color: #a9cdd2;
+
+  font-size: 11px;
+
+  font-weight: 650;
+
+  line-height: 1.2;
+}
+
+
+/* =========================================================
+   LINKS
+========================================================= */
+
+.admin-sidebar-nav {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+
+.admin-sidebar-link {
+  width: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 13px;
+
+  padding: 13px 14px;
+
+  border: none;
+
+  border-radius: 12px;
+
+  background: transparent;
+
+  color: #d9e8ea;
+
+  text-decoration: none;
+
+  font-size: 14px;
+
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.admin-sidebar-link svg {
+  width: 20px;
+
+  min-width: 20px;
+
+  font-size: 18px;
+
+  color: #6bc7d1;
+}
+
+
+.admin-sidebar-link:hover {
+  background:
+    rgba(255,255,255,0.08);
+
+  color: white;
+
+  transform: translateX(-2px);
+}
+
+
+.admin-sidebar-link.active {
+  background: #ffffff;
+
+  color: #102f36;
+
+  box-shadow:
+    0 6px 18px
+    rgba(0,0,0,0.15);
+}
+
+
+.admin-sidebar-link.active svg {
+  color: #079aaa;
+}
+
+
+/* =========================================================
+   FOOTER SIDEBAR
+========================================================= */
+
+.admin-sidebar-footer {
+  margin-top: auto;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+
+  padding-top: 16px;
+
+  border-top:
+    1px solid rgba(255,255,255,0.10);
+}
+
+
+.admin-sidebar-web {
+  color: #c9dfe2;
+}
+
+
+.admin-sidebar-logout {
+  color: #ffb7bd;
+
+  text-align: left;
+}
+
+
+.admin-sidebar-logout svg {
+  color: #ff737f;
+}
+
+
+.admin-sidebar-logout:hover {
+  background:
+    rgba(220, 53, 69, 0.14);
+
+  color: white;
+}
+
+
+/* =========================================================
+   CONTENIDO
+========================================================= */
+.admin-contenido-principal {
+  min-height: 100vh;
+
+  margin-right: 245px;
+  padding: 24px;
+
+  background: transparent;
+
+  transition: margin-right 0.25s ease;
+}
+
+
+/* =========================================================
+   BOTÓN MÓVIL
+========================================================= */
+
+.admin-sidebar-mobile-btn {
+  display: none;
+
+  position: fixed;
+
+  right: 14px;
+  top: 90px;
+
+  z-index: 1180;
+
+  width: 48px;
+  height: 48px;
+
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+
+  border-radius: 15px;
+
+  background: #102f36;
+
+  color: white;
+
+  font-size: 20px;
+
+  box-shadow:
+    0 6px 20px
+    rgba(0,0,0,0.22);
+
+  cursor: pointer;
+}
+
+
+.admin-sidebar-cerrar {
+  display: none;
+
+  position: absolute;
+
+  top: 12px;
+  left: 12px;
+
+  width: 36px;
+  height: 36px;
+
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+
+  border-radius: 10px;
+
+  background:
+    rgba(255,255,255,0.10);
+
+  color: white;
+
+  font-size: 17px;
+}
+
+
+.admin-sidebar-overlay {
+  display: none;
+}
+
+
+/* =========================================================
+   CELULAR
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .admin-contenido-principal {
+    margin-right: 0;
+
+    padding:
+      16px 10px;
+  }
+
+
+  .admin-sidebar-mobile-btn {
+    display: flex;
+  }
+
+
+  .admin-sidebar-derecha {
+    width: 270px;
+
+    transform:
+      translateX(110%);
+
+    transition:
+      transform 0.25s ease;
+
+    padding-top: 65px;
+  }
+
+
+  .admin-sidebar-derecha.abierta {
+    transform:
+      translateX(0);
+  }
+
+
+  .admin-sidebar-cerrar {
+    display: flex;
+  }
+
+
+  .admin-sidebar-overlay {
+    display: block;
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 1190;
+
+    background:
+      rgba(0,0,0,0.48);
+
+    backdrop-filter:
+      blur(2px);
+  }
+
+}
+
+/* =========================================================
+   HOME PANEL ADMIN
+========================================================= */
+
+.admin-home {
+  width: 100%;
+  max-width: 1500px;
+
+  margin: 0 auto;
+
+  padding: 10px 4px 40px;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.admin-home-header {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 25px;
+
+  margin-bottom: 25px;
+}
+
+
+.admin-home-eyebrow {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #079aaa;
+
+  font-size: 12px;
+
+  font-weight: 1000;
+
+  letter-spacing: 1.5px;
+}
+
+
+.admin-home-header h1 {
+  margin: 0;
+
+  color: #102f36;
+
+  font-size: 34px;
+
+  font-weight: 1000;
+}
+
+
+.admin-home-header p {
+  margin: 5px 0 0;
+
+  color: #6c757d;
+
+  font-size: 15px;
+
+  font-weight: 700;
+}
+
+
+/* IR A AGENDA */
+
+.admin-home-agenda-btn {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 13px 18px;
+
+  border-radius: 12px;
+
+  background: #102f36;
+
+  color: white;
+
+  text-decoration: none;
+
+  font-size: 14px;
+
+  font-weight: 900;
+
+  transition: 0.2s ease;
+}
+
+
+.admin-home-agenda-btn:hover {
+  background: #079aaa;
+
+  color: white;
+
+  transform: translateY(-2px);
+}
+
+
+/* =========================================================
+   TARJETAS RESUMEN
+========================================================= */
+
+.admin-home-stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(5, minmax(0, 1fr));
+
+  gap: 14px;
+
+  margin-bottom: 26px;
+}
+
+
+.admin-home-stat {
+  min-height: 112px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+
+  padding: 18px;
+
+  background: white;
+
+  border: 1px solid #e4eaed;
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 7px 20px
+    rgba(16, 47, 54, 0.06);
+}
+
+
+.admin-home-stat-icon {
+  width: 48px;
+  height: 48px;
+
+  min-width: 48px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 14px;
+
+  font-size: 20px;
+}
+
+
+.admin-home-stat > div:last-child {
+  display: flex;
+
+  flex-direction: column;
+}
+
+
+.admin-home-stat span {
+  color: #69747d;
+
+  font-size: 12px;
+
+  font-weight: 850;
+}
+
+
+.admin-home-stat strong {
+  margin-top: 3px;
+
+  color: #101820;
+
+  font-size: 30px;
+
+  line-height: 1;
+
+  font-weight: 1000;
+}
+
+
+/* COLORES */
+
+.stat-total .admin-home-stat-icon {
+  background: #e1f5f7;
+  color: #079aaa;
+}
+
+
+.stat-asistidos .admin-home-stat-icon {
+  background: #ddf5e8;
+  color: #168751;
+}
+
+
+.stat-confirmados .admin-home-stat-icon {
+  background: #e5f3ff;
+  color: #1677b8;
+}
+
+
+.stat-pendientes .admin-home-stat-icon {
+  background: #fff4cf;
+  color: #b47b00;
+}
+
+
+.stat-ausentes .admin-home-stat-icon {
+  background: #fde5e7;
+  color: #c62838;
+}
+
+
+/* =========================================================
+   CARD TURNOS
+========================================================= */
+
+.admin-home-turnos {
+  background: white;
+
+  border-radius: 20px;
+
+  overflow: hidden;
+
+  border: 1px solid #e1e8eb;
+
+  box-shadow:
+    0 8px 26px
+    rgba(16, 47, 54, 0.07);
+}
+
+
+.admin-home-turnos-header {
+  min-height: 100px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 20px 25px;
+
+  background: #079aaa;
+
+  color: white;
+}
+
+
+.admin-home-turnos-header span {
+  display: block;
+
+  font-size: 11px;
+
+  font-weight: 900;
+
+  letter-spacing: 1.4px;
+
+  opacity: 0.85;
+}
+
+
+.admin-home-turnos-header h2 {
+  margin: 3px 0 0;
+
+  color: white;
+
+  font-size: 25px;
+
+  font-weight: 1000;
+}
+
+
+.admin-home-turnos-total {
+  min-width: 86px;
+
+  padding: 10px 15px;
+
+  background:
+    rgba(255,255,255,0.15);
+
+  border:
+    1px solid rgba(255,255,255,0.35);
+
+  border-radius: 15px;
+
+  text-align: center;
+
+  font-size: 25px;
+
+  font-weight: 1000;
+}
+
+
+.admin-home-turnos-total small {
+  display: block;
+
+  margin-top: 2px;
+
+  font-size: 10px;
+
+  font-weight: 800;
+}
+
+
+/* =========================================================
+   TABLA
+========================================================= */
+
+.admin-home-table-wrap {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+
+.admin-home-table {
+  margin-bottom: 0 !important;
+}
+
+
+.admin-home-table th {
+  vertical-align: middle !important;
+}
+
+
+.admin-home-table td {
+  vertical-align: middle !important;
+}
+
+
+.admin-home-paciente {
+  font-weight: 850 !important;
+}
+
+
+/* =========================================================
+   VACÍO
+========================================================= */
+
+.admin-home-vacio {
+  min-height: 230px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  padding: 30px;
+
+  color: #66747d;
+}
+
+
+.admin-home-vacio > svg {
+  color: #079aaa;
+
+  font-size: 35px;
+}
+
+
+.admin-home-vacio strong {
+  color: #102f36;
+
+  font-size: 17px;
+}
+
+
+.admin-home-vacio a {
+  color: #079aaa;
+
+  font-weight: 900;
+
+  text-decoration: none;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1100px) {
+
+  .admin-home-stats {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+
+}
+
+
+/* =========================================================
+   CELULAR
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .admin-home {
+    padding-top: 5px;
+  }
+
+
+  .admin-home-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 14px;
+  }
+
+
+  .admin-home-header h1 {
+    font-size: 27px;
+  }
+
+
+  .admin-home-agenda-btn {
+    width: 100%;
+
+    justify-content: center;
+  }
+
+
+  .admin-home-stats {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    gap: 9px;
+  }
+
+
+  .admin-home-stat {
+    min-height: 92px;
+
+    gap: 10px;
+
+    padding: 13px 11px;
+
+    border-radius: 14px;
+  }
+
+
+  .admin-home-stat-icon {
+    width: 40px;
+    height: 40px;
+
+    min-width: 40px;
+
+    font-size: 17px;
+  }
+
+
+  .admin-home-stat span {
+    font-size: 10px;
+  }
+
+
+  .admin-home-stat strong {
+    font-size: 25px;
+  }
+
+
+  .admin-home-turnos {
+    border-radius: 15px;
+  }
+
+
+  .admin-home-turnos-header {
+    min-height: 85px;
+
+    padding: 16px;
+  }
+
+
+  .admin-home-turnos-header h2 {
+    font-size: 21px;
+  }
+
+
+  .admin-home-turnos-total {
+    min-width: 68px;
+
+    font-size: 21px;
+  }
+
+}
+
+/* =========================================================
+   RUTAS ADMIN
+   SIN ESPACIOS DE NAVBAR / FOOTER PÚBLICOS
+========================================================= */
+
+.admin-routes-container {
+  width: 100%;
+  min-height: 100vh;
+  padding: 0 !important;
+  margin: 0 !important;
+}

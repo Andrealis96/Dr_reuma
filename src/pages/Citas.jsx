@@ -31,11 +31,9 @@ import {
   FaCalendarAlt,
   FaClock,
   FaMapMarkerAlt,
-  FaUserMd, 
-  FaFolderOpen
+  FaUserMd
 } from "react-icons/fa";
 
-import { Link } from "react-router-dom";
 import {
   collection,
   onSnapshot,
@@ -719,10 +717,7 @@ const fechaISODesdeDate = (fecha) => {
   return `${anio}-${mes}-${dia}`;
 };
 
-const convertirISOADateLocal = (fechaISO) => {
-  const [anio, mes, dia] = fechaISO.split("-").map(Number);
-  return new Date(anio, mes - 1, dia);
-};
+
 
 const obtenerTipoCitaPorFecha = (fecha) => {
   if (!fecha) return "presencial";
@@ -2212,16 +2207,6 @@ const fechaHoyAgendaTexto = new Date()
   })
   .replace(/\//g, "-");
 
-const irAListadoDelDiaTabla = () => {
-  setDiaSeleccionado(fechaTablaCitas);
-
-  setTimeout(() => {
-    detalleDiaRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
-  }, 250);
-};
 
 const obtenerClaseVez = (textoVez = "") => {
   const texto = String(textoVez).toLowerCase();
@@ -2311,228 +2296,11 @@ return (
     </div>
   </div>
 
-  <Link
-    to="/admin/historias"
-    className="citas-ir-historias-btn"
-  >
-    <FaFolderOpen />
-    <span>
-      Historias
-      <br />
-      clínicas
-    </span>
-  </Link>
+
 
 </div>
 
 
-
-
-   {/* TABLA DE HOY (LA TUYA ORIGINAL) */}
-      <div className="card shadow-sm mb-4 mt-4">
-        <div className="card-header text-center text-white fw-bold pacientes-dia-header">
-  <button
-    type="button"
-    className="pacientes-dia-nav-btn"
-    onClick={() => cambiarDiaTablaCitas(-1)}
-    title="Ver día anterior"
-  >
-    <FaChevronLeft />
-  </button>
-
-<div className="pacientes-dia-title pacientes-dia-title-agenda">
-  <button
-    type="button"
-    className="pacientes-dia-title-btn"
-    onClick={irAListadoDelDiaTabla}
-    title="Ir al listado de este día"
-  >
-    {tituloTablaCitas}
-  </button>
-
-  <small>
-    Toca una fila para ver, editar, confirmar o reagendar la cita.
-  </small>
-</div>
-
-  <button
-    type="button"
-    className="pacientes-dia-nav-btn"
-    onClick={() => cambiarDiaTablaCitas(1)}
-    title="Ver día siguiente"
-  >
-    <FaChevronRight />
-  </button>
-</div>
-
-        <div className="card-body p-0 table-responsive">
-
-          {pacientesHoy.length === 0 ? (
-            <div className="p-3 text-center">
-              No hay citas programadas
-            </div>
-          ) : (
-            <table className="table table-sm mb-0 tabla-pacientes-hoy tabla-agenda-turnos">
-              <thead>
-                <tr className="text-center">
-                  <th>
-                    <span className="celeste">N°</span>
-                  </th>
-
-                  <th>
-                    <FaClock className="me-1 celeste text-center" /> <br />
-                    <span className="celeste">
-                      Hora
-                    </span>
-                  </th>
-
-                    <th>
-                      <FaUser className="me-2 celeste" /><br />
-                      <span className="celeste">
-                      Paciente
-                      </span>
-                    </th>
-
-                    <th>
-                      <FaIdCard className="me-2 celeste" /> <br />
-                      <span className="celeste">
-                        Dni
-                      </span>
-                    </th>
-
-                    <th>
-                      <FaWhatsapp className="me-2 celeste" /> <br />
-                      <span className="celeste">
-                        Wp
-                      </span>
-                    </th>
-
-                    <th>
-                      <FaUserClock className="me-2 celeste" /> <br />
-                      <span className="celeste">
-                        Vez
-                      </span>
-                    </th>
-
-                    <th>
-                      <FaStethoscope className="me-2 celeste" /> <br />
-                      <span className="celeste">
-                        Motivo
-                      </span>
-                    </th>
-
-                    <th>
-                      <FaCheckCircle className="me-2 celeste" /> <br />
-                      <span className="celeste">
-                        Estado
-                      </span>
-                    </th>
-
-                    <th>
-                      <FaEye className="me-2 celeste" /> <br />
-                      <span className="celeste">
-                        Detalle
-                      </span>
-                    </th>
-                </tr>
-              </thead>
-
-              <tbody className="text-center">
-                {pacientesHoy.map((c, index) => (
-                    <tr
-                        key={c.id}
-                        className={`fila-cita-clickable ${
-                          citaTablaSeleccionadaId === c.id ? "fila-cita-seleccionada" : ""
-                        }`}
-                        onClick={() => abrirHistoriaDesdeCita(c)}
-                        title="Abrir historia clínica"
-                      >
-                      <td className="tabla-numero-fila">
-                        {index + 1}
-                      </td>
-
-                    <td>
-                      {c.sinAgenda ? (
-                        <span className="hora-sin-agenda">
-                          Sin hora
-                        </span>
-                      ) : (
-                        c.hora
-                      )}
-                    </td>
-                    <td>{capitalizarNombre(c.nombre)}</td>
-                    
-                    <td>{c.Dni}</td>
-                    <td>
-            {c.telefono ? (
-              <button
-                type="button"
-                className="btn-whatsapp-tabla btn-whatsapp-tabla-solo-icono"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  abrirWhatsappCita(c, true, "recordatorio");
-                }}
-                title="Enviar WhatsApp"
-              >
-                <FaWhatsapp />
-              </button>
-            ) : (
-              "-"
-            )}
-          </td>
-
-                  <td>
-                      {(() => {
-                        const numeroCita = obtenerNumeroCitaPaciente(c);
-                        const textoVez = textoNumeroCitaPaciente(numeroCita);
-
-                        return (
-                          <span className={obtenerClaseVez(textoVez)}>
-                            {textoVez}
-                          </span>
-                        );
-                      })()}
-                    </td>
-
-                      <td>
-                      <span
-                        className="motivo-tabla-cita"
-                        title={c.motivoConsulta || "Sin motivo"}
-                      >
-                        {c.motivoConsulta || "Sin motivo"}
-                      </span>
-                    </td>
-
-                    <td>
-                      <span className={`estado-cita-simple ${obtenerEstadoCitaClase(c)}`}>
-                        {obtenerEstadoCitaTexto(c)}
-                      </span>
-                    </td>
-
-                    <td>
-                      <button
-                        type="button"
-                        className="btn-detalle-cita-tabla"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          abrirDetalle(c);
-                        }}
-                        title="Ver detalle de la cita"
-                      >
-                        <FaEye />
-                      </button>
-                    </td>
-
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-
-        </div>
-
-        
-      </div>
       
 {/* BUSCADOR DE CITAS */}
 <div className="buscador-citas-card mb-4">
