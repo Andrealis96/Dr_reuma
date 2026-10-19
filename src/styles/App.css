@@ -5567,9 +5567,62 @@ margin-top: 5px;
   font-weight: 500;
 }
 
-.fc .fc-daygrid-day-events {
-  margin-top: -9px !important;
+/* ========================================
+   DÍA ACTUAL - DR. REUMA
+======================================== */
+
+.fc .fc-daygrid-day.fc-day-today {
+  background: #ffd54a !important;
+  border: 2px solid #f4b400 !important;
 }
+
+.fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-top {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: flex-start !important;
+  height: auto !important;
+  min-height: 36px !important;
+}
+
+/* Encabezado de todos los días */
+.fc .fc-daygrid-day .fc-daygrid-day-top {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: flex-start !important;
+  min-height: 35px !important;
+  height: auto !important;
+}
+
+/* Número de hoy */
+
+
+/* Número interno personalizado */
+.fc .fc-daygrid-day.fc-day-today .dia-numero {
+  color: white !important;
+}
+
+/* Separación entre fecha y turnos */
+.fc .fc-daygrid-day-top {
+  min-height: 58px !important;
+  height: 58px !important;
+}
+
+.fc .fc-daygrid-day-events {
+  margin-top: 0 !important;
+}
+
+.fc .fc-daygrid-day.fc-day-today .dia-numero {
+  color: #ffffff !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.fc .fc-daygrid-day.fc-day-today:hover {
+  background: #ffcc2f !important;
+}
+
 
 .fc-daygrid-day-frame {
   position: relative;
@@ -5587,23 +5640,84 @@ margin-top: 5px;
   color: #aaa !important;
 }
 
-/* DÍA ACTUAL EN EL CALENDARIO */
+/* DÍA ACTUAL: ALINEACIÓN CORRECTA */
 
-.fc .fc-daygrid-day.fc-day-today {
-  background: #ffc107 !important;
+.fc .fc-day-today .fc-daygrid-day-top {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: flex-start !important;
 }
 
-/* Número del día actual */
+.fc .fc-day-today .fc-daygrid-day-number {
+  width: 100% !important;
+  height: auto !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
 
-.fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number,
-.fc .fc-daygrid-day.fc-day-today .dia-numero {
-  background: rgba(0, 0, 0) !important;
-  color: white !important;
+.fc .fc-day-today .dia-celda-custom {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: flex-start !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 3px 5px !important;
+}
 
-  border-radius: 999px !important;
-  padding: 4px 10px !important;
+.fc .fc-day-today .dia-numero {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #102f36 !important;
+  color: #ffffff !important;
+  border-radius: 50% !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+}
 
-  font-weight: 1000 !important;
+/* QUE NO PIERDA EL COLOR AL PASAR EL MOUSE */
+.fc .fc-daygrid-day.fc-day-today:hover {
+  background: #ffcc2f !important;
+  border-color: #e6a800 !important;
+}
+
+/* CONTENIDO DEL DÍA ACTUAL */
+.fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-frame {
+  background: transparent !important;
+}
+.fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
+  position: relative !important;
+  top: auto !important;
+  right: auto !important;
+  left: auto !important;
+
+  background: #102f36 !important;
+  color: #ffffff !important;
+
+  border-radius: 50% !important;
+  width: 30px !important;
+  height: 30px !important;
+  min-width: 30px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  margin: 3px 5px !important;
+  padding: 0 !important;
+
+  font-size: 14px !important;
+  font-weight: 900 !important;
+
+  transform: none !important;
 }
 
 /* Para que los eventos dentro de hoy resalten un poquito */
@@ -6063,27 +6177,7 @@ margin-top: 5px;
   }
 }
 
-.dia-celda-custom {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  min-height: 70px;
-}
 
-.dia-numero {
-  text-align: right;
-  padding-right: 4px;
-}
-
-.candado-centro {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-100%, -10%);
-  font-size: 40px;
-  color: #6c757d;
-  opacity: 0.8;
-}
 
 .buscador-citas {
   border-radius: 12px;
@@ -6219,26 +6313,6 @@ margin-top: 5px;
 
   z-index: 50 !important;
   pointer-events: none !important;
-}
-
-/*palabra viernes*/
-
-.turno-viernes-label {
-  position: absolute;
-  top: 22px;
-  left: 50%;
-  transform: translateX(-50%);
-
-  font-size: 9px;
-  font-weight: 700;
-
-  padding: 2px 6px;
-  border-radius: 20px;
-
-  color: white;
-  text-transform: uppercase;
-  pointer-events: none;
-  margin-bottom: -1px !important;
 }
 
 .turno-manana {
@@ -21095,4 +21169,765 @@ transform:scale(1.07);
 .detalle-info-card,
 .detalle-cita-info {
   background: #f8fafb !important;
+}
+
+/* ==========================================
+   DR. REUMA - AGENDA ADMINISTRATIVA
+   ESTILO AZUL OSCURO
+========================================== */
+
+/* Título principal */
+.admin-agenda-titulo {
+  color: #102f36 !important;
+  font-size: clamp(2.2rem, 5vw, 4rem) !important;
+  font-weight: 1000 !important;
+  line-height: 1.1 !important;
+  text-align: left !important;
+  margin: 0 !important;
+  letter-spacing: -1px;
+}
+
+/* Encabezado de calendario */
+.fc .fc-toolbar-title {
+  color: #102f36 !important;
+  font-weight: 900 !important;
+}
+
+/* Días de la semana */
+.fc .fc-col-header-cell {
+  background: #102f36 !important;
+}
+
+.fc .fc-col-header-cell-cushion {
+  color: white !important;
+}
+
+/* Flechas de calendario */
+.fc .fc-button-primary {
+  background: #102f36 !important;
+  border-color: #102f36 !important;
+  color: white !important;
+}
+
+/* Buscador */
+.buscador-citas-card {
+  background: white;
+  border: 1px solid #d5e5e9;
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.buscador-citas-input:focus {
+  border-color: #102f36 !important;
+  box-shadow: 0 0 0 3px rgba(16, 47, 54, 0.12) !important;
+}
+
+.buscador-citas-icon {
+  color: #102f36 !important;
+}
+
+/* Fecha del día seleccionado */
+.agenda-header h5 {
+  color: #102f36 !important;
+}
+
+
+/* =====================================
+   DR. REUMA - COLORES AGENDA
+===================================== */
+
+/* TÍTULO PRINCIPAL */
+.citas-agenda-hero .admin-agenda-titulo {
+  color: #102f36 !important;
+  -webkit-text-fill-color: #102f36 !important;
+  -webkit-text-stroke: 0 !important;
+  text-shadow: none !important;
+
+  font-size: clamp(2.2rem, 5vw, 4rem) !important;
+  font-weight: 1000 !important;
+  text-align: left !important;
+  line-height: 1.1 !important;
+
+  margin: 0 0 10px 0 !important;
+}
+
+/* FECHA DEBAJO DEL TÍTULO */
+.citas-agenda-hero .admin-agenda-fecha {
+  color: #60717a !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  margin-bottom: 8px !important;
+  text-transform: none !important;
+}
+
+/* BORDE IZQUIERDO DEL BUSCADOR */
+.buscador-citas-card .buscador-paciente-grupo {
+  border-left: 5px solid #102f36 !important;
+}
+
+/* FONDO DEL PACIENTE EN BUSCADOR */
+.buscador-citas-card .buscador-paciente-header {
+  background: #f1f6f7 !important;
+}
+
+/* NOMBRE DEL PACIENTE */
+.buscador-citas-card .buscador-paciente-identidad strong {
+  color: #102f36 !important;
+}
+
+/* TEXTO DE CITAS REGISTRADAS */
+.buscador-citas-card .buscador-paciente-identidad small {
+  color: #102f36 !important;
+}
+
+/* BOTÓN DE HISTORIA CLÍNICA */
+.buscador-citas-card .buscador-accion-historia {
+  background: #102f36 !important;
+  color: white !important;
+}
+
+/* BORDE DE BUSCADOR */
+.buscador-citas-card .buscador-citas-input-wrap {
+  border-color: #102f36 !important;
+}
+
+/* FONDO DE RESULTADOS */
+.buscador-citas-card .buscador-paciente-cita-fila {
+  background: #f8fafb !important;
+}
+
+/* =====================================
+   CALENDARIO - AZUL DR. REUMA
+===================================== */
+
+.citas-agenda-hero ~ .card .fc .fc-col-header-cell {
+  background: #102f36 !important;
+}
+
+.citas-agenda-hero ~ .card .fc .fc-col-header-cell-cushion {
+  color: #ffffff !important;
+}
+
+/* TÍTULO DEL MES */
+.citas-agenda-hero ~ .card .fc .fc-toolbar-title {
+  color: #102f36 !important;
+  font-weight: 900 !important;
+}
+
+/* FLECHAS */
+.citas-agenda-hero ~ .card .fc .fc-button-primary {
+  background: #102f36 !important;
+  border-color: #102f36 !important;
+}
+
+/* DÍA SÁBADO */
+.citas-agenda-hero ~ .card .fc .fc-col-header-cell:last-child {
+  background: #102f36 !important;
+}
+
+
+/* ==========================================
+   DR. REUMA - CALENDARIO CON ICONOS
+========================================== */
+
+/* PRESENCIALES AZUL OSCURO */
+.fc .fc-event.evento-presencial {
+  background: #08c24a !important;
+  background-color: #08c24a !important;
+  border-color: #08c24a !important;
+  color: #ffffff !important;
+}
+
+/* VIRTUALES CELESTE */
+.fc .fc-event.evento-virtual {
+  background: #14c7df !important;
+  background-color: #14c7df !important;
+  border-color: #14c7df !important;
+  color: #ffffff !important;
+}
+
+.fc .fc-event.evento-no-asistio {
+  background: #ef4452 !important;
+  background-color: #ef4452 !important;
+  border-color: #ef4452 !important;
+  color: #ffffff !important;
+}
+
+/* TEXTO BLANCO EN TODAS LAS CITAS */
+/* PRESENCIALES: NOMBRES Y HORAS EN NEGRO */
+.fc .fc-event.evento-presencial .evento-calendario-hora
+{
+color: rgb(252, 252, 252) !important;
+}
+
+.fc .fc-event.evento-presencial .evento-calendario-nombre {
+  color: #000000 !important;
+  font-weight: 900 !important;
+  text-shadow: none !important;
+}
+
+/* VIRTUALES: NOMBRES Y HORAS EN NEGRO */
+.fc .fc-event.evento-virtual .evento-calendario-hora {
+color: rgb(252, 252, 252) !important;
+}
+
+.fc .fc-event.evento-virtual .evento-calendario-nombre {
+  color: #000000 !important;
+  font-weight: 900 !important;
+  text-shadow: none !important;
+}
+
+/* AUSENTES: TEXTO BLANCO SOBRE ROJO */
+.fc .fc-event.evento-no-asistio .evento-calendario-hora,
+.fc .fc-event.evento-no-asistio .evento-calendario-nombre {
+  color: #ffffff !important;
+  font-weight: 900 !important;
+  text-shadow: none !important;
+}
+
+/* CONTENEDOR DE LA CITA */
+.fc .evento-calendario-iconos {
+  position: relative !important;
+  padding: 3px 27px 3px 4px !important;
+  min-height: 36px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ICONO EN ESQUINA SUPERIOR DERECHA */
+.fc .evento-estado-icono {
+  position: absolute !important;
+  top: 3px !important;
+  right: 3px !important;
+
+  width: 21px !important;
+  height: 21px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  border-radius: 50% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+
+  z-index: 3;
+}
+
+.fc .evento-estado-icono svg {
+  width: 12px !important;
+  height: 12px !important;
+  flex-shrink: 0;
+}
+
+
+/* ASISTIÓ */
+.fc .evento-estado-icono.evento-estado-asistio {
+  background: #16a34a !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+/* CONFIRMADO */
+.fc .evento-estado-icono.evento-estado-confirmado {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+/* NO ASISTIÓ */
+.fc .evento-estado-icono.evento-estado-no-asistio {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+/* PENDIENTE */
+.fc .evento-estado-icono.evento-estado-pendiente {
+  background: #f59e0b !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+/* AJUSTES PARA CELULAR */
+@media (max-width: 768px) {
+
+  .fc .evento-calendario-iconos {
+    padding: 2px 23px 3px 3px !important;
+    min-height: 31px;
+  }
+
+  .fc .evento-estado-icono {
+    width: 18px !important;
+    height: 18px !important;
+    top: 2px !important;
+    right: 2px !important;
+  }
+
+  .fc .evento-estado-icono svg {
+    width: 10px !important;
+    height: 10px !important;
+  }
+
+  .fc .evento-calendario-iconos .evento-calendario-hora {
+    font-size: 10px !important;
+  }
+
+  .fc .evento-calendario-iconos .evento-calendario-nombre {
+    font-size: 10px !important;
+  }
+}
+
+
+
+.fc .fc-event {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease !important;
+  cursor: pointer !important;
+}
+
+.fc .fc-event:hover {
+  transform: translateY(-2px) scale(1.01) !important;
+  filter: brightness(1.05) !important;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.18) !important;
+  z-index: 10 !important;
+}
+
+
+
+
+.fc .fc-daygrid-day {
+  transition: background 0.18s ease, box-shadow 0.18s ease;
+}
+
+.fc .fc-daygrid-day:hover {
+  background: rgba(9, 154, 173, 0.08) !important;
+}
+
+
+
+/* =========================================================
+   CALENDARIO DR. REUMA - ESTRUCTURA LIMPIA
+========================================================= */
+
+/* Cada celda del calendario */
+.fc .fc-daygrid-day-frame {
+  position: relative !important;
+  min-height: 120px !important;
+  padding-top: 34px !important; /* espacio para número del día */
+}
+
+/* Encabezado superior del día */
+.fc .fc-daygrid-day-top {
+  position: absolute !important;
+  top: 4px !important;
+  left: 0 !important;
+  right: 0 !important;
+
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: flex-start !important;
+
+  height: 28px !important;
+  min-height: 28px !important;
+  padding: 0 5px !important;
+  z-index: 5 !important;
+}
+
+/* Eventos empiezan debajo del encabezado */
+.fc .fc-daygrid-day-events {
+  margin-top: 0 !important;
+  padding: 0 2px 2px 2px !important;
+}
+
+/* Número normal del día */
+.fc .fc-daygrid-day-number {
+  color: #000 !important;
+  font-weight: 500 !important;
+  text-decoration: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Día actual */
+.fc .fc-daygrid-day.fc-day-today {
+  background: #ffd54a !important;
+  border: 2px solid #f4b400 !important;
+}
+
+/* Número del día actual */
+.fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number,
+.fc .fc-daygrid-day.fc-day-today .dia-numero {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+
+  background: #102f36 !important;
+  color: #fff !important;
+  border-radius: 50% !important;
+
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+
+/* =========================================================
+   BADGE MAÑANA / TARDE
+   CAMBIÁ ESTA CLASE por la clase real de tu badge si hace falta
+========================================================= */
+
+.badge-jornada,
+.turno-jornada,
+.etiqueta-jornada {
+  position: absolute !important;
+  top: 28px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 6 !important;
+}
+
+/* Cuando hay badge, bajamos un poco más los eventos */
+.fc .fc-daygrid-day-frame.con-jornada .fc-daygrid-day-events,
+.fc .fc-daygrid-day.con-jornada .fc-daygrid-day-events {
+  margin-top: 16px !important;
+}
+
+/* =========================================================
+   CANDADO CENTRADO
+========================================================= */
+
+.fc .fc-daygrid-day.dia-bloqueado {
+  background-color: #eceff1 !important;
+}
+
+.fc .fc-daygrid-day.dia-bloqueado .fc-daygrid-day-frame {
+  position: relative !important;
+}
+
+.fc .fc-daygrid-day.dia-bloqueado .candado-bloqueo,
+.fc .fc-daygrid-day.dia-bloqueado .candado-centro {
+  position: absolute !important;
+  inset: 0 !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  transform: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+
+  font-size: 28px !important;
+  color: #dc3545 !important;
+  z-index: 4 !important;
+  pointer-events: none !important;
+}
+
+/* =========================================================
+   EVENTOS
+========================================================= */
+
+.fc .fc-event {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease !important;
+  cursor: pointer !important;
+}
+
+.fc .fc-event:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 5px 12px rgba(0,0,0,0.16) !important;
+  z-index: 8 !important;
+}
+
+/* Presenciales */
+.fc .fc-event.evento-presencial {
+  background: #08c24a !important;
+  border-color: #08c24a !important;
+  color: #000 !important;
+}
+
+/* Virtuales */
+.fc .fc-event.evento-virtual {
+  background: #14c7df !important;
+  border-color: #14c7df !important;
+  color: #000 !important;
+}
+
+/* No asistió */
+.fc .fc-event.evento-no-asistio {
+  background: #ef4452 !important;
+  border-color: #ef4452 !important;
+  color: #fff !important;
+}
+
+/* Texto de eventos */
+.fc .fc-event .evento-calendario-hora,
+.fc .fc-event .evento-calendario-nombre {
+  font-weight: 800 !important;
+  text-shadow: none !important;
+}
+
+.fc .fc-event.evento-presencial .evento-calendario-hora,
+.fc .fc-event.evento-presencial .evento-calendario-nombre,
+.fc .fc-event.evento-virtual .evento-calendario-hora,
+.fc .fc-event.evento-virtual .evento-calendario-nombre {
+  color: #000 !important;
+}
+
+.fc .fc-event.evento-no-asistio .evento-calendario-hora,
+.fc .fc-event.evento-no-asistio .evento-calendario-nombre {
+  color: #fff !important;
+}
+
+/* Contenedor interno del evento */
+.fc .evento-calendario-iconos {
+  position: relative !important;
+  padding: 2px 20px 2px 4px !important;
+  min-height: 32px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Ícono de estado */
+.fc .evento-estado-icono {
+  position: absolute !important;
+  top: 3px !important;
+  right: 3px !important;
+
+  width: 18px !important;
+  height: 18px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  border-radius: 50% !important;
+  z-index: 3 !important;
+}
+
+.fc .evento-estado-icono svg {
+  width: 10px !important;
+  height: 10px !important;
+}
+
+/* Colores fuertes de los estados */
+.fc .evento-estado-icono.evento-estado-asistio {
+  background: #16a34a !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.fc .evento-estado-icono.evento-estado-confirmado {
+  background: #2563eb !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.fc .evento-estado-icono.evento-estado-no-asistio {
+  background: #dc2626 !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.fc .evento-estado-icono.evento-estado-pendiente {
+  background: #f59e0b !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+/* =========================================================
+   RESPONSIVE CELULAR
+========================================================= */
+
+@media (max-width: 768px) {
+  .fc .fc-daygrid-day-frame {
+    min-height: 96px !important;
+    padding-top: 28px !important;
+  }
+
+  .fc .fc-daygrid-day-top {
+    top: 2px !important;
+    height: 24px !important;
+    min-height: 24px !important;
+    padding: 0 3px !important;
+  }
+
+  .fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number,
+  .fc .fc-daygrid-day.fc-day-today .dia-numero {
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+    font-size: 12px !important;
+  }
+
+  .fc .evento-calendario-iconos {
+    padding: 2px 16px 2px 3px !important;
+    min-height: 26px !important;
+  }
+
+  .fc .evento-estado-icono {
+    width: 14px !important;
+    height: 14px !important;
+    top: 2px !important;
+    right: 2px !important;
+  }
+
+  .fc .evento-estado-icono svg {
+    width: 8px !important;
+    height: 8px !important;
+  }
+
+  .fc .evento-calendario-hora,
+  .fc .evento-calendario-nombre {
+    font-size: 10px !important;
+    line-height: 1.05 !important;
+  }
+
+  /* Badge jornada más compacto */
+  .badge-jornada,
+  .turno-jornada,
+  .etiqueta-jornada {
+    top: 23px !important;
+    font-size: 10px !important;
+    padding: 1px 6px !important;
+  }
+}
+
+/* En pantallas MUY chicas, mejor ocultar el ícono para que no se monte */
+@media (max-width: 420px) {
+  .fc .evento-estado-icono {
+    display: none !important;
+  }
+
+  .fc .evento-calendario-iconos {
+    padding-right: 4px !important;
+  }
+}
+
+
+
+/* ESTRUCTURA DEL ENCABEZADO */
+.fc .fc-daygrid-day-frame {
+  position: relative !important;
+  padding-top: 0 !important;
+}
+
+.fc .fc-daygrid-day-top {
+  position: relative !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: flex-start !important;
+  height: 58px !important;
+  min-height: 58px !important;
+  padding: 0 !important;
+}
+
+.fc .fc-daygrid-day-number {
+  position: static !important;
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  text-decoration: none !important;
+}
+
+/* NÚMERO Y ETIQUETA DEL VIERNES */
+.fc .dia-celda-custom {
+  position: static !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  gap: 3px !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 3px 5px !important;
+}
+
+.fc .dia-numero {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 28px !important;
+  height: 28px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  color: #111 !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+}
+
+/* HOY */
+.fc .fc-day-today .dia-numero {
+  background: #102f36 !important;
+  color: white !important;
+  border-radius: 50% !important;
+  font-weight: 900 !important;
+}
+
+/* MAÑANA / TARDE */
+.fc .turno-viernes-label {
+  position: static !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transform: none !important;
+  margin: 0 !important;
+  padding: 2px 5px !important;
+  border-radius: 999px !important;
+  font-size: 9px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  z-index: 2 !important;
+}
+
+.fc .turno-tarde {
+  background: #fd7e14 !important;
+  color: #111 !important;
+}
+
+.fc .turno-manana {
+  background: #facc15 !important;
+  color: #111 !important;
+}
+
+/* TURNOS DEBAJO DEL ENCABEZADO */
+.fc .fc-daygrid-day-events {
+  margin-top: 0 !important;
+  padding: 0 2px 3px !important;
+}
+
+/* CANDADO CENTRADO EN LA CELDA */
+.fc .dia-bloqueado .candado-centro {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  inset: auto !important;
+  transform: translate(-50%, -50%) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 4 !important;
+  pointer-events: none !important;
+}
+
+.fc .dia-bloqueado .candado-bloqueo {
+  position: static !important;
+  transform: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  color: #dc3545 !important;
+  font-size: 26px !important;
 }

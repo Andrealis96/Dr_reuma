@@ -17,8 +17,12 @@ import {
   FaStethoscope,
   FaUserClock,
   FaSearch,
+  FaFolderOpen,
   FaIdCard,
-  FaUser,
+  FaCheck,
+FaCalendarCheck,
+FaUserTimes,
+FaHourglassHalf,
   FaUsers, 
   FaVideo,
   FaEye,
@@ -448,7 +452,7 @@ useEffect(() => {
 
 
       /* ============================
-         NO ASISTIÓ
+        NO ASISTIÓ
       ============================ */
 
       if (
@@ -770,6 +774,26 @@ const agendaDelDia = [
     data: b
   }))
 ].sort((a, b) => a.hora.localeCompare(b.hora));
+
+const convertirISOADateLocal = (fechaISO) => {
+  if (!fechaISO) return new Date();
+
+  const [anio, mes, dia] = fechaISO.split("-").map(Number);
+
+  return new Date(anio, mes - 1, dia);
+};
+
+const formatearFechaCita = (fecha) => {
+  if (!fecha) return "-";
+
+  const partes = fecha.split("-");
+
+  if (partes.length !== 3) return fecha;
+
+  const [anio, mes, dia] = partes;
+
+  return `${dia}/${mes}/${anio}`;
+};
 
 const fechaISODesdeDate = (fecha) => {
   const anio = fecha.getFullYear();
@@ -2344,21 +2368,21 @@ return (
     </div>
 
     <div className="citas-titulo-fecha">
-      <h3 className="subtitle-general ">
-        <span className="subtitle-celeste">AGENDA DE TURNOS</span>
-      </h3>
 
-      <div className="citas-fecha-hoy">
-        <span className="fecha-hoy-desktop">
-          {fechaHoyAgendaTexto.toUpperCase()}
-        </span>
+  <h3 className="admin-agenda-titulo">
+    AGENDA DE TURNOS
+  </h3>
 
-      </div>
+  <div className="admin-agenda-fecha">
+    {fechaHoyAgendaTexto}
+  </div>
 
-      <p className="citas-header-subtitle">
-        Gestiona citas, confirma asistencia, edita datos o reagenda pacientes.
-      </p>
-    </div>
+  <p className="citas-header-subtitle">
+    Gestiona citas, confirma asistencia, edita datos o reagenda pacientes.
+  </p>
+
+</div>
+
   </div>
 
 
@@ -2368,7 +2392,7 @@ return (
 
       
 {/* BUSCADOR DE CITAS */}
-<div className="buscador-citas-card mb-4 d-none">
+<div className="buscador-citas-card mb-4">
 
   <div className="buscador-citas-input-wrap">
     <FaSearch className="buscador-citas-icon" />
@@ -2471,7 +2495,7 @@ return (
                   <div className="buscador-paciente-cita-info">
 
                     <span className="buscador-paciente-fecha">
-                      {c.fecha}
+                    {formatearFechaCita(c.fecha)}
                     </span>
 
                     <span>
@@ -2551,29 +2575,21 @@ dayCellClassNames={(arg) => {
   return clases;
 }}
 
- dayCellContent={(arg) => {
-  const fecha = arg.date.toISOString().split("T")[0];
-const configViernes = getConfiguracionViernes(fecha);
 
-const tieneNota = notasAgenda.some(
-  n => n.fecha === fecha && n.texto?.trim()
-);
+dayCellContent={(arg) => {
+  const fecha = fechaISODesdeDate(arg.date);
+  const configViernes = getConfiguracionViernes(fecha);
+  const bloqueado = diaEstaBloqueado(fecha);
 
   return (
     <div className="dia-celda-custom">
 
-      <div className="dia-numero">
-        {arg.dayNumberText}
-      </div>
-
-      {diaEstaBloqueado(fecha) && (
-        <div className="candado-centro">
-          <FaLock className="candado-bloqueo" />
-        </div>
-      )}
+      <span className="dia-numero">
+        {arg.date.getDate()}
+      </span>
 
       {configViernes?.turno && (
-        <div
+        <span
           className={`turno-viernes-label ${
             configViernes.turno === "mañana"
               ? "turno-manana"
@@ -2581,15 +2597,20 @@ const tieneNota = notasAgenda.some(
           }`}
         >
           {configViernes.turno === "mañana"
-            ? "Mañana"
-            : "Tarde"}
-        </div>
+            ? "MAÑANA"
+            : "TARDE"}
+        </span>
       )}
+
+      {bloqueado && (
+        <span className="candado-centro">
+          <FaLock className="candado-bloqueo" />
+        </span>
+      )}
+
     </div>
   );
 }}
-
-
 
   headerToolbar={{
     left: "title",
@@ -2654,75 +2675,53 @@ eventContent={(arg) => {
   /* =========================
      ESTADO DE LA CITA
   ========================= */
-
-  const estado =
-    datos.estadoVisual ||
-    "Pendiente";
-
+  const estado = datos.estadoVisual || "Pendiente";
 
   const claseEstado =
     estado === "Asistió"
       ? "evento-estado-asistio"
-
       : estado === "Confirmado"
       ? "evento-estado-confirmado"
-
       : estado === "No asistió"
       ? "evento-estado-no-asistio"
-
       : "evento-estado-pendiente";
 
+const IconoEstado =
+  estado === "Asistió"
+    ? FaCheck
+    : estado === "Confirmado"
+    ? FaCalendarCheck
+    : estado === "No asistió"
+    ? FaUserTimes
+    : FaHourglassHalf;
 
   return (
-
-    <div className="evento-calendario-custom">
-
-      {/* HORA */}
+    <div className="evento-calendario-custom evento-calendario-iconos">
 
       <div className="evento-calendario-linea">
-
         <strong className="evento-calendario-hora">
           {arg.timeText}
         </strong>
-
       </div>
 
-
-      {/* ESTADO */}
-
-      <div
-        className={`evento-estado-badge ${claseEstado}`}
+      <span
+        className={`evento-estado-icono ${claseEstado}`}
+        title={estado}
+        aria-label={estado}
       >
-
-        {/* PC */}
-        <span className="evento-estado-desktop">
-          {estado.toUpperCase()}
-        </span>
-
-
-        {/* CELULAR */}
-        <span className="evento-estado-mobile">
-
-          {estado === "No asistió"
-            ? "AUSENTE"
-            : estado.toUpperCase()}
-
-        </span>
-
-      </div>
-
-
-      {/* NOMBRE */}
+        <IconoEstado />
+      </span>
 
       <div className="evento-calendario-nombre">
         {arg.event.title}
       </div>
 
     </div>
-
   );
 
 }}
+
+
 
 eventClick={(info) => {
   const fechaEvento = info.event.startStr.split("T")[0];
