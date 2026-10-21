@@ -1627,16 +1627,6 @@ const pacientesFiltrados = useMemo(() => {
 
         <div className="historias-hero-actions">
 
-          <Link
-            to="/admin/citas"
-            className="historias-agenda-btn"
-          >
-
-            <FaCalendarAlt />
-
-            Agendar cita
-
-          </Link>
 
           <div className="historias-total-resumen">
 
@@ -1647,10 +1637,6 @@ const pacientesFiltrados = useMemo(() => {
             </div>
 
             <div className="historias-total-info">
-
-              <span>
-                Total de historias
-              </span>
 
               <strong>
                 {pacientes.length}

@@ -1052,11 +1052,13 @@ const guardarConsulta = async (e) => {
 
     Promise.allSettled([
 
-      recalcularResumenPaciente(),
+  recalcularResumenPaciente(),
 
-      marcarCitaComoAsistio(dataConsulta)
+  ...(eraEdicion
+    ? []
+    : [marcarCitaComoAsistio(dataConsulta)])
 
-    ]).then((resultados) => {
+]).then((resultados) => {
 
       resultados.forEach(
         (resultado, index) => {

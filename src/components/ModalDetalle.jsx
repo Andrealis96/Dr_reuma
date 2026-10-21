@@ -27,12 +27,24 @@ function ModalDetalle({
   onEditar,
   onEliminar
 }) {
-  const formatearFecha = (fecha) => {
-    if (!fecha) return "";
+  
+const formatearFecha = (fecha) => {
+  if (!fecha) return "—";
 
-    const [anio, mes, dia] = fecha.split("-");
-    return `${dia}/${mes}/${anio}`;
-  };
+  const partes = String(fecha).trim().split(/[-/]/);
+  if (partes.length !== 3) return String(fecha);
+
+  let anio, mes, dia;
+
+  if (partes[0].length === 4) {
+    [anio, mes, dia] = partes;
+  } else {
+    [dia, mes, anio] = partes;
+  }
+
+  return `${dia.padStart(2, "0")}/${mes.padStart(2, "0")}/${anio}`;
+};
+
 
   const limpiarTelefono10 = (telefono = "") => {
     let numero = telefono.toString().replace(/\D/g, "");
@@ -54,12 +66,58 @@ function ModalDetalle({
     return numero;
   };
 
+
+  
+const calcularEdad = (valor) => {
+  if (!valor) return "—";
+
+  const partes = String(valor).split(/[-/]/);
+  if (partes.length !== 3) return "—";
+
+  let anio, mes, dia;
+
+  if (partes[0].length === 4) {
+    [anio, mes, dia] = partes.map(Number);
+  } else if (partes[2].length === 4) {
+    [dia, mes, anio] = partes.map(Number);
+  } else {
+    return "—";
+  }
+
+  const nacimiento = new Date(anio, mes - 1, dia);
+
+  if (
+    nacimiento.getFullYear() !== anio ||
+    nacimiento.getMonth() !== mes - 1 ||
+    nacimiento.getDate() !== dia
+  ) return "—";
+
+  const hoy = new Date();
+
+  let edad = hoy.getFullYear() - anio;
+
+  if (
+    hoy.getMonth() < mes - 1 ||
+    (hoy.getMonth() === mes - 1 && hoy.getDate() < dia)
+  ) {
+    edad--;
+  }
+
+  return edad >= 0 && edad <= 120 ? edad : "—";
+};
+
+
   const citaYaAsistio =
     cita?.estadoCita === "asistio" ||
     cita?.estadoAsistencia === "asistio";
 
   return (
-    <Modal show={show} onHide={onHide} centered>
+    <Modal
+  show={show}
+  onHide={onHide}
+  centered
+  className="dr-detalle-modal"
+>
 
       <Modal.Header
   className="cabecera-detallecita"
@@ -72,106 +130,133 @@ function ModalDetalle({
         </Modal.Title>
       </Modal.Header>
 
-      <Modal.Body>
-        <div className="detalle-card">
+      
+<Modal.Body className="dr-detalle-body">
 
-          <div className="detalle-linea">
-            <FaUser className="detalle-icono" />
-            <strong>Paciente:</strong>
-            <span>{cita?.nombre}</span>
-          </div>
-
-          <div className="detalle-linea">
-            <FaWhatsapp className="detalle-icono" />
-            <strong>Teléfono:</strong>
-
-            {cita?.telefono ? (
-              <button
-                type="button"
-                className="telefono-link btn-recordatorio-detalle"
-                onClick={() => onWhatsapp?.(cita)}
-              >
-                <FaWhatsapp />
-                {limpiarTelefono10(cita.telefono)}
-              </button>
-            ) : (
-              "-"
-            )}
-          </div>
-
-          <div className="detalle-linea">
-            <FaIdCard className="detalle-icono" />
-            <strong>DNI:</strong>
-            <span>{cita?.Dni || cita?.dni || "Sin DNI"}</span>
-          </div>
-
-          <div className="detalle-linea">
-            <FaBirthdayCake className="detalle-icono" />
-            <strong>Fecha nacimiento:</strong>
-            <span>
-              {cita?.fechaNacimiento
-                ? formatearFecha(cita.fechaNacimiento)
-                : "Sin registrar"}
-            </span>
-          </div>
-
-          <div className="detalle-linea">
-            <FaShieldAlt className="detalle-icono" />
-            <strong>Obra social:</strong>
-            <span>{cita?.obraSocial || "Sin registrar"}</span>
-          </div>
-
-          <div className="detalle-linea">
-            <FaVenusMars className="detalle-icono" />
-            <strong>Sexo:</strong>
-            <span>{cita?.sexo || "Sin registrar"}</span>
-          </div>
-
-          <div className="detalle-linea detalle-linea-motivo">
-            <FaStethoscope className="detalle-icono" />
-            <strong>Motivo:</strong>
-            <span>{cita?.motivoConsulta || "Sin motivo registrado"}</span>
-          </div>
-
-          <div className="detalle-linea">
-            <FaCalendarAlt className="detalle-icono" />
-            <strong>Fecha:</strong>
-            <span>{formatearFecha(cita?.fecha)}</span>
-          </div>
-
-          <div className="detalle-linea">
-            <FaClock className="detalle-icono" />
-            <strong>Hora:</strong>
-            <span>{cita?.hora}</span>
-          </div>
-
-          <div className="detalle-linea">
-            <FaLaptopMedical className="detalle-icono" />
-            <strong>Tipo:</strong>
-            <span>
-              {cita?.tipo === "presencial"
-                ? "🟢 Presencial"
-                : "🔵 Virtual"}
-            </span>
-          </div>
-{textoVez && (
-  <div className="detalle-item detalle-vez-item">
-    <div className="detalle-icono">
-      <FaUserClock />
+  {/* PACIENTE */}
+  <div className="dr-detalle-identidad">
+    <div>
+      <small>DATOS DEL PACIENTE</small>
+      <h5>
+        {String(cita?.nombre || "Paciente")
+          .toLocaleUpperCase("es-AR")}
+      </h5>
     </div>
 
-    <div className="detalle-vez-linea">
-      <strong>Vez:</strong>
+    <span className={
+      cita?.tipo === "virtual"
+        ? "dr-tipo dr-tipo-virtual"
+        : "dr-tipo dr-tipo-presencial"
+    }>
+      {cita?.tipo === "virtual" ? "Virtual" : "Presencial"}
+    </span>
+  </div>
 
-      <span className={`detalle-vez-badge ${claseVez}`}>
-        {textoVez}
+  {/* CONTACTO */}
+  <div className="dr-detalle-contacto">
+    <div>
+      <FaWhatsapp />
+      <span>
+        {cita?.telefono
+          ? limpiarTelefono10(cita.telefono)
+          : "Sin teléfono"}
       </span>
     </div>
-  </div>
-)}
 
-        </div>
-      </Modal.Body>
+    <button
+      type="button"
+      disabled={!cita?.telefono}
+      onClick={() => onWhatsapp?.(cita)}
+      className="dr-detalle-chat"
+      title="Abrir conversación de WhatsApp"
+    >
+      <FaWhatsapp />
+      Abrir chat
+    </button>
+  </div>
+
+  {/* INFORMACIÓN PRINCIPAL */}
+  <div className="dr-detalle-grid">
+
+    <div className="dr-detalle-dato">
+      <span>Edad</span>
+      <strong>
+        {calcularEdad(cita?.fechaNacimiento) === "—"
+          ? "Sin registrar"
+          : `${calcularEdad(cita?.fechaNacimiento)} años`}
+      </strong>
+    </div>
+
+    <div className="dr-detalle-dato">
+      <span>Obra social</span>
+      <strong>
+        {String(cita?.obraSocial || "Sin registrar")
+          .toLocaleUpperCase("es-AR")}
+      </strong>
+    </div>
+
+    <div className="dr-detalle-dato">
+      <span>Fecha</span>
+      <strong>{formatearFecha(cita?.fecha)}</strong>
+    </div>
+
+    <div className="dr-detalle-dato">
+      <span>Hora</span>
+      <strong>{cita?.hora || "—"} hs</strong>
+    </div>
+
+    <div className="dr-detalle-dato">
+      <span>Número de consulta</span>
+      {textoVez ? (
+        <span className={`dr-detalle-vez ${claseVez || ""}`}>
+          {textoVez}
+        </span>
+      ) : (
+        <strong>Sin registrar</strong>
+      )}
+    </div>
+
+  </div>
+
+  {/* MOTIVO */}
+  <div className="dr-detalle-motivo">
+    <span>
+      <FaStethoscope /> MOTIVO DE CONSULTA
+    </span>
+    <p>{cita?.motivoConsulta || "Sin motivo registrado"}</p>
+  </div>
+
+  {/* DATOS SECUNDARIOS */}
+  <details className="dr-detalle-adicional">
+    <summary>
+      <FaIdCard />
+      Datos de identificación
+    </summary>
+
+    <div className="dr-detalle-adicional-grid">
+      <div>
+        <small>DNI</small>
+        <strong>{cita?.Dni || cita?.dni || "—"}</strong>
+      </div>
+
+      <div>
+        <small>Fecha de nacimiento</small>
+        <strong>
+          {cita?.fechaNacimiento
+            ? formatearFecha(cita.fechaNacimiento)
+            : "—"}
+        </strong>
+      </div>
+
+      <div>
+        <small>Sexo</small>
+        <strong>{cita?.sexo || "—"}</strong>
+      </div>
+    </div>
+  </details>
+
+</Modal.Body>
+
 
       <Modal.Footer>
 

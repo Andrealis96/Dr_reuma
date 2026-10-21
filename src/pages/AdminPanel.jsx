@@ -43,6 +43,61 @@ import {
 } from "react-icons/fa";
 
 
+
+const calcularEdadPaciente = (valor) => {
+  if (!valor) return "—";
+
+  let fecha;
+
+  if (typeof valor?.toDate === "function") {
+    fecha = valor.toDate();
+  } else if (valor instanceof Date) {
+    fecha = valor;
+  } else {
+    const texto = String(valor).trim();
+    let anio, mes, dia;
+
+    const partes = texto.split(/[-/]/);
+
+    if (partes.length !== 3) return "—";
+
+    if (partes[0].length === 4) {
+      [anio, mes, dia] = partes.map(Number);
+    } else if (partes[2].length === 4) {
+      [dia, mes, anio] = partes.map(Number);
+    } else {
+      return "—";
+    }
+
+    fecha = new Date(anio, mes - 1, dia);
+
+    if (
+      fecha.getFullYear() !== anio ||
+      fecha.getMonth() !== mes - 1 ||
+      fecha.getDate() !== dia
+    ) {
+      return "—";
+    }
+  }
+
+  if (Number.isNaN(fecha.getTime())) return "—";
+
+  const hoy = new Date();
+
+  let edad = hoy.getFullYear() - fecha.getFullYear();
+
+  if (
+    hoy.getMonth() < fecha.getMonth() ||
+    (hoy.getMonth() === fecha.getMonth() &&
+      hoy.getDate() < fecha.getDate())
+  ) {
+    edad--;
+  }
+
+  return edad >= 0 && edad <= 120 ? edad : "—";
+};
+
+
 function AdminPanel() {
 
   const navigate = useNavigate();
@@ -54,6 +109,11 @@ function AdminPanel() {
 
   const [citasDB, setCitasDB] =
     useState([]);
+
+    const [citasFechaRapida, setCitasFechaRapida] = useState({
+  fecha: "",
+  citas: []
+});
 
   const [
     historiasPacientes,
@@ -146,6 +206,33 @@ function AdminPanel() {
 
   }, []);
 
+
+  
+/* CONSULTA RÁPIDA PARA LA TABLA DEL INICIO */
+useEffect(() => {
+  const consulta = query(
+    collection(db, "citas"),
+    where("fecha", "==", fechaTabla)
+  );
+
+  const unsubscribe = onSnapshot(
+    consulta,
+    (snapshot) => {
+      setCitasFechaRapida({
+        fecha: fechaTabla,
+        citas: snapshot.docs.map((documento) => ({
+          id: documento.id,
+          ...documento.data()
+        }))
+      });
+    },
+    (error) => {
+      console.error("Error al consultar turnos del día:", error);
+    }
+  );
+
+  return () => unsubscribe();
+}, [fechaTabla]);
 
   /* =====================================================
      FIRESTORE - HISTORIAS
@@ -861,87 +948,60 @@ function AdminPanel() {
      WHATSAPP
   ===================================================== */
 
-  const abrirWhatsapp =
-    (cita) => {
 
-      if (
-        !cita?.telefono
-      ) {
-        return;
-      }
+const abrirWhatsapp = (cita, tipo = "recordatorio") => {
+  const telefono = limpiarTelefono10(cita?.telefono || "");
 
+  if (telefono.length !== 10) {
+    alert("El paciente no tiene un teléfono válido.");
+    return;
+  }
 
-      let numero =
-        cita.telefono
-          .toString()
-          .replace(/\D/g, "");
+  const numero = `549${telefono}`;
 
+  // DESDE EL DETALLE: abrir chat vacío
+  if (tipo === "chat") {
+    window.open(
+      `https://wa.me/${numero}`,
+      "_blank",
+      "noopener,noreferrer"
+    );
+    return;
+  }
 
-      if (
-        !numero.startsWith("549")
-      ) {
+  // DESDE LA TABLA: recordatorio completo
+  const fechaFormateada = cita.fecha
+    ? new Date(`${cita.fecha}T00:00:00`)
+        .toLocaleDateString("es-AR", {
+          weekday: "long",
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        })
+    : "A confirmar";
 
-        if (
-          numero.startsWith("54")
-        ) {
+  const lugar =
+    cita.tipo?.toLowerCase() === "virtual"
+      ? "Consulta por videollamada"
+      : "San Martín 1355, Consultorios Externos de la Clínica San Agustín - Neuquén Capital";
 
-          numero =
-            numero.slice(2);
+  const texto =
+    `RECORDATORIO DE CITA\n\n` +
+    `Hola ${capitalizarNombre(cita.nombre || "")}, te recordamos tu cita con el Dr. Tony Vélez (Reumatólogo).\n\n` +
+    `Por favor, responde a este mensaje si confirmas tu asistencia o si necesitas reprogramar.\n\n` +
+    `- Fecha: ${fechaFormateada}\n` +
+    `- Hora: ${cita.hora || "A confirmar"} hs\n` +
+    `- Lugar: ${lugar}\n\n` +
+    `En caso de no CONFIRMAR tu asistencia, tu turno puede quedar CANCELADO.\n\n` +
+    `Te esperamos.\n\n` +
+    `Dr. Reuma`;
 
-        }
-
-
-        if (
-          numero.startsWith("0")
-        ) {
-
-          numero =
-            numero.slice(1);
-
-        }
-
-
-        if (
-          numero.startsWith("9") &&
-          numero.length === 11
-        ) {
-
-          numero =
-            numero.slice(1);
-
-        }
-
-
-        numero =
-          `549${numero}`;
-
-      }
-
-
-      const mensaje =
-        encodeURIComponent(
-
-          `Hola ${capitalizarNombre(
-            cita.nombre || ""
-          )}, te recordamos tu cita con el Dr. Tony Vélez (Reumatólogo).\n\n` +
-
-          `Fecha: ${cita.fecha}\n` +
-
-          `Hora: ${
-            cita.hora || "Sin hora"
-          } hs\n\n` +
-
-          `Muchas gracias por agendar con Dr. Reuma. Cualquier consulta, no dudes en comunicarte con nosotros.`
-
-        );
-
-
-      window.open(
-        `https://wa.me/${numero}?text=${mensaje}`,
-        "_blank"
-      );
-
-    };
+  window.open(
+    `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`,
+    "_blank",
+    "noopener,noreferrer"
+  );
+};
 
 
   /* =====================================================
@@ -1571,26 +1631,18 @@ function AdminPanel() {
     obtenerHoyLocal();
 
 
-  const pacientesHoy =
-    useMemo(() => {
 
-      return citasDB
-        .filter(
-          cita =>
-            cita.fecha === hoy
-        )
-        .sort(
-          (a, b) =>
-            (a.hora || "")
-              .localeCompare(
-                b.hora || ""
-              )
-        );
+const pacientesHoy = useMemo(() => {
+  const fuente =
+    citasFechaRapida.fecha === hoy
+      ? citasFechaRapida.citas
+      : citasDB.filter((cita) => cita.fecha === hoy);
 
-    }, [
-      citasDB,
-      hoy
-    ]);
+  return [...fuente].sort((a, b) =>
+    (a.hora || "").localeCompare(b.hora || "")
+  );
+}, [citasDB, citasFechaRapida, hoy]);
+
 
 
   /* =====================================================
@@ -1598,27 +1650,17 @@ function AdminPanel() {
      PARA LA TABLA
   ===================================================== */
 
-  const citasTabla =
-    useMemo(() => {
+const citasTabla = useMemo(() => {
+  const fuente =
+    citasFechaRapida.fecha === fechaTabla
+      ? citasFechaRapida.citas
+      : citasDB.filter((cita) => cita.fecha === fechaTabla);
 
-      return citasDB
-        .filter(
-          cita =>
-            cita.fecha ===
-            fechaTabla
-        )
-        .sort(
-          (a, b) =>
-            (a.hora || "")
-              .localeCompare(
-                b.hora || ""
-              )
-        );
+  return [...fuente].sort((a, b) =>
+    (a.hora || "").localeCompare(b.hora || "")
+  );
+}, [citasDB, citasFechaRapida, fechaTabla]);
 
-    }, [
-      citasDB,
-      fechaTabla
-    ]);
 
 
   /* =====================================================
@@ -2015,17 +2057,15 @@ function AdminPanel() {
                   </th>
 
 
-                  <th>
+                                      
+                    <th>
+                      <span className="celeste">Edad</span>
+                    </th>
 
-                    <FaIdCard className="celeste" />
+                    <th>
+                      <span className="celeste">Obra social</span>
+                    </th>
 
-                    <br />
-
-                    <span className="celeste">
-                      DNI
-                    </span>
-
-                  </th>
 
 
                   <th>
@@ -2116,6 +2156,23 @@ function AdminPanel() {
                         numeroCita
                       );
 
+                                              
+                                              
+                        const fichaPaciente = buscarPacienteHistoria(cita);
+
+                        const obraSocialPaciente =
+                        cita.obraSocial ||
+                        fichaPaciente?.obraSocial ||
+                        "";
+
+                        const edadPaciente = [
+                          cita.fechaNacimiento,
+                          fichaPaciente?.fechaNacimiento
+                        ]
+                          .map(calcularEdadPaciente)
+                          .find((edad) => edad !== "—") ?? "—";
+
+
 
                     return (
 
@@ -2186,14 +2243,20 @@ function AdminPanel() {
                         </td>
 
 
-                        {/* DNI */}
-
-                        <td>
-
-                          {obtenerDni(cita) ||
-                            "-"}
-
+                        
+                        {/* EDAD */}
+                        <td className="admin-home-edad">
+                          {edadPaciente}
                         </td>
+
+                        {/* OBRA SOCIAL */}
+                        
+                            <td className="admin-home-obra-social">
+                              {String(obraSocialPaciente || "—")
+                                .toLocaleUpperCase("es-AR")}
+                            </td>
+
+
 
 
                         {/* WHATSAPP */}
@@ -2409,13 +2472,7 @@ function AdminPanel() {
             : ""
         }
 
-        onWhatsapp={(cita) => {
-
-          abrirWhatsapp(
-            cita
-          );
-
-        }}
+        onWhatsapp={(cita) => abrirWhatsapp(cita, "chat")}
 
         onConfirmar={
           confirmarCitaDesdeHome

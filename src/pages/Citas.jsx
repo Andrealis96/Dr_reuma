@@ -1690,10 +1690,9 @@ const textoWhatsapp =
 
     if (numero) {
 
-      const mensaje =
-        encodeURIComponent(
-          textoCompartir
-        );
+      const mensaje = encodeURIComponent(
+  textoWhatsapp
+);
 
 
       urlWhatsapp =
@@ -3062,7 +3061,7 @@ horariosDisponibles.map(h => {
         )
       : ""
   }
-  onWhatsapp={(cita) => abrirWhatsappCita(cita, true, "recordatorio")}
+ onWhatsapp={(cita) => abrirWhatsappSoloPaciente(cita)}
   onConfirmar={confirmarCitaDesdeDetalle}
   onEditar={(cita) => {
     setCitaEditar(cita);
