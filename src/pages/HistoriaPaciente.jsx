@@ -23,6 +23,7 @@ import {
   FaFilePdf,
   FaPencilAlt,
   FaTimes,
+  FaCopy,
   FaCalendarAlt,
   FaFolderOpen,
   FaFlask,
@@ -37,6 +38,48 @@ import firma from "../assets/firma.png";
 import userMale from "../assets/user-male.png";
 import userFemale from "../assets/user-female.png";
 import Swal from "sweetalert2";
+
+function DatoCopiable({ etiqueta, valor, textoCopiar }) {
+  const texto = String(valor ?? "").trim();
+
+  return (
+    <div className="historia-dato-copiable">
+      <span>{etiqueta}</span>
+
+      <button
+        type="button"
+        className="historia-icono-copiar"
+        title={`Copiar ${etiqueta}`}
+        aria-label={`Copiar ${etiqueta}`}
+        disabled={!texto}
+        onClick={async () => {
+          const contenido = String(textoCopiar ?? texto).trim();
+
+          if (!contenido) return;
+
+          try {
+            await navigator.clipboard.writeText(contenido);
+
+            Swal.fire({
+              toast: true,
+              position: "top-end",
+              icon: "success",
+              title: "Copiado",
+              timer: 900,
+              showConfirmButton: false,
+            });
+          } catch (error) {
+            console.error("Error al copiar:", error);
+          }
+        }}
+      >
+        <FaCopy />
+      </button>
+
+      <strong>{texto || "-"}</strong>
+    </div>
+  );
+}
 
 function HistoriaPaciente() {
   const navigate = useNavigate();
@@ -65,6 +108,102 @@ const citaIdAgenda = searchParams.get("citaId");
     return null;
   }
 });
+
+const [editandoDatosNombre, setEditandoDatosNombre] = useState(false);
+const [nombresEditados, setNombresEditados] = useState("");
+const [apellidosEditados, setApellidosEditados] = useState("");
+const [guardandoNombre, setGuardandoNombre] = useState(false);
+
+const obtenerNombres = (p = {}) =>
+  p.nombres ?? p.nombre ?? "";
+
+const obtenerApellidos = (p = {}) =>
+  p.apellidos ?? "";
+
+const obtenerNombreCompleto = (p = {}) =>
+  [obtenerNombres(p), obtenerApellidos(p)]
+    .map((valor) => valor.trim())
+    .filter(Boolean)
+    .join(" ");
+
+const copiarDato = async (valor) => {
+  const texto = String(valor ?? "").trim();
+
+  if (!texto) return;
+
+  try {
+    await navigator.clipboard.writeText(texto);
+
+    Swal.fire({
+      toast: true,
+      position: "top-end",
+      icon: "success",
+      title: "Copiado",
+      showConfirmButton: false,
+      timer: 900,
+    });
+  } catch (error) {
+    console.error("Error al copiar:", error);
+  }
+};
+
+const comenzarEdicionNombre = () => {
+  setNombresEditados(obtenerNombres(paciente));
+  setApellidosEditados(obtenerApellidos(paciente));
+  setEditandoDatosNombre(true);
+};
+
+const guardarNombrePaciente = async () => {
+  const nombres = nombresEditados.trim().replace(/\s+/g, " ");
+  const apellidos = apellidosEditados.trim().replace(/\s+/g, " ");
+
+  if (!nombres || guardandoNombre) return;
+
+  const nombreCompleto = [nombres, apellidos]
+    .filter(Boolean)
+    .join(" ");
+
+  setGuardandoNombre(true);
+
+  try {
+    await updateDoc(doc(db, "historiasClinicas", id), {
+      nombres,
+      apellidos,
+      nombre: nombreCompleto,
+    });
+
+    const pacienteActualizado = {
+      ...paciente,
+      nombres,
+      apellidos,
+      nombre: nombreCompleto,
+    };
+
+    setPaciente(pacienteActualizado);
+    setEditandoDatosNombre(false);
+
+    localStorage.setItem(
+      `paciente-cache-${id}`,
+      JSON.stringify({
+        ts: Date.now(),
+        paciente: pacienteActualizado,
+      })
+    );
+
+    Swal.fire({
+      icon: "success",
+      title: "Datos actualizados",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  } catch (error) {
+    console.error(error);
+    Swal.fire("Error", "No se pudieron guardar los cambios", "error");
+  } finally {
+    setGuardandoNombre(false);
+  }
+};
+
   const [consultas, setConsultas] = useState([]);
   const [diagnosticos, setDiagnosticos] = useState([]);
 
@@ -1799,10 +1938,10 @@ const cantidadConsultas = consultas.length;
     HISTORIA CLÍNICA DIGITAL
 ===================================================== */}
 
-<div className="historia-paciente-badge historia-badge-externo">
-  <FaFilePdf />
-  <span>Historia clínica digital</span>
-</div>
+<div className="citas-header-badge">
+      <FaFilePdf />
+      <span>Historia Clínica Digital</span>
+    </div>
 
 {/* =====================================================
     PACIENTE + INTERNOS
@@ -1876,59 +2015,90 @@ const cantidadConsultas = consultas.length;
           alt="usuario"
           className="historia-nuevo-avatar"
         />
-
-
         <div className="historia-nuevo-datos-contenido">
+<div className="historia-nombres-separados">
+  
 
-          <h3>
-            {paciente.nombre}
-          </h3>
+</div>
+
+
+{editandoDatosNombre && (
+  <div className="historia-editar-nombres">
+    <label>Nombres</label>
+    <input
+      className="form-control"
+      value={nombresEditados}
+      onChange={(e) => setNombresEditados(e.target.value)}
+    />
+
+    <label>Apellidos</label>
+    <input
+      className="form-control"
+      value={apellidosEditados}
+      onChange={(e) => setApellidosEditados(e.target.value)}
+    />
+
+    <button
+      type="button"
+      disabled={guardandoNombre || !nombresEditados.trim()}
+      onClick={guardarNombrePaciente}
+    >
+      {guardandoNombre ? "Guardando..." : "Guardar cambios"}
+    </button>
+
+    <button
+      type="button"
+      disabled={guardandoNombre}
+      onClick={() => setEditandoDatosNombre(false)}
+    >
+      Cancelar
+    </button>
+  </div>
+)}  
 
 
           <div className="historia-nuevo-datos-grid">
 
+  <DatoCopiable
+    etiqueta="Nombres"
+    valor={paciente.nombres ?? paciente.nombre}
+  />
 
-            <div>
-              <span>Edad</span>
+  <DatoCopiable
+    etiqueta="Apellidos"
+    valor={paciente.apellidos}
+  />
 
-              <strong>
-                {calcularEdad(
-                  paciente.fechaNacimiento
-                )} años
-              </strong>
-            </div>
+  <DatoCopiable
+    etiqueta="Edad"
+    valor={
+      calcularEdad(paciente.fechaNacimiento) !== null
+        ? `${calcularEdad(paciente.fechaNacimiento)} años`
+        : ""
+    }
+  />
 
+  <DatoCopiable
+    etiqueta="DNI"
+    valor={paciente.dni}
+  />
 
-            <div>
-              <span>DNI</span>
+  <DatoCopiable
+    etiqueta="Nacimiento"
+    valor={formatearFecha(paciente.fechaNacimiento)}
+  />
 
-              <strong>
-                {paciente.dni}
-              </strong>
-            </div>
+  <DatoCopiable
+    etiqueta="Obra social"
+    valor={paciente.obraSocial}
+  />
 
+  <DatoCopiable
+    etiqueta="N.º credencial"
+    valor={paciente.numeroCredencial}
+  />
 
-            <div>
-              <span>Nacimiento</span>
-
-              <strong>
-                {formatearFecha(
-                  paciente.fechaNacimiento
-                )}
-              </strong>
-            </div>
-
-
-            <div>
-              <span>Obra social</span>
-
-              <strong>
-                {paciente.obraSocial}
-              </strong>
-            </div>
-
-
-          </div>
+</div>
 
         </div>
 
@@ -1994,60 +2164,30 @@ const cantidadConsultas = consultas.length;
         </a>
 
 
-        {/* HISTORIAS CLÍNICAS */}
-
-        <Link
-          to="/admin/historias"
-          className="historia-nuevo-acceso historia-nuevo-acceso-principal"
-          onClick={async (e) => {
-
-            e.preventDefault();
-
-            const puedeSalir =
-              await confirmarSalidaConCambios();
-
-            if (puedeSalir) {
-              navigate("/admin/historias");
-            }
-
-          }}
-        >
-
-          <FaFolderOpen />
-
-          <span>
-            HISTORIAS CLÍNICAS
-          </span>
-
-        </Link>
+       {/* RCTA */}
+<a
+  href="https://app.rcta.me/Home"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="historia-nuevo-acceso historia-nuevo-acceso-principal"
+  title="Abrir RCTA"
+>
+  <FaFolderOpen />
+  <span>RCTA</span>
+</a>
 
 
-        {/* AGENDAR */}
-
-        <Link
-          to="/admin/citas"
-          className="historia-nuevo-acceso historia-nuevo-acceso-principal"
-          onClick={async (e) => {
-
-            e.preventDefault();
-
-            const puedeSalir =
-              await confirmarSalidaConCambios();
-
-            if (puedeSalir) {
-              navigate("/admin/citas");
-            }
-
-          }}
-        >
-
-          <FaCalendarAlt />
-
-          <span>
-            AGENDAR CITA
-          </span>
-
-        </Link>
+{/* PAMI */}
+<a
+  href="https://cup.pami.org.ar/controllers/loginController.php"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="historia-nuevo-acceso historia-nuevo-acceso-principal"
+  title="Abrir PAMI"
+>
+  <FaExternalLinkAlt />
+  <span>PAMI</span>
+</a>
 
 
       </div>

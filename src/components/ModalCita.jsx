@@ -4,6 +4,15 @@ import { useEffect, useState } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
 import {
+  formatearNombre,
+  soloNumeros,
+  formatearCredencial,
+  formatearObraSocial,
+  formatearFechaNacimiento,
+  validarFechaNacimiento,
+  generarNombreCompleto
+} from "../utils/validacionesPaciente";
+import {
   FaUser,
   FaUserCheck,
   FaWhatsapp,
@@ -15,7 +24,8 @@ import {
   FaCalendarAlt,
   FaClock,
   FaSearch,
-  FaLaptopMedical
+  FaLaptopMedical,
+  FaCreditCard
 } from "react-icons/fa";
 
 function ModalCita({
@@ -30,6 +40,7 @@ function ModalCita({
   obtenerHorariosDisponibles
 }) {
   const [nombre, setNombre] = useState("");
+  const [apellidos, setApellidos] = useState("");
   const [telefono, setTelefono] = useState("");
   const [fecha, setFecha] = useState("");
   const [Dni, setDni] = useState("");
@@ -37,6 +48,8 @@ function ModalCita({
   const [tipo, setTipo] = useState("presencial");
   const [fechaNacimiento, setFechaNacimiento] = useState("");
   const [obraSocial, setObraSocial] = useState("");
+
+  const [numeroCredencial, setNumeroCredencial] = useState("");
   const [sexo, setSexo] = useState("Femenino");
   const [motivoConsulta, setMotivoConsulta] = useState("");
   const [horasDisponibles, setHorasDisponibles] = useState([]);
@@ -102,7 +115,8 @@ const handleFechaChange = (e) => {
 
 useEffect(() => {
   if (citaEditar) {
-    setNombre(citaEditar.nombre || "");
+    setNombre(citaEditar.nombres ?? citaEditar.nombre ?? "");
+    setApellidos(citaEditar.apellidos ?? "");
     setTelefono(citaEditar.telefono || "");
     setDni(citaEditar.Dni || "");
     setFecha(citaEditar.fecha || "");
@@ -111,10 +125,12 @@ useEffect(() => {
 
     setFechaNacimiento(citaEditar.fechaNacimiento || "");
     setObraSocial(citaEditar.obraSocial || "");
+    setNumeroCredencial(citaEditar.numeroCredencial || "");
     setSexo(citaEditar.sexo || "");
     setMotivoConsulta(citaEditar.motivoConsulta || "");
   } else {
     setNombre("");
+    setApellidos("");
     setTelefono("");
     setDni("");
     setHora("");
@@ -122,6 +138,7 @@ useEffect(() => {
 
     setFechaNacimiento("");
     setObraSocial("");
+    setNumeroCredencial("");
     setSexo("Femenino");
     setMotivoConsulta("");
   }
@@ -147,6 +164,7 @@ useEffect(() => {
   if (show) {
     if (!citaEditar) {
       setNombre("");
+      setApellidos("");
       setTelefono("");
       setDni("");
       setTipo(tipoPreseleccionado || obtenerTipoPorFecha(fechaSeleccionada));
@@ -194,19 +212,33 @@ useEffect(() => {
 }, []);
 
 const handleGuardar = async () => {
-  if (!nombre || !fecha || !hora) return;
+  if (!nombre.trim() || !fecha || !hora) return;
+
+  if (
+    fechaNacimiento &&
+    !validarFechaNacimiento(fechaNacimiento)
+  ) {
+    alert("Ingresá una fecha de nacimiento válida.");
+    return;
+  }
+
+  const nombresFinal = formatearNombre(nombre).trim();
+  const apellidosFinal = formatearNombre(apellidos).trim();
 
   const ok = await onGuardar({
-    nombre,
+    nombres: nombresFinal,
+    apellidos: apellidosFinal,
+    nombre: generarNombreCompleto(nombresFinal, apellidosFinal),
     telefono,
-    Dni,
+    Dni: soloNumeros(Dni),
     fecha,
-    hora,
-    tipo,
-    fechaNacimiento,
-    obraSocial: obraSocial.trim(),
+hora,
+tipo: obtenerTipoPorFecha(fecha),
+fechaNacimiento,
+    obraSocial: formatearObraSocial(obraSocial).trim(),
+    numeroCredencial: formatearCredencial(numeroCredencial),
     sexo,
-    motivoConsulta: motivoConsulta.trim()
+    motivoConsulta: motivoConsulta.trim(),
   });
 
   if (ok !== false) {
@@ -242,12 +274,14 @@ const pacientesFiltradosModal =
         .slice(0, 6);
 
 const seleccionarPacientePrevio = (cita) => {
-  setNombre(cita.nombre || "");
+  setNombre(cita.nombres ?? cita.nombre ?? "");
+  setApellidos(cita.apellidos ?? "");
   setTelefono(cita.telefono || "");
   setDni(cita.Dni || cita.dni || "");
 
   setFechaNacimiento(cita.fechaNacimiento || "");
   setObraSocial(cita.obraSocial || "");
+  setNumeroCredencial(cita.numeroCredencial || "");
   setSexo(cita.sexo || "");
 
   setBusquedaPacienteModal("");
@@ -321,16 +355,26 @@ const seleccionarPacientePrevio = (cita) => {
 )}
 
         <InputGroup className="mb-2 celeste">
-            <InputGroup.Text>
-                <FaUser className="celeste" />
-            </InputGroup.Text>
+  <InputGroup.Text>
+    <FaUser className="celeste" />
+  </InputGroup.Text>
 
-            <Form.Control
-                placeholder="Nombres Completos"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-            />
-        </InputGroup>
+  <Form.Control
+    placeholder="Nombres"
+    value={nombre}
+    onChange={(e) =>
+      setNombre(formatearNombre(e.target.value))
+    }
+  />
+
+  <Form.Control
+    placeholder="Apellidos"
+    value={apellidos}
+    onChange={(e) =>
+      setApellidos(formatearNombre(e.target.value))
+    }
+  />
+</InputGroup>
 
         <InputGroup className="mb-2">
             <InputGroup.Text>
@@ -340,7 +384,7 @@ const seleccionarPacientePrevio = (cita) => {
             <Form.Control
                 placeholder="DNI"
                 value={Dni}
-                onChange={(e) => setDni(e.target.value)}
+                onChange={(e) => setDni(soloNumeros(e.target.value))}
             />
         </InputGroup>
 
@@ -378,14 +422,34 @@ const seleccionarPacientePrevio = (cita) => {
             <FaShieldAlt  className="celeste"/>
           </InputGroup.Text>
 
+          
+          
+            <Form.Control
+              type="text"
+              placeholder="OBRA SOCIAL"
+              value={obraSocial}
+              onChange={(e) =>
+  setObraSocial(formatearObraSocial(e.target.value))
+}
+              autoComplete="off"
+            />
+        </InputGroup>
+
+        <InputGroup className="mb-2 cita-campo-ancho cita-motivo-ancho">
+          <InputGroup.Text>
+            <FaStethoscope className="celeste"/>
+          </InputGroup.Text>
+
           <Form.Control
-            placeholder="Obra social"
-            value={obraSocial}
-            onChange={(e) => setObraSocial(e.target.value)}
+            as="textarea"
+            rows={1}
+            placeholder="Motivo de consulta"
+            value={motivoConsulta}
+            onChange={(e) => setMotivoConsulta(e.target.value)}
           />
         </InputGroup>
 
-        <InputGroup className="mb-2 celeste">
+        <InputGroup className="mb-2 cita-campo-ancho ">
             <InputGroup.Text>
                 <FaWhatsapp  className="celeste"/>
             </InputGroup.Text>
@@ -406,19 +470,26 @@ const seleccionarPacientePrevio = (cita) => {
               />
         </InputGroup>
 
-        <InputGroup className="mb-2">
-          <InputGroup.Text>
-            <FaStethoscope className="celeste"/>
-          </InputGroup.Text>
+        
+<InputGroup className="mb-2">
+  <InputGroup.Text>
+    <FaCreditCard className="celeste" />
+  </InputGroup.Text>
 
-          <Form.Control
-            as="textarea"
-            rows={2}
-            placeholder="Motivo de consulta"
-            value={motivoConsulta}
-            onChange={(e) => setMotivoConsulta(e.target.value)}
-          />
-        </InputGroup>
+  <Form.Control
+    type="text"
+    placeholder="N.º DE CREDENCIAL (OPCIONAL)"
+    value={numeroCredencial}
+    onChange={(e) =>
+      setNumeroCredencial(
+  formatearCredencial(e.target.value)
+)
+    }
+    maxLength={40}
+    autoComplete="off"
+  />
+</InputGroup>
+
 
         <InputGroup className="mb-2">
           <InputGroup.Text>
@@ -473,22 +544,6 @@ const seleccionarPacientePrevio = (cita) => {
                 ))}
             </Form.Select>
             </InputGroup>
-
-        <InputGroup className="mb-2">
-        <InputGroup.Text>
-            <FaLaptopMedical  className="celeste"/>
-        </InputGroup.Text>
-
-        <Form.Select
-          value={tipo}
-          onChange={(e) => setTipo(e.target.value)}
-          disabled={!!fecha}
-        >
-          <option value="presencial">🟢 Presencial</option>
-          <option value="virtual">🔵 Virtual</option>
-        </Form.Select>
-
-        </InputGroup>
 
       </Modal.Body>
 

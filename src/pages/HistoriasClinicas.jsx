@@ -8,11 +8,24 @@ import {
   updateDoc,
   query,
   orderBy,
+  getDocs,
+writeBatch,
   where
 } from "firebase/firestore";
 
 import { db } from "../firebase";
 import { Link, useNavigate } from "react-router-dom";
+
+
+import {
+  formatearNombre,
+  soloNumeros,
+  formatearCredencial,
+  formatearObraSocial,
+  formatearFechaNacimiento,
+  validarFechaNacimiento,
+  generarNombreCompleto
+} from "../utils/validacionesPaciente";
 
 import {
   FaPlus,
@@ -85,6 +98,8 @@ function HistoriasClinicas() {
 
   const [nombre, setNombre] = useState("");
 
+  const [apellidos, setApellidos] = useState("");
+
   const [dni, setDni] = useState("");
 
   const [fechaNacimiento, setFechaNacimiento] = useState("");
@@ -92,6 +107,8 @@ function HistoriasClinicas() {
   const [obraSocial, setObraSocial] = useState("");
 
   const [sexo, setSexo] = useState("");
+
+  const [numeroCredencial, setNumeroCredencial] = useState("");
 
   const [busqueda, setBusqueda] = useState(() => {
     return sessionStorage.getItem("busquedaHistorias") || "";
@@ -131,9 +148,11 @@ function HistoriasClinicas() {
 
   const limpiarFormulario = () => {
     setNombre("");
+    setApellidos("");
     setDni("");
     setFechaNacimiento("");
     setObraSocial("");
+    setNumeroCredencial("");
     setSexo("");
   };
 
@@ -595,8 +614,16 @@ const obtenerUltimaConsultaCard = (paciente = {}) => {
     }, 1800);
   };
 
-  const crearPaciente = async (e) => {
-    e.preventDefault();
+const crearPaciente = async (e) => {
+  e.preventDefault();
+
+  if (
+    fechaNacimiento &&
+    !validarFechaNacimiento(fechaNacimiento)
+  ) {
+    alert("Ingresá una fecha de nacimiento válida.");
+    return;
+  }
 
     const pacienteCreado =
       await addDoc(
@@ -605,16 +632,28 @@ const obtenerUltimaConsultaCard = (paciente = {}) => {
           "historiasClinicas"
         ),
         {
-          nombre: nombre.trim(),
+          nombres: formatearNombre(nombre).trim(),
 
-          dni: dni.trim(),
+apellidos: formatearNombre(apellidos).trim(),
 
-          fechaNacimiento,
+nombre: generarNombreCompleto(
+  formatearNombre(nombre),
+  formatearNombre(apellidos)
+),
 
-          obraSocial:
-            obraSocial.trim(),
+dni: soloNumeros(dni),
 
-          sexo,
+fechaNacimiento,
+
+obraSocial: formatearObraSocial(obraSocial).trim(),
+
+numeroCredencial: formatearCredencial(numeroCredencial),
+
+sexo,
+
+origenRegistro: citaHoySeleccionadaId
+  ? "agenda"
+  : "historiaClinica",
 
           creado:
             new Date()
@@ -659,31 +698,97 @@ const obtenerUltimaConsultaCard = (paciente = {}) => {
       "Paciente guardado"
     );
   };
+const eliminarPaciente = async (id) => {
+  const paciente = pacientes.find((p) => p.id === id);
 
-  const eliminarPaciente = async (
-    id
-  ) => {
-    if (
-      window.confirm(
-        "¿Eliminar paciente?"
+  if (!paciente) return;
+
+  const confirmar = window.confirm(
+    `¿Eliminar definitivamente a ${paciente.nombre || "este paciente"}?\n\n` +
+    "Se eliminarán su historia clínica, todas sus consultas y las citas vinculadas.\n\n" +
+    "Esta acción no se puede deshacer."
+  );
+
+  if (!confirmar) return;
+
+  try {
+    // 1. Buscar las consultas de la historia clínica
+    const consultasSnap = await getDocs(
+      collection(db, "historiasClinicas", id, "consultas")
+    );
+
+    // 2. Buscar citas vinculadas por ID
+    const citasPorHistoria = await getDocs(
+      query(
+        collection(db, "citas"),
+        where("historiaClinicaId", "==", id)
       )
-    ) {
-      await deleteDoc(
-        doc(
-          db,
-          "historiasClinicas",
-          id
-        )
-      );
+    );
+
+    // 3. Buscar citas vinculadas por pacienteId
+    const citasPorPaciente = await getDocs(
+      query(
+        collection(db, "citas"),
+        where("pacienteId", "==", id)
+      )
+    );
+
+    // Evitar eliminar dos veces una misma cita
+    const citasUnicas = new Map();
+
+    [...citasPorHistoria.docs, ...citasPorPaciente.docs]
+      .forEach((documento) => {
+        citasUnicas.set(documento.ref.path, documento.ref);
+      });
+
+    // 4. Preparar referencias para eliminar
+    const referencias = [
+      ...consultasSnap.docs.map((d) => d.ref),
+      ...citasUnicas.values(),
+
+      // El documento principal se elimina al final
+    ];
+
+    // 5. Eliminar consultas y citas en lotes
+    // Firestore admite hasta 500 operaciones por batch
+    for (let i = 0; i < referencias.length; i += 400) {
+      const batch = writeBatch(db);
+
+      referencias.slice(i, i + 400).forEach((ref) => {
+        batch.delete(ref);
+      });
+
+      await batch.commit();
     }
-  };
+
+    // 6. Eliminar la historia clínica al final
+    const batchFinal = writeBatch(db);
+
+    batchFinal.delete(doc(db, "historiasClinicas", id));
+
+    await batchFinal.commit();
+
+    // 7. Limpiar la caché local del paciente
+    localStorage.removeItem(`paciente-cache-${id}`);
+
+    // El listener de Firestore actualizará el listado
+    alert("Paciente y registros vinculados eliminados.");
+
+  } catch (error) {
+    console.error("Error al eliminar paciente:", error);
+
+    alert(
+      "No se pudo completar la eliminación. " +
+      "Revisá los permisos de Firebase y los registros restantes."
+    );
+  }
+};
 
   const editarPaciente = (p) => {
     setEditando(p.id);
 
-    setNombre(
-      p.nombre || ""
-    );
+    setNombre(p.nombres ?? p.nombre ?? "");
+    setApellidos(p.apellidos ?? "");
 
     setDni(
       p.dni || ""
@@ -696,6 +801,8 @@ const obtenerUltimaConsultaCard = (paciente = {}) => {
     setObraSocial(
       p.obraSocial || ""
     );
+
+    setNumeroCredencial(cita.numeroCredencial || "");
 
     setSexo(
       p.sexo || ""
@@ -711,20 +818,31 @@ const obtenerUltimaConsultaCard = (paciente = {}) => {
     }, 100);
   };
 
-  const guardarEdicion = async (
-    e
-  ) => {
-    e.preventDefault();
 
-    await updateDoc(
+
+const guardarEdicion = async (e) => {
+  e.preventDefault();
+
+  if (
+    fechaNacimiento &&
+    !validarFechaNacimiento(fechaNacimiento)
+  ) {
+    alert("Ingresá una fecha de nacimiento válida.");
+    return;
+  }
+
+  await updateDoc(
       doc(
         db,
         "historiasClinicas",
         editando
       ),
       {
-        nombre:
-          nombre.trim(),
+        nombres: nombre.trim(),
+        apellidos: apellidos.trim(),
+        nombre: [nombre.trim(), apellidos.trim()]
+          .filter(Boolean)
+          .join(" "),
 
         dni:
           dni.trim(),
@@ -733,6 +851,8 @@ const obtenerUltimaConsultaCard = (paciente = {}) => {
 
         obraSocial:
           obraSocial.trim(),
+
+        numeroCredencial: numeroCredencial.trim(),
 
         sexo
       }
@@ -787,7 +907,25 @@ const pacientesFiltrados = useMemo(() => {
     .trim();
 
   return pacientes
-    .filter((p) => {
+  .filter((p) => {
+    // Si el médico está buscando, mostrar TODOS
+    // los pacientes, aunque tengan cero consultas.
+    if (busqueda.trim() !== "") {
+      return true;
+    }
+
+    // Sin búsqueda: mostrar historias manuales
+    // y pacientes con consultas registradas.
+    const tieneConsultas =
+      Number(p.cantidadConsultas || 0) > 0 ||
+      Number(p.ultimaConsultaAtMillis || 0) > 0;
+
+    const creadoDesdeHistoria =
+      p.origenRegistro === "historiaClinica";
+
+    return tieneConsultas || creadoDesdeHistoria;
+  }) 
+  .filter((p) => {
       // =========================
       // BÚSQUEDA POR NOMBRE
       // =========================
@@ -820,16 +958,22 @@ const pacientesFiltrados = useMemo(() => {
         coincideDni
       );
     })
+
+    
     .sort((a, b) => {
-      const ultimaB = b.ultimaConsultaAtMillis || 0;
-      const ultimaA = a.ultimaConsultaAtMillis || 0;
+  const fechaA = obtenerCreadoPaciente(a);
+  const fechaB = obtenerCreadoPaciente(b);
 
-      if (ultimaB !== ultimaA) {
-        return ultimaB - ultimaA;
-      }
+  if (fechaB !== fechaA) {
+    return fechaB - fechaA;
+  }
 
-      return obtenerCreadoPaciente(b) - obtenerCreadoPaciente(a);
-    });
+  return (a.nombre || "").localeCompare(
+    b.nombre || "",
+    "es"
+  );
+});
+
 }, [pacientes, busqueda]);
 
   const indiceFinal =
@@ -1497,15 +1641,13 @@ const pacientesFiltrados = useMemo(() => {
         return;
       }
 
-      setNombre(
-        cita.nombre || ""
-      );
-
-      setDni(
-        cita.Dni ||
-          cita.dni ||
-          ""
-      );
+      setNombre(cita.nombres ?? cita.nombre ?? "");
+      setApellidos(cita.apellidos ?? "");
+            setDni(
+              cita.Dni ||
+                cita.dni ||
+                ""
+            );
 
       setFechaNacimiento(
         normalizarFechaNacimientoHistoria(
@@ -1517,6 +1659,8 @@ const pacientesFiltrados = useMemo(() => {
       setObraSocial(
         cita.obraSocial || ""
       );
+
+      setNumeroCredencial(p.numeroCredencial || "");
 
       setSexo(
         cita.sexo || ""
@@ -1551,7 +1695,7 @@ const pacientesFiltrados = useMemo(() => {
       );
 
   return (
-    <div className="container historias-modern-container py-4 mb-5">
+    <div className="container historias-modern-container">
 
       {mostrarConfirmacion && (
         <div className="paciente-save-overlay">
@@ -1573,86 +1717,36 @@ const pacientesFiltrados = useMemo(() => {
 
       {/* HEADER */}
 
-      <div className="historias-hero mb-4">
+      {/* HEADER HISTORIAS CLÍNICAS - ESTILO AGENDA */}
+<div className="historias-hero historias-hero-compacto">
 
-        <div>
+  <div className="historias-hero-superior">
 
-          <div className="historias-badge">
+    <div className="citas-header-badge">
+      <FaCalendarAlt />
+      <span>Panel médico</span>
+    </div>
 
-            <FaFolderOpen />
+    <div className="historias-contador-compacto">
+  <FaUsers className="historias-contador-icono" />
 
-            Panel médico
+  <div className="historias-contador-datos">
+    <strong>{pacientes.length}</strong>
+    <span>Pacientes registrados</span>
+  </div>
+</div>
 
-          </div>
+  </div>
 
-          <h2 className="subtitle-general mb-2">
+  <h1 className="historias-titulo-compacto">
+    {editando ? "EDITAR PACIENTE" : "HISTORIAS CLÍNICAS"}
+  </h1>
 
-            {editando ? (
-              <>
-                <span className="subtitle-celeste">
-                  EDITAR
-                </span>{" "}
+  <div className="historias-fecha-compacta">
+    {fechaHoyHistoriasTexto}
+  </div>
 
-                <span className="subtitle-celeste">
-                  PACIENTE
-                </span>
-              </>
-            ) : (
-              <>
-                <span className="subtitle-celeste">
-                  HISTORIAS
-                </span>{" "}
-
-                <span className="subtitle-celeste">
-                  CLÍNICAS
-                </span>
-              </>
-            )}
-
-          </h2>
-
-          <div className="historias-fecha-hoy mb-2">
-
-            {fechaHoyHistoriasTexto.toUpperCase()}
-
-          </div>
-
-          <p className="historias-hero-text">
-
-            Registro de pacientes, búsqueda rápida y acceso directo a la historia clínica.
-
-          </p>
-
-        </div>
-
-        <div className="historias-hero-actions">
-
-
-          <div className="historias-total-resumen">
-
-            <div className="historias-total-icon">
-
-              <FaUsers />
-
-            </div>
-
-            <div className="historias-total-info">
-
-              <strong>
-                {pacientes.length}
-              </strong>
-
-              <small>
-                pacientes registrados
-              </small>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
+</div>
 
       {/* TABLA PACIENTES DE HOY DESDE AGENDA 
 
@@ -2069,25 +2163,57 @@ const pacientesFiltrados = useMemo(() => {
         {/* NOMBRE */}
 
         <div className="col-12 col-md-6">
+  <label className="historias-label">
+    Nombres
+  </label>
 
-          <label className="historias-label">
-            Nombre completo
-          </label>
+  <input
+    className="form-control historias-input"
+    placeholder="Nombres del paciente"
+    value={nombre}
+    onKeyDown={(e) => {
+  if (
+    !e.ctrlKey &&
+    !e.metaKey &&
+    !e.altKey &&
+    e.key.length === 1 &&
+    !/^[\p{L}\s'-]$/u.test(e.key)
+  ) {
+    e.preventDefault();
+  }
+}}
+    onChange={(e) =>
+  setNombre(formatearNombre(e.target.value))
+}
+    required
+  />
+</div>
 
-          <input
-            className="form-control historias-input"
-            placeholder="Ej: Juan Pérez"
-            value={nombre}
-            onChange={(e) =>
-              setNombre(
-                e.target.value
-              )
-            }
-            required
-          />
+<div className="col-12 col-md-6">
+  <label className="historias-label">
+    Apellidos
+  </label>
 
-        </div>
-
+  <input
+    className="form-control historias-input"
+    placeholder="Apellidos del paciente"
+    value={apellidos}
+    onKeyDown={(e) => {
+  if (
+    !e.ctrlKey &&
+    !e.metaKey &&
+    !e.altKey &&
+    e.key.length === 1 &&
+    !/^[\p{L}\s'-]$/u.test(e.key)
+  ) {
+    e.preventDefault();
+  }
+}}
+   onChange={(e) =>
+  setApellidos(formatearNombre(e.target.value))
+}
+  />
+</div>
 
         {/* DNI */}
 
@@ -2101,11 +2227,20 @@ const pacientesFiltrados = useMemo(() => {
             className="form-control historias-input"
             placeholder="Ej: 12345678"
             value={dni}
-            onChange={(e) =>
-              setDni(
-                e.target.value
-              )
-            }
+            onKeyDown={(e) => {
+  if (
+    !e.ctrlKey &&
+    !e.metaKey &&
+    !e.altKey &&
+    e.key.length === 1 &&
+    !/^[0-9]$/.test(e.key)
+  ) {
+    e.preventDefault();
+  }
+}}
+           onChange={(e) =>
+  setDni(soloNumeros(e.target.value))
+}
             required
           />
 
@@ -2211,6 +2346,35 @@ const pacientesFiltrados = useMemo(() => {
           />
 
         </div>
+
+        <div className="col-12 col-md-4">
+  <label className="historias-label">
+    N.º de credencial (opcional)
+  </label>
+
+  <input
+    type="text"
+    className="form-control historias-input"
+    placeholder="Número de credencial"
+    value={numeroCredencial}
+    onKeyDown={(e) => {
+  if (
+    !e.ctrlKey &&
+    !e.metaKey &&
+    !e.altKey &&
+    e.key.length === 1 &&
+    !/^[0-9]$/.test(e.key)
+  ) {
+    e.preventDefault();
+  }
+}}
+    onChange={(e) =>
+  setNumeroCredencial(formatearCredencial(e.target.value))
+}
+    maxLength={40}
+    autoComplete="off"
+  />
+</div>
 
 
         {/* SEXO */}

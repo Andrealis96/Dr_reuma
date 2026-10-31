@@ -31,7 +31,8 @@ FaHourglassHalf,
   FaSun,
   FaCloudSun,
   FaStickyNote,
-  FaDownload,
+FaDownload,
+FaPaperPlane,
   FaCheckCircle,
   FaCalendarAlt,
   FaClock,
@@ -973,6 +974,24 @@ const buscarOCrearHistoriaDesdeCita = async (dataCita = {}) => {
   });
 
   return nuevaHistoria.id;
+};
+
+const abrirHistoriaClinicaDesdeAgenda = async (cita, e) => {
+  e?.stopPropagation();
+
+  try {
+    const historiaId = await buscarOCrearHistoriaDesdeCita(cita);
+
+    if (!historiaId) {
+      Swal.fire("Aviso", "No se pudo abrir la historia clínica.", "warning");
+      return;
+    }
+
+    window.location.href = `/admin/historia/${historiaId}`;
+  } catch (error) {
+    console.error("Error abriendo historia clínica:", error);
+    Swal.fire("Error", "No se pudo abrir la historia clínica.", "error");
+  }
 };
 
 const sonLaMismaPersonaCita = (citaA, citaB) => {
@@ -2307,7 +2326,7 @@ const obtenerClaseVez = (textoVez = "") => {
 
 return (
 
-    <div className="container py-4">
+    <div className="container pt-2 pb-4">
 
       {mostrarCitaGuardada && (
   <div className="cita-save-overlay">
@@ -2358,7 +2377,7 @@ return (
 )}
 
 {/* HEADER */}
-<div className="citas-header-top citas-agenda-hero mb-4">
+<div className="citas-header-top citas-agenda-hero ">
 
   <div className="citas-header-main">
     <div className="citas-header-badge">
@@ -2376,29 +2395,21 @@ return (
     {fechaHoyAgendaTexto}
   </div>
 
-  <p className="citas-header-subtitle">
-    Gestiona citas, confirma asistencia, edita datos o reagenda pacientes.
-  </p>
-
 </div>
 
   </div>
-
-
-
 </div>
 
 
       
 {/* BUSCADOR DE CITAS */}
-<div className="buscador-citas-card mb-4">
-
+<div className="buscador-citas-card">
   <div className="buscador-citas-input-wrap">
     <FaSearch className="buscador-citas-icon" />
 
     <input
       type="text"
-      className="form-control buscador-citas-input"
+      className="agenda-buscador-estilo"
       placeholder="Buscar cita por nombre o DNI..."
       value={busquedaPaciente}
       onChange={(e) => setBusquedaPaciente(e.target.value)}
@@ -2602,10 +2613,12 @@ dayCellContent={(arg) => {
       )}
 
       {bloqueado && (
-        <span className="candado-centro">
+      <span className="candado-centro">
+        <span className="candado-circulo">
           <FaLock className="candado-bloqueo" />
         </span>
-      )}
+      </span>
+    )}
 
     </div>
   );
@@ -2756,23 +2769,23 @@ eventClick={(info) => {
             ref={detalleDiaRef}
             className="card mt-3 p-3"
           >
-<div className="agenda-header mb-3">
+<div className="agenda-header">
 
-  <h5 className="fw-bold celeste mb-0">
+  <h5 className="fw-bold celeste">
     <FaCalendarAlt className="me-2" />
     {fechaFormateada}
   </h5>
 
   <div className="agenda-flechas">
     <button
-      className="btn btn-citadias me-2"
+      className="agenda-dia-flecha"
       onClick={() => cambiarDia(-1)}
     >
       <FaChevronLeft />
     </button>
 
     <button
-      className="btn btn-citadias"
+      className="agenda-dia-flecha"
       onClick={() => cambiarDia(1)}
     >
       <FaChevronRight />
@@ -2898,7 +2911,113 @@ eventClick={(info) => {
       );
     }
 
-    const c = item.data;
+    
+const c = item.data;
+const estado = obtenerEstadoCitaTexto(c);
+const numeroVez = obtenerNumeroCitaPaciente(c);
+
+const IconoEstadoDia =
+  estado === "Asistió"
+    ? FaCheck
+    : estado === "Confirmado"
+    ? FaCalendarCheck
+    : estado === "No asistió"
+    ? FaUserTimes
+    : FaHourglassHalf;
+
+return (
+  <div
+    key={c.id}
+    className="btn-pacientecita agenda-dia-cita"
+    onClick={() => {
+      setCitaSeleccionada(c);
+      setShowDetalle(true);
+    }}
+  >
+    <div className="agenda-dia-cita-superior">
+      <div className="agenda-dia-cita-identidad">
+        <div className="agenda-dia-cita-hora">
+          <span
+            className={`agenda-dia-cita-punto-vivo ${
+              c.tipo === "virtual" ? "virtual" : "presencial"
+            }`}
+            title={c.tipo === "virtual" ? "Consulta virtual" : "Consulta presencial"}
+          />
+          <strong>{c.hora}</strong>
+
+          <span
+            className={`agenda-dia-cita-estado ${obtenerEstadoCitaClase(c)}`}
+            title={estado}
+          >
+            <IconoEstadoDia />
+            {estado}
+          </span>
+        </div>
+
+        <strong className="agenda-dia-cita-nombre">
+          {capitalizarNombre(c.nombre || "")}
+        </strong>
+      </div>
+
+      <div className="agenda-dia-cita-acciones">
+
+  {/* ABRIR HISTORIA CLÍNICA */}
+  <button
+    type="button"
+    className="btn-accion-cita btn-historia-cita"
+    title="Abrir historia clínica"
+    aria-label="Abrir historia clínica"
+    onClick={(e) => {
+      e.stopPropagation();
+      abrirHistoriaDesdeCita(c);
+    }}
+  >
+    <FaFolderOpen />
+  </button>
+
+  {/* DESCARGAR COMPROBANTE - LÓGICA ORIGINAL */}
+  <button
+    type="button"
+    className="btn-accion-cita btn-comprobante-cita"
+    title="Descargar comprobante"
+    aria-label="Descargar comprobante"
+    disabled={descargandoComprobante}
+    onClick={(e) => {
+      e.stopPropagation();
+      descargarComprobanteImagen(c);
+    }}
+  >
+    <FaPaperPlane />
+  </button>
+
+</div> 
+    </div>
+
+    <div className="agenda-dia-cita-etiquetas">
+      <span
+  className={`agenda-dia-cita-vez ${
+    numeroVez === 1
+      ? "vez-primera"
+      : numeroVez === 2
+      ? "vez-segunda"
+      : "vez-tercera-mas"
+  }`}
+>
+  {textoNumeroCitaPaciente(numeroVez)}
+</span>
+
+    </div>
+
+    <div className="agenda-dia-cita-motivo">
+      <FaStethoscope />
+      <span>
+        <strong>Motivo: </strong>
+        {c.motivoConsulta?.trim() || "Sin motivo registrado"}
+      </span>
+    </div>
+  </div>
+);
+
 
     return (
       <div
@@ -2963,7 +3082,7 @@ eventClick={(info) => {
 
           <hr />
 
-          <div className="horarios-disponibles mb-2 text-center gap-2">
+          <div className="agenda-dia-horarios-header">
             <h5>
             <FaClock className="me-3 text-white" />
             <span className="fw-bold text-white">

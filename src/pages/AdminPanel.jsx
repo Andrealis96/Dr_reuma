@@ -30,11 +30,14 @@ import {
   FaUserCheck,
   FaHourglassHalf,
   FaCheckCircle,
+  FaCheck,
   FaChevronLeft,
   FaChevronRight,
   FaUserTimes,
   FaClock,
   FaUser,
+  FaCalendarCheck,
+FaUserSlash,
   FaIdCard,
   FaWhatsapp,
   FaUsers,
@@ -1801,9 +1804,10 @@ const citasTabla = useMemo(() => {
 
         <div>
 
-          <span className="admin-home-eyebrow">
-            PANEL ADMINISTRATIVO
-          </span>
+         <div className="citas-header-badge">
+            <FaCalendarAlt />
+            <span>Panel administrativo</span>
+          </div>
 
           <h1>
             Resumen del día
@@ -1828,13 +1832,13 @@ const citasTabla = useMemo(() => {
         <div className="admin-home-stat stat-total">
 
           <div className="admin-home-stat-icon">
-            <FaCalendarAlt />
+            <FaUsers />
           </div>
 
           <div>
 
             <span>
-              Pacientes hoy
+              HOY
             </span>
 
             <strong>
@@ -1849,13 +1853,13 @@ const citasTabla = useMemo(() => {
         <div className="admin-home-stat stat-asistidos">
 
           <div className="admin-home-stat-icon">
-            <FaUserCheck />
+            <FaCheck />
           </div>
 
           <div>
 
             <span>
-              Atendidos
+              ATENDIDOS
             </span>
 
             <strong>
@@ -1870,13 +1874,13 @@ const citasTabla = useMemo(() => {
         <div className="admin-home-stat stat-confirmados">
 
           <div className="admin-home-stat-icon">
-            <FaCheckCircle />
+            <FaCalendarCheck />
           </div>
 
           <div>
 
             <span>
-              Confirmados
+              CONFIRMADOS
             </span>
 
             <strong>
@@ -1897,7 +1901,7 @@ const citasTabla = useMemo(() => {
           <div>
 
             <span>
-              Por atender
+              PENDIENTES
             </span>
 
             <strong>
@@ -1918,7 +1922,7 @@ const citasTabla = useMemo(() => {
           <div>
 
             <span>
-              Ausentes
+              AUSENTES
             </span>
 
             <strong>
@@ -2023,41 +2027,25 @@ const citasTabla = useMemo(() => {
 
 
                   <th>
-
                     <span className="celeste">
                       N°
                     </span>
-
                   </th>
 
 
                   <th>
-
-                    <FaClock className="celeste" />
-
-                    <br />
-
                     <span className="celeste">
                       Hora
                     </span>
-
                   </th>
 
 
                   <th>
-
-                    <FaUser className="celeste" />
-
-                    <br />
-
                     <span className="celeste">
                       Paciente
                     </span>
-
                   </th>
-
-
-                                      
+                                   
                     <th>
                       <span className="celeste">Edad</span>
                     </th>
@@ -2069,69 +2057,38 @@ const citasTabla = useMemo(() => {
 
 
                   <th>
-
-                    <FaWhatsapp className="celeste" />
-
-                    <br />
-
                     <span className="celeste">
                       Wp
                     </span>
-
                   </th>
 
 
                   <th>
-
-                    <FaUsers className="celeste" />
-
-                    <br />
-
                     <span className="celeste">
                       Vez
                     </span>
-
                   </th>
 
 
                   <th>
-
-                    <FaStethoscope className="celeste" />
-
-                    <br />
-
                     <span className="celeste">
                       Motivo
                     </span>
-
                   </th>
 
 
                   <th>
-
-                    <FaCheckCircle className="celeste" />
-
-                    <br />
-
-                    <span className="celeste">
+                  <span className="celeste">
                       Estado
                     </span>
-
                   </th>
 
 
                   <th>
-
-                    <FaEye className="celeste" />
-
-                    <br />
-
-                    <span className="celeste">
+                     <span className="celeste">
                       Detalle
                     </span>
-
                   </th>
-
 
                 </tr>
 
@@ -2171,6 +2128,28 @@ const citasTabla = useMemo(() => {
                         ]
                           .map(calcularEdadPaciente)
                           .find((edad) => edad !== "—") ?? "—";
+
+
+                          
+const estadoFila = obtenerEstadoCitaTexto(cita);
+
+const claseIconoEstado =
+  estadoFila === "Asistió"
+    ? "evento-estado-asistio"
+    : estadoFila === "Confirmado"
+    ? "evento-estado-confirmado"
+    : estadoFila === "No asistió"
+    ? "evento-estado-no-asistio"
+    : "evento-estado-pendiente";
+
+const IconoEstadoFila =
+  estadoFila === "Asistió"
+    ? FaCheck
+    : estadoFila === "Confirmado"
+    ? FaCalendarCheck
+    : estadoFila === "No asistió"
+    ? FaUserTimes
+    : FaHourglassHalf;
 
 
 
@@ -2298,23 +2277,17 @@ const citasTabla = useMemo(() => {
                         </td>
 
 
+                                                
                         {/* VEZ */}
-
                         <td>
-
                           <span
-                            className={
-                              obtenerClaseVez(
-                                textoVez
-                              )
-                            }
+                            className={`${obtenerClaseVez(textoVez)} admin-home-vez-corta`}
+                            title={textoVez}
                           >
-
-                            {textoVez}
-
+                            {numeroCita} vez
                           </span>
-
                         </td>
+
 
 
                         {/* MOTIVO */}
@@ -2340,25 +2313,20 @@ const citasTabla = useMemo(() => {
                         </td>
 
 
-                        {/* ESTADO */}
+                        
 
-                        <td>
+{/* ESTADO */}
+<td>
+  <span
+    className={`admin-home-estado-icono evento-estado-icono ${claseIconoEstado}`}
+    title={estadoFila}
+    role="img"
+    aria-label={estadoFila}
+  >
+    <IconoEstadoFila aria-hidden="true" />
+  </span>
+</td>
 
-                          <span
-                            className={`estado-cita-simple ${
-                              obtenerEstadoCitaClase(
-                                cita
-                              )
-                            }`}
-                          >
-
-                            {obtenerEstadoCitaTexto(
-                              cita
-                            )}
-
-                          </span>
-
-                        </td>
 
 
                         {/* OJITO = DETALLE */}
