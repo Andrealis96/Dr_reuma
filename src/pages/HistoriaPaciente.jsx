@@ -27,6 +27,8 @@ import {
   FaCalendarAlt,
   FaFolderOpen,
   FaFlask,
+  FaClipboardList,
+FaStethoscope,
   FaXRay,
   FaExternalLinkAlt,
   FaPhoneAlt
@@ -114,6 +116,15 @@ const [nombresEditados, setNombresEditados] = useState("");
 const [apellidosEditados, setApellidosEditados] = useState("");
 const [guardandoNombre, setGuardandoNombre] = useState(false);
 
+
+const [datosEditados, setDatosEditados] = useState({
+  dni: "",
+  fechaNacimiento: "",
+  obraSocial: "",
+  numeroCredencial: "",
+  sexo: "",
+});
+
 const obtenerNombres = (p = {}) =>
   p.nombres ?? p.nombre ?? "";
 
@@ -147,62 +158,135 @@ const copiarDato = async (valor) => {
   }
 };
 
+
 const comenzarEdicionNombre = () => {
   setNombresEditados(obtenerNombres(paciente));
   setApellidosEditados(obtenerApellidos(paciente));
+
+  const nacimiento = convertirFechaNacimientoADate(
+    paciente.fechaNacimiento
+  );
+
+  const fechaNormalizada = nacimiento
+    ? [
+        String(nacimiento.getDate()).padStart(2, "0"),
+        String(nacimiento.getMonth() + 1).padStart(2, "0"),
+        nacimiento.getFullYear(),
+      ].join("-")
+    : "";
+
+  setDatosEditados({
+    dni: String(paciente.dni || paciente.Dni || ""),
+    fechaNacimiento: fechaNormalizada,
+    obraSocial: String(paciente.obraSocial || "").toUpperCase(),
+    numeroCredencial: String(paciente.numeroCredencial || ""),
+    sexo: paciente.sexo || "",
+  });
+
   setEditandoDatosNombre(true);
 };
 
+
+
 const guardarNombrePaciente = async () => {
-  const nombres = nombresEditados.trim().replace(/\s+/g, " ");
-  const apellidos = apellidosEditados.trim().replace(/\s+/g, " ");
+  if (guardandoNombre || !paciente) return;
 
-  if (!nombres || guardandoNombre) return;
+  const formatearPalabras = (valor) =>
+    String(valor || "")
+      .trim()
+      .replace(/\s+/g, " ")
+      .toLocaleLowerCase("es-AR")
+      .replace(/(^|\s)\p{L}/gu, (letra) =>
+        letra.toLocaleUpperCase("es-AR")
+      );
 
-  const nombreCompleto = [nombres, apellidos]
-    .filter(Boolean)
-    .join(" ");
+  const nombres = formatearPalabras(nombresEditados);
+  const apellidos = formatearPalabras(apellidosEditados);
+  const dniNuevo = String(datosEditados.dni || "").replace(/\D/g, "");
+
+  if (!nombres || !apellidos || !dniNuevo) {
+    await Swal.fire(
+      "Datos incompletos",
+      "Completá nombres, apellidos y DNI.",
+      "warning"
+    );
+    return;
+  }
+
+  if (datosEditados.fechaNacimiento &&
+      !convertirFechaNacimientoADate(datosEditados.fechaNacimiento)) {
+    await Swal.fire(
+      "Fecha incorrecta",
+      "Ingresá una fecha válida en formato DD-MM-AAAA.",
+      "warning"
+    );
+    return;
+  }
 
   setGuardandoNombre(true);
 
   try {
-    await updateDoc(doc(db, "historiasClinicas", id), {
-      nombres,
-      apellidos,
-      nombre: nombreCompleto,
-    });
+    const coincidencias = await getDocs(
+      query(
+        collection(db, "historiasClinicas"),
+        where("dni", "==", dniNuevo)
+      )
+    );
 
-    const pacienteActualizado = {
-      ...paciente,
+    if (coincidencias.docs.some((d) => d.id !== id)) {
+      await Swal.fire(
+        "DNI duplicado",
+        "Ese DNI pertenece a otra historia clínica.",
+        "warning"
+      );
+      return;
+    }
+
+    const cambios = {
       nombres,
       apellidos,
-      nombre: nombreCompleto,
+      nombre: `${nombres} ${apellidos}`,
+      dni: dniNuevo,
+      fechaNacimiento: datosEditados.fechaNacimiento,
+      obraSocial: datosEditados.obraSocial.trim().toUpperCase(),
+      numeroCredencial: datosEditados.numeroCredencial.replace(/\D/g, ""),
+      sexo: datosEditados.sexo,
     };
 
-    setPaciente(pacienteActualizado);
-    setEditandoDatosNombre(false);
+    await updateDoc(doc(db, "historiasClinicas", id), cambios);
+
+    const actualizado = { ...paciente, ...cambios };
+    setPaciente(actualizado);
 
     localStorage.setItem(
       `paciente-cache-${id}`,
       JSON.stringify({
         ts: Date.now(),
-        paciente: pacienteActualizado,
+        paciente: actualizado,
       })
     );
 
-    Swal.fire({
-      icon: "success",
-      title: "Datos actualizados",
-      timer: 1500,
-      showConfirmButton: false,
-    });
+    setEditandoDatosNombre(false);
+
+setMensajeGuardado("Paciente actualizado");
+setMostrarModal(true);
+
+setTimeout(() => {
+  setMostrarModal(false);
+}, 1800);
+
   } catch (error) {
-    console.error(error);
-    Swal.fire("Error", "No se pudieron guardar los cambios", "error");
+    console.error("Error actualizando paciente:", error);
+    await Swal.fire(
+      "Error",
+      "No se pudieron guardar los datos.",
+      "error"
+    );
   } finally {
     setGuardandoNombre(false);
   }
 };
+
 
   const [consultas, setConsultas] = useState([]);
   const [diagnosticos, setDiagnosticos] = useState([]);
@@ -220,6 +304,7 @@ const guardarNombrePaciente = async () => {
   const [diagnosticoRecienteId, setDiagnosticoRecienteId] = useState(null);
   const diagnosticosBoxRef = useRef(null);
   const consultasRegistradasRef = useRef(null);
+  const formularioConsultaRef = useRef(null);
   const sincronizandoAgendaHoyRef = useRef(false);
   const [consultaAbierta, setConsultaAbierta] = useState(null);
   const [mostrarModal, setMostrarModal] = useState(false);
@@ -1261,18 +1346,24 @@ const eliminarConsulta = async (cid) => {
   }
 };
 
+
 const editarConsulta = (consulta) => {
   setConsultaEditando(consulta);
   setHistoria(consulta.historia || "");
   setDiagnosticosSeleccionados(
-    obtenerDiagnosticosConsulta(consulta).map((d) => d.toUpperCase())
+    obtenerDiagnosticosConsulta(consulta).map((d) =>
+      d.toUpperCase()
+    )
   );
 
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
+  requestAnimationFrame(() => {
+    formularioConsultaRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
   });
 };
+
 
 const cancelarEdicionConsulta = async () => {
   const puedeCancelar = await confirmarSalidaConCambios();
@@ -1415,7 +1506,7 @@ const generarPDF = (consulta) => {
   pdf.setFontSize(12);
   pdf.setTextColor(0, 0, 0);
 
-  pdf.text("HISTORIA CLÍNICA · CONSULTA MÉDICA", margenIzq, y);
+  pdf.text("HISTORIA CLÍNICA DEL PACIENTE", margenIzq, y);
 
   y += 6;
 
@@ -1550,7 +1641,7 @@ const generarPDF = (consulta) => {
   pdf.setFontSize(9);
   pdf.setTextColor(...celeste);
 
-  pdf.text("EVOLUCIÓN / NOTA MÉDICA", margenIzq, y);
+  pdf.text("EVOLUCIÓN MÉDICA", margenIzq, y);
 
   y += 7;
 
@@ -1983,27 +2074,33 @@ const cantidadConsultas = consultas.length;
 
         </div>
 
+        
+<div className="historia-acciones-cabecera">
 
-        {/* NÚMERO DE CONSULTAS */}
+  <button
+    type="button"
+    className="historia-editar-icono"
+    onClick={comenzarEdicionNombre}
+    title="Editar datos del paciente"
+    aria-label="Editar datos del paciente"
+    disabled={editandoDatosNombre}
+  >
+    <FaPencilAlt />
+  </button>
 
-        <button
-          type="button"
-          className="historia-nuevo-consultas"
-          onClick={irAConsultasRegistradas}
-          title="Ver consultas registradas"
-        >
+  <button
+    type="button"
+    className="historia-nuevo-consultas"
+    onClick={irAConsultasRegistradas}
+    title="Ver consultas registradas"
+  >
+    <strong>{cantidadConsultas}</strong>
+    <span>CONSULTAS</span>
+  </button>
 
-          <strong>
-            {cantidadConsultas}
-          </strong>
+</div>
 
-          <span>
-            CONSULTAS
-          </span>
-
-        </button>
-
-      </div>
+ </div>
 
 
       {/* DATOS DEL PACIENTE */}
@@ -2022,40 +2119,118 @@ const cantidadConsultas = consultas.length;
 </div>
 
 
+
 {editandoDatosNombre && (
-  <div className="historia-editar-nombres">
-    <label>Nombres</label>
-    <input
-      className="form-control"
-      value={nombresEditados}
-      onChange={(e) => setNombresEditados(e.target.value)}
-    />
+  <div className="historia-editar-datos-panel">
+    <div className="historia-editar-datos-grid">
+      <label>
+        Nombres
+        <input
+          value={nombresEditados}
+          onChange={(e) => setNombresEditados(e.target.value)}
+        />
+      </label>
 
-    <label>Apellidos</label>
-    <input
-      className="form-control"
-      value={apellidosEditados}
-      onChange={(e) => setApellidosEditados(e.target.value)}
-    />
+      <label>
+        Apellidos
+        <input
+          value={apellidosEditados}
+          onChange={(e) => setApellidosEditados(e.target.value)}
+        />
+      </label>
 
-    <button
-      type="button"
-      disabled={guardandoNombre || !nombresEditados.trim()}
-      onClick={guardarNombrePaciente}
-    >
-      {guardandoNombre ? "Guardando..." : "Guardar cambios"}
-    </button>
+      <label>
+        DNI
+        <input
+          inputMode="numeric"
+          value={datosEditados.dni}
+          onChange={(e) =>
+            setDatosEditados((prev) => ({
+              ...prev,
+              dni: e.target.value.replace(/\D/g, ""),
+            }))
+          }
+        />
+      </label>
 
-    <button
-      type="button"
-      disabled={guardandoNombre}
-      onClick={() => setEditandoDatosNombre(false)}
-    >
-      Cancelar
-    </button>
+      <label>
+        Nacimiento (DD-MM-AAAA)
+        <input
+          value={datosEditados.fechaNacimiento}
+          onChange={(e) =>
+            setDatosEditados((prev) => ({
+              ...prev,
+              fechaNacimiento: e.target.value,
+            }))
+          }
+        />
+      </label>
+
+      <label>
+        Obra social
+        <input
+          value={datosEditados.obraSocial}
+          onChange={(e) =>
+            setDatosEditados((prev) => ({
+              ...prev,
+              obraSocial: e.target.value.toUpperCase(),
+            }))
+          }
+        />
+      </label>
+
+      <label>
+        N.º credencial
+        <input
+          inputMode="numeric"
+          value={datosEditados.numeroCredencial}
+          onChange={(e) =>
+            setDatosEditados((prev) => ({
+              ...prev,
+              numeroCredencial: e.target.value.replace(/\D/g, ""),
+            }))
+          }
+        />
+      </label>
+
+      <label>
+        Sexo
+        <select
+          value={datosEditados.sexo}
+          onChange={(e) =>
+            setDatosEditados((prev) => ({
+              ...prev,
+              sexo: e.target.value,
+            }))
+          }
+        >
+          <option value="">Seleccionar</option>
+          <option value="Femenino">Femenino</option>
+          <option value="Masculino">Masculino</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </label>
+    </div>
+
+    <div className="historia-editar-datos-acciones">
+      <button
+        type="button"
+        disabled={guardandoNombre}
+        onClick={guardarNombrePaciente}
+      >
+        {guardandoNombre ? "Guardando..." : "✓ Guardar cambios"}
+      </button>
+
+      <button
+        type="button"
+        disabled={guardandoNombre}
+        onClick={() => setEditandoDatosNombre(false)}
+      >
+        Cancelar
+      </button>
+    </div>
   </div>
-)}  
-
+)}
 
           <div className="historia-nuevo-datos-grid">
 
@@ -2134,13 +2309,13 @@ const cantidadConsultas = consultas.length;
           href="https://pacientes.lebensalud.com/"
           target="_blank"
           rel="noopener noreferrer"
-          className="historia-nuevo-acceso"
+          className="historia-nuevo-acceso acceso-lleben"
         >
 
           <FaFlask />
 
           <span>
-            LLEBEN SALUD
+            LEBEN SALUD
           </span>
 
         </a>
@@ -2152,7 +2327,7 @@ const cantidadConsultas = consultas.length;
           href="https://imagenes.clinicasanagustin.com.ar/viewer/index.php"
           target="_blank"
           rel="noopener noreferrer"
-          className="historia-nuevo-acceso"
+          className="historia-nuevo-acceso acceso-imagenes"
         >
 
           <FaXRay />
@@ -2311,9 +2486,12 @@ const cantidadConsultas = consultas.length;
 
                 <div className="historia-side-panel">
 
-                <h5 className="historia-panel-title">
-  Plantillas rápidas
+                
+<h5 className="historia-panel-title historia-titulo-celeste">
+  <FaClipboardList />
+  <span>PLANTILLAS RÁPIDAS</span>
 </h5>
+
 
 <div className="historia-plantillas mb-4">
 
@@ -2354,9 +2532,12 @@ const cantidadConsultas = consultas.length;
 
 </div>
 
-<h5 className="historia-panel-title">
-  Diagnósticos
+
+<h5 className="historia-panel-title historia-titulo-celeste">
+  <FaStethoscope />
+  <span>DIAGNÓSTICOS</span>
 </h5>
+
 
 <div className="historia-buscador-diagnostico mb-3">
   <input
@@ -2526,8 +2707,9 @@ const cantidadConsultas = consultas.length;
 
                 <div className="historia-editor-card">
 
-                  <div className="historia-editor-header historia-editor-header-con-tiempo">
+                  <div   ref={formularioConsultaRef} className="historia-editor-header historia-editor-header-con-tiempo">
                     <div>
+                      
                       <h5>Historia clínica</h5>
                       <p>
                         Escribe la evolución médica del paciente.
@@ -2625,9 +2807,60 @@ const cantidadConsultas = consultas.length;
                         </div>
                     </div>
 
-                    <div className="historia-consulta-arrow">
-                      {consultaAbierta === c.id ? <FaChevronUp /> : <FaChevronDown />}
-                    </div>
+                    
+<div className="historia-consulta-controles">
+
+  {consultaAbierta === c.id && (
+    <div className="historia-consulta-actions historia-actions-header">
+
+      <button
+        type="button"
+        className="historia-edit-consulta"
+        onClick={(e) => {
+          e.stopPropagation();
+          editarConsulta(c);
+        }}
+        title="Editar consulta"
+        aria-label="Editar consulta"
+      >
+        <FaPencilAlt />
+      </button>
+
+      <button
+        type="button"
+        className="historia-delete-consulta"
+        onClick={(e) => {
+          e.stopPropagation();
+          eliminarConsulta(c.id);
+        }}
+        title="Eliminar consulta"
+        aria-label="Eliminar consulta"
+      >
+        <FaTrash />
+      </button>
+
+      <button
+        type="button"
+        className="historia-pdf-consulta"
+        onClick={(e) => {
+          e.stopPropagation();
+          generarPDF(c);
+        }}
+        title="Generar PDF"
+        aria-label="Generar PDF"
+      >
+        <FaFilePdf />
+      </button>
+
+    </div>
+  )}
+
+  <div className="historia-consulta-arrow">
+    {consultaAbierta === c.id ? <FaChevronUp /> : <FaChevronDown />}
+  </div>
+
+</div>
+
 
                   </div>
 
@@ -2638,36 +2871,8 @@ const cantidadConsultas = consultas.length;
                         {c.historia}
                       </p>
 
-                      <div className="historia-consulta-actions">
 
-                        <button
-                          type="button"
-                          className="historia-edit-consulta"
-                          onClick={() => editarConsulta(c)}
-                        >
-                          <FaPencilAlt />
-                          Editar
-                        </button>
 
-                        <button
-                          type="button"
-                          className="historia-delete-consulta"
-                          onClick={() => eliminarConsulta(c.id)}
-                        >
-                          <FaTrash />
-                          Eliminar
-                        </button>
-
-                        <button
-                          type="button"
-                          className="historia-pdf-consulta"
-                          onClick={() => generarPDF(c)}
-                        >
-                          <FaFilePdf />
-                          Generar PDF
-                        </button>
-
-                      </div>
 
                     </div>
                   )}

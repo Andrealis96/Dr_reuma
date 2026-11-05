@@ -46,6 +46,7 @@ import {
   addDoc,
   deleteDoc,
   doc,
+  getDoc,
   updateDoc,
   query,
   where,
@@ -695,21 +696,46 @@ const obtenerHorariosDisponibles = (fecha) => {
   else if (day === 4)
     base = ["09:00","09:30","10:00","10:30","11:00","11:30","13:20"];
   //horarios viernes
-  else if (day === 5) {
+
+
+else if (day === 5) {
   const configViernes = getConfiguracionViernes(fecha);
 
+  // Sin turno seleccionado, viernes no habilitado
   if (!configViernes) {
     return [];
   }
 
+  // VIERNES POR LA MAÑANA
   if (configViernes.turno === "mañana") {
-    base = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "13:20"];
+    base = [
+      "09:00",
+      "09:30",
+      "10:00",
+      "10:30",
+      "11:00",
+      "11:30",
+      "13:20",
+    ];
   }
 
-  if (configViernes.turno === "tarde") {
-    base = ["14:45", "15:00", "15:20", "15:40" , "16:00", "16:20" ,"16:40"];
+  // VIERNES POR LA TARDE
+  else if (configViernes.turno === "tarde") {
+    base = [
+      "14:45",
+      "15:00",
+      "15:30",
+      "16:00",
+      "16:30"
+    ];
+  }
+
+  else {
+    return [];
   }
 }
+
+ 
   else if (day === 6)
     base = generarHorarios("09:00", "13:00");
   else
@@ -784,17 +810,36 @@ const convertirISOADateLocal = (fechaISO) => {
   return new Date(anio, mes - 1, dia);
 };
 
+
 const formatearFechaCita = (fecha) => {
   if (!fecha) return "-";
 
   const partes = fecha.split("-");
-
   if (partes.length !== 3) return fecha;
 
-  const [anio, mes, dia] = partes;
+  const [anio, mes, dia] = partes.map(Number);
+  const fechaLocal = new Date(anio, mes - 1, dia);
 
-  return `${dia}/${mes}/${anio}`;
+  if (
+    fechaLocal.getFullYear() !== anio ||
+    fechaLocal.getMonth() !== mes - 1 ||
+    fechaLocal.getDate() !== dia
+  ) {
+    return fecha;
+  }
+
+  const diaSemana = fechaLocal
+    .toLocaleDateString("es-AR", { weekday: "long" })
+    .toUpperCase();
+
+  const fechaCorta =
+    `${String(dia).padStart(2, "0")}/` +
+    `${String(mes).padStart(2, "0")}/` +
+    `${String(anio).slice(-2)}`;
+
+  return `${diaSemana} ${fechaCorta}`;
 };
+
 
 const fechaISODesdeDate = (fecha) => {
   const anio = fecha.getFullYear();
@@ -878,103 +923,150 @@ const normalizarNombreCita = (valor = "") => {
     .trim();
 };
 
+
 const buscarPacienteHistoriaPorCita = (cita = {}) => {
-  const historiaClinicaId = cita.historiaClinicaId || cita.pacienteId || "";
+  const historiaId =
+    cita.historiaClinicaId || cita.pacienteId || "";
 
-  if (historiaClinicaId) {
-    const pacientePorId = historiasPacientes.find(
-      (p) => p.id === historiaClinicaId
+  // Primero buscar por identificador único.
+  if (historiaId) {
+    return (
+      historiasPacientes.find((p) => p.id === historiaId) ||
+      null
     );
-
-    if (pacientePorId) return pacientePorId;
   }
 
+  // Para citas antiguas, buscar por DNI.
   const dniCita = obtenerDniCita(cita);
 
-  if (dniCita) {
-    const pacientePorDni = historiasPacientes.find((p) => {
-      const dniPaciente = limpiarDniCita(
-        p.dni ||
-        p.Dni ||
-        p.DNI ||
-        p.documento ||
-        p.numeroDocumento ||
-        ""
-      );
+  if (!dniCita) return null;
 
-      return dniPaciente && dniPaciente === dniCita;
-    });
-
-    if (pacientePorDni) return pacientePorDni;
-  }
-
-  const nombreCita = normalizarNombreCita(cita.nombre || "");
-
-  if (!nombreCita) return null;
-
-  return historiasPacientes.find(
-    (p) => normalizarNombreCita(p.nombre || "") === nombreCita
+  const coincidencias = historiasPacientes.filter(
+    (p) => obtenerDniCita(p) === dniCita
   );
+
+  // No asociar si existen historias duplicadas.
+  return coincidencias.length === 1
+    ? coincidencias[0]
+    : null;
 };
 
-const buscarOCrearHistoriaDesdeCita = async (dataCita = {}) => {
-  const idDirecto = dataCita.historiaClinicaId || dataCita.pacienteId || "";
 
+
+const buscarOCrearHistoriaDesdeCita = async (dataCita = {}) => {
+  const dniLimpio = obtenerDniCita(dataCita);
+
+  const idDirecto =
+    dataCita.historiaClinicaId ||
+    dataCita.pacienteId ||
+    "";
+
+  // 1. Verificar si la cita ya está vinculada.
   if (idDirecto) {
+    const historiaDirecta = await getDoc(
+      doc(db, "historiasClinicas", idDirecto)
+    );
+
+    if (!historiaDirecta.exists()) {
+      throw new Error(
+        "La historia clínica vinculada no existe. Revisá el paciente antes de guardar."
+      );
+    }
+
+    const dniExistente = obtenerDniCita(
+      historiaDirecta.data()
+    );
+
+    if (
+      dniLimpio &&
+      dniExistente &&
+      dniLimpio !== dniExistente
+    ) {
+      throw new Error(
+        "El DNI de la cita no coincide con la historia vinculada."
+      );
+    }
+
     return idDirecto;
   }
 
-  const dniLimpio = limpiarDniCita(
-    dataCita.Dni ||
-    dataCita.dni ||
-    dataCita.DNI ||
-    ""
-  );
-
+  // 2. No crear fichas sin DNI.
   if (!dniLimpio) {
-    return "";
+    throw new Error(
+      "Se necesita un DNI para vincular la historia clínica."
+    );
   }
 
-  const pacienteEnMemoria = buscarPacienteHistoriaPorCita({
-    ...dataCita,
-    Dni: dniLimpio
-  });
-
-  if (pacienteEnMemoria?.id) {
-    return pacienteEnMemoria.id;
-  }
-
-  const qHistorias = query(
+  // 3. Buscar pacientes existentes por DNI.
+  const consultaHistorias = query(
     collection(db, "historiasClinicas"),
     where("dni", "==", dniLimpio)
   );
 
-  const snapHistorias = await getDocs(qHistorias);
+  const resultado = await getDocs(consultaHistorias);
 
-  if (!snapHistorias.empty) {
-    return snapHistorias.docs[0].id;
+  if (resultado.size > 1) {
+    throw new Error(
+      "Existen varias historias con este DNI. Revisalas antes de continuar."
+    );
   }
 
-  const nuevaHistoria = await addDoc(collection(db, "historiasClinicas"), {
-    nombre: dataCita.nombre?.trim() || "",
-    dni: dniLimpio,
-    Dni: dniLimpio,
-    telefono: limpiarTelefono10(dataCita.telefono || ""),
-    fechaNacimiento: dataCita.fechaNacimiento || "",
-    obraSocial: dataCita.obraSocial || "",
-    sexo: dataCita.sexo || "",
+  if (resultado.size === 1) {
+    return resultado.docs[0].id;
+  }
 
-    cantidadConsultas: 0,
-    diagnosticosResumen: [],
-    ultimaConsultaTexto: "",
-    ultimaConsultaAtMillis: 0,
+  // 4. Crear una ficha nueva con todos los campos.
+  const nombres = String(
+    dataCita.nombres || dataCita.nombre || ""
+  ).trim();
 
-    origen: "agenda",
-    creado: new Date()
-  });
+  const apellidos = String(
+    dataCita.apellidos || ""
+  ).trim();
+
+  const nombreCompleto = [nombres, apellidos]
+    .filter(Boolean)
+    .join(" ");
+
+  const nuevaHistoria = await addDoc(
+    collection(db, "historiasClinicas"),
+    {
+      nombres,
+      apellidos,
+      nombre: nombreCompleto,
+
+      dni: dniLimpio,
+
+      telefono: limpiarTelefono10(
+        dataCita.telefono || ""
+      ),
+
+      fechaNacimiento:
+        dataCita.fechaNacimiento || "",
+
+      obraSocial:
+        dataCita.obraSocial || "",
+
+      numeroCredencial:
+        dataCita.numeroCredencial || "",
+
+      sexo: dataCita.sexo || "",
+
+      cantidadConsultas: 0,
+      diagnosticosResumen: [],
+      ultimaConsultaTexto: "",
+      ultimaConsultaAtMillis: 0,
+
+      origen: "agenda",
+      origenRegistro: "agenda",
+
+      creado: new Date()
+    }
+  );
 
   return nuevaHistoria.id;
 };
+
 
 const abrirHistoriaClinicaDesdeAgenda = async (cita, e) => {
   e?.stopPropagation();
@@ -1428,6 +1520,7 @@ const mostrarMensajeGuardadoCita = (mensaje) => {
 
   // ================= GUARDAR =================
 const guardarCita = async (data) => {
+  try {
   const tipoCorrecto = obtenerTipoCitaPorFecha(data.fecha);
 
   const cambioFechaOHora =
@@ -1493,7 +1586,15 @@ const guardarCita = async (data) => {
   }
 
   // ✅ Recién aquí se crea o vincula la historia clínica
-  const historiaClinicaId = await buscarOCrearHistoriaDesdeCita(dataLimpia);
+const historiaClinicaId = await buscarOCrearHistoriaDesdeCita({
+  ...dataLimpia,
+  historiaClinicaId:
+    citaEditar?.historiaClinicaId ||
+    citaEditar?.pacienteId ||
+    dataLimpia.historiaClinicaId ||
+    dataLimpia.pacienteId ||
+    ""
+});
 
   const dataFinal = {
     ...dataLimpia,
@@ -1504,6 +1605,7 @@ const guardarCita = async (data) => {
         }
       : {})
   };
+
 
   if (citaEditar) {
     await updateDoc(
@@ -1518,6 +1620,7 @@ const guardarCita = async (data) => {
     return true;
   }
 
+  // Crear una cita nueva
   await addDoc(
     collection(db, "citas"),
     {
@@ -1530,6 +1633,20 @@ const guardarCita = async (data) => {
   mostrarMensajeGuardadoCita("CITA AGENDADA");
 
   return true;
+
+  } catch (error) {
+    console.error("Error al guardar cita:", error);
+
+    await Swal.fire({
+      icon: "error",
+      title: "No se pudo guardar la cita",
+      text:
+        error?.message ||
+        "Ocurrió un error al guardar los datos."
+    });
+
+    return false;
+  }
 };
 
 const fechaFormateada = diaSeleccionado
@@ -2409,7 +2526,7 @@ return (
 
     <input
       type="text"
-      className="agenda-buscador-estilo"
+      className="citas-buscador-unificado"
       placeholder="Buscar cita por nombre o DNI..."
       value={busquedaPaciente}
       onChange={(e) => setBusquedaPaciente(e.target.value)}
@@ -2928,7 +3045,11 @@ const IconoEstadoDia =
 return (
   <div
     key={c.id}
-    className="btn-pacientecita agenda-dia-cita"
+    
+className={`btn-pacientecita agenda-dia-cita ${
+  c.tipo === "virtual" ? "agenda-cita-virtual" : "agenda-cita-presencial"
+}`}
+
     onClick={() => {
       setCitaSeleccionada(c);
       setShowDetalle(true);
@@ -2936,27 +3057,41 @@ return (
   >
     <div className="agenda-dia-cita-superior">
       <div className="agenda-dia-cita-identidad">
-        <div className="agenda-dia-cita-hora">
-          <span
-            className={`agenda-dia-cita-punto-vivo ${
-              c.tipo === "virtual" ? "virtual" : "presencial"
-            }`}
-            title={c.tipo === "virtual" ? "Consulta virtual" : "Consulta presencial"}
-          />
-          <strong>{c.hora}</strong>
+        
+<div className="agenda-dia-cita-hora">
 
-          <span
-            className={`agenda-dia-cita-estado ${obtenerEstadoCitaClase(c)}`}
-            title={estado}
-          >
-            <IconoEstadoDia />
-            {estado}
-          </span>
-        </div>
+  {/* PUNTO BLANCO ANIMADO */}
+  <span
+    className={`agenda-dia-cita-punto-vivo ${
+      c.tipo === "virtual" ? "virtual" : "presencial"
+    }`}
+    title={
+      c.tipo === "virtual"
+        ? "Consulta virtual"
+        : "Consulta presencial"
+    }
+  />
 
+  {/* HORA BLANCA */}
+  <strong>{c.hora}</strong>
+
+  {/* UN SOLO ÍCONO DE ESTADO */}
+  <span
+    className={`agenda-dia-cita-estado agenda-dia-estado-circular ${obtenerEstadoCitaClase(c)}`}
+    title={estado}
+    aria-label={estado}
+  >
+    <IconoEstadoDia />
+  </span>
+
+</div>
+
+
+        
         <strong className="agenda-dia-cita-nombre">
-          {capitalizarNombre(c.nombre || "")}
+          {String(c.nombre || "").toLocaleUpperCase("es-AR")}
         </strong>
+
       </div>
 
       <div className="agenda-dia-cita-acciones">

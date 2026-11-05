@@ -171,6 +171,7 @@ useEffect(() => {
 
       setFechaNacimiento("");
       setObraSocial("");
+      setNumeroCredencial("");
       setSexo("Femenino");
       setMotivoConsulta("");
 
@@ -273,6 +274,41 @@ const pacientesFiltradosModal =
         })
         .slice(0, 6);
 
+
+        
+
+const formatearFechaBuscador = (fecha = "") => {
+  if (!fecha) return "-";
+
+  const partes = fecha.split("-");
+  if (partes.length !== 3) return fecha;
+
+  const [anio, mes, dia] = partes.map(Number);
+
+  const fechaLocal = new Date(anio, mes - 1, dia);
+
+  if (
+    fechaLocal.getFullYear() !== anio ||
+    fechaLocal.getMonth() !== mes - 1 ||
+    fechaLocal.getDate() !== dia
+  ) {
+    return fecha;
+  }
+
+  const diaSemana = fechaLocal
+    .toLocaleDateString("es-AR", { weekday: "long" })
+    .toUpperCase();
+
+  const fechaCorta =
+    `${String(dia).padStart(2, "0")}/` +
+    `${String(mes).padStart(2, "0")}/` +
+    `${String(anio).slice(-2)}`;
+
+  return `${diaSemana} ${fechaCorta}`;
+};
+
+
+
 const seleccionarPacientePrevio = (cita) => {
   setNombre(cita.nombres ?? cita.nombre ?? "");
   setApellidos(cita.apellidos ?? "");
@@ -341,7 +377,7 @@ const seleccionarPacientePrevio = (cita) => {
               </span>
 
               <small>
-                Última cita: {cita.fecha || "-"} · {cita.hora || "-"}
+                Última cita: {formatearFechaBuscador(cita.fecha)} - {cita.hora || "-"} hs
               </small>
             </div>
 

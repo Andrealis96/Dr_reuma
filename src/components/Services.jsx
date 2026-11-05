@@ -300,12 +300,19 @@ if (diaSemana === "domingo") {
 // 🔴 VIERNES EN AGENDA PÚBLICA / SERVICIOS
 // El doctor puede tener horarios extra en Citas.jsx,
 // pero el paciente público solo puede sacar turno viernes de mañana.
+
+/* VIERNES: horarios públicos según turno del médico */
+
 if (diaSemana === "viernes") {
   const configViernes = getConfiguracionViernes(form.fecha);
 
-  if (!configViernes) {
+  // Sin configuración, no se ofrecen turnos.
+  if (
+    !configViernes ||
+    !["mañana", "tarde"].includes(configViernes.turno)
+  ) {
     setHorariosDisponibles([]);
-    setForm((prev) => ({
+    setForm(prev => ({
       ...prev,
       hora: ""
     }));
@@ -313,18 +320,22 @@ if (diaSemana === "viernes") {
   }
 
   if (configViernes.turno === "mañana") {
-    horariosBase = ["10:00", "10:30", "11:00"];
-  }
-
-  if (configViernes.turno === "tarde") {
-    setHorariosDisponibles([]);
-    setForm((prev) => ({
-      ...prev,
-      hora: ""
-    }));
-    return;
+    horariosBase = [
+      "10:00",
+      "10:30",
+      "11:00",
+      "11:30"
+    ];
+  } else if (configViernes.turno === "tarde") {
+    horariosBase = [
+      "15:00",
+      "15:30",
+      "16:00",
+      "16:30"
+    ];
   }
 }
+
 
 // 🟢 LUNES - MARTES - MIÉRCOLES
 if (
@@ -376,7 +387,14 @@ const disponibles = horariosBase.filter((h) => {
   );
 });
 
+
 setHorariosDisponibles(disponibles);
+
+setForm(prev => ({
+  ...prev,
+  hora: disponibles.includes(prev.hora) ? prev.hora : ""
+}));
+
 };
   cargarHorarios();
 }, [form.fecha, bloqueos, viernesAgenda, bloqueosHora]);
@@ -437,6 +455,33 @@ const handleSubmit = async (e) => {
     alert("Selecciona un horario");
     return;
   }
+
+
+  
+const fechaReserva = new Date(`${form.fecha}T00:00:00`);
+
+if (fechaReserva.getDay() === 5) {
+  const configViernes = getConfiguracionViernes(form.fecha);
+
+  const horariosViernesPublicos = {
+    mañana: ["10:00", "10:30", "11:00", "11:30"],
+    tarde: ["15:00", "15:30", "16:00", "16:30"]
+  };
+
+  const turno = configViernes?.turno;
+
+  if (
+    !turno ||
+    !horariosViernesPublicos[turno]?.includes(form.hora) ||
+    diaEstaBloqueado(form.fecha)
+  ) {
+    alert(
+      "Este viernes u horario no está habilitado. Seleccioná otro turno."
+    );
+    return;
+  }
+}
+
 
   setGuardandoCita(true);
 

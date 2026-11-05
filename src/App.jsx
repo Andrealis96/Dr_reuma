@@ -40,7 +40,8 @@ import DiagnosticoPage from "./pages/DiagnosticoPage";
 import ServiciosPage from "./pages/ServiciosPage";
 import GaleriaPage from "./pages/GaleriaPage";
 import FaqPage from "./pages/FaqPage";
-
+import NuevoPaciente from "./pages/NuevoPaciente";
+import Biologicos from "./pages/Biologicos";
 import LoginAdmin from "./pages/LoginAdmin";
 
 
@@ -369,6 +370,23 @@ function App() {
 
 
 
+
+{/* ======================================
+    NUEVO PACIENTE
+====================================== */}
+
+<Route
+  path="/admin/pacientes"
+  element={
+    <ProtectedRoute>
+      <AdminLayout>
+        <NuevoPaciente />
+      </AdminLayout>
+    </ProtectedRoute>
+  }
+/>
+
+
             {/* ======================================
                 HISTORIA DEL PACIENTE
             ====================================== */}
@@ -390,7 +408,14 @@ function App() {
               }
             />
 
-
+<Route
+  path="/admin/biologicos"
+  element={
+    <AdminLayout>
+      <Biologicos />
+    </AdminLayout>
+  }
+/>
 
             {/* ======================================
                 LABORATORIOS

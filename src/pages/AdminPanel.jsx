@@ -1800,54 +1800,38 @@ const citasTabla = useMemo(() => {
           CABECERA
       ========================== */}
 
-      <div className="admin-home-header">
+      
+<div className="admin-home-header">
 
-        <div>
+  <div>
+    <div className="citas-header-badge">
+      <FaCalendarAlt />
+      <span>Panel administrativo</span>
+    </div>
 
-         <div className="citas-header-badge">
-            <FaCalendarAlt />
-            <span>Panel administrativo</span>
-          </div>
+    <h1>Resumen del día</h1>
+    <p>{fechaTexto}</p>
+  </div>
 
-          <h1>
-            Resumen del día
-          </h1>
+  {/* CONTADOR DE PACIENTES DE HOY */}
+  <div className="admin-home-stat stat-total admin-home-hoy-destacado">
+    <div className="admin-home-stat-icon">
+      <FaUsers />
+    </div>
 
-          <p>
-            {fechaTexto}
-          </p>
+    <div>
+      <span>HOY</span>
+      <strong>{estadisticas.total}</strong>
+    </div>
+  </div>
 
-        </div>
-
-      </div>
-
+</div>
 
       {/* ==========================
           CARDS
       ========================== */}
 
       <div className="admin-home-stats">
-
-
-        <div className="admin-home-stat stat-total">
-
-          <div className="admin-home-stat-icon">
-            <FaUsers />
-          </div>
-
-          <div>
-
-            <span>
-              HOY
-            </span>
-
-            <strong>
-              {estadisticas.total}
-            </strong>
-
-          </div>
-
-        </div>
 
 
         <div className="admin-home-stat stat-asistidos">

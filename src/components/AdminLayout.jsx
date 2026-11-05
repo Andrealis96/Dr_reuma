@@ -10,9 +10,11 @@ import {
   FaHome,
   FaCalendarAlt,
   FaNotesMedical,
+  FaUserPlus,
   FaFlask,
   FaGlobe,
   FaSignOutAlt,
+  FaSyringe,
   FaBars,
   FaTimes
 } from "react-icons/fa";
@@ -188,6 +190,32 @@ function AdminLayout({ children }) {
             </span>
 
           </Link>
+
+
+
+          
+{/* NUEVO PACIENTE */}
+
+<Link
+  to="/admin/pacientes"
+  onClick={cerrarMenu}
+  className={`admin-sidebar-link ${isActive("/admin/pacientes")}`}
+>
+  <FaUserPlus />
+
+  <span>
+    Nuevo paciente
+  </span>
+</Link>
+
+<Link
+  to="/admin/biologicos"
+  onClick={cerrarMenu}
+  className={`admin-sidebar-link ${isActive("/admin/biologicos")}`}
+>
+  <FaSyringe />
+  <span>Biológicos</span>
+</Link>
 
 
           <Link
