@@ -2891,3 +2891,5 @@ const cantidadConsultas = consultas.length;
 }
 
 export default HistoriaPaciente;
+
+

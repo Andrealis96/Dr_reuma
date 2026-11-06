@@ -28053,26 +28053,6 @@ svg.candado-bloqueo {
   color: #ffffff !important;
 }
 
-/* 3. TARJETAS INFERIORES VERDES */
-.btn-pacientecita.agenda-dia-cita {
-  background: #00c853 !important;
-  border: 1px solid #00b94b !important;
-  border-left: 5px solid #123b48 !important;
-
-  border-radius: 15px !important;
-  box-shadow: 0 5px 14px rgba(0, 150, 60, 0.15);
-
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-/* Efecto al pasar el mouse */
-.btn-pacientecita.agenda-dia-cita:hover {
-  background: #00bd4d !important;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 18px rgba(0, 150, 60, 0.22);
-}
 
 /* Textos de la tarjeta */
 .agenda-dia-cita .agenda-dia-cita-hora strong,
@@ -28160,11 +28140,19 @@ svg.candado-bloqueo {
 }
 
 /* PRESENCIALES: verde */
+
+/* PRESENCIALES: gris con borde azul oscuro */
 .agenda-dia-cita.agenda-cita-presencial {
-  background: #00c853 !important;
-  border-color: #00b94b !important;
+  background: #f1f5f9 !important;
+  border: 2px solid #123b48 !important;
   border-left: 5px solid #123b48 !important;
 }
+
+/* Al pasar el mouse */
+.agenda-dia-cita.agenda-cita-presencial:hover {
+  background: #e2e8f0 !important;
+}
+
 
 /* VIRTUALES / SÁBADOS: celeste */
 .agenda-dia-cita.agenda-cita-virtual {
@@ -28745,5 +28733,787 @@ svg.candado-bloqueo {
   .historias-paciente-card {
     box-shadow:
       0 3px 7px rgba(18, 59, 72, 0.12) !important;
+  }
+}
+
+
+
+/* ==========================================
+   DR REUMA - BUSCADOR Y FILTRO EN CELULAR
+   HISTORIAS CLINICAS
+========================================== */
+
+@media (max-width: 760px) {
+
+  /* Mantener el contenido dentro de la pantalla */
+  .historias-modern-container {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Buscador en primera fila;
+     filtro y PDF en segunda fila */
+  .historias-modern-container
+  .historias-barra-herramientas {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 10px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Buscador: ancho fijo disponible */
+  .historias-modern-container
+  .historias-barra-herramientas
+  .historias-search-card {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    height: 48px !important;
+    box-sizing: border-box !important;
+    transform: none !important;
+  }
+
+  /* No aumentar al recibir foco */
+  .historias-modern-container
+  .historias-search-card:focus-within {
+    width: 100% !important;
+    max-width: 100% !important;
+    transform: none !important;
+  }
+
+  /* Evitar zoom automático en iPhone */
+  .historias-modern-container
+  .historias-search-input,
+  .historias-modern-container
+  .historias-selector-menu input {
+    font-size: 16px !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Filtro de enfermedades */
+  .historias-modern-container
+  .historias-selector-enfermedad {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Menú dentro del ancho del filtro */
+  .historias-modern-container
+  .historias-selector-menu {
+    left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    z-index: 100 !important;
+  }
+
+  /* Permitir desplazamiento de diagnósticos */
+  .historias-modern-container
+  .historias-selector-opciones {
+    max-height: 240px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  /* PDF en la misma fila del filtro */
+  .historias-modern-container
+  .historias-exportar-pdf {
+    flex-shrink: 0 !important;
+  }
+}
+
+
+
+/* ==========================================
+   DR REUMA - BUSCADOR AGENDA RESPONSIVE
+   Evitar expansión y zoom en celular
+========================================== */
+
+@media (max-width: 760px) {
+
+  /* Contenedor del buscador */
+  .buscador-citas-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Fondo celeste: mantener tamaño */
+  .buscador-citas-card
+  .buscador-citas-input-wrap {
+    display: flex !important;
+    align-items: center !important;
+
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+
+    transform: none !important;
+  }
+
+  /* No expandir al tocar */
+  .buscador-citas-card
+  .buscador-citas-input-wrap:focus-within {
+    width: 100% !important;
+    max-width: 100% !important;
+    transform: none !important;
+  }
+
+  /* Campo de texto */
+  .buscador-citas-card
+  .citas-buscador-unificado {
+    flex: 1 1 0% !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+
+    font-size: 16px !important;
+    box-sizing: border-box !important;
+
+    transform: none !important;
+  }
+
+  /* Botón X */
+  .buscador-citas-card
+  .buscador-citas-clear {
+    flex: 0 0 auto !important;
+  }
+
+  /* Resultados dentro de la pantalla */
+  .buscador-citas-card
+  .buscador-citas-resultados {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    overflow-wrap: anywhere;
+  }
+}
+
+
+
+/* ==========================================
+   DR REUMA - DIAGNÓSTICOS RESPONSIVE
+   Evitar zoom y expansión en celulares
+========================================== */
+
+@media (max-width: 760px) {
+
+  /* Contenedor Buscar diagnóstico */
+  .historia-paciente-page
+  .historia-buscador-diagnostico {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Contenedor Nuevo diagnóstico */
+  .historia-paciente-page
+  .historia-new-diagnostico {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Ambos campos: evitar zoom automático */
+  .historia-paciente-page
+  .historia-buscador-diagnostico .historia-input,
+  .historia-paciente-page
+  .historia-new-diagnostico .historia-input {
+    font-size: 16px !important;
+
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+
+    transform: none !important;
+  }
+
+  /* Mantener el mismo tamaño al escribir */
+  .historia-paciente-page
+  .historia-buscador-diagnostico .historia-input:focus,
+  .historia-paciente-page
+  .historia-new-diagnostico .historia-input:focus {
+    font-size: 16px !important;
+    transform: none !important;
+  }
+
+  /* Evitar que el botón + agrande el contenedor */
+  .historia-paciente-page
+  .historia-new-diagnostico .historia-add-btn {
+    flex-shrink: 0 !important;
+  }
+
+  /* Mantener el espacio dentro de la columna */
+  .historia-paciente-page
+  .historia-new-diagnostico,
+  .historia-paciente-page
+  .historia-buscador-diagnostico {
+    overflow: visible;
+  }
+}
+
+
+
+/* ==========================================
+   DR REUMA - BUSCADOR NUEVO PACIENTE
+   EVITAR ZOOM Y EXPANSION EN CELULAR
+========================================== */
+
+@media (max-width: 760px) {
+
+  /* Campo de búsqueda de pacientes */
+  input[placeholder*="Buscar paciente"],
+  input[placeholder*="Buscá paciente"] {
+    font-size: 16px !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    transform: none !important;
+  }
+
+  /* Mantener tamaño al tocar y escribir */
+  input[placeholder*="Buscar paciente"]:focus,
+  input[placeholder*="Buscá paciente"]:focus {
+    font-size: 16px !important;
+    transform: none !important;
+  }
+
+  /* Evitar expansión del contenedor */
+  div:has(> input[placeholder*="Buscar paciente"]),
+  div:has(> input[placeholder*="Buscá paciente"]) {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    transform: none !important;
+  }
+}
+
+
+
+
+/* ==========================================
+   DR REUMA - CARDS DEFINITIVOS DE AGENDA
+   Presencial verde / Virtual celeste
+   Mismo fondo, distinto relieve
+========================================== */
+
+/* 1. MISMO FONDO GRIS Y BORDE AZUL */
+.btn-pacientecita.agenda-dia-cita.agenda-cita-presencial,
+.btn-pacientecita.agenda-dia-cita.agenda-cita-virtual {
+  background: #f0f4f8 !important;
+  border: 2px solid #123b48 !important;
+  border-left: 5px solid #123b48 !important;
+  border-radius: 15px !important;
+  transition: box-shadow 0.25s ease !important;
+}
+
+/* 2. PRESENCIAL: SOMBRA VERDE */
+.btn-pacientecita.agenda-dia-cita.agenda-cita-presencial {
+  box-shadow: 0 4px 12px rgba(22,163,74,0.12) !important;
+}
+
+/* 3. VIRTUAL: SOMBRA CELESTE */
+.btn-pacientecita.agenda-dia-cita.agenda-cita-virtual {
+  box-shadow: 0 4px 12px rgba(18,184,207,0.12) !important;
+}
+
+/* 4. HOVER: SOLO CAMBIA LA SOMBRA */
+
+
+/* PRESENCIAL: SOMBRA VERDE MÁS INTENSA */
+.btn-pacientecita.agenda-dia-cita.agenda-cita-presencial:hover {
+  background: #f0f4f8 !important;
+  transform: none !important;
+
+  box-shadow:
+    0 0 0 2px rgba(0, 200, 83, 0.65),
+    0 0 18px 5px rgba(0, 200, 83, 0.45),
+    0 8px 25px rgba(0, 200, 83, 0.30) !important;
+}
+
+/* VIRTUAL: SOMBRA CELESTE MÁS INTENSA */
+.btn-pacientecita.agenda-dia-cita.agenda-cita-virtual:hover {
+  background: #f0f4f8 !important;
+  transform: none !important;
+
+  box-shadow:
+    0 0 0 2px rgba(18, 191, 213, 0.65),
+    0 0 18px 5px rgba(18, 191, 213, 0.45),
+    0 8px 25px rgba(18, 191, 213, 0.30) !important;
+}
+
+
+
+/* ==========================================
+   MOTIVO: AZUL OSCURO Y LETRAS BLANCAS
+========================================== */
+
+.agenda-dia-cita .agenda-dia-cita-motivo {
+  background: #123b48 !important;
+  color: #ffffff !important;
+  width: 100% !important;
+  border-radius: 9px !important;
+}
+
+/* Texto e icono del motivo */
+.agenda-dia-cita .agenda-dia-cita-motivo span,
+.agenda-dia-cita .agenda-dia-cita-motivo strong,
+.agenda-dia-cita .agenda-dia-cita-motivo svg {
+  color: #ffffff !important;
+}
+
+
+
+/* 6. HORA AZUL OSCURO */
+.agenda-dia-cita .agenda-dia-cita-hora > strong {
+  color: #123b48 !important;
+}
+
+/* 7. PUNTO ANIMADO PRESENCIAL: VERDE */
+.agenda-dia-cita.agenda-cita-presencial
+.agenda-dia-cita-punto-vivo {
+  background: #16a34a !important;
+  box-shadow: 0 0 0 3px rgba(22,163,74,0.14) !important;
+}
+
+.agenda-dia-cita.agenda-cita-presencial
+.agenda-dia-cita-punto-vivo::after {
+  border-color: #16a34a !important;
+}
+
+/* 8. PUNTO ANIMADO VIRTUAL: CELESTE */
+.agenda-dia-cita.agenda-cita-virtual
+.agenda-dia-cita-punto-vivo {
+  background: #12b8cf !important;
+  box-shadow: 0 0 0 3px rgba(18,184,207,0.14) !important;
+}
+
+.agenda-dia-cita.agenda-cita-virtual
+.agenda-dia-cita-punto-vivo::after {
+  border-color: #12b8cf !important;
+}
+
+/* Conservamos la animación existente */
+
+
+
+
+/* ==========================================
+   DR REUMA - DISEÑO NUEVO PACIENTE
+   Formulario y directorio de internos
+========================================== */
+
+/* CARD PRINCIPAL */
+.historias-modern-container
+.historias-form-internos-grid
+.historias-form-card {
+  background: #edf8fa !important;
+  border: 1px solid #b5dce6 !important;
+  border-radius: 22px !important;
+
+  box-shadow:
+    0 6px 14px rgba(18, 59, 72, 0.13),
+    0 12px 26px rgba(18, 59, 72, 0.07) !important;
+}
+
+/* TÍTULO NUEVO / EDITAR PACIENTE */
+.historias-modern-container
+.historias-form-title h4 {
+  color: #123b48 !important;
+  font-size: 24px !important;
+  font-weight: 800 !important;
+}
+
+.historias-modern-container
+.historias-form-title p {
+  color: #637e88 !important;
+}
+
+/* ÍCONO DE PACIENTE */
+.historias-modern-container
+.historias-form-icon {
+  background: #123b48 !important;
+  color: #ffffff !important;
+  border-radius: 15px !important;
+
+  box-shadow:
+    0 4px 9px rgba(18, 59, 72, 0.25) !important;
+}
+
+/* ETIQUETAS */
+.historias-modern-container
+.historias-form-card
+.historias-label {
+  color: #123b48 !important;
+  font-weight: 800 !important;
+}
+
+/* CAMPOS DEL FORMULARIO */
+.historias-modern-container
+.historias-form-card
+.historias-input {
+  background: #ffffff !important;
+  border: 1px solid #c2dbe2 !important;
+  border-radius: 12px !important;
+
+  color: #123b48 !important;
+
+  box-shadow:
+    0 2px 5px rgba(18, 59, 72, 0.07) !important;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease !important;
+}
+
+/* CUANDO ESCRIBÍS */
+.historias-modern-container
+.historias-form-card
+.historias-input:focus {
+  background: #ffffff !important;
+  border-color: #12b8cf !important;
+
+  box-shadow:
+    0 0 0 3px rgba(18, 184, 207, 0.17),
+    0 4px 10px rgba(18, 59, 72, 0.10) !important;
+
+  outline: none !important;
+}
+
+/* BOTÓN GUARDAR */
+.historias-modern-container
+.historias-form-card
+.historias-save-btn {
+  background: #123b48 !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 14px !important;
+
+  box-shadow:
+    0 4px 8px rgba(18, 59, 72, 0.24),
+    0 7px 14px rgba(18, 59, 72, 0.12) !important;
+}
+
+/* SOMBRA AL PASAR EL MOUSE */
+@media (hover: hover) {
+  .historias-modern-container
+  .historias-form-card
+  .historias-save-btn:hover {
+    background: #123b48 !important;
+
+    box-shadow:
+      0 6px 12px rgba(18, 59, 72, 0.33),
+      0 10px 20px rgba(18, 59, 72, 0.20) !important;
+  }
+}
+
+/* BOTÓN ELIMINAR */
+.historias-modern-container
+.nuevo-paciente-eliminar-btn {
+  background: #e33149 !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 14px !important;
+
+  box-shadow:
+    0 4px 9px rgba(227, 49, 73, 0.22) !important;
+}
+
+/* BOTÓN CANCELAR */
+.historias-modern-container
+.historias-form-card
+.historias-cancel-btn {
+  border-radius: 14px !important;
+  box-shadow:
+    0 3px 7px rgba(18, 59, 72, 0.15) !important;
+}
+
+/* PANEL DE INTERNOS */
+.historias-modern-container
+.historias-form-internos-grid
+.historias-internos-card {
+  border: 1px solid #b5dce6 !important;
+  border-radius: 20px !important;
+
+  box-shadow:
+    0 5px 12px rgba(18, 59, 72, 0.12),
+    0 10px 22px rgba(18, 59, 72, 0.06) !important;
+}
+
+/* ÍCONO DE TELÉFONO */
+.historias-modern-container
+.historias-internos-icono {
+  border-radius: 12px !important;
+  box-shadow:
+    0 3px 7px rgba(18, 59, 72, 0.20) !important;
+}
+
+/* CELULAR: NO ALTERAR EL ANCHO */
+@media (max-width: 760px) {
+  .historias-modern-container
+  .historias-form-internos-grid
+  .historias-form-card,
+  .historias-modern-container
+  .historias-form-internos-grid
+  .historias-internos-card {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .historias-modern-container
+  .historias-form-card
+  .historias-input {
+    font-size: 16px !important;
+    max-width: 100% !important;
+  }
+
+  .historias-modern-container
+  .historias-form-title h4 {
+    font-size: 21px !important;
+  }
+}
+
+
+
+/* =============================================
+   DR. REUMA - NUEVO PACIENTE AZUL Y BLANCO
+   Solo se aplica a /admin/pacientes
+============================================= */
+
+/* FORMULARIO PRINCIPAL */
+.modo-nuevo-paciente .historias-form-card {
+  background: #123b48 !important;
+  border: none !important;
+  border-radius: 22px !important;
+  box-shadow: 0 10px 25px rgba(18,59,72,.24) !important;
+}
+
+/* TITULO Y DESCRIPCION */
+.modo-nuevo-paciente .historias-form-title h4 {
+  color: #ffffff !important;
+  font-size: 25px !important;
+}
+
+.modo-nuevo-paciente .historias-form-title p {
+  color: #d5e9ee !important;
+}
+
+/* ICONO */
+.modo-nuevo-paciente .historias-form-icon {
+  background: #1d5969 !important;
+  color: white !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,.18) !important;
+}
+
+/* ETIQUETAS DE LOS CAMPOS */
+.modo-nuevo-paciente .historias-form-card
+.historias-label {
+  color: #ffffff !important;
+}
+
+/* INPUTS Y SELECTOR DE SEXO */
+.modo-nuevo-paciente .historias-form-card
+.historias-input {
+  background: #ffffff !important;
+  color: #123b48 !important;
+  border: 1px solid #d5e9ee !important;
+  box-shadow: none !important;
+}
+
+/* FOCO SIN CAMBIAR EL TAMAÑO */
+.modo-nuevo-paciente .historias-form-card
+.historias-input:focus {
+  background: #ffffff !important;
+  border-color: #12b8cf !important;
+  box-shadow: 0 0 0 3px rgba(18,184,207,.28) !important;
+  transform: none !important;
+}
+
+/* GUARDAR PACIENTE */
+.modo-nuevo-paciente .historias-save-btn {
+  background: #12b8cf !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 5px 12px rgba(0,0,0,.22) !important;
+}
+
+/* DIRECTORIO: TARJETA BLANCA */
+.modo-nuevo-paciente .historias-internos-card {
+  background: #ffffff !important;
+  border: 1px solid #c6dce2 !important;
+  border-radius: 20px !important;
+  overflow: hidden !important;
+  box-shadow: 0 8px 20px rgba(18,59,72,.14) !important;
+}
+
+/* ENCABEZADO AZUL OSCURO */
+.modo-nuevo-paciente .historias-internos-header {
+  background: #123b48 !important;
+  padding: 13px !important;
+  border-radius: 12px !important;
+  margin-bottom: 10px !important;
+}
+
+.modo-nuevo-paciente .historias-internos-header h4,
+.modo-nuevo-paciente .historias-internos-header p {
+  color: #ffffff !important;
+}
+
+/* ICONO TELEFONO */
+.modo-nuevo-paciente .historias-internos-icono {
+  background: #1d5969 !important;
+  color: #ffffff !important;
+}
+
+/* FILAS DEL DIRECTORIO */
+.modo-nuevo-paciente .historias-interno-fila {
+  background: #ffffff !important;
+  border: none !important;
+  border-bottom: 1px solid #e1ebef !important;
+  border-radius: 0 !important;
+  padding: 9px 7px !important;
+}
+
+.modo-nuevo-paciente .historias-interno-fila:nth-child(even) {
+  background: #f1f7f9 !important;
+}
+
+/* NOMBRES Y NUMEROS */
+.modo-nuevo-paciente .historias-interno-fila span {
+  color: #123b48 !important;
+}
+
+.modo-nuevo-paciente .historias-interno-fila strong {
+  background: #d9f3f8 !important;
+  color: #123b48 !important;
+  border-radius: 7px !important;
+  padding: 5px 9px !important;
+}
+
+/* CELULAR: NO CAMBIAR DISTRIBUCION */
+@media (max-width: 760px) {
+  .modo-nuevo-paciente .historias-form-card,
+  .modo-nuevo-paciente .historias-internos-card {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .modo-nuevo-paciente .historias-input {
+    font-size: 16px !important;
+  }
+}
+
+
+/* ==========================================
+   DR REUMA - CORRECCIÓN FORMULARIO AZUL
+   NUEVO PACIENTE
+========================================== */
+
+/* Forzar fondo azul oscuro del formulario */
+.historias-modern-container.modo-nuevo-paciente
+.historias-form-internos-grid
+.historias-form-card {
+  background: #123b48 !important;
+  background-color: #123b48 !important;
+  background-image: none !important;
+
+  border: none !important;
+  border-radius: 22px !important;
+
+  box-shadow:
+    0 8px 18px rgba(18, 59, 72, 0.22),
+    0 14px 28px rgba(18, 59, 72, 0.12) !important;
+}
+
+/* Título y descripción visibles en blanco */
+.historias-modern-container.modo-nuevo-paciente
+.historias-form-card
+.historias-form-title h4 {
+  color: #ffffff !important;
+}
+
+.historias-modern-container.modo-nuevo-paciente
+.historias-form-card
+.historias-form-title p {
+  color: #d5e9ee !important;
+}
+
+/* Etiquetas blancas */
+.historias-modern-container.modo-nuevo-paciente
+.historias-form-card
+.historias-label {
+  color: #ffffff !important;
+}
+
+/* Mantener los campos blancos */
+.historias-modern-container.modo-nuevo-paciente
+.historias-form-card
+.historias-input {
+  background: #ffffff !important;
+  color: #123b48 !important;
+}
+
+/* Botón Guardar en celeste */
+.historias-modern-container.modo-nuevo-paciente
+.historias-form-card
+.historias-save-btn {
+  background: #12b8cf !important;
+  color: #ffffff !important;
+}
+
+
+
+/* ==========================================
+   DR REUMA - INTERNOS COMPACTOS
+   Igualar altura con el formulario
+========================================== */
+
+/* Solo en Nuevo paciente y en computadora */
+@media (min-width: 761px) {
+
+  /* Alinear ambas tarjetas desde arriba */
+  .modo-nuevo-paciente
+  .historias-form-internos-grid {
+    align-items: start !important;
+  }
+
+  /* Mantener los internos dentro de una altura */
+  .modo-nuevo-paciente
+  .historias-internos-card {
+    height: 420px !important;
+    max-height: 420px !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    scrollbar-width: thin;
+    scrollbar-color: #12b8cf #eef6f8;
+  }
+
+  /* Evitar que las filas se estiren */
+  .modo-nuevo-paciente
+  .historias-interno-fila {
+    padding: 7px 8px !important;
+  }
+}
+
+/* En celular: mantener el comportamiento habitual */
+@media (max-width: 760px) {
+  .modo-nuevo-paciente
+  .historias-internos-card {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
   }
 }

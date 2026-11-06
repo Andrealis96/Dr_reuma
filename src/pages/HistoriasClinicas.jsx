@@ -193,7 +193,7 @@ function HistoriasClinicas({ modo = "historias" }) {
 
 
   const nuevoPacienteRef = useRef(null);
-
+const filtroEnfermedadRef = useRef(null);
 
 
   const [nombre, setNombre] = useState("");
@@ -300,6 +300,28 @@ function HistoriasClinicas({ modo = "historias" }) {
 
   }, [busqueda]);
 
+
+/* CERRAR FILTRO DE ENFERMEDADES
+   AL TOCAR FUERA DEL DESPLEGABLE */
+
+useEffect(() => {
+  if (!filtroEnfermedadAbierto) return;
+
+  const cerrarFuera = (evento) => {
+    if (
+      filtroEnfermedadRef.current &&
+      !filtroEnfermedadRef.current.contains(evento.target)
+    ) {
+      setFiltroEnfermedadAbierto(false);
+    }
+  };
+
+  document.addEventListener("pointerdown", cerrarFuera);
+
+  return () => {
+    document.removeEventListener("pointerdown", cerrarFuera);
+  };
+}, [filtroEnfermedadAbierto]);
 
 
   const limpiarFormulario = () => {
@@ -3579,10 +3601,7 @@ const buscarPacienteGuardadoPorCita = (cita) => {
 
 
   return (
-
-    <div className="container historias-modern-container">
-
-
+<div className={`container historias-modern-container ${modo === "pacientes" ? "modo-nuevo-paciente" : ""}`}>
 
       {mostrarConfirmacion && (
 
@@ -5567,10 +5586,10 @@ const buscarPacienteGuardadoPorCita = (cita) => {
             </button>
           )}
         </div>
-        <div className="historias-selector-enfermedad"
-          onBlur={(e) => {
-            if (!e.currentTarget.contains(e.relatedTarget)) setFiltroEnfermedadAbierto(false);
-          }}>
+        <div
+  className="historias-selector-enfermedad"
+  ref={filtroEnfermedadRef}
+>
           <button type="button" className="historias-selector-boton"
             aria-expanded={filtroEnfermedadAbierto}
             aria-haspopup="listbox"
@@ -5584,7 +5603,7 @@ const buscarPacienteGuardadoPorCita = (cita) => {
           </button>
           {filtroEnfermedadAbierto && (
             <div className="historias-selector-menu">
-              <input autoFocus type="search" aria-label="Buscar enfermedad"
+              <input  type="search" aria-label="Buscar enfermedad"
                 placeholder="Buscar diagnóstico..." value={busquedaEnfermedad}
                 onChange={(e) => setBusquedaEnfermedad(e.target.value)} />
               <div className="historias-selector-opciones" role="listbox" aria-label="Enfermedades">
