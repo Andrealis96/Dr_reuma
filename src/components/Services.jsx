@@ -33,9 +33,12 @@ FaNotesMedical
 function Services() {
 
 const [form, setForm] = useState({
-  nombre: "",
-  telefono: "",
-  Dni: "",
+nombre: "",
+nombres: "",
+apellidos: "",
+telefono: "",
+Dni: "",
+numeroCredencial: "",
 
   fechaNacimiento: "",
   sexo: "",
@@ -46,12 +49,14 @@ const [form, setForm] = useState({
   fecha: "",
   hora: ""
 });
-
+  const [pasoTurno, setPasoTurno] = useState(1);
+  const pasoAnteriorRef = useRef(1);
   const [horariosDisponibles, setHorariosDisponibles] = useState([]);
   const [bloqueos, setBloqueos] = useState([]);
   const [bloqueosHora, setBloqueosHora] = useState([]);
   const [success, setSuccess] = useState(false);
   const [citaGuardada, setCitaGuardada] = useState(null);
+  const [fechaNacimientoTexto, setFechaNacimientoTexto] = useState("");
   const FRIDAY_START = new Date("2026-04-10T00:00:00");
   const phoneNumber = "5492995095471"; // Número de WhatsApp del Dr. Reuma
 
@@ -65,9 +70,68 @@ const [guardandoCita, setGuardandoCita] = useState(false);
 const [previewComprobanteUrl, setPreviewComprobanteUrl] = useState(null);
 const [previewComprobanteFile, setPreviewComprobanteFile] = useState(null);
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  
+
+const handleChange = (e) => {
+  const { name, value } = e.target;
+
+  setForm((prev) => {
+    let valorFinal = value;
+
+    
+ // Nombres y apellidos: solo letras y formato correcto
+if (name === "nombres" || name === "apellidos") {
+  valorFinal = value
+    .replace(/[^\p{L}\s]/gu, "")
+    .toLocaleLowerCase("es-AR")
+    .replace(/(^|\s)(\p{L})/gu, (texto) =>
+      texto.toLocaleUpperCase("es-AR")
+    );
+}
+
+
+   // DNI Y TELÉFONO: solamente números
+    if (name === "Dni" || name === "telefono") {
+      valorFinal = value.replace(/\D/g, "");
+    }
+
+    
+// Obra social: letras, espacios y barra inclinada
+
+if (name === "obraSocial") {
+  valorFinal = value
+    .replace(/[^\p{L}\s/-]/gu, "")
+    .toLocaleUpperCase("es-AR");
+}
+
+
+
+    // Credencial: números y guiones
+    if (name === "numeroCredencial") {
+      valorFinal = value.replace(/[^\d-]/g, "");
+    }
+
+    const actualizado = {
+      ...prev,
+      [name]: valorFinal,
+    };
+
+    // Seguir enviando nombre completo a Agenda
+    if (name === "nombres" || name === "apellidos") {
+      actualizado.nombre = [
+        actualizado.nombres,
+        actualizado.apellidos,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .trim();
+    }
+
+    return actualizado;
+  });
+};
+
+
 const [viernesAgenda, setViernesAgenda] = useState([]);
 const codigoTurno =
   `https://drreuma.com/verificacion?paciente=${encodeURIComponent(citaGuardada?.nombre || "")}&fecha=${encodeURIComponent(citaGuardada?.fecha || "")}&hora=${encodeURIComponent(citaGuardada?.hora || "")}`;
@@ -150,37 +214,13 @@ const limpiarDniPaciente = (valor = "") => {
   return valor.toString().replace(/\D/g, "").trim();
 };
 
+
 const limpiarTelefono10 = (telefono = "") => {
-  let numero = telefono.toString().replace(/\D/g, "");
-
-  if (!numero) return "";
-
-  if (numero.startsWith("00")) {
-    numero = numero.slice(2);
-  }
-
-  if (numero.startsWith("549") && numero.length >= 13) {
-    numero = numero.slice(3);
-  }
-
-  if (numero.startsWith("54") && numero.length >= 12) {
-    numero = numero.slice(2);
-  }
-
-  if (numero.startsWith("9") && numero.length === 11) {
-    numero = numero.slice(1);
-  }
-
-  if (numero.startsWith("0") && numero.length === 11) {
-    numero = numero.slice(1);
-  }
-
-  if (numero.length > 10) {
-    numero = numero.slice(-10);
-  }
-
-  return numero;
+  return String(telefono)
+    .replace(/\D/g, "")
+    .slice(0, 13);
 };
+
 
 const buscarOCrearHistoriaDesdeServices = async (dataCita = {}) => {
   const dniLimpio = limpiarDniPaciente(
@@ -217,6 +257,11 @@ const buscarOCrearHistoriaDesdeServices = async (dataCita = {}) => {
   }
 
   const nuevaHistoria = await addDoc(collection(db, "historiasClinicas"), {
+    nombres: dataCita.nombres?.trim() || "",
+    apellidos: dataCita.apellidos?.trim() || "",
+    numeroCredencial: dataCita.numeroCredencial?.trim() || "",
+        
+    
     nombre: dataCita.nombre?.trim() || "",
     dni: dniLimpio,
     Dni: dniLimpio,
@@ -252,7 +297,7 @@ useEffect(() => {
 
   const cargarHorarios = async () => {
     if (diaEstaBloqueado(form.fecha)) {
-  setHorariosDisponibles([]);
+setHorariosDisponibles([]);
   setForm(prev => ({
     ...prev,
     hora: ""
@@ -321,6 +366,7 @@ if (diaSemana === "viernes") {
 
   if (configViernes.turno === "mañana") {
     horariosBase = [
+      "09:30",
       "10:00",
       "10:30",
       "11:00",
@@ -352,14 +398,14 @@ if (
 
 // 🟡 JUEVES (mañana)
 else if (diaSemana === "jueves") {
-    horariosBase =["10:00","10:30","11:00"];
+    horariosBase =["09:30","10:00","10:30","11:00"];
 }
 
 // 🔵 SÁBADO (solo virtual)
 else if (diaSemana === "sábado") {
   horariosBase = [
     "10:00", "10:30","11:00",
-    "11:30", "12:00"
+    "11:30"
   ];
 }
     // 🔥 traer ocupados
@@ -442,14 +488,46 @@ const handleSubmit = async (e) => {
     "hora"
   ];
 
-  const hayCamposVacios = camposObligatorios.some(
-    (campo) => !form[campo]?.toString().trim()
-  );
+  
+const nombresCampos = {
+  nombre: "nombre y apellido",
+  telefono: "teléfono",
+  Dni: "DNI",
+  fechaNacimiento: "fecha de nacimiento",
+  sexo: "sexo",
+  obraSocial: "obra social",
+  motivoConsulta: "motivo de consulta",
+  tipo: "modalidad",
+  fecha: "fecha de la cita",
+  hora: "horario"
+};
 
-  if (hayCamposVacios) {
-    alert("Por favor completa todos los campos obligatorios.");
-    return;
-  }
+const campoFaltante = camposObligatorios.find(
+  (campo) => !String(form[campo] || "").trim()
+);
+
+if (campoFaltante) {
+  alert(
+    `Revisá el campo: ${nombresCampos[campoFaltante] || campoFaltante}.`
+  );
+  return;
+}
+
+if (!/^\d{7,9}$/.test(form.Dni)) {
+  alert("Revisá el DNI.");
+  return;
+}
+
+if (!/^\d{6,13}$/.test(form.telefono)) {
+  alert("Revisá el teléfono");
+  return;
+}
+
+if (!/^\d{4}-\d{2}-\d{2}$/.test(form.fechaNacimiento)) {
+  alert("Revisá la fecha de nacimiento: ingresá una fecha válida en formato DD-MM-AAAA.");
+  return;
+}
+
 
   if (!form.hora) {
     alert("Selecciona un horario");
@@ -625,20 +703,25 @@ if (fechaReserva.getDay() === 5) {
 
     setForm({
       nombre: "",
+      nombres: "",
+      apellidos: "",
       telefono: "",
       Dni: "",
+      numeroCredencial: "",
 
       fechaNacimiento: "",
       sexo: "",
       obraSocial: "",
       motivoConsulta: "",
 
-      tipo: "presencial",
-      fecha: "",
-      hora: ""
-    });
+tipo: "presencial",
+fecha: "",
+hora: ""
+});
 
-    setHorariosDisponibles([]);
+setFechaNacimientoTexto("");
+setHorariosDisponibles([]);
+
   } catch (error) {
     console.error(error);
     alert("Error al guardar la cita");
@@ -781,6 +864,64 @@ const cerrarPreviewComprobantePaciente = () => {
   setPreviewComprobanteFile(null);
 };
 
+
+useEffect(() => {
+  if (!success) return;
+
+  const comprobante = document.querySelector(
+    ".success-card"
+  );
+
+  if (comprobante) {
+    comprobante.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }
+}, [success]);
+
+
+useEffect(() => {
+  if (pasoAnteriorRef.current === pasoTurno) return;
+
+  pasoAnteriorRef.current = pasoTurno;
+
+  if (success) return;
+
+  requestAnimationFrame(() => {
+    const formulario = document.getElementById("agenda-cita");
+
+    if (!formulario) return;
+
+    const posicion =
+      formulario.getBoundingClientRect().top +
+      window.scrollY -
+      105;
+
+    window.scrollTo({
+      top: Math.max(0, posicion),
+      behavior: "smooth",
+    });
+  });
+}, [pasoTurno, success]);
+
+const comprobanteAutoRef = useRef("");
+
+useEffect(() => {
+  if (!success || !citaGuardada) return;
+
+  const clave = [
+    citaGuardada.nombre,
+    citaGuardada.fecha,
+    citaGuardada.hora
+  ].join("|");
+
+  if (comprobanteAutoRef.current === clave) return;
+
+  comprobanteAutoRef.current = clave;
+  generarComprobanteImagenPaciente();
+}, [success, citaGuardada]);
+
   return (
     <section id="servicios" className="services-section">
       <div className="container ">
@@ -821,32 +962,6 @@ const cerrarPreviewComprobantePaciente = () => {
   </div>
 )}
 
-        <div className="public-section-hero services-public-hero">
-
-  <div className="public-section-badge">
-    <FaCalendarCheck />
-    Consultas y turnos
-  </div>
-
-  <h3 className="public-section-title">
-    <span className="title-celeste">
-      CONSULTAS Y SERVICIOS
-    </span>{" "}
-    <span className="title-negro">
-      DE REUMATOLOGÍA
-    </span>
-  </h3>
-
-  <p className="public-section-description">
-    Ofrecemos atención{" "}
-    <strong>
-      presencial en Neuquén Capital, en los consultorios externos de la
-      Clínica San Agustín, y consultas online
-    </strong>{" "}
-    desde la comodidad de tu hogar si no puedes venir, para personas con
-    dolor articular, inflamación, cansancio, rigidez o síntomas reumatológicos.
-  </p>
-</div>
 
 {/* FORMULARIO */}
 <div id="agenda-cita" className="agenda-shell mb-5">
@@ -855,339 +970,616 @@ const cerrarPreviewComprobantePaciente = () => {
           {!success ? (
             
 
-<form onSubmit={handleSubmit} className="agenda-pro-form">
-<div className="agenda-pro-header">
-  <div className="agenda-pro-header-icon">
-    <FaCalendarCheck />
+
+<form onSubmit={handleSubmit} className="agenda-pro-form agenda-pasos">
+
+  <div
+    className="agenda-pasos-barra"
+    aria-label={`Paso ${pasoTurno} de 3`}
+  >
+    {[1, 2, 3].map((n) => (
+      <span
+        key={n}
+        className={n <= pasoTurno ? "activo" : ""}
+      />
+    ))}
   </div>
 
-  <h4>AGENDA TU CITA</h4>
-
-  <p>
-    Completa tus datos y reserva tu consulta con Dr. Reuma.
+  <p className="agenda-pasos-indicador">
+    PASO {pasoTurno} DE 3
   </p>
-</div>
-  <div className="agenda-pro-grid">
 
-    <div className="agenda-pro-field">
-      <div className="agenda-pro-icon">
-        <FaUser />
-      </div>
+  {/* ====================================
+      PASO 1: FECHA Y HORARIO
+  ==================================== */}
 
-      <div className="agenda-pro-control">
-        <label>Nombre completo</label>
-        <input
-          type="text"
-          name="nombre"
-          placeholder="Ingresa tu nombre completo"
-          className="form-control"
-          required
-          value={form.nombre}
-          onChange={handleChange}
-        />
-      </div>
-    </div>
+  {pasoTurno === 1 && (
+    <div className="agenda-pasos-panel">
 
-    <div className="agenda-pro-field">
-      <div className="agenda-pro-icon">
-        <FaPhoneAlt />
-      </div>
-
-      <div className="agenda-pro-control">
-        <label>Teléfono</label>
-        <input
-          type="text"
-          name="telefono"
-          placeholder="Ingresa tu número de teléfono"
-          className="form-control"
-          required
-          value={form.telefono}
-          onChange={handleChange}
-        />
-      </div>
-    </div>
-
-    <div className="agenda-pro-field">
-      <div className="agenda-pro-icon">
-        <FaIdCard />
-      </div>
-
-      <div className="agenda-pro-control">
-        <label>DNI</label>
-        <input
-          type="text"
-          name="Dni"
-          placeholder="Ingresa tu número de DNI"
-          className="form-control"
-          required
-          value={form.Dni}
-          onChange={handleChange}
-        />
-      </div>
-    </div>
-
-    <div className="agenda-pro-field">
-      <div className="agenda-pro-icon">
-        <FaBirthdayCake />
-      </div>
-
-      <div className="agenda-pro-control">
-        <label>Fecha de nacimiento</label>
-        <input
-          type="date"
-          name="fechaNacimiento"
-          className="form-control"
-          required
-          value={form.fechaNacimiento}
-          onChange={handleChange}
-        />
-      </div>
-    </div>
-
-    <div className="agenda-pro-field">
-      <div className="agenda-pro-icon">
-        <FaVenusMars />
-      </div>
-
-      <div className="agenda-pro-control">
-        <label>Sexo</label>
-        <select
-          name="sexo"
-          className="form-select select-con-flecha"
-          required
-          value={form.sexo}
-          onChange={handleChange}
-        >
-          <option value="">Selecciona una opción</option>
-          <option value="Femenino">Femenino</option>
-          <option value="Masculino">Masculino</option>
-        </select>
-      </div>
-    </div>
-
-    <div className="agenda-pro-field">
-      <div className="agenda-pro-icon">
-        <FaShieldAlt />
-      </div>
-
-      <div className="agenda-pro-control">
-        <label>Obra social</label>
-        <input
-          type="text"
-          name="obraSocial"
-          placeholder="Ej: ISSN, OSDE, Particular"
-          className="form-control"
-          required
-          value={form.obraSocial}
-          onChange={handleChange}
-        />
-      </div>
-    </div>
-
-    <div className="agenda-pro-field agenda-pro-field-wide">
-      <div className="agenda-pro-icon">
-        <FaNotesMedical />
-      </div>
-
-      <div className="agenda-pro-control">
-        <label>Motivo de consulta</label>
-        <textarea
-          name="motivoConsulta"
-          placeholder="Cuéntanos brevemente el motivo de tu consulta"
-          className="form-control"
-          rows="3"
-          required
-          value={form.motivoConsulta}
-          onChange={handleChange}
-        />
-      </div>
-    </div>
-
-    <div className="agenda-pro-field">
-      <div className="agenda-pro-icon">
-        <FaMapMarkerAlt />
-      </div>
-
-      <div className="agenda-pro-control">
-        <label>Modalidad</label>
-        <select
-          name="tipo"
-          className="form-select select-con-flecha"
-          value={form.tipo}
-          onChange={handleChange}
-          required
-        >
-          <option
-            value="presencial"
-            disabled={
-              form.fecha &&
-              new Date(form.fecha + "T00:00:00")
-                .toLocaleDateString("es-AR", { weekday: "long" })
-                .toLowerCase() === "sábado"
-            }
-          >
-            Presencial
-          </option>
-
-          <option
-            value="virtual"
-            disabled={
-              form.fecha &&
-              new Date(form.fecha + "T00:00:00")
-                .toLocaleDateString("es-AR", { weekday: "long" })
-                .toLowerCase() !== "sábado"
-            }
-          >
-            Virtual
-          </option>
-        </select>
-
-        {form.fecha &&
-          new Date(form.fecha + "T00:00:00")
-            .toLocaleDateString("es-AR", { weekday: "long" })
-            .toLowerCase() === "sábado" && (
-            <small className="agenda-pro-help danger">
-              ⚠️ Los sábados solo se permiten consultas virtuales.
-            </small>
-        )}
-
-        {form.fecha &&
-          new Date(form.fecha + "T00:00:00")
-            .toLocaleDateString("es-AR", { weekday: "long" })
-            .toLowerCase() !== "sábado" && (
-            <small className="agenda-pro-help success">
-              ✅ De lunes a viernes la consulta es únicamente presencial.
-            </small>
-        )}
-      </div>
-    </div>
-
-    <div className="agenda-pro-field">
-      <div className="agenda-pro-icon">
-        <FaCalendarAlt />
-      </div>
-
-      <div className="agenda-pro-control">
-        <label>Fecha de la cita</label>
-        <input
-          type="date"
-          name="fecha"
-          className="form-control"
-          required
-          value={form.fecha}
-          onChange={handleChange}
-        />
-      </div>
-    </div>
-
-    <div className="agenda-pro-field agenda-pro-field-wide">
-      <div className="agenda-pro-icon">
-        <FaClock />
-      </div>
-
-      <div className="agenda-pro-control">
-        <label>Selecciona una hora</label>
-        <select
-          name="hora"
-          className="form-select select-con-flecha"
-          required
-          value={form.hora}
-          onChange={handleChange}
-        >
-          <option value="">Selecciona una hora</option>
-
-          {horariosDisponibles.length > 0 ? (
-            horariosDisponibles.map((h, i) => (
-              <option key={i} value={h}>
-                {h}
-              </option>
-            ))
-          ) : (
-            <option disabled>
-              {form.fecha
-                ? "No hay horarios disponibles 😢"
-                : "Primero selecciona una fecha"}
-            </option>
-          )}
-        </select>
-      </div>
-    </div>
-
-  </div>
-
-  <div className="agenda-pro-actions">
-    <button
-        type="submit"
-        className="agenda-pro-submit"
-        disabled={guardandoCita}
-      >
-        <FaSave />
-        <span>{guardandoCita ? "Guardando..." : "Guardar Cita"}</span>
-      </button>
-  </div>
-
-  <div className="agenda-pro-info">
-    <div className="agenda-pro-info-icon">
-      <FaExclamationCircle />
-    </div>
-
-    <div>
-      <h5>Información importante</h5>
+      <h5>1. Elegí fecha y horario</h5>
       <p>
-        El pago se realizará al finalizar la consulta médica.
-        En caso de cancelación o reprogramación, comunícate con el médico.
+        Primero verificá los horarios disponibles para tu consulta.
       </p>
+
+      <div className="agenda-pasos-precios">
+
+        <div className="agenda-pasos-precio">
+          <strong>CONSULTA PRESENCIAL</strong>
+          <span>Lunes a viernes</span>
+          <b>$60.000</b>
+        </div>
+
+        <div className="agenda-pasos-precio">
+          <strong>CONSULTA VIRTUAL</strong>
+          <span>Sábados</span>
+          <b>$30.000</b>
+        </div>
+
+      </div>
+
+      <div className="agenda-pro-grid">
+
+        <div className="agenda-pro-field">
+          <div className="agenda-pro-icon">
+            <FaCalendarAlt />
+          </div>
+
+          <div className="agenda-pro-control">
+            <label htmlFor="fecha-servicios-pasos">
+              Fecha de la cita
+            </label>
+
+            <input
+              id="fecha-servicios-pasos"
+              type="date"
+              name="fecha"
+              className="form-control"
+              required
+              value={form.fecha}
+              onChange={(e) => {
+                setHorariosDisponibles([]);
+                setForm((prev) => ({
+                  ...prev,
+                  fecha: e.target.value,
+                  hora: "",
+                  tipo:
+                    e.target.value &&
+                    new Date(`${e.target.value}T12:00:00`).getDay() === 6
+                      ? "virtual"
+                      : "presencial",
+                }));
+              }}
+            />
+          </div>
+        </div>
+
+        <div className="agenda-pro-field">
+          <div className="agenda-pro-icon">
+            <FaClock />
+          </div>
+
+          <div className="agenda-pro-control">
+            <label htmlFor="hora-servicios-pasos">
+              Horario disponible
+            </label>
+
+            <select
+              id="hora-servicios-pasos"
+              name="hora"
+              className="form-select select-con-flecha"
+              required
+              value={form.hora}
+              onChange={handleChange}
+              disabled={
+                !form.fecha ||
+                horariosDisponibles.length === 0
+              }
+            >
+              <option value="">
+                {!form.fecha
+                  ? "Primero seleccioná una fecha"
+                  : horariosDisponibles.length === 0
+                  ? "No hay horarios disponibles"
+                  : "Seleccioná una hora"}
+              </option>
+
+              {horariosDisponibles.map((h) => (
+                <option key={h} value={h}>
+                  {h}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+      </div>
+
+      {form.fecha && (
+        <div className="agenda-pasos-modalidad">
+          {form.tipo === "virtual"
+            ? "Consulta por videollamada · $30.000  ✓✓"
+            : "Consulta presencial · $60.000  ✓✓"}
+        </div>
+      )}
+
+      <div className="agenda-pasos-acciones">
+        <button
+          type="button"
+          className="agenda-pasos-siguiente"
+          onClick={() => {
+            if (
+              !form.fecha ||
+              !form.hora ||
+              !horariosDisponibles.includes(form.hora)
+            ) {
+              alert(
+                "Elegí una fecha y un horario disponible para continuar."
+              );
+              return;
+            }
+
+            setPasoTurno(2);
+          }}
+        >
+          Continuar con mis datos →
+        </button>
+      </div>
+
     </div>
-  </div>
+  )}
+
+  {/* ====================================
+      PASO 2: DATOS DEL PACIENTE
+  ==================================== */}
+
+  {pasoTurno === 2 && (
+    <div className="agenda-pasos-panel">
+
+      <h5>2. Datos del paciente</h5>
+      <p>
+        Completá tus datos personales para reservar el turno.
+      </p>
+
+      <div className="agenda-pro-grid">
+
+        <div className="agenda-pro-field">
+          <div className="agenda-pro-icon">
+            <FaUser />
+          </div>
+
+          <div className="agenda-pro-control">
+            <label htmlFor="serv-nombres">
+              Nombres
+            </label>
+
+            <input
+              id="serv-nombres"
+              type="text"
+              name="nombres"
+              className="form-control"
+              placeholder="Tus nombres"
+              autoComplete="given-name"
+              required
+              value={form.nombres || ""}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+
+        <div className="agenda-pro-field">
+          <div className="agenda-pro-icon">
+            <FaUser />
+          </div>
+
+          <div className="agenda-pro-control">
+            <label htmlFor="serv-apellidos">
+              Apellidos
+            </label>
+
+            <input
+              id="serv-apellidos"
+              type="text"
+              name="apellidos"
+              className="form-control"
+              placeholder="Tus apellidos"
+              autoComplete="family-name"
+              required
+              value={form.apellidos || ""}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+
+        <div className="agenda-pro-field">
+          <div className="agenda-pro-icon">
+            <FaPhoneAlt />
+          </div>
+
+          <div className="agenda-pro-control">
+            <label htmlFor="serv-telefono">
+              Teléfono
+            </label>
+
+            <input
+              id="serv-telefono"
+              type="tel"
+              name="telefono"
+              className="form-control"
+              placeholder="Ej.: 2991234567"
+              inputMode="numeric"
+              maxLength={13}
+              required
+              value={form.telefono}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+
+        <div className="agenda-pro-field">
+          <div className="agenda-pro-icon">
+            <FaIdCard />
+          </div>
+
+          <div className="agenda-pro-control">
+            <label htmlFor="serv-dni">
+              DNI
+            </label>
+
+            <input
+              id="serv-dni"
+              type="text"
+              inputMode="numeric"
+              name="Dni"
+              className="form-control"
+              placeholder="Número de documento"
+              required
+              value={form.Dni}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+
+        <div className="agenda-pro-field">
+          <div className="agenda-pro-icon">
+            <FaBirthdayCake />
+          </div>
+
+          <div className="agenda-pro-control">
+            <label htmlFor="serv-nacimiento">
+              Fecha de nacimiento
+            </label>
+
+           
+<input
+  id="serv-nacimiento"
+  type="text"
+  inputMode="numeric"
+  autoComplete="bday"
+  className="form-control"
+  placeholder="DD-MM-AAAA"
+  maxLength={13}
+  required
+  value={fechaNacimientoTexto}
+  onChange={(e) => {
+    const digitos = e.target.value.replace(/\D/g, "").slice(0, 8);
+
+    let texto = digitos.slice(0, 2);
+    if (digitos.length > 2) {
+      texto += "-" + digitos.slice(2, 4);
+    }
+    if (digitos.length > 4) {
+      texto += "-" + digitos.slice(4, 8);
+    }
+
+    setFechaNacimientoTexto(texto);
+
+    let fechaISO = "";
+
+    if (digitos.length === 8) {
+      const dia = Number(digitos.slice(0, 2));
+      const mes = Number(digitos.slice(2, 4));
+      const anio = Number(digitos.slice(4, 8));
+
+      const fecha = new Date(
+        Date.UTC(anio, mes - 1, dia)
+      );
+
+      const esValida =
+        anio >= 1900 &&
+        anio <= new Date().getFullYear() &&
+        fecha.getUTCFullYear() === anio &&
+        fecha.getUTCMonth() === mes - 1 &&
+        fecha.getUTCDate() === dia &&
+        fecha.getTime() <= Date.now();
+
+      if (esValida) {
+        fechaISO =
+          `${anio}-${String(mes).padStart(2, "0")}` +
+          `-${String(dia).padStart(2, "0")}`;
+      }
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      fechaNacimiento: fechaISO,
+    }));
+  }}
+/>
+
+          </div>
+        </div>
+
+        <div className="agenda-pro-field">
+          <div className="agenda-pro-icon">
+            <FaVenusMars />
+          </div>
+
+          <div className="agenda-pro-control">
+            <label htmlFor="serv-sexo">
+              Sexo
+            </label>
+
+            <select
+              id="serv-sexo"
+              name="sexo"
+              className="form-select select-con-flecha"
+              required
+              value={form.sexo}
+              onChange={handleChange}
+            >
+              <option value="">
+                Seleccioná una opción
+              </option>
+              <option value="Femenino">
+                Femenino
+              </option>
+              <option value="Masculino">
+                Masculino
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div className="agenda-pro-field">
+          <div className="agenda-pro-icon">
+            <FaShieldAlt />
+          </div>
+
+          <div className="agenda-pro-control">
+            <label htmlFor="serv-obra">
+              Obra social (1 o más)
+            </label>
+
+            <input
+              id="serv-obra"
+              name="obraSocial"
+              className="form-control"
+              required
+              placeholder="ISSN / OSDE / PARTICULAR"
+              value={form.obraSocial}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+
+        <div className="agenda-pro-field">
+          <div className="agenda-pro-icon">
+            <FaIdCard />
+          </div>
+
+          <div className="agenda-pro-control">
+            <label htmlFor="serv-credencial">
+              N.º de credencial
+            </label>
+
+            <input
+              id="serv-credencial"
+              name="numeroCredencial"
+              type="text"
+              className="form-control"
+              inputMode="text"
+              placeholder="Número de credencial"
+              value={form.numeroCredencial || ""}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+
+        <div className="agenda-pro-field agenda-pro-field-wide">
+          <div className="agenda-pro-icon">
+            <FaNotesMedical />
+          </div>
+
+          <div className="agenda-pro-control">
+            <label htmlFor="serv-motivo">
+              Motivo de consulta
+            </label>
+
+            <textarea
+              id="serv-motivo"
+              name="motivoConsulta"
+              className="form-control"
+              rows="3"
+              placeholder="Describí brevemente el motivo"
+              required
+              value={form.motivoConsulta}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+
+      </div>
+
+      <div className="agenda-pasos-acciones">
+
+        <button
+          type="button"
+          className="agenda-pasos-atras"
+          onClick={() => setPasoTurno(1)}
+        >
+          ← Volver
+        </button>
+
+        <button
+          type="button"
+          className="agenda-pasos-siguiente"
+          
+onClick={() => {
+  const campos = [
+    ["nombres", "los nombres"],
+    ["apellidos", "los apellidos"],
+    ["telefono", "el teléfono"],
+    ["Dni", "el DNI"],
+    ["fechaNacimiento", "la fecha de nacimiento"],
+    ["sexo", "el sexo"],
+    ["obraSocial", "la obra social"],
+    ["motivoConsulta", "el motivo de consulta"],
+  ];
+
+  const faltante = campos.find(
+    ([campo]) => !String(form[campo] || "").trim()
+  );
+
+  if (faltante) {
+    alert(`Por favor, revisá ${faltante[1]}.`);
+    return;
+  }
+
+  if (!/^\d{7,9}$/.test(form.Dni)) {
+    alert("Revisá el DNI: debe tener entre 7 y 9 números.");
+    return;
+  }
+
+  if (!/^\d{6,13}$/.test(form.telefono)) {
+    alert("Revisá el teléfono");
+    return;
+  }
+
+  if (
+    form.numeroCredencial &&
+    !/^\d+(?:-\d+)*$/.test(form.numeroCredencial)
+  ) {
+    alert("Revisá la credencial: solo números y guiones.");
+    return;
+  }
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(form.fechaNacimiento)) {
+    alert("Revisá la fecha de nacimiento. Usá DD-MM-AAAA.");
+    return;
+  }
+
+  setPasoTurno(3);
+}}
+
+        >
+          Revisar mi reserva →
+        </button>
+
+      </div>
+
+    </div>
+  )}
+
+  {/* ====================================
+      PASO 3: CONFIRMAR RESERVA
+  ==================================== */}
+
+  {pasoTurno === 3 && (
+    <div className="agenda-pasos-panel">
+
+      <h5>3. Revisá tu turno</h5>
+      <p>
+        Confirmá que todos los datos estén correctos.
+      </p>
+
+      <div className="agenda-pasos-resumen">
+
+        <div>
+          <span>Paciente</span>
+          <strong>
+            {`${form.nombres || ""} ${form.apellidos || ""}`.trim()}
+          </strong>
+        </div>
+
+        <div>
+          <span>Fecha</span>
+          <strong>
+            {form.fecha
+              ? new Date(
+                  `${form.fecha}T00:00:00`
+                ).toLocaleDateString("es-AR")
+              : "—"}
+          </strong>
+        </div>
+
+        <div>
+          <span>Hora</span>
+          <strong>{form.hora}</strong>
+        </div>
+
+        <div>
+          <span>Modalidad</span>
+          <strong>
+            {form.tipo === "virtual"
+              ? "Videollamada"
+              : "Presencial"}
+          </strong>
+        </div>
+
+        <div>
+          <span>Valor de la consulta</span>
+          <strong>
+            {form.tipo === "virtual"
+              ? "$30.000"
+              : "$60.000"}
+          </strong>
+        </div>
+
+      </div>
+
+<div className="agenda-aviso-pago">
+  <FaExclamationCircle />
+  <span>
+    El pago se realizará una vez finalizada la consulta médica.
+  </span>
+</div>
+
+      <div className="agenda-pasos-acciones">
+
+        <button
+          type="button"
+          className="agenda-pasos-atras"
+          disabled={guardandoCita}
+          onClick={() => setPasoTurno(2)}
+        >
+          ← Corregir datos
+        </button>
+
+        <button
+          type="submit"
+          className="agenda-pro-submit"
+          disabled={guardandoCita}
+        >
+          <FaSave />
+          <span>
+            {guardandoCita
+              ? "Guardando..."
+              : "Confirmar y guardar cita"}
+          </span>
+        </button>
+
+      </div>
+
+    </div>
+  )}
 
 </form>
 
+
 ) : (
 
+
 <div className="success-card success-card-premium text-center">
-
-  <div className="success-actions-top">
-    <button
-      className="btn btn-agendar fw-semibold"
-      onClick={() => {
-        setSuccess(false);
-        setCitaGuardada(null);
-
-        setForm({
-          nombre: "",
-          telefono: "",
-          Dni: "",
-
-          fechaNacimiento: "",
-          sexo: "",
-          obraSocial: "",
-          motivoConsulta: "",
-
-          tipo: "presencial",
-          fecha: "",
-          hora: ""
-        });
-      }}
-    >
-      Nueva cita
-    </button>
-
-    <button
-      type="button"
-      className="btn btn-pdf"
-      onClick={generarComprobanteImagenPaciente}
-    >
-      <FaImage className="me-2" />
-      Comprobante
-    </button>
-  </div>
-
-  <img
-    src={DrReumaLogo}
-    alt="Dr. Reuma"
-    className="success-logo"
-    crossOrigin="anonymous"
-  />
 
   <div className="success-check-big">
     <FaCheckCircle />
@@ -1197,47 +1589,74 @@ const cerrarPreviewComprobantePaciente = () => {
     ¡Cita agendada correctamente!
   </h4>
 
-  <p>
-    Tu turno fue reservado exitosamente.
-  </p>
-
-  <div className="appointment-summary appointment-summary-premium">
-
-    <div>
-      <span>Paciente</span>
-      <strong>{citaGuardada.nombre}</strong>
+  {previewComprobanteUrl ? (
+    <div className="comprobante-inline">
+      <img
+        src={previewComprobanteUrl}
+        alt="Comprobante de cita del paciente"
+        className="comprobante-inline-imagen"
+      />
     </div>
+  ) : (
+    <p className="comprobante-inline-cargando">
+      Preparando tu comprobante...
+    </p>
+  )}
 
-    <div>
-      <span>Fecha</span>
-      <strong>{formatearFechaComprobante(citaGuardada.fecha)}</strong>
-    </div>
+  <div className="comprobante-inline-acciones">
 
-    <div>
-      <span>Hora</span>
-      <strong>{citaGuardada.hora} hs</strong>
-    </div>
+    <button
+      type="button"
+      className="comprobante-inline-nueva"
+      onClick={() => {
+        cerrarPreviewComprobantePaciente();
+        comprobanteAutoRef.current = "";
 
-    <div>
-      <span>Tipo</span>
-      <strong>{citaGuardada.tipo}</strong>
-    </div>
+        setSuccess(false);
+        setCitaGuardada(null);
+        setFechaNacimientoTexto("");
+        setPasoTurno(1);
 
-    <div>
-      <span>Especialidad</span>
-      <strong>Reumatología - Dr. Tony Vélez</strong>
-    </div>
+        setForm({
+          nombre: "",
+          nombres: "",
+          apellidos: "",
+          telefono: "",
+          Dni: "",
+          numeroCredencial: "",
+          fechaNacimiento: "",
+          sexo: "",
+          obraSocial: "",
+          motivoConsulta: "",
+          tipo: "presencial",
+          fecha: "",
+          hora: ""
+        });
 
-    <div>
-      <span>Ubicación</span>
-      <strong>{obtenerLugarComprobante(citaGuardada)}</strong>
-    </div>
+        setHorariosDisponibles([]);
+      }}
+    >
+      <FaCalendarAlt />
+      Reservar otro turno
+    </button>
+
+    <button
+      type="button"
+      className="comprobante-inline-descargar"
+      onClick={descargarComprobantePaciente}
+      disabled={!previewComprobanteUrl}
+      title="Descargar comprobante"
+      aria-label="Descargar comprobante"
+    >
+      <FaSave />
+      Descargar
+    </button>
 
   </div>
 
-  <small className="d-block fw-semibold mb-3">
-    📲 Presiona el botón para notificar al médico.
-  </small>
+  <p className="comprobante-inline-nota">
+    Guardá este comprobante para recordar tu turno.
+  </p>
 
   <a
     href={whatsappLink}
@@ -1250,6 +1669,7 @@ const cerrarPreviewComprobantePaciente = () => {
   </a>
 
 </div>
+
 
 )}
 
@@ -1287,7 +1707,7 @@ const cerrarPreviewComprobantePaciente = () => {
           <FaCheckCircle />
 
           <span>
-            TURNO CONFIRMADO
+            TURNO REGISTRADO
           </span>
 
         </div>
@@ -1613,7 +2033,7 @@ const cerrarPreviewComprobantePaciente = () => {
 
         </div>
 
-{previewComprobanteUrl && (
+{previewComprobanteUrl && !success && (
   <div className="comprobante-preview-overlay">
     <div className="comprobante-preview-card">
 

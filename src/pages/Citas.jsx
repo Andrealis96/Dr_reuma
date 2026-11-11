@@ -737,7 +737,7 @@ else if (day === 5) {
 
  
   else if (day === 6)
-    base = generarHorarios("09:00", "13:00");
+    base = generarHorarios("08:30", "13:00");
   else
     return [];
 

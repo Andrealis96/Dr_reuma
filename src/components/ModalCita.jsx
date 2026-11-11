@@ -28,6 +28,32 @@ import {
   FaCreditCard
 } from "react-icons/fa";
 
+
+/* FECHA DE NACIMIENTO PARA EDITAR
+   AAAA-MM-DD -> DD-MM-AAAA */
+
+const formatearNacimientoParaEditar = (valor = "") => {
+  if (!valor) return "";
+
+  const fecha = String(valor).trim();
+
+  // Formato que llega desde Servicios
+  if (/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
+    const [anio, mes, dia] = fecha.split("-");
+    return `${dia}-${mes}-${anio}`;
+  }
+
+  // Si ya está en DD/MM/AAAA
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(fecha)) {
+    return fecha.replaceAll("/", "-");
+  }
+
+  // Si ya está en DD-MM-AAAA
+  return fecha;
+};
+
+
+
 function ModalCita({
   show,
   onHide,
@@ -123,7 +149,9 @@ useEffect(() => {
     setHora(citaEditar.hora || "");
     setTipo(citaEditar.tipo || "presencial");
 
-    setFechaNacimiento(citaEditar.fechaNacimiento || "");
+    setFechaNacimiento(
+  formatearNacimientoParaEditar(citaEditar.fechaNacimiento)
+);
     setObraSocial(citaEditar.obraSocial || "");
     setNumeroCredencial(citaEditar.numeroCredencial || "");
     setSexo(citaEditar.sexo || "");
@@ -315,7 +343,9 @@ const seleccionarPacientePrevio = (cita) => {
   setTelefono(cita.telefono || "");
   setDni(cita.Dni || cita.dni || "");
 
-  setFechaNacimiento(cita.fechaNacimiento || "");
+  setFechaNacimiento(
+  formatearNacimientoParaEditar(cita.fechaNacimiento)
+);
   setObraSocial(cita.obraSocial || "");
   setNumeroCredencial(cita.numeroCredencial || "");
   setSexo(cita.sexo || "");

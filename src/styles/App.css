@@ -29517,3 +29517,366 @@ svg.candado-bloqueo {
     overflow: visible !important;
   }
 }
+
+
+
+/* ==========================================
+   DR. REUMA - FORMULARIO DE TURNOS EN 3 PASOS
+   VERSION RESPONSIVE PARA CELULARES
+========================================== */
+
+.agenda-pasos {
+  width: 100%;
+  min-width: 0;
+}
+
+/* BARRA DE PROGRESO */
+
+.agenda-pasos-barra {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  max-width: 440px;
+  margin: 18px auto 8px;
+}
+
+.agenda-pasos-barra span {
+  height: 6px;
+  background: #d7e7eb;
+  border-radius: 999px;
+}
+
+.agenda-pasos-barra span.activo {
+  background: #12b8cf;
+}
+
+.agenda-pasos-indicador {
+  color: #078ca2;
+  font-size: 12px;
+  font-weight: 900;
+  text-align: center;
+  letter-spacing: 0.08em;
+  margin: 0 0 16px;
+}
+
+/* PANELES */
+
+.agenda-pasos-panel {
+  width: 100%;
+  min-width: 0;
+}
+
+.agenda-pasos-panel > h5 {
+  font-size: clamp(20px, 3vw, 25px);
+  font-weight: 900;
+  color: #123b48;
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+.agenda-pasos-panel > p {
+  color: #627580;
+  text-align: center;
+  margin-bottom: 22px;
+}
+
+/* PRECIOS */
+
+.agenda-pasos-precios {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.agenda-pasos-precio {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid #b8dfe7;
+  border-radius: 16px;
+
+  box-shadow:
+    0 4px 10px rgba(18, 59, 72, 0.10);
+}
+
+.agenda-pasos-precio strong {
+  font-size: 13px;
+  color: #123b48;
+}
+
+.agenda-pasos-precio span {
+  font-size: 12px;
+  color: #61737b;
+}
+
+.agenda-pasos-precio b {
+  font-size: 24px;
+  color: #009db6;
+}
+
+/* MODALIDAD SEGUN EL DIA */
+
+.agenda-pasos-modalidad {
+  background: #e1f6fa;
+  color: #123b48;
+  border-radius: 12px;
+  padding: 11px 14px;
+  margin-top: 16px;
+  font-weight: 800;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* BOTONES DE NAVEGACION */
+
+.agenda-pasos-acciones {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+
+.agenda-pasos-siguiente {
+  background: #123b48;
+  color: #ffffff;
+  border: 0;
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-weight: 800;
+  margin-left: auto;
+  cursor: pointer;
+
+  box-shadow:
+    0 5px 12px rgba(18, 59, 72, 0.20);
+}
+
+.agenda-pasos-siguiente:hover {
+  background: #175366;
+}
+
+.agenda-pasos-atras {
+  background: #e2f1f4;
+  color: #123b48;
+  border: 0;
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* RESUMEN FINAL */
+
+.agenda-pasos-resumen {
+  background: #ffffff;
+  border: 1px solid #bfdae1;
+  border-radius: 15px;
+  padding: 8px 16px;
+  margin: 14px 0;
+}
+
+.agenda-pasos-resumen > div {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #e5eff2;
+}
+
+.agenda-pasos-resumen > div:last-child {
+  border: 0;
+}
+
+.agenda-pasos-resumen span {
+  color: #5d717a;
+}
+
+.agenda-pasos-resumen strong {
+  color: #123b48;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+/* EVITAR EXPANSION DE CAMPOS */
+
+.agenda-pasos .agenda-pro-field,
+.agenda-pasos .agenda-pro-control {
+  min-width: 0;
+}
+
+.agenda-pasos input,
+.agenda-pasos select,
+.agenda-pasos textarea {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* ==========================================
+   CELULARES
+========================================== */
+
+@media (max-width: 760px) {
+
+  .agenda-pasos-precios {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .agenda-pasos-precio {
+    padding: 11px;
+  }
+
+  .agenda-pasos-precio strong {
+    font-size: 11px;
+  }
+
+  .agenda-pasos-precio b {
+    font-size: 19px;
+  }
+
+  /* EVITAR ZOOM AL TOCAR UN CAMPO */
+  .agenda-pasos input,
+  .agenda-pasos select,
+  .agenda-pasos textarea {
+    font-size: 16px !important;
+  }
+
+  .agenda-pasos-acciones > button {
+    flex: 1 1 auto;
+  }
+
+  .agenda-pasos-resumen > div {
+    font-size: 13px;
+  }
+}
+
+/* COMPROBANTE VISIBLE DEBAJO DEL MENÚ SUPERIOR */
+.success-card {
+  scroll-margin-top: 110px;
+}
+
+
+/* AVISO DE PAGO - PASO 3 */
+.agenda-aviso-pago {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  background: #fff0f1;
+  color: #c82339;
+  border-radius: 12px;
+
+  padding: 13px 16px;
+  margin-top: 16px;
+
+  font-size: 14px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.agenda-aviso-pago svg {
+  flex-shrink: 0;
+  font-size: 20px;
+}
+
+@media (max-width: 600px) {
+  .agenda-aviso-pago {
+    font-size: 13px;
+    align-items: flex-start;
+    text-align: left;
+  }
+}
+
+
+
+
+/* COMPROBANTE REAL EN PANTALLA */
+
+.comprobante-inline {
+  width: 100%;
+  max-width: 440px;
+  margin: 20px auto;
+  padding: 10px;
+
+  background: #f0f7f9;
+  border-radius: 18px;
+  border: 1px solid #c0e0e7;
+}
+
+.comprobante-inline-imagen {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+
+.comprobante-inline-cargando {
+  padding: 25px 10px;
+  color: #123b48;
+  font-weight: 700;
+}
+
+.comprobante-inline-acciones {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.comprobante-inline-acciones button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  padding: 13px 17px;
+  border: none;
+  border-radius: 12px;
+
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.comprobante-inline-nueva {
+  background: #123b48;
+  color: #ffffff;
+}
+
+.comprobante-inline-descargar {
+  background: #12b8cf;
+  color: #ffffff;
+}
+
+.comprobante-inline-acciones button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.comprobante-inline-nota {
+  color: #607782;
+  font-size: 13px;
+  margin: 12px 0;
+}
+
+@media (max-width: 600px) {
+  .comprobante-inline {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .comprobante-inline-acciones {
+    flex-direction: column;
+  }
+
+  .comprobante-inline-acciones button {
+    width: 100%;
+  }
+}
