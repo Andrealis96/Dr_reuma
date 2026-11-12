@@ -4481,7 +4481,7 @@ const buscarPacienteGuardadoPorCita = (cita) => {
   background: transparent;
 
   color: #123b48;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
 }
 
@@ -5520,7 +5520,7 @@ const buscarPacienteGuardadoPorCita = (cita) => {
           width: 100%; min-width: 0; height: 44px !important;
           padding-top: 0 !important; padding-bottom: 0 !important;
           border: 0 !important; box-shadow: none !important;
-          background: transparent !important; font-size: 14px !important;
+          background: transparent !important; font-size: 16px !important;
         }
         .historias-selector-enfermedad { position: relative; min-width: 0; }
         .historias-selector-boton {
@@ -5544,7 +5544,7 @@ const buscarPacienteGuardadoPorCita = (cita) => {
         .historias-selector-menu input {
           width: calc(100% - 20px); margin: 10px; height: 38px;
           border: 1px solid #c5dce2; border-radius: 8px;
-          padding: 0 10px; font-size: 13px; outline-color: #0aa0b3;
+          padding: 0 10px; font-size: 16px; outline-color: #0aa0b3;
         }
         .historias-selector-opciones { max-height: 245px; overflow-y: auto; padding: 3px 6px 8px; }
         .historias-selector-opciones button {

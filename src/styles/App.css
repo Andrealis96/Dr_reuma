@@ -26730,7 +26730,7 @@ svg.candado-bloqueo {
   background: transparent !important;
   box-shadow: none !important;
   outline: none !important;
-  font-size: 14px !important;
+  font-size: 16px !important;
   color: #123b48 !important;
 }
 
@@ -26755,6 +26755,7 @@ svg.candado-bloqueo {
 }
 
 /* Celulares */
+
 @media (max-width: 576px) {
   .buscador-citas-card .buscador-citas-input-wrap {
     padding: 0 12px !important;
@@ -26762,9 +26763,10 @@ svg.candado-bloqueo {
   }
 
   .buscador-citas-card input.citas-buscador-unificado {
-    font-size: 13px !important;
+    font-size: 16px !important;
   }
 }
+
 
 
 
