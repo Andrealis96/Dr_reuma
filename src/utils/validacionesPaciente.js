@@ -28,12 +28,12 @@ export const formatearCredencial = (valor = "") => {
 };
 
 // Obra social: solo letras y espacios, en mayúsculas
-export const formatearObraSocial = (valor = "") => {
-  return String(valor)
-    .replace(/[^a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]/g, "")
+
+export const formatearObraSocial = (valor = "") =>
+  String(valor)
+    .replace(/[^\p{L}\s/-]/gu, "")
     .replace(/\s+/g, " ")
     .toLocaleUpperCase("es-AR");
-};
 
 // Fecha: DD-MM-AAAA
 export const formatearFechaNacimiento = (valor = "") => {
