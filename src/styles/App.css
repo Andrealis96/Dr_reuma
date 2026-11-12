@@ -872,6 +872,8 @@ html, body, #root {
   color: inherit !important;
 }
 
+
+
 /* Cuando pasas el mouse */
 
 .navbar-drreuma .nav-link:hover {
@@ -29879,4 +29881,146 @@ svg.candado-bloqueo {
   .comprobante-inline-acciones button {
     width: 100%;
   }
+}
+
+
+
+
+/* SELECTOR DE HORARIOS - CELULARES */
+
+@media (max-width: 600px) {
+  #hora-servicios-pasos {
+    width: 100%;
+    min-width: 0;
+    font-size: 16px !important;
+    padding-left: 10px;
+    padding-right: 26px;
+    text-overflow: ellipsis;
+  }
+
+  .agenda-pro-control {
+    min-width: 0;
+  }
+}
+
+
+
+
+@media (max-width: 600px) {
+  .agenda-fecha-ayuda {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: #667e88;
+    margin-top: 3px;
+  }
+}
+
+
+
+/* FORMULARIO DE TURNOS MÁS COMPACTO EN CELULARES */
+
+@media (max-width: 600px) {
+
+  /* Menos separación entre campos */
+  .agenda-pro-grid {
+    gap: 8px !important;
+  }
+
+  /* Tarjetas más angostas visualmente */
+  .agenda-pro-field {
+    padding: 8px !important;
+    border-radius: 14px !important;
+    gap: 8px !important;
+  }
+
+  /* Iconos más pequeños */
+  .agenda-pro-icon {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    border-radius: 10px !important;
+  }
+
+  /* Inputs más bajos */
+  .agenda-pro-control input,
+  .agenda-pro-control select {
+    min-height: 38px !important;
+    height: 38px !important;
+    padding: 6px 10px !important;
+    font-size: 16px !important;
+    border-radius: 10px !important;
+  }
+
+  /* Motivo de consulta */
+  .agenda-pro-control textarea {
+    min-height: 65px !important;
+    padding: 8px 10px !important;
+    font-size: 16px !important;
+  }
+
+  /* Etiquetas más compactas */
+  .agenda-pro-control label {
+    font-size: 12px !important;
+    margin-bottom: 4px !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Menos espacio dentro del formulario */
+  .agenda-pasos-panel {
+    padding-top: 6px !important;
+  }
+}
+
+
+
+/* ==========================================
+   EVITAR ZOOM EN BUSCADORES - IPHONE
+========================================== */
+
+@media screen and (max-width: 768px) {
+
+  /* Todos los buscadores e inputs del sistema */
+  input[type="text"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="number"],
+  input[type="email"],
+  input[type="date"],
+  input[type="password"],
+  textarea,
+  select,
+  .form-control,
+  .form-select {
+
+    font-size: 16px !important;
+  }
+
+  /* Mantener tamaño también al seleccionar */
+  input:focus,
+  textarea:focus,
+  select:focus {
+    font-size: 16px !important;
+  }
+
+}
+
+
+
+/* BUSCADORES COMPACTOS EN CELULARES */
+
+@media screen and (max-width: 768px) {
+
+  input[type="search"],
+  input[type="text"] {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  input[type="search"] {
+    min-height: 42px;
+    padding: 8px 12px;
+  }
+
 }

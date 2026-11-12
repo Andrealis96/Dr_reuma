@@ -530,7 +530,7 @@ if (!/^\d{4}-\d{2}-\d{2}$/.test(form.fechaNacimiento)) {
 
 
   if (!form.hora) {
-    alert("Selecciona un horario");
+    alert("Elegí Horario");
     return;
   }
 
@@ -997,22 +997,22 @@ useEffect(() => {
     <div className="agenda-pasos-panel">
 
       <h5>1. Elegí fecha y horario</h5>
-      <p>
-        Primero verificá los horarios disponibles para tu consulta.
-      </p>
-
       <div className="agenda-pasos-precios">
 
         <div className="agenda-pasos-precio">
-          <strong>CONSULTA PRESENCIAL</strong>
+          <strong>CONSULTA</strong>
+          <strong>PRESENCIAL</strong>
           <span>Lunes a viernes</span>
           <b>$60.000</b>
+          <span>Clinica San Agustín</span>
         </div>
 
         <div className="agenda-pasos-precio">
-          <strong>CONSULTA VIRTUAL</strong>
+          <strong>CONSULTA</strong>
+          <strong>VIRTUAL</strong>
           <span>Sábados</span>
           <b>$30.000</b>
+          <span>Vía WhatsApp</span>
         </div>
 
       </div>
@@ -1027,6 +1027,9 @@ useEffect(() => {
           <div className="agenda-pro-control">
             <label htmlFor="fecha-servicios-pasos">
               Fecha de la cita
+              <span className="agenda-fecha-ayuda">
+                Tocá para elegir
+              </span>
             </label>
 
             <input
@@ -1077,10 +1080,10 @@ useEffect(() => {
             >
               <option value="">
                 {!form.fecha
-                  ? "Primero seleccioná una fecha"
+                  ? "Elegí fecha"
                   : horariosDisponibles.length === 0
-                  ? "No hay horarios disponibles"
-                  : "Seleccioná una hora"}
+                  ? "Sin horarios"
+                  : "Elegí horario"}
               </option>
 
               {horariosDisponibles.map((h) => (
@@ -1097,8 +1100,8 @@ useEffect(() => {
       {form.fecha && (
         <div className="agenda-pasos-modalidad">
           {form.tipo === "virtual"
-            ? "Consulta por videollamada · $30.000  ✓✓"
-            : "Consulta presencial · $60.000  ✓✓"}
+            ? "Consulta por videollamada · $30.000"
+            : "Consulta presencial · $60.000"}
         </div>
       )}
 
@@ -1136,9 +1139,6 @@ useEffect(() => {
     <div className="agenda-pasos-panel">
 
       <h5>2. Datos del paciente</h5>
-      <p>
-        Completá tus datos personales para reservar el turno.
-      </p>
 
       <div className="agenda-pro-grid">
 
