@@ -16,9 +16,11 @@ import {
 
   query,
 
-  orderBy,
 
   getDocs,
+  getDocsFromServer,
+  runTransaction,
+  serverTimestamp,
 
 writeBatch,
 
@@ -168,6 +170,14 @@ const leerPacientesCache = () => {
 
 
 
+// DNI canónico para comparar registros antiguos y actuales.
+const dniDuplicados = (p = {}) => [...new Set([p.dni, p.Dni, p.DNI]
+  .map((valor) => String(valor ?? "").replace(/\D/g, ""))
+  .filter(Boolean))];
+
+// Activar solo después de verificar reglas, respaldo y subcolecciones en Firebase.
+const HABILITAR_FUSION_HISTORIAS = false;
+
 function HistoriasClinicas({ modo = "historias" }) {
 
   const navigate = useNavigate();
@@ -175,6 +185,35 @@ function HistoriasClinicas({ modo = "historias" }) {
 
 
   const [pacientes, setPacientes] = useState(() => leerPacientesCache());
+  const [soloDuplicados, setSoloDuplicados] = useState(false);
+  const [revisionDuplicados, setRevisionDuplicados] = useState(null);
+  const [revisandoDuplicados, setRevisandoDuplicados] = useState(false);
+  const [errorRevisionDuplicados, setErrorRevisionDuplicados] = useState("");
+  const revisionEnCursoRef = useRef(false);
+  const fusionEnCursoRef = useRef(false);
+  const [fusionando, setFusionando] = useState(false);
+
+  const [guardandoPaciente, setGuardandoPaciente] = useState(false);
+  const guardandoPacienteRef = useRef(false);
+  const gruposDuplicados = useMemo(() => {
+    const grupos = new Map();
+    pacientes.forEach((p) => {
+      dniDuplicados(p).forEach((numero) => {
+        if (!grupos.has(numero)) grupos.set(numero, []);
+        grupos.get(numero).push(p);
+      });
+    });
+    return [...grupos.entries()].filter(([, historias]) => historias.length > 1);
+  }, [pacientes]);
+  const idsDuplicados = useMemo(() => new Set(
+    gruposDuplicados.flatMap(([, historias]) => historias.map((p) => p.id))
+  ), [gruposDuplicados]);
+
+  // No depender de la caché ni de los pacientes ya cargados al guardar.
+  const leerHistoriasParaValidarDni = async () => {
+    const snap = await getDocsFromServer(collection(db, "historiasClinicas"));
+    return snap.docs.map((d) => ({ ...d.data(), id: d.id }));
+  };
 
 
 
@@ -980,27 +1019,7 @@ const obtenerUltimaConsultaCard = (paciente = {}) => {
 
   useEffect(() => {
 
-    const qPacientes = query(
-
-      collection(
-
-        db,
-
-        "historiasClinicas"
-
-      ),
-
-      orderBy(
-
-        "creado",
-
-        "desc"
-
-      )
-
-    );
-
-
+    const qPacientes = collection(db, "historiasClinicas");
 
     const unsubscribe = onSnapshot(
 
@@ -1010,21 +1029,11 @@ const obtenerUltimaConsultaCard = (paciente = {}) => {
 
       (snapshot) => {
 
-        const datos =
-
-          snapshot.docs.map(
-
-            (doc) => ({
-
-              id: doc.id,
-
-              ...doc.data()
-
-            })
-
-          );
-
-
+        const creadoMillis = (p) => p.creado?.toMillis?.() ||
+          (p.creado instanceof Date ? p.creado.getTime() : 0);
+        const datos = snapshot.docs
+          .map((d) => ({ ...d.data(), id: d.id }))
+          .sort((a, b) => creadoMillis(b) - creadoMillis(a));
 
         setPacientes(datos);
 
@@ -1232,7 +1241,7 @@ const obtenerUltimaConsultaCard = (paciente = {}) => {
 
     setPagina(1);
 
-  }, [busqueda, filtroEnfermedad]);
+  }, [busqueda, filtroEnfermedad, soloDuplicados]);
 
 
 
@@ -1263,6 +1272,10 @@ const obtenerUltimaConsultaCard = (paciente = {}) => {
 const crearPaciente = async (e) => {
 
   e.preventDefault();
+  if (guardandoPacienteRef.current) return;
+  guardandoPacienteRef.current = true;
+  setGuardandoPaciente(true);
+  try {
 
 
 
@@ -1287,9 +1300,8 @@ const crearPaciente = async (e) => {
       alert("Ingresá el DNI del paciente.");
       return;
     }
-    const existentes = pacientes.filter((p) =>
-      String(p.dni || p.Dni || "").replace(/\D/g, "") === dniNormalizado
-    );
+    const historiasServidor = await leerHistoriasParaValidarDni();
+    const existentes = historiasServidor.filter((p) => dniDuplicados(p).includes(dniNormalizado));
     if (existentes.length > 0) {
       alert("Este DNI ya tiene una historia clínica. Seleccioná el paciente desde el buscador para editarlo.");
       return;
@@ -1441,6 +1453,13 @@ origenRegistro: citaHoySeleccionadaId
 
     );
 
+  } catch (error) {
+    console.error("Error al guardar paciente:", error);
+    alert("No se pudo completar el guardado. Revisá la conexión y el listado antes de volver a intentar.");
+  } finally {
+    guardandoPacienteRef.current = false;
+    setGuardandoPaciente(false);
+  }
   };
 
 const eliminarPaciente = async (id) => {
@@ -1450,8 +1469,20 @@ const eliminarPaciente = async (id) => {
 
 
   if (!paciente) return;
-
-
+  try {
+    const historiasServidor = await leerHistoriasParaValidarDni();
+    const actual = historiasServidor.find((p) => p.id === id);
+    if (!actual) { alert("La historia ya no existe."); return; }
+    const dnis = dniDuplicados(actual);
+    if (dnis.length && historiasServidor.some((p) => p.id !== id && dniDuplicados(p).some((n) => dnis.includes(n)))) {
+      alert("Este DNI tiene historias duplicadas. No se puede eliminar desde aquí: primero deben fusionarse de forma segura.");
+      return;
+    }
+  } catch (error) {
+    console.error("No se pudo verificar el DNI antes de eliminar", error);
+    alert("No se pudo verificar el DNI. No se eliminó ningún dato.");
+    return;
+  }
 
   const confirmar = window.confirm(
 
@@ -1660,7 +1691,7 @@ const eliminarPaciente = async (id) => {
 
     setDni(
 
-      p.dni || ""
+      dniDuplicados(p)[0] || ""
 
     );
 
@@ -1719,6 +1750,10 @@ setFechaNacimiento(
 const guardarEdicion = async (e) => {
 
   e.preventDefault();
+  if (guardandoPacienteRef.current) return;
+  guardandoPacienteRef.current = true;
+  setGuardandoPaciente(true);
+  try {
 
 
 
@@ -1737,6 +1772,25 @@ const guardarEdicion = async (e) => {
   }
 
 
+
+  const dniNormalizado = soloNumeros(dni);
+  if (!dniNormalizado) {
+    alert("Ingresá el DNI del paciente.");
+    return;
+  }
+  const historiasServidor = await leerHistoriasParaValidarDni();
+  const actual = historiasServidor.find((p) => p.id === editando);
+  if (!actual) {
+    alert("La historia clínica ya no existe. Actualizá el listado.");
+    return;
+  }
+  const dniActual = dniDuplicados(actual)[0] || "";
+  if (dniNormalizado !== dniActual && historiasServidor.some(
+    (p) => p.id !== editando && dniDuplicados(p).includes(dniNormalizado)
+  )) {
+    alert("Ese DNI ya pertenece a otra historia clínica. No se guardaron los cambios.");
+    return;
+  }
 
   await updateDoc(
 
@@ -1766,9 +1820,9 @@ const guardarEdicion = async (e) => {
 
         dni:
 
-          dni.trim(),
-
-
+          dniNormalizado,
+        ...(Object.prototype.hasOwnProperty.call(actual, "Dni") ? { Dni: dniNormalizado } : {}),
+        ...(Object.prototype.hasOwnProperty.call(actual, "DNI") ? { DNI: dniNormalizado } : {}),
 
         fechaNacimiento,
 
@@ -1804,6 +1858,13 @@ const guardarEdicion = async (e) => {
 
     );
 
+  } catch (error) {
+    console.error("Error al editar paciente:", error);
+    alert("No se pudieron guardar los cambios. Revisá la conexión y los permisos.");
+  } finally {
+    guardandoPacienteRef.current = false;
+    setGuardandoPaciente(false);
+  }
   };
 
 
@@ -1885,6 +1946,7 @@ const pacientesFiltrados = useMemo(() => {
 
 
   return pacientes
+  .filter((p) => !soloDuplicados || idsDuplicados.has(p.id))
 
   .filter((p) => {
 
@@ -1892,7 +1954,7 @@ const pacientesFiltrados = useMemo(() => {
 
     // los pacientes, aunque tengan cero consultas.
 
-    if (modo === "pacientes" || busqueda.trim() !== "") {
+    if (soloDuplicados || modo === "pacientes" || busqueda.trim() !== "") {
 
       return true;
 
@@ -2021,7 +2083,7 @@ const pacientesFiltrados = useMemo(() => {
 
 
 
-}, [pacientes, busqueda, modo, filtroEnfermedad]);
+}, [pacientes, busqueda, modo, filtroEnfermedad, soloDuplicados, idsDuplicados]);
 
 
 
@@ -3563,6 +3625,237 @@ const buscarPacienteGuardadoPorCita = (cita) => {
     };
 
 
+
+  // Revisión de SOLO LECTURA: no modifica ni elimina historias, consultas o vínculos.
+  const revisarDuplicados = async () => {
+    if (revisionEnCursoRef.current) return;
+    revisionEnCursoRef.current = true;
+    setRevisandoDuplicados(true);
+    setErrorRevisionDuplicados("");
+    setRevisionDuplicados(null);
+    try {
+      const snap = await getDocsFromServer(collection(db, "historiasClinicas"));
+      const grupos = new Map();
+      for (const d of snap.docs) {
+        const p = { ...d.data(), id: d.id };
+        for (const dni of dniDuplicados(p)) {
+          if (!grupos.has(dni)) grupos.set(dni, []);
+          grupos.get(dni).push(p);
+        }
+      }
+      const repetidos = [...grupos.entries()].filter(([, fichas]) => fichas.length > 1);
+      const fichasUnicas = new Map(repetidos.flatMap(([, fichas]) => fichas.map(p => [p.id, p])));
+      const detalles = new Map();
+      // Consultas reales y vínculos directos, sin depender de los contadores de las tarjetas.
+      for (const [id, p] of fichasUnicas) {
+        const [consultas, citasHistoria, citasPaciente, biologicos] = await Promise.all([
+          getDocsFromServer(collection(db, "historiasClinicas", id, "consultas")),
+          getDocsFromServer(query(collection(db, "citas"), where("historiaClinicaId", "==", id))),
+          getDocsFromServer(query(collection(db, "citas"), where("pacienteId", "==", id))),
+          getDocsFromServer(query(collection(db, "tratamientosBiologicos"), where("historiaClinicaId", "==", id)))
+        ]);
+        const fechas = consultas.docs.map(d => {
+          const c = d.data();
+          const valor = c.fecha || c.fechaConsulta || c.creado || c.createdAt;
+          let texto = "Sin fecha registrada";
+          if (valor?.toDate) texto = valor.toDate().toLocaleDateString("es-AR");
+          else if (typeof valor === "string" && valor.trim() && valor.length <= 100) texto = valor;
+          return { id: d.id, fecha: texto, hora: String(c.hora || "") };
+        });
+        detalles.set(id, {
+          id,
+          nombre: p.nombre || [p.nombres, p.apellidos].filter(Boolean).join(" "),
+          dnis: dniDuplicados(p),
+          nacimiento: formatearFecha(p.fechaNacimiento),
+          cobertura: p.obraSocial || "—",
+          sexo: p.sexo || "—",
+          cantidad: consultas.size,
+          fechas,
+          citas: new Set([...citasHistoria.docs, ...citasPaciente.docs].map(d => d.id)).size,
+          biologicos: biologicos.size
+        });
+      }
+      setRevisionDuplicados(repetidos.map(([dni, fichas]) => ({
+        dni, fichas: fichas.map(p => detalles.get(p.id))
+      })));
+    } catch (error) {
+      console.error("No se pudo revisar duplicados", error);
+      setErrorRevisionDuplicados("No se pudo completar la revisión desde Firebase. Comprobá la conexión y los permisos de lectura de historias, consultas, citas y biológicos. No se modificó ningún dato.");
+    } finally {
+      setRevisandoDuplicados(false);
+      revisionEnCursoRef.current = false;
+    }
+  };
+
+  // Fusión de dos historias verificadas. Ejecutar solo con respaldo y sin otras sesiones escribiendo.
+  // El archivo de auditoría conserva los documentos originales afectados, no solo los contadores.
+  const fusionarHistorias = async (grupo, idPrincipal) => {
+    if (!HABILITAR_FUSION_HISTORIAS || fusionEnCursoRef.current || revisionEnCursoRef.current) return;
+    fusionEnCursoRef.current = true;
+    setFusionando(true);
+    setErrorRevisionDuplicados("");
+    let confirmada = false;
+    try {
+      const bloquear = (mensaje) => { throw new Error(mensaje); };
+      const identidad = (texto) => normalizarTexto(String(texto ?? "")).trim().replace(/\s+/g, " ");
+      const nombreCanonico = (p) => identidad(p.nombre || [p.nombres, p.apellidos].filter(Boolean).join(" ")).split(" ").filter(Boolean).sort().join(" ");
+      const fichasSnap = await getDocsFromServer(collection(db, "historiasClinicas"));
+      const coincidencias = fichasSnap.docs.filter(d => dniDuplicados(d.data()).includes(grupo.dni));
+      if (coincidencias.length !== 2 || grupo.fichas.length !== 2 ||
+          !grupo.fichas.every(f => coincidencias.some(d => d.id === f.id))) {
+        bloquear("El grupo cambió o no contiene exactamente dos historias. Volvé a revisar los duplicados.");
+      }
+      const principal = coincidencias.find(d => d.id === idPrincipal);
+      const secundaria = coincidencias.find(d => d.id !== idPrincipal);
+      if (!principal || !secundaria) bloquear("No se encontró la historia elegida.");
+      const a = principal.data(), b = secundaria.data();
+      const nacimientoA = formatearFecha(a.fechaNacimiento);
+      const nacimientoB = formatearFecha(b.fechaNacimiento);
+      if (dniDuplicados(a).length !== 1 || dniDuplicados(b).length !== 1 ||
+          !nombreCanonico(a) || nombreCanonico(a) !== nombreCanonico(b) ||
+          nacimientoA === "-" || nacimientoA !== nacimientoB ||
+          !identidad(a.sexo) || identidad(a.sexo) !== identidad(b.sexo)) {
+        bloquear("La identidad no coincide por completo (DNI, nombre, nacimiento y sexo). No se permite la fusión automática.");
+      }
+      const ids = new Set([principal.id, secundaria.id]);
+      const [consultasA, consultasB, citas, biologicos] = await Promise.all([
+        getDocsFromServer(collection(db, "historiasClinicas", principal.id, "consultas")),
+        getDocsFromServer(collection(db, "historiasClinicas", secundaria.id, "consultas")),
+        getDocsFromServer(collection(db, "citas")),
+        getDocsFromServer(collection(db, "tratamientosBiologicos"))
+      ]);
+      const destinos = new Set(consultasA.docs.map(d => d.id));
+      if (consultasB.docs.some(d => destinos.has(d.id))) {
+        bloquear("Hay consultas con el mismo identificador. Se requiere revisión manual para no duplicarlas ni sobrescribirlas.");
+      }
+      const referenciados = [];
+      let citasSinVinculo = 0, tratamientosSinVinculo = 0;
+      const evaluar = (d, esCita) => {
+        const info = d.data();
+        const dnis = [...new Set([info.dni, info.Dni, info.DNI, ...(esCita ? [info.documento, info.numeroDocumento] : [])].map(n => String(n ?? "").replace(/\D/g, "")).filter(Boolean))];
+        const vinculos = [info.historiaClinicaId, info.pacienteId].filter(Boolean);
+        const relacionado = vinculos.some(v => ids.has(v));
+        if (!relacionado) {
+          if (dnis.includes(grupo.dni)) {
+            if (vinculos.length) bloquear("Existe otro vínculo para este DNI que debe revisarse manualmente.");
+            if (esCita) citasSinVinculo++; else tratamientosSinVinculo++;
+          }
+          return;
+        }
+        if (vinculos.some(v => !ids.has(v)) || dnis.some(n => n !== grupo.dni)) {
+          bloquear("Se encontró una referencia con DNI o ID contradictorio. Revisala antes de fusionar.");
+        }
+        if (esCita) {
+          if (info.historiaClinicaId !== principal.id || info.pacienteId !== principal.id) {
+            referenciados.push({ d, cambios: { historiaClinicaId: principal.id, pacienteId: principal.id }, esCita });
+          }
+        } else {
+          if (info.historiaClinicaId !== principal.id || (info.pacienteId && info.pacienteId !== principal.id)) {
+            referenciados.push({ d, cambios: { historiaClinicaId: principal.id, ...(info.pacienteId ? { pacienteId: principal.id } : {}) }, esCita });
+          }
+        }
+      };
+      citas.docs.forEach(d => evaluar(d, true));
+      biologicos.docs.forEach(d => evaluar(d, false));
+      // No inventar ni deduplicar evoluciones por similitud del texto.
+      const todas = [...consultasA.docs, ...consultasB.docs].map(d => d.data());
+      const diagnosticos = new Set();
+      const agregarDiagnosticos = (lista) => {
+        if (Array.isArray(lista)) for (const d of lista) {
+          if (typeof d === "string" && d.trim()) diagnosticos.add(d.trim().toUpperCase());
+        }
+      };
+      agregarDiagnosticos(a.diagnosticosResumen);
+      agregarDiagnosticos(b.diagnosticosResumen);
+      let ultima = null;
+      for (const c of todas) {
+        agregarDiagnosticos(Array.isArray(c.diagnosticos) && c.diagnosticos.length ? c.diagnosticos : String(c.diagnostico || "").split(" - "));
+        const info = obtenerFechaHoraConsulta(c);
+        if (!info.fechaDate) bloquear("Una evolución no tiene una fecha interpretable. Revisala antes de fusionar.");
+        if (!ultima || info.fechaDate > ultima.fechaDate) ultima = info;
+      }
+      const cambiosPrincipal = {
+        dni: grupo.dni, Dni: grupo.dni,
+        ...(a.DNI !== undefined || b.DNI !== undefined ? { DNI: grupo.dni } : {}),
+        cantidadConsultas: todas.length,
+        diagnosticosResumen: [...diagnosticos].sort((x, y) => x.localeCompare(y, "es")),
+        ultimaConsultaAtMillis: ultima?.fechaDate.getTime() || 0,
+        ultimaConsultaTexto: ultima ? `${ultima.fecha}${ultima.hora ? ` - ${ultima.hora} hs` : ""}` : "",
+        resumenActualizadoAt: serverTimestamp(),
+        ultimaFusionAt: serverTimestamp()
+      };
+      const conflictos = [];
+      const camposPersonales = ["nombres", "apellidos", "nombre", "fechaNacimiento", "sexo", "obraSocial", "numeroCredencial", "telefono", "Telefono"];
+      for (const campo of camposPersonales) {
+        const va = a[campo], vb = b[campo];
+        if ((va == null || va === "") && vb != null && vb !== "") cambiosPrincipal[campo] = vb;
+        else if (va != null && vb != null && String(va).trim() && String(vb).trim() && identidad(va) !== identidad(vb)) conflictos.push(campo);
+      }
+      // No sobrescribir campos adicionales de la historia principal. El original queda en la auditoría.
+      const otros = Object.keys(b).filter(k => !camposPersonales.includes(k) && !["dni", "Dni", "DNI", "cantidadConsultas", "diagnosticosResumen", "ultimaConsultaAtMillis", "ultimaConsultaTexto", "resumenActualizadoAt", "creado", "origen", "origenRegistro", "ultimaFusionAt"].includes(k));
+      const originales = [principal, secundaria, ...consultasB.docs, ...referenciados.map(x => x.d)];
+      const cantidadEscrituras = originales.length + consultasB.size * 2 + referenciados.length + 3;
+      if (cantidadEscrituras > 350) bloquear("La fusión es demasiado grande para una sola operación segura. Requiere migración administrativa.");
+      const resumen = `${a.nombre || "Paciente"}\n\nHistoria que se conserva: ${principal.id}\nHistoria duplicada: ${secundaria.id}\nConsultas finales: ${todas.length} (se trasladarán ${consultasB.size})\nCitas que se actualizarán: ${referenciados.filter(x => x.esCita).length}\nTratamientos que se actualizarán: ${referenciados.filter(x => !x.esCita).length}\nCitas sin vínculo por ID: ${citasSinVinculo}; tratamientos sin vínculo: ${tratamientosSinVinculo} (no se modificarán).\n${conflictos.length ? "Datos distintos: " + conflictos.join(", ") + ". Se mantendrán los de la historia elegida.\n" : ""}${otros.length ? "Otros campos de la secundaria, conservados en el respaldo: " + otros.join(", ") + ".\n" : ""}\nConfirmá solo si verificaste las dos historias, sus subcolecciones y referencias, tenés respaldo de Firestore y cerraste las demás sesiones. Se archivará el original duplicado y se retirará del listado.`;
+      if (!window.confirm(resumen)) return;
+      confirmada = true;
+      const auditoria = doc(collection(db, "fusionesHistoriasClinicas"));
+      const copias = consultasB.docs.map(d => ({ origen: d, destino: doc(db, "historiasClinicas", principal.id, "consultas", d.id) }));
+      const igual = (x, y) => {
+        if (Object.is(x, y)) return true;
+        if (x == null || y == null || typeof x !== typeof y) return false;
+        if (typeof x?.isEqual === "function") return x.isEqual(y);
+        if (x instanceof Date && y instanceof Date) return x.getTime() === y.getTime();
+        if (Array.isArray(x) || Array.isArray(y)) return Array.isArray(x) && Array.isArray(y) && x.length === y.length && x.every((v,i) => igual(v,y[i]));
+        if (typeof x !== "object") return false;
+        if (Object.getPrototypeOf(x) !== Object.prototype || Object.getPrototypeOf(y) !== Object.prototype) return false;
+        const keys = Object.keys(x);
+        return keys.length === Object.keys(y).length && keys.every(k => Object.prototype.hasOwnProperty.call(y,k) && igual(x[k],y[k]));
+      };
+      await runTransaction(db, async tx => {
+        // Comprobar documentos leídos; todas las lecturas antes de las escrituras.
+        for (const original of [...originales, ...consultasA.docs]) {
+          const actual = await tx.get(original.ref);
+          if (!actual.exists() || !igual(actual.data(), original.data())) bloquear("Un registro cambió durante la revisión. No se aplicó la fusión; volvé a revisar.");
+        }
+        for (const copia of copias) {
+          if ((await tx.get(copia.destino)).exists()) bloquear("Ya existe una consulta con ese ID en la historia principal.");
+        }
+        // Respaldo y cambios quedan en una misma transacción: si falla un permiso, no cambia nada.
+        tx.set(auditoria, { principalId: principal.id, secundariaId: secundaria.id, dni: grupo.dni,
+          fecha: serverTimestamp(), cantidadConsultas: todas.length, cantidadCitas: referenciados.filter(x => x.esCita).length,
+          cantidadBiologicos: referenciados.filter(x => !x.esCita).length, estado: "FUSIONADA" });
+        originales.forEach((original, i) => {
+          tx.set(doc(auditoria, "originales", String(i + 1)), { ruta: original.ref.path, datos: original.data() });
+        });
+        for (const copia of copias) {
+          tx.set(copia.destino, copia.origen.data());
+          tx.delete(copia.origen.ref);
+        }
+        referenciados.forEach(({d, cambios}) => tx.update(d.ref, cambios));
+        tx.update(principal.ref, cambiosPrincipal);
+        tx.delete(secundaria.ref);
+      });
+      // Las demás sesiones deben recargarse antes de continuar trabajando.
+      try {
+        sessionStorage.removeItem(PACIENTES_CACHE_KEY);
+        localStorage.removeItem("drreuma_historias_cache");
+        localStorage.removeItem("drreuma_citas_cache");
+        for (const id of ids) localStorage.removeItem(`paciente-cache-${id}`);
+      } catch (_) { /* La transacción ya fue confirmada. */ }
+      setRevisionDuplicados(null);
+      setSoloDuplicados(false);
+      setPagina(1);
+      alert(`Fusión guardada. Se conservaron ${todas.length} consultas. Abrí la historia y comprobá ambas evoluciones y los vínculos de Agenda. ID de respaldo: ${auditoria.id}`);
+      await revisarDuplicados();
+    } catch (error) {
+      console.error("Fusión de historias", error);
+      setErrorRevisionDuplicados(`${confirmada ? "No se pudo confirmar la fusión; volvé a consultar Firebase antes de reintentar." : "No se inició la fusión."} ${error.message || "Error de conexión o permisos."}`);
+    } finally {
+      fusionEnCursoRef.current = false;
+      setFusionando(false);
+    }
+  };
 
   const fechaHoyHistoriasTexto =
 
@@ -5212,7 +5505,7 @@ const buscarPacienteGuardadoPorCita = (cita) => {
 
 
 
-        <button className="historias-save-btn">
+        <button type="submit" className="historias-save-btn" disabled={guardandoPaciente}>
 
 
 
@@ -5632,6 +5925,75 @@ const buscarPacienteGuardadoPorCita = (cita) => {
         </button>
       </div>
           
+{!cargandoPacientes && gruposDuplicados.length > 0 && (
+  <div className="alert alert-warning d-flex align-items-center justify-content-between flex-wrap gap-2" role="status">
+    <div>
+      <strong>{gruposDuplicados.length} DNI con historias duplicadas</strong>
+      <div className="small">Revisá estas historias antes de fusionarlas. No elimines sus consultas.</div>
+    </div>
+    <button type="button" className="btn btn-outline-dark btn-sm"
+      onClick={() => {
+        setSoloDuplicados((anterior) => !anterior);
+        setBusqueda("");
+        setFiltroEnfermedad("");
+        setPagina(1);
+      }}>
+      {soloDuplicados ? "Ver todos" : "Ver duplicados"}
+    </button>
+  </div>
+)}
+{!cargandoPacientes && gruposDuplicados.length > 0 && (
+  <div className="mb-3">
+    <button type="button" className="btn btn-outline-primary"
+      onClick={revisarDuplicados} disabled={revisandoDuplicados || fusionando}>
+      <FaFolderOpen /> {revisandoDuplicados ? "Revisando registros..." : "Revisar historias antes de fusionar"}
+    </button>
+  </div>
+)}
+{errorRevisionDuplicados && <div className="alert alert-danger" role="alert">{errorRevisionDuplicados}</div>}
+{revisionDuplicados !== null && (
+  <section className="card shadow-sm mb-3" aria-label="Revisión de historias duplicadas">
+    <div className="card-body">
+      <div className="d-flex justify-content-between align-items-start gap-2 mb-3">
+        <div>
+          <h5 className="fw-bold">Revisión de duplicados</h5>
+          <p className="small text-muted mb-0">Consultas reales de Firebase. Elegí qué historia conservar únicamente tras verificar la identidad, revisar subcolecciones y tener un respaldo. No se fusionan citas antiguas sin ID automáticamente.</p>
+        </div>
+        <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => setRevisionDuplicados(null)} disabled={fusionando} aria-label="Cerrar revisión"><FaTimes /></button>
+      </div>
+      {!HABILITAR_FUSION_HISTORIAS && <div className="alert alert-warning small" role="status">Fusión protegida. Verificá respaldo, permisos y subcolecciones antes de habilitarla.</div>}
+      {revisionDuplicados.length === 0 && <p>No se encontraron DNI duplicados al consultar directamente Firebase.</p>}
+      {revisionDuplicados.map(({ dni, fichas }) => (
+        <section className="border rounded p-3 mb-3" key={dni}>
+          <h6 className="fw-bold">DNI: {dni} · {fichas.length} historias</h6>
+          <p className="small mb-2">{fichas.reduce((total, f) => total + f.cantidad, 0)} consultas encontradas en total (sin deduplicar).</p>
+          <div className="row g-2">
+            {fichas.map((f, i) => (
+              <div className="col-12 col-md-6" key={f.id}>
+                <div className="border rounded p-3 h-100">
+                  <div className="small text-muted">Historia {i + 1}</div>
+                  <strong>{f.nombre || "Sin nombre"}</strong>
+                  <div className="small">Nacimiento: {f.nacimiento} · {f.sexo}</div>
+                  <div className="small">Obra social: {f.cobertura}</div>
+                  {f.dnis.length !== 1 && <div className="alert alert-warning py-1 px-2 mt-2 small">DNI inconsistentes: {f.dnis.join(" / ")}. Revisar identidad.</div>}
+                  <div className="small mt-2"><strong>Consultas: {f.cantidad}</strong></div>
+                  {f.fechas.map(c => <div className="small" key={c.id}>• {c.fecha} {c.hora}</div>)}
+                  <div className="small mt-2">Citas vinculadas: {f.citas} · Biológicos: {f.biologicos}</div>
+                  <div className="small text-muted text-break mt-1">ID: {f.id}</div>
+                  <button type="button" className="btn btn-outline-primary btn-sm mt-2" disabled={fusionando} onClick={() => navigate(`/admin/historia/${encodeURIComponent(f.id)}`)}><FaFolderOpen /> Abrir historia</button>
+                  {fichas.length === 2 && <button type="button" className="btn btn-outline-success btn-sm mt-2 ms-2" disabled={!HABILITAR_FUSION_HISTORIAS || fusionando || revisandoDuplicados || f.dnis.length !== 1} onClick={() => fusionarHistorias({ dni, fichas }, f.id)}><FaCheckCircle /> {fusionando ? "Procesando..." : "Conservar esta y fusionar"}</button>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      ))}
+    </div>
+  </section>
+)}
+{soloDuplicados && gruposDuplicados.length === 0 && (
+  <button type="button" className="btn btn-outline-dark btn-sm" onClick={() => setSoloDuplicados(false)}>Ver todos</button>
+)}
 {!cargandoPacientes && (
   <div
     className="historias-resultados-contador"
@@ -5677,6 +6039,9 @@ const buscarPacienteGuardadoPorCita = (cita) => {
                   <img src={avatar} alt="" className="historias-avatar" />
                   <div className="historias-paciente-info">
                     <h4>{p.nombre}</h4>
+                    {idsDuplicados.has(p.id) && (
+                      <span className="badge bg-warning text-dark mb-2">DNI duplicado · revisar</span>
+                    )}
                     <div className="historias-paciente-grid">
                       <span><FaIdCard /> DNI: {p.dni || "-"}</span>
                       <span><FaBirthdayCake /> {formatearFecha(p.fechaNacimiento)}{edad !== null ? ` (${edad} años)` : ""}</span>

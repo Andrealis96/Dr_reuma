@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRef } from "react";
-import { collection, addDoc, query, where, getDocs, onSnapshot } from "firebase/firestore";
+import { collection, doc, onSnapshot, runTransaction, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
 import ServiceCard from "./ServiceCard";
 import { FaMapMarkerAlt , FaMoneyBillWave, FaExclamationCircle, FaExclamationTriangle  } from "react-icons/fa";
@@ -52,8 +52,7 @@ numeroCredencial: "",
   const [pasoTurno, setPasoTurno] = useState(1);
   const pasoAnteriorRef = useRef(1);
   const [horariosDisponibles, setHorariosDisponibles] = useState([]);
-  const [bloqueos, setBloqueos] = useState([]);
-  const [bloqueosHora, setBloqueosHora] = useState([]);
+
   const [success, setSuccess] = useState(false);
   const [citaGuardada, setCitaGuardada] = useState(null);
   const [fechaNacimientoTexto, setFechaNacimientoTexto] = useState("");
@@ -70,7 +69,7 @@ const [guardandoCita, setGuardandoCita] = useState(false);
 const [previewComprobanteUrl, setPreviewComprobanteUrl] = useState(null);
 const [previewComprobanteFile, setPreviewComprobanteFile] = useState(null);
 
-  
+
 
 const handleChange = (e) => {
   const { name, value } = e.target;
@@ -78,7 +77,7 @@ const handleChange = (e) => {
   setForm((prev) => {
     let valorFinal = value;
 
-    
+
  // Nombres y apellidos: solo letras y formato correcto
 if (name === "nombres" || name === "apellidos") {
   valorFinal = value
@@ -95,7 +94,7 @@ if (name === "nombres" || name === "apellidos") {
       valorFinal = value.replace(/\D/g, "");
     }
 
-    
+
 // Obra social: letras, espacios y barra inclinada
 
 if (name === "obraSocial") {
@@ -132,318 +131,36 @@ if (name === "obraSocial") {
 };
 
 
-const [viernesAgenda, setViernesAgenda] = useState([]);
-const codigoTurno =
-  `https://drreuma.com/verificacion?paciente=${encodeURIComponent(citaGuardada?.nombre || "")}&fecha=${encodeURIComponent(citaGuardada?.fecha || "")}&hora=${encodeURIComponent(citaGuardada?.hora || "")}`;
+const limpiarDniPaciente = (valor = "") => String(valor).replace(/\D/g, "").trim();
+const limpiarTelefono10 = (valor = "") => String(valor).replace(/\D/g, "").slice(0, 13);
 
-
-  const esViernesActivo = (fechaObj) => {
-  const MS_DIA = 1000 * 60 * 60 * 24;
-
-  // 🔥 fecha base: viernes 10 abril 2026 (NO atención)
-  const base = new Date(2026, 3, 10);
-
-  const actual = new Date(
-    fechaObj.getFullYear(),
-    fechaObj.getMonth(),
-    fechaObj.getDate()
-  );
-
-  const diffDias = Math.round((actual - base) / MS_DIA);
-
-  const semana = Math.floor(diffDias / 7);
-
-  const ciclo = ((semana % 3) + 3) % 3; // 🔥 ciclo de 3
-
-  // patrón: [0 ❌, 1 ✅, 2 ✅]
-  return ciclo === 1 || ciclo === 2;
+// La agenda publica solo contiene fechas, horas y bloqueos sin datos personales.
+const configAgendaRef = doc(db, "agendaPublicaV2", "config");
+const horariosParaFecha = (fecha, config) => {
+  if (!config?.lista || config.bloqueados?.[fecha]) return [];
+  const dia = new Date(`${fecha}T12:00:00-03:00`).getUTCDay();
+  let base = [];
+  if ([1, 2, 3].includes(dia)) base = ["15:00", "15:30", "16:00", "16:30", "17:00", "17:30"];
+  if (dia === 4) base = ["09:30", "10:00", "10:30", "11:00", "11:30" ];
+  if (dia === 5 && config.viernes?.[fecha] === "mañana") base = ["9:30", "10:00", "10:30", "11:00", "11:30"];
+  if (dia === 5 && config.viernes?.[fecha] === "tarde") base = ["15:00", "15:30", "16:00", "16:30"];
+  if (dia === 6) base = ["10:00", "10:30", "11:00", "11:30"];
+  return base.filter(h => !config.ocupados?.[`${fecha}_${h}`] && !config.horasBloqueadas?.[`${fecha}_${h}`] && new Date(`${fecha}T${h}:00-03:00`).getTime() > Date.now());
 };
-
 useEffect(() => {
-  const unsub = onSnapshot(collection(db, "bloqueosAgenda"), (snap) => {
-    const data = snap.docs.map(d => ({
-      id: d.id,
-      ...d.data()
-    }));
-
-    setBloqueos(data);
-  });
-
-  return () => unsub();
-}, []);
-
-useEffect(() => {
-  const unsub = onSnapshot(collection(db, "viernesAgenda"), (snap) => {
-    const data = snap.docs.map(d => ({
-      id: d.id,
-      ...d.data()
-    }));
-
-    setViernesAgenda(data);
-  });
-
-  return () => unsub();
-}, []);
-
-useEffect(() => {
-  const unsub = onSnapshot(collection(db, "bloqueosHora"), (snap) => {
-    const data = snap.docs.map((d) => ({
-      id: d.id,
-      ...d.data()
-    }));
-
-    setBloqueosHora(data);
-  });
-
-  return () => unsub();
-}, []);
-
-const getConfiguracionViernes = (fecha) => {
-  return viernesAgenda.find(v => v.fecha === fecha);
-};
-
-const diaEstaBloqueado = (fecha) => {
-  return bloqueos.some(b => b.fecha === fecha && b.activo);
-};
-
-const normalizarHora = (hora = "") => {
-  return hora.toString().trim().slice(0, 5);
-};
-
-const limpiarDniPaciente = (valor = "") => {
-  return valor.toString().replace(/\D/g, "").trim();
-};
-
-
-const limpiarTelefono10 = (telefono = "") => {
-  return String(telefono)
-    .replace(/\D/g, "")
-    .slice(0, 13);
-};
-
-
-const buscarOCrearHistoriaDesdeServices = async (dataCita = {}) => {
-  const dniLimpio = limpiarDniPaciente(
-    dataCita.Dni ||
-    dataCita.dni ||
-    dataCita.DNI ||
-    ""
-  );
-
-  if (!dniLimpio) {
-    return "";
-  }
-
-  const qHistoriasDni = query(
-    collection(db, "historiasClinicas"),
-    where("dni", "==", dniLimpio)
-  );
-
-  const snapHistoriasDni = await getDocs(qHistoriasDni);
-
-  if (!snapHistoriasDni.empty) {
-    return snapHistoriasDni.docs[0].id;
-  }
-
-  const qHistoriasDniMayus = query(
-    collection(db, "historiasClinicas"),
-    where("Dni", "==", dniLimpio)
-  );
-
-  const snapHistoriasDniMayus = await getDocs(qHistoriasDniMayus);
-
-  if (!snapHistoriasDniMayus.empty) {
-    return snapHistoriasDniMayus.docs[0].id;
-  }
-
-  const nuevaHistoria = await addDoc(collection(db, "historiasClinicas"), {
-    nombres: dataCita.nombres?.trim() || "",
-    apellidos: dataCita.apellidos?.trim() || "",
-    numeroCredencial: dataCita.numeroCredencial?.trim() || "",
-        
-    
-    nombre: dataCita.nombre?.trim() || "",
-    dni: dniLimpio,
-    Dni: dniLimpio,
-    telefono: limpiarTelefono10(dataCita.telefono || ""),
-    fechaNacimiento: dataCita.fechaNacimiento || "",
-    obraSocial: dataCita.obraSocial?.trim() || "",
-    sexo: dataCita.sexo || "",
-
-    cantidadConsultas: 0,
-    diagnosticosResumen: [],
-    ultimaConsultaTexto: "",
-    ultimaConsultaAtMillis: 0,
-
-    origen: "web",
-    creado: new Date()
-  });
-
-  return nuevaHistoria.id;
-};
-
-const horaEstaBloqueada = (fecha, hora) => {
-  return bloqueosHora.some(
-    (b) =>
-      b.fecha === fecha &&
-      normalizarHora(b.hora) === normalizarHora(hora) &&
-      b.activo
-  );
-};
-
-  // 🔥 Cargar horarios disponibles
-useEffect(() => {
-  if (!form.fecha) return;
-
-  const cargarHorarios = async () => {
-    if (diaEstaBloqueado(form.fecha)) {
-setHorariosDisponibles([]);
-  setForm(prev => ({
-    ...prev,
-    hora: ""
-  }));
-  return;
-
-}
-    const fechaObj = new Date(form.fecha + "T00:00:00");
-
-    const diaSemana = fechaObj
-      .toLocaleDateString("es-AR", { weekday: "long" })
-      .toLowerCase();
-
-    const generarHorarios = (inicio, fin) => {
-      const horarios = [];
-      for (let h = inicio; h <= fin; h++) {
-        horarios.push(`${h}:00`);
-        horarios.push(`${h}:30`);
-      }
-      return horarios;
-    };
-
-    const getWeekNumber = (date) => {
-      const firstJan = new Date(date.getFullYear(), 0, 1);
-      const days = Math.floor((date - firstJan) / (24 * 60 * 60 * 1000));
-      return Math.ceil((days + firstJan.getDay() + 1) / 7);
-    };
-
-    const week = getWeekNumber(fechaObj);
-
-    // 🔥 patrón viernes: [no, si, si, no]
-    const viernesActivo = (() => {
-      const pattern = week % 4;
-      return pattern === 1 || pattern === 2; // semanas 2 y 3
-    })();
-
-   let horariosBase = [];
-
-// ❌ MIÉRCOLES NO LO TOCAMOS (queda dentro del grupo)
-if (diaSemana === "domingo") {
   setHorariosDisponibles([]);
-  return;
-}
-
-// 🔴 VIERNES EN AGENDA PÚBLICA / SERVICIOS
-// El doctor puede tener horarios extra en Citas.jsx,
-// pero el paciente público solo puede sacar turno viernes de mañana.
-
-/* VIERNES: horarios públicos según turno del médico */
-
-if (diaSemana === "viernes") {
-  const configViernes = getConfiguracionViernes(form.fecha);
-
-  // Sin configuración, no se ofrecen turnos.
-  if (
-    !configViernes ||
-    !["mañana", "tarde"].includes(configViernes.turno)
-  ) {
+  if (!form.fecha) return;
+  const fecha = form.fecha;
+  return onSnapshot(configAgendaRef, { includeMetadataChanges: true }, snap => {
+    if (snap.metadata.fromCache) return;
+    const disponibles = horariosParaFecha(fecha, snap.data());
+    setHorariosDisponibles(disponibles);
+    setForm(prev => prev.fecha === fecha ? {...prev, hora: disponibles.includes(prev.hora) ? prev.hora : ""} : prev);
+  }, error => {
+    console.error("Error leyendo disponibilidad:", error);
     setHorariosDisponibles([]);
-    setForm(prev => ({
-      ...prev,
-      hora: ""
-    }));
-    return;
-  }
-
-  if (configViernes.turno === "mañana") {
-    horariosBase = [
-      "09:30",
-      "10:00",
-      "10:30",
-      "11:00",
-      "11:30"
-    ];
-  } else if (configViernes.turno === "tarde") {
-    horariosBase = [
-      "15:00",
-      "15:30",
-      "16:00",
-      "16:30"
-    ];
-  }
-}
-
-
-// 🟢 LUNES - MARTES - MIÉRCOLES
-if (
-  diaSemana === "lunes" ||
-  diaSemana === "martes" ||
-  diaSemana === "miércoles"
-) {
-  horariosBase = [
-    "15:00", "15:30",
-    "16:00", "16:30",
-    "17:00", "17:30"
-  ];
-}
-
-// 🟡 JUEVES (mañana)
-else if (diaSemana === "jueves") {
-    horariosBase =["09:30","10:00","10:30","11:00"];
-}
-
-// 🔵 SÁBADO (solo virtual)
-else if (diaSemana === "sábado") {
-  horariosBase = [
-    "10:00", "10:30","11:00",
-    "11:30"
-  ];
-}
-    // 🔥 traer ocupados
-    const q = query(
-      collection(db, "citas"),
-      where("fecha", "==", form.fecha)
-    );
-
-const snapshot = await getDocs(q);
-
-const ocupados = snapshot.docs.map((doc) =>
-  normalizarHora(doc.data().hora)
-);
-
-const bloqueadas = bloqueosHora
-  .filter((b) => b.fecha === form.fecha && b.activo)
-  .map((b) => normalizarHora(b.hora));
-
-const disponibles = horariosBase.filter((h) => {
-  const hora = normalizarHora(h);
-
-  return (
-    !ocupados.includes(hora) &&
-    !bloqueadas.includes(hora)
-  );
-});
-
-
-setHorariosDisponibles(disponibles);
-
-setForm(prev => ({
-  ...prev,
-  hora: disponibles.includes(prev.hora) ? prev.hora : ""
-}));
-
-};
-  cargarHorarios();
-}, [form.fecha, bloqueos, viernesAgenda, bloqueosHora]);
+  });
+}, [form.fecha]);
 
 useEffect(() => {
   if (!form.fecha) return;
@@ -488,7 +205,7 @@ const handleSubmit = async (e) => {
     "hora"
   ];
 
-  
+
 const nombresCampos = {
   nombre: "nombre y apellido",
   telefono: "teléfono",
@@ -535,146 +252,47 @@ if (!/^\d{4}-\d{2}-\d{2}$/.test(form.fechaNacimiento)) {
   }
 
 
-  
-const fechaReserva = new Date(`${form.fecha}T00:00:00`);
 
-if (fechaReserva.getDay() === 5) {
-  const configViernes = getConfiguracionViernes(form.fecha);
-
-  const horariosViernesPublicos = {
-    mañana: ["10:00", "10:30", "11:00", "11:30"],
-    tarde: ["15:00", "15:30", "16:00", "16:30"]
-  };
-
-  const turno = configViernes?.turno;
-
-  if (
-    !turno ||
-    !horariosViernesPublicos[turno]?.includes(form.hora) ||
-    diaEstaBloqueado(form.fecha)
-  ) {
-    alert(
-      "Este viernes u horario no está habilitado. Seleccioná otro turno."
-    );
+  const fechaReserva = new Date(`${form.fecha}T12:00:00-03:00`);
+  if (!horariosDisponibles.includes(form.hora) || Number.isNaN(fechaReserva.getTime())) {
+    alert("Elegí un horario disponible.");
     return;
   }
-}
-
-
   setGuardandoCita(true);
-
   try {
-    const bloqueosHoraSnap = await getDocs(
-      query(
-        collection(db, "bloqueosHora"),
-        where("fecha", "==", form.fecha)
-      )
-    );
-
-    const horaBloqueada = bloqueosHoraSnap.docs.some((doc) => {
-      const data = doc.data();
-
-      return (
-        data.activo &&
-        normalizarHora(data.hora) === normalizarHora(form.hora)
-      );
-    });
-
-    if (horaBloqueada) {
-      alert("Ese horario ya no está disponible. Por favor selecciona otro horario.");
-
-      setForm((prev) => ({
-        ...prev,
-        hora: ""
-      }));
-
-      return;
-    }
-
-    const citasSnap = await getDocs(
-      query(
-        collection(db, "citas"),
-        where("fecha", "==", form.fecha)
-      )
-    );
-
-    const citaYaExiste = citasSnap.docs.some((doc) => {
-      const data = doc.data();
-      return normalizarHora(data.hora) === normalizarHora(form.hora);
-    });
-
-    if (citaYaExiste) {
-      alert("Ese horario acaba de ser reservado. Por favor selecciona otro horario.");
-
-      setForm((prev) => ({
-        ...prev,
-        hora: ""
-      }));
-
-      return;
-    }
-
-    const fechaTipoObj = new Date(form.fecha + "T00:00:00");
-
-    const diaTipoSemana = fechaTipoObj
-      .toLocaleDateString("es-AR", { weekday: "long" })
-      .toLowerCase();
-
-    if (diaTipoSemana === "sábado" && form.tipo !== "virtual") {
-      alert("Los sábados solo se permiten consultas virtuales.");
-      return;
-    }
-
-    if (diaTipoSemana !== "sábado" && form.tipo !== "presencial") {
-      alert("De lunes a viernes solo se permiten consultas presenciales.");
-      return;
-    }
-
-    const dniLimpio = limpiarDniPaciente(form.Dni);
-    const telefonoLimpio = limpiarTelefono10(form.telefono);
-
-    const nombreNormalizado = form.nombre
-  .trim()
-  .toLowerCase()
-  .split(/\s+/)
-  .map(
-    palabra =>
-      palabra.charAt(0).toUpperCase() +
-      palabra.slice(1)
-  )
-  .join(" ");
-
-    const historiaClinicaId = await buscarOCrearHistoriaDesdeServices({
-  ...form,
-
-  nombre: nombreNormalizado,
-
-  Dni: dniLimpio,
-
-  telefono: telefonoLimpio
-});
-
+    const id = `${form.fecha}_${form.hora}`;
+    const citaRef = doc(collection(db, "citas"));
     const citaFinal = {
-  ...form,
-
-  nombre: nombreNormalizado,
-
-  Dni: dniLimpio,
-
-  telefono: telefonoLimpio,
-
-  historiaClinicaId,
-  pacienteId: historiaClinicaId,
-
-  estadoCita: "pendiente",
-  estadoConfirmacion: "pendiente",
-  estadoAsistencia: "pendiente",
-
-  origen: "web",
-  createdAt: new Date()
-};
-
-    await addDoc(collection(db, "citas"), citaFinal);
+      nombre: `${form.nombres.trim()} ${form.apellidos.trim()}`,
+      nombres: form.nombres.trim(),
+      apellidos: form.apellidos.trim(),
+      telefono: limpiarTelefono10(form.telefono),
+      Dni: limpiarDniPaciente(form.Dni),
+      numeroCredencial: form.numeroCredencial.trim(),
+      fechaNacimiento: form.fechaNacimiento,
+      sexo: form.sexo,
+      obraSocial: form.obraSocial.trim(),
+      motivoConsulta: form.motivoConsulta.trim(),
+      tipo: form.tipo,
+      fecha: form.fecha,
+      hora: form.hora,
+      origen: "web",
+      estadoCita: "pendiente",
+      estadoConfirmacion: "pendiente",
+      estadoAsistencia: "pendiente"
+    };
+    await runTransaction(db, async tx => {
+      const snap = await tx.get(configAgendaRef);
+      const config = snap.data();
+      if (!horariosParaFecha(form.fecha, config).includes(form.hora)) {
+        throw new Error("El horario ya no está disponible.");
+      }
+      tx.update(configAgendaRef, {
+        ocupados: {...config.ocupados, [id]: true},
+        ultimoTurno: {id: citaRef.id, fecha: form.fecha, hora: form.hora}
+      });
+      tx.set(citaRef, {...citaFinal, createdAt: serverTimestamp()});
+    });
 
     setCitaGuardada(citaFinal);
 
@@ -724,7 +342,7 @@ setHorariosDisponibles([]);
 
   } catch (error) {
     console.error(error);
-    alert("Error al guardar la cita");
+    alert("No se pudo reservar el turno. Elegí otro horario o comunicate por WhatsApp.");
   } finally {
     setGuardandoCita(false);
   }
@@ -743,7 +361,7 @@ setHorariosDisponibles([]);
 ¡Gracias!`
       )}`
     : "#";
-    
+
 const formatearFechaComprobante = (fecha) => {
   if (!fecha) return "-";
 
@@ -966,9 +584,9 @@ useEffect(() => {
 {/* FORMULARIO */}
 <div id="agenda-cita" className="agenda-shell mb-5">
   <div className="agenda-inner-card">
-        
+
           {!success ? (
-            
+
 
 
 <form onSubmit={handleSubmit} className="agenda-pro-form agenda-pasos">
@@ -1158,6 +776,7 @@ useEffect(() => {
               name="nombres"
               className="form-control"
               placeholder="Tus nombres"
+                  maxLength={80}
               autoComplete="given-name"
               required
               value={form.nombres || ""}
@@ -1182,6 +801,7 @@ useEffect(() => {
               name="apellidos"
               className="form-control"
               placeholder="Tus apellidos"
+                  maxLength={80}
               autoComplete="family-name"
               required
               value={form.apellidos || ""}
@@ -1232,6 +852,7 @@ useEffect(() => {
               name="Dni"
               className="form-control"
               placeholder="Número de documento"
+                  maxLength={9}
               required
               value={form.Dni}
               onChange={handleChange}
@@ -1249,7 +870,7 @@ useEffect(() => {
               Fecha de nacimiento
             </label>
 
-           
+
 <input
   id="serv-nacimiento"
   type="text"
@@ -1356,6 +977,7 @@ useEffect(() => {
               className="form-control"
               required
               placeholder="ISSN / OSDE / PARTICULAR"
+                  maxLength={100}
               value={form.obraSocial}
               onChange={handleChange}
             />
@@ -1379,6 +1001,7 @@ useEffect(() => {
               className="form-control"
               inputMode="text"
               placeholder="Número de credencial"
+                  maxLength={60}
               value={form.numeroCredencial || ""}
               onChange={handleChange}
             />
@@ -1401,6 +1024,7 @@ useEffect(() => {
               className="form-control"
               rows="3"
               placeholder="Describí brevemente el motivo"
+                  maxLength={500}
               required
               value={form.motivoConsulta}
               onChange={handleChange}
@@ -1423,7 +1047,7 @@ useEffect(() => {
         <button
           type="button"
           className="agenda-pasos-siguiente"
-          
+
 onClick={() => {
   const campos = [
     ["nombres", "los nombres"],
@@ -1489,7 +1113,7 @@ onClick={() => {
 
       <h5>3. Revisá tu turno</h5>
       <p>
-        Confirmá que todos los datos estén correctos.
+        Revisá los datos. El consultorio debe confirmar tu turno.
       </p>
 
       <div className="agenda-pasos-resumen">
@@ -1931,14 +1555,14 @@ onClick={() => {
               description="Consulta reumatológica online por videollamada para pacientes de Argentina, Ecuador y Estados Unidos desde la comodidad de su hogar."
 
               extra={
-                
+
                 <div className="flags mb-2">
                   <img src="https://flagcdn.com/ar.svg" alt="Argentina" />
                   <img src="https://flagcdn.com/ec.svg" alt="Ecuador" />
                   <img src="https://flagcdn.com/us.svg" alt="USA" />
                 </div>
               }
-              
+
             />
           </div>
 
@@ -2073,7 +1697,7 @@ onClick={() => {
     </div>
   </div>
 )}
-        
+
       </div>
     </section>
   );

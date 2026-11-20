@@ -50,12 +50,82 @@ import {
   updateDoc,
   query,
   where,
-  getDocs
+  getDocs,
+  getDocsFromServer,
+  runTransaction
 } from "firebase/firestore";
 
 import Swal from "sweetalert2";
 import { db } from "../firebase";
 import { flushSync } from "react-dom";
+
+// Solo campos no identificatorios en este documento público.
+const refAgendaPublica = doc(db, "agendaPublicaV2", "config");
+const claveHorarioPublico = (fecha, hora) => `${fecha}_${String(hora || "").trim().slice(0, 5)}`;
+const hoyPublico = () => {
+  const p = Object.fromEntries(new Intl.DateTimeFormat("en-CA", {timeZone: "America/Argentina/Salta", year: "numeric", month: "2-digit", day: "2-digit"}).formatToParts(new Date()).map(x => [x.type, x.value]));
+  return `${p.year}-${p.month}-${p.day}`;
+};
+const mapaOrdenado = m => Object.fromEntries(Object.entries(m).sort(([a],[b]) => a.localeCompare(b)));
+const cargarAgendaPublica = async () => {
+  await runTransaction(db, async tx => {
+    const config = await tx.get(refAgendaPublica);
+    const hoy = hoyPublico();
+    const [citas, dias, horas, viernes] = await Promise.all(
+      ["citas", "bloqueosAgenda", "bloqueosHora", "viernesAgenda"].map(async n => {
+        const snap = await getDocsFromServer(query(collection(db, n), where("fecha", ">=", hoy)));
+        return snap.docs.map(d => d.data());
+      })
+    );
+    const nuevo = {lista: true, ocupados: {}, bloqueados: {}, horasBloqueadas: {}, viernes: {}};
+    for (const d of citas) if (d.fecha && d.hora) nuevo.ocupados[claveHorarioPublico(d.fecha, d.hora)] = true;
+    for (const d of dias) if (d.fecha && d.activo) nuevo.bloqueados[d.fecha] = true;
+    for (const d of horas) if (d.fecha && d.hora && d.activo) nuevo.horasBloqueadas[claveHorarioPublico(d.fecha, d.hora)] = true;
+    for (const d of viernes) if (d.fecha && ["mañana", "tarde"].includes(d.turno)) nuevo.viernes[d.fecha] = d.turno;
+    const anterior = config.data() || {};
+    const campos = ["ocupados", "bloqueados", "horasBloqueadas", "viernes"];
+    if (!anterior.lista || campos.some(k => JSON.stringify(mapaOrdenado(anterior[k] || {})) !== JSON.stringify(mapaOrdenado(nuevo[k])))) {
+      tx.set(refAgendaPublica, {...nuevo, ultimoTurno: anterior.ultimoTurno || {}});
+    }
+  });
+};
+// Los cambios en horarios y las escrituras privadas se confirman juntos.
+const cambiarAgendaPublica = async (fn) => runTransaction(db, async tx => {
+  const snap = await tx.get(refAgendaPublica);
+  if (!snap.exists() || !snap.data().lista) throw new Error("La agenda pública todavía se está sincronizando. Volvé a intentar.");
+  const config = snap.data();
+  await fn(tx, config);
+  tx.update(refAgendaPublica, {ocupados: config.ocupados, bloqueados: config.bloqueados, horasBloqueadas: config.horasBloqueadas, viernes: config.viernes});
+});
+const guardarCitaConHorario = async (id, datos) => {
+  const citaRef = id ? doc(db, "citas", id) : doc(collection(db, "citas"));
+  await cambiarAgendaPublica(async (tx, cfg) => {
+    const anterior = id ? await tx.get(citaRef) : null;
+    if (id && !anterior.exists()) throw new Error("La cita ya no existe.");
+    const vieja = anterior?.data();
+    const nuevaClave = claveHorarioPublico(datos.fecha, datos.hora);
+    const antiguaClave = vieja ? claveHorarioPublico(vieja.fecha, vieja.hora) : "";
+    if (nuevaClave !== antiguaClave && cfg.ocupados[nuevaClave]) throw new Error("El horario ya está ocupado.");
+    if (nuevaClave !== antiguaClave && (cfg.bloqueados[datos.fecha] || cfg.horasBloqueadas[nuevaClave])) throw new Error("El horario está bloqueado.");
+    if (antiguaClave && antiguaClave !== nuevaClave) {
+      const mismos = await getDocsFromServer(query(collection(db, "citas"), where("fecha", "==", vieja.fecha)));
+      if (!mismos.docs.some(d => d.id !== id && claveHorarioPublico(d.data().fecha, d.data().hora) === antiguaClave)) delete cfg.ocupados[antiguaClave];
+    }
+    cfg.ocupados[nuevaClave] = true;
+    if (id) tx.update(citaRef, datos);
+    else tx.set(citaRef, {...datos, createdAt: new Date()});
+  });
+};
+const eliminarCitaConHorario = async id => cambiarAgendaPublica(async (tx, cfg) => {
+  const ref = doc(db, "citas", id);
+  const snap = await tx.get(ref);
+  if (!snap.exists()) return;
+  const d = snap.data();
+  const clave = claveHorarioPublico(d.fecha, d.hora);
+  const mismos = await getDocsFromServer(query(collection(db, "citas"), where("fecha", "==", d.fecha)));
+  if (!mismos.docs.some(x => x.id !== id && claveHorarioPublico(x.data().fecha, x.data().hora) === clave)) delete cfg.ocupados[clave];
+  tx.delete(ref);
+});
 
 function Citas() {
 
@@ -238,10 +308,7 @@ const notificarNuevaCitaWeb = (cita) => {
 
     title: "Nueva cita web",
 
-    html: `
-      <strong>${nombre}</strong><br/>
-      ${fecha} · ${hora} hs
-    `,
+    text: `${nombre} · ${fecha} · ${hora} hs`,
 
     showConfirmButton: false,
 
@@ -608,6 +675,19 @@ useEffect(() => {
   return () => unsub();
 }, []);
 
+  const firmaAgendaPublica = JSON.stringify([
+    citasDB.map(d => [d.id, d.fecha, d.hora]).sort(),
+    bloqueos.map(d => [d.id, d.fecha, d.activo]).sort(),
+    bloqueosHora.map(d => [d.id, d.fecha, d.hora, d.activo]).sort(),
+    viernesAgenda.map(d => [d.id, d.fecha, d.turno]).sort()
+  ]);
+  useEffect(() => {
+    const temporizador = setTimeout(() => {
+      cargarAgendaPublica().catch(error => console.error("Error sincronizando turnos públicos:", error));
+    }, 800);
+    return () => clearTimeout(temporizador);
+  }, [firmaAgendaPublica]);
+
   // ================= HORARIOS =================
   const generarHorarios = (inicio, fin) => {
     const horarios = [];
@@ -651,12 +731,11 @@ const toggleBloqueoDia = async () => {
 
   // Si ya está bloqueado: desbloquea directo
   if (bloqueoActivo) {
-    updateDoc(
-  doc(db, "bloqueosAgenda", bloqueoActivo.id),
-  {
-    activo: false
-  }
-);
+    await cambiarAgendaPublica(async (tx, cfg) => {
+      const mismos = await getDocsFromServer(query(collection(db, "bloqueosAgenda"), where("fecha", "==", diaSeleccionado)));
+      tx.update(doc(db, "bloqueosAgenda", bloqueoActivo.id), {activo: false});
+      if (!mismos.docs.some(d => d.id !== bloqueoActivo.id && d.data().activo)) delete cfg.bloqueados[diaSeleccionado];
+    });
 
 return;
   }
@@ -672,11 +751,9 @@ const guardarBloqueoDia = async () => {
   setShowModalBloqueo(false);
   setMotivoBloqueo("");
 
-  await addDoc(collection(db, "bloqueosAgenda"), {
-    fecha: diaSeleccionado,
-    activo: true,
-    motivo,
-    createdAt: new Date()
+  await cambiarAgendaPublica(async (tx, cfg) => {
+    tx.set(doc(collection(db, "bloqueosAgenda")), {fecha: diaSeleccionado, activo: true, motivo, createdAt: new Date()});
+    cfg.bloqueados[diaSeleccionado] = true;
   });
 };
 
@@ -694,7 +771,7 @@ const obtenerHorariosDisponibles = (fecha) => {
   base.unshift("14:45"); // lo agrega al inicio
 }
   else if (day === 4)
-    base = ["09:00","09:30","10:00","10:30","11:00","11:30","13:20"];
+    base = ["09:00","09:30","10:00","10:30","11:00","11:30","12:00","12:30","13:20"];
   //horarios viernes
 
 
@@ -715,6 +792,8 @@ else if (day === 5) {
       "10:30",
       "11:00",
       "11:30",
+      "12:00",
+      "12:30",
       "13:20",
     ];
   }
@@ -762,17 +841,12 @@ const cambiarTurnoViernes = async (turno) => {
 
   const existente = getConfiguracionViernes(diaSeleccionado);
 
-  if (existente) {
-    await updateDoc(doc(db, "viernesAgenda", existente.id), {
-      turno
-    });
-  } else {
-    await addDoc(collection(db, "viernesAgenda"), {
-      fecha: diaSeleccionado,
-      turno,
-      createdAt: new Date()
-    });
-  }
+  await cambiarAgendaPublica(async (tx, cfg) => {
+    if (existente) tx.update(doc(db, "viernesAgenda", existente.id), {turno});
+    else tx.set(doc(collection(db, "viernesAgenda")), {fecha: diaSeleccionado, turno, createdAt: new Date()});
+    if (["mañana", "tarde"].includes(turno)) cfg.viernes[diaSeleccionado] = turno;
+    else delete cfg.viernes[diaSeleccionado];
+  });
 };
 
   // ================= PACIENTES =================
@@ -1608,10 +1682,7 @@ const historiaClinicaId = await buscarOCrearHistoriaDesdeCita({
 
 
   if (citaEditar) {
-    await updateDoc(
-      doc(db, "citas", citaEditar.id),
-      dataFinal
-    );
+    await guardarCitaConHorario(citaEditar.id, dataFinal);
 
     setCitaEditar(null);
     setShowModal(false);
@@ -1621,13 +1692,7 @@ const historiaClinicaId = await buscarOCrearHistoriaDesdeCita({
   }
 
   // Crear una cita nueva
-  await addDoc(
-    collection(db, "citas"),
-    {
-      ...dataFinal,
-      createdAt: new Date()
-    }
-  );
+  await guardarCitaConHorario(null, dataFinal);
 
   setShowModal(false);
   mostrarMensajeGuardadoCita("CITA AGENDADA");
@@ -2377,20 +2442,16 @@ const toggleBloqueoHora = async (hora) => {
       b.activo
   );
 
-  if (bloqueoActivo) {
-    await updateDoc(doc(db, "bloqueosHora", bloqueoActivo.id), {
-      activo: false,
-      updatedAt: new Date()
-    });
-
-    return;
-  }
-
-  await addDoc(collection(db, "bloqueosHora"), {
-    fecha: diaSeleccionado,
-    hora: normalizarHora(hora),
-    activo: true,
-    createdAt: new Date()
+  await cambiarAgendaPublica(async (tx, cfg) => {
+    const clave = claveHorarioPublico(diaSeleccionado, hora);
+    if (bloqueoActivo) {
+      const mismos = await getDocsFromServer(query(collection(db, "bloqueosHora"), where("fecha", "==", diaSeleccionado)));
+      tx.update(doc(db, "bloqueosHora", bloqueoActivo.id), {activo: false, updatedAt: new Date()});
+      if (!mismos.docs.some(d => d.id !== bloqueoActivo.id && d.data().activo && claveHorarioPublico(d.data().fecha, d.data().hora) === clave)) delete cfg.horasBloqueadas[clave];
+    } else {
+      tx.set(doc(collection(db, "bloqueosHora")), {fecha: diaSeleccionado, hora: normalizarHora(hora), activo: true, createdAt: new Date()});
+      cfg.horasBloqueadas[clave] = true;
+    }
   });
 };
 
@@ -2444,6 +2505,7 @@ const obtenerClaseVez = (textoVez = "") => {
 return (
 
     <div className="container pt-2 pb-4">
+
 
       {mostrarCitaGuardada && (
   <div className="cita-save-overlay">
@@ -3326,7 +3388,7 @@ horariosDisponibles.map(h => {
     setShowDetalle(false);
     setCitaSeleccionada(null);
 
-    await deleteDoc(doc(db, "citas", cita.id));
+    await eliminarCitaConHorario(cita.id);
   }}
 />
 {showModalNota && (
