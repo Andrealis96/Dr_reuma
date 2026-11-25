@@ -675,18 +675,38 @@ useEffect(() => {
   return () => unsub();
 }, []);
 
-  const firmaAgendaPublica = JSON.stringify([
-    citasDB.map(d => [d.id, d.fecha, d.hora]).sort(),
-    bloqueos.map(d => [d.id, d.fecha, d.activo]).sort(),
-    bloqueosHora.map(d => [d.id, d.fecha, d.hora, d.activo]).sort(),
-    viernesAgenda.map(d => [d.id, d.fecha, d.turno]).sort()
-  ]);
-  useEffect(() => {
-    const temporizador = setTimeout(() => {
-      cargarAgendaPublica().catch(error => console.error("Error sincronizando turnos públicos:", error));
-    }, 800);
-    return () => clearTimeout(temporizador);
-  }, [firmaAgendaPublica]);
+  // IMPORTANTE: No reconstruir toda la agenda pública por cada onSnapshot.
+  // Antes se releían desde el servidor cuatro colecciones completas cada vez
+  // que cambiaban las citas o los bloqueos; el costo se multiplicaba por pestaña.
+  // Los cambios realizados aquí ya actualizan agendaPublicaV2/config mediante
+  // cambiarAgendaPublica(), en la misma transacción de la operación.
+  // La reconstrucción integral queda disponible solo de forma manual.
+  const [sincronizandoAgendaWeb, setSincronizandoAgendaWeb] = useState(false);
+
+  const sincronizarAgendaWebManual = async () => {
+    if (sincronizandoAgendaWeb) return;
+
+    const confirmacion = await Swal.fire({
+      icon: "warning",
+      title: "Reconstruir horarios públicos",
+      text: "Esta reparación releerá los turnos y bloqueos futuros de Firebase. Usala solo si la disponibilidad pública está desactualizada y no hay reservas en curso.",
+      showCancelButton: true,
+      confirmButtonText: "Reconstruir una vez",
+      cancelButtonText: "Cancelar"
+    });
+    if (!confirmacion.isConfirmed) return;
+
+    setSincronizandoAgendaWeb(true);
+    try {
+      await cargarAgendaPublica();
+      await Swal.fire({icon: "success", title: "Horarios públicos revisados", text: "Se completó la sincronización manual."});
+    } catch (error) {
+      console.error("Error reconstruyendo la agenda pública:", error);
+      await Swal.fire({icon: "error", title: "No se pudo sincronizar", text: error.message || "Revisá la conexión o la cuota de Firebase."});
+    } finally {
+      setSincronizandoAgendaWeb(false);
+    }
+  };
 
   // ================= HORARIOS =================
   const generarHorarios = (inicio, fin) => {
@@ -816,7 +836,7 @@ else if (day === 5) {
 
  
   else if (day === 6)
-    base = generarHorarios("08:30", "13:00");
+    base = generarHorarios("08:00", "13:00");
   else
     return [];
 
@@ -2575,6 +2595,16 @@ return (
   </div>
 
 </div>
+
+    <button
+      type="button"
+      className="btn btn-sm btn-outline-secondary mt-2"
+      disabled={sincronizandoAgendaWeb}
+      onClick={sincronizarAgendaWebManual}
+      title="Reparar manualmente la disponibilidad de turnos en la web"
+    >
+      {sincronizandoAgendaWeb ? "Sincronizando..." : "Reparar horarios web"}
+    </button>
 
   </div>
 </div>
