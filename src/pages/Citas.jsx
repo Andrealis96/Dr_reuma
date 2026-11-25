@@ -2595,17 +2595,6 @@ return (
   </div>
 
 </div>
-
-    <button
-      type="button"
-      className="btn btn-sm btn-outline-secondary mt-2"
-      disabled={sincronizandoAgendaWeb}
-      onClick={sincronizarAgendaWebManual}
-      title="Reparar manualmente la disponibilidad de turnos en la web"
-    >
-      {sincronizandoAgendaWeb ? "Sincronizando..." : "Reparar horarios web"}
-    </button>
-
   </div>
 </div>
 
