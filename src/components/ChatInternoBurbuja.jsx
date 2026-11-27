@@ -761,7 +761,7 @@ function ChatInternoBurbuja() {
 
         marcarEnLinea();
 
-      }, 20000);
+      }, 60000);
 
 
     return () => {
@@ -1130,7 +1130,7 @@ function ChatInternoBurbuja() {
 
 
             if (
-              tiempo > 45000
+              tiempo > 150000
             ) {
 
               return false;

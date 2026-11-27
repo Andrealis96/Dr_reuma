@@ -113,11 +113,6 @@ function AdminPanel() {
   const [citasDB, setCitasDB] =
     useState([]);
 
-    const [citasFechaRapida, setCitasFechaRapida] = useState({
-  fecha: "",
-  citas: []
-});
-
   const [
     historiasPacientes,
     setHistoriasPacientes
@@ -211,32 +206,6 @@ function AdminPanel() {
 
 
   
-/* CONSULTA RÁPIDA PARA LA TABLA DEL INICIO */
-useEffect(() => {
-  const consulta = query(
-    collection(db, "citas"),
-    where("fecha", "==", fechaTabla)
-  );
-
-  const unsubscribe = onSnapshot(
-    consulta,
-    (snapshot) => {
-      setCitasFechaRapida({
-        fecha: fechaTabla,
-        citas: snapshot.docs.map((documento) => ({
-          id: documento.id,
-          ...documento.data()
-        }))
-      });
-    },
-    (error) => {
-      console.error("Error al consultar turnos del día:", error);
-    }
-  );
-
-  return () => unsubscribe();
-}, [fechaTabla]);
-
   /* =====================================================
      FIRESTORE - HISTORIAS
   ===================================================== */
@@ -1636,15 +1605,10 @@ const abrirWhatsapp = (cita, tipo = "recordatorio") => {
 
 
 const pacientesHoy = useMemo(() => {
-  const fuente =
-    citasFechaRapida.fecha === hoy
-      ? citasFechaRapida.citas
-      : citasDB.filter((cita) => cita.fecha === hoy);
-
-  return [...fuente].sort((a, b) =>
+  return citasDB.filter((cita) => cita.fecha === hoy).sort((a, b) =>
     (a.hora || "").localeCompare(b.hora || "")
   );
-}, [citasDB, citasFechaRapida, hoy]);
+}, [citasDB, hoy]);
 
 
 
@@ -1654,15 +1618,10 @@ const pacientesHoy = useMemo(() => {
   ===================================================== */
 
 const citasTabla = useMemo(() => {
-  const fuente =
-    citasFechaRapida.fecha === fechaTabla
-      ? citasFechaRapida.citas
-      : citasDB.filter((cita) => cita.fecha === fechaTabla);
-
-  return [...fuente].sort((a, b) =>
+  return citasDB.filter((cita) => cita.fecha === fechaTabla).sort((a, b) =>
     (a.hora || "").localeCompare(b.hora || "")
   );
-}, [citasDB, citasFechaRapida, fechaTabla]);
+}, [citasDB, fechaTabla]);
 
 
 
