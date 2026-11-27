@@ -112,9 +112,11 @@ const guardarCitaConHorario = async (id, datos) => {
       if (!mismos.docs.some(d => d.id !== id && claveHorarioPublico(d.data().fecha, d.data().hora) === antiguaClave)) delete cfg.ocupados[antiguaClave];
     }
     cfg.ocupados[nuevaClave] = true;
-    if (id) tx.update(citaRef, datos);
+        if (id) tx.update(citaRef, datos);
     else tx.set(citaRef, {...datos, createdAt: new Date()});
   });
+
+  return citaRef.id;
 };
 const eliminarCitaConHorario = async id => cambiarAgendaPublica(async (tx, cfg) => {
   const ref = doc(db, "citas", id);
@@ -211,6 +213,58 @@ useEffect(() => {
   const [showDetalle, setShowDetalle] = useState(false);
   const [citaSeleccionada, setCitaSeleccionada] = useState(null);
   const [citaTablaSeleccionadaId, setCitaTablaSeleccionadaId] = useState(null);
+  
+  
+const [citaDestacada, setCitaDestacada] = useState(null);
+const ultimoScrollCitaRef = useRef(null);
+
+// Quitar el resaltado después de 30 segundos.
+useEffect(() => {
+  if (!citaDestacada) return;
+
+  const t = setTimeout(() => {
+    setCitaDestacada(actual =>
+      actual?.marca === citaDestacada.marca ? null : actual
+    );
+  }, 30000);
+
+  return () => clearTimeout(t);
+}, [citaDestacada]);
+
+// Esperar a que Firebase muestre la cita y desplazarse a ella.
+useEffect(() => {
+  if (!citaDestacada || diaSeleccionado !== citaDestacada.fecha) return;
+
+  const cargada = citasDB.some(c =>
+    c.id === citaDestacada.id &&
+    c.fecha === citaDestacada.fecha &&
+    String(c.hora || "").slice(0, 5) === citaDestacada.hora
+  );
+
+  if (!cargada || ultimoScrollCitaRef.current === citaDestacada.marca) {
+    return;
+  }
+
+  const t = setTimeout(() => {
+    const tarjeta = document.getElementById(
+      `agenda-cita-${citaDestacada.id}`
+    );
+
+    if (!tarjeta) return;
+
+    ultimoScrollCitaRef.current = citaDestacada.marca;
+
+    tarjeta.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
+  }, 180);
+
+  return () => clearTimeout(t);
+}, [citasDB, diaSeleccionado, citaDestacada]);
+
+  
+  
   //notas 
   const [notasAgenda, setNotasAgenda] = useState([]);
   const [showModalNota, setShowModalNota] = useState(false);
@@ -1612,6 +1666,19 @@ const mostrarMensajeGuardadoCita = (mensaje) => {
   }, 1600);
 };
 
+
+const enfocarCitaGuardada = (id, datos) => {
+  setDiaSeleccionado(datos.fecha);
+
+  setCitaDestacada({
+    id,
+    fecha: datos.fecha,
+    hora: String(datos.hora || "").slice(0, 5),
+    marca: `${id}-${Date.now()}`
+  });
+};
+
+
   // ================= GUARDAR =================
 const guardarCita = async (data) => {
   try {
@@ -1701,23 +1768,30 @@ const historiaClinicaId = await buscarOCrearHistoriaDesdeCita({
   };
 
 
-  if (citaEditar) {
-    await guardarCitaConHorario(citaEditar.id, dataFinal);
+if (citaEditar) {
+  const idEditada = citaEditar.id;
 
-    setCitaEditar(null);
-    setShowModal(false);
-    mostrarMensajeGuardadoCita("Cita actualizada");
+  await guardarCitaConHorario(idEditada, dataFinal);
 
-    return true;
-  }
-
-  // Crear una cita nueva
-  await guardarCitaConHorario(null, dataFinal);
-
+  setCitaEditar(null);
   setShowModal(false);
-  mostrarMensajeGuardadoCita("CITA AGENDADA");
+
+  enfocarCitaGuardada(idEditada, dataFinal);
+  mostrarMensajeGuardadoCita("Cita actualizada");
 
   return true;
+}
+
+// Crear una cita nueva
+const nuevoId = await guardarCitaConHorario(null, dataFinal);
+
+setShowModal(false);
+
+enfocarCitaGuardada(nuevoId, dataFinal);
+mostrarMensajeGuardadoCita("CITA AGENDADA");
+
+return true;
+
 
   } catch (error) {
     console.error("Error al guardar cita:", error);
@@ -3123,19 +3197,26 @@ const IconoEstadoDia =
     ? FaUserTimes
     : FaHourglassHalf;
 
+
 return (
   <div
     key={c.id}
-    
-className={`btn-pacientecita agenda-dia-cita ${
-  c.tipo === "virtual" ? "agenda-cita-virtual" : "agenda-cita-presencial"
-}`}
-
+    id={`agenda-cita-${c.id}`}
+    className={`btn-pacientecita agenda-dia-cita agenda-card-historia ${
+      c.tipo === "virtual"
+        ? "agenda-cita-virtual"
+        : "agenda-cita-presencial"
+    } ${
+      citaDestacada?.id === c.id
+        ? "agenda-cita-reciente"
+        : ""
+    }`}
     onClick={() => {
       setCitaSeleccionada(c);
       setShowDetalle(true);
     }}
   >
+
     <div className="agenda-dia-cita-superior">
       <div className="agenda-dia-cita-identidad">
         

@@ -31067,3 +31067,191 @@ svg.candado-bloqueo {
   color: #ffffff !important;
   font-size: 22px !important;
 }
+
+
+/* =============================================
+   DR. REUMA - AGENDA ESTILO HISTORIAS CLÍNICAS
+   ============================================= */
+
+/* TARJETA BLANCA */
+.btn-pacientecita.agenda-dia-cita.agenda-card-historia {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border: 1px solid #e4ebee !important;
+  border-left: 6px solid #123b48 !important;
+  border-radius: 24px !important;
+  padding: 19px 21px !important;
+  margin-bottom: 15px !important;
+  box-shadow: 0 6px 18px rgba(18, 59, 72, 0.08) !important;
+  color: #173b47 !important;
+  gap: 12px !important;
+  transition: box-shadow 0.2s ease, transform 0.2s ease !important;
+}
+
+.btn-pacientecita.agenda-dia-cita.agenda-card-historia:hover {
+  background: #ffffff !important;
+  border-left-color: #079db2 !important;
+  box-shadow: 0 9px 24px rgba(18, 59, 72, 0.12) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* HORA DESTACADA, PERO SUAVE */
+.agenda-card-historia .agenda-dia-cita-hora {
+  color: #087f97 !important;
+  font-size: 15px !important;
+  gap: 9px !important;
+}
+
+.agenda-card-historia .agenda-dia-cita-hora strong {
+  color: #087f97 !important;
+  font-size: 16px !important;
+  font-weight: 800 !important;
+}
+
+/* NOMBRE DEL PACIENTE */
+.agenda-card-historia .agenda-dia-cita-nombre {
+  color: #153642 !important;
+  font-size: 19px !important;
+  font-weight: 850 !important;
+  line-height: 1.3 !important;
+  letter-spacing: 0 !important;
+}
+
+/* ETIQUETAS DE PRIMERA, SEGUNDA, TERCERA VEZ */
+.agenda-card-historia .agenda-dia-cita-etiquetas {
+  margin-top: 2px !important;
+  gap: 8px !important;
+}
+
+.agenda-card-historia .agenda-dia-cita-vez {
+  border-radius: 999px !important;
+  padding: 5px 12px !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+}
+
+/* MOTIVO DE CONSULTA: SIN BARRA OSCURA */
+.agenda-card-historia .agenda-dia-cita-motivo {
+  background: #f5fafb !important;
+  background-color: #f5fafb !important;
+  color: #385460 !important;
+  border: 1px solid #e3eef1 !important;
+  border-radius: 13px !important;
+  padding: 11px 14px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  line-height: 1.5 !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  align-items: flex-start !important;
+}
+
+.agenda-card-historia .agenda-dia-cita-motivo strong {
+  color: #123b48 !important;
+  font-weight: 800 !important;
+}
+
+.agenda-card-historia .agenda-dia-cita-motivo svg {
+  color: #089caf !important;
+  margin-top: 2px !important;
+}
+
+/* BOTONES DE ACCIÓN MÁS DISCRETOS */
+.agenda-dia-cita.agenda-card-historia
+.agenda-dia-cita-acciones .btn-accion-cita {
+  background: #eaf6f8 !important;
+  background-color: #eaf6f8 !important;
+  color: #123b48 !important;
+  border: 1px solid #d6eaee !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+
+.agenda-dia-cita.agenda-card-historia
+.agenda-dia-cita-acciones .btn-accion-cita svg {
+  color: #123b48 !important;
+  fill: currentColor !important;
+}
+
+.agenda-dia-cita.agenda-card-historia
+.agenda-dia-cita-acciones .btn-accion-cita:hover {
+  background: #d5eef3 !important;
+  border-color: #a9dbe5 !important;
+}
+
+/* MANTENER COLORES DE ESTADO Y TIPO */
+.agenda-card-historia .agenda-dia-cita-estado {
+  flex-shrink: 0 !important;
+}
+
+/* ADAPTACIÓN PARA CELULARES */
+@media (max-width: 600px) {
+  .btn-pacientecita.agenda-dia-cita.agenda-card-historia {
+    padding: 15px !important;
+    border-radius: 18px !important;
+  }
+
+  .agenda-card-historia .agenda-dia-cita-nombre {
+    font-size: 16px !important;
+  }
+
+  .agenda-card-historia .agenda-dia-cita-motivo {
+    padding: 10px 12px !important;
+    font-size: 13px !important;
+  }
+}
+
+
+
+/* ==========================================
+   AGENDA - CORREGIR TEXTO DEL MOTIVO
+   ========================================== */
+
+.agenda-card-historia .agenda-dia-cita-motivo,
+.agenda-card-historia .agenda-dia-cita-motivo span,
+.agenda-card-historia .agenda-dia-cita-motivo p,
+.agenda-card-historia .agenda-dia-cita-motivo small {
+  color: #385460 !important;
+  -webkit-text-fill-color: #385460 !important;
+}
+
+.agenda-card-historia .agenda-dia-cita-motivo strong,
+.agenda-card-historia .agenda-dia-cita-motivo b {
+  color: #123b48 !important;
+  -webkit-text-fill-color: #123b48 !important;
+}
+
+.agenda-card-historia .agenda-dia-cita-motivo svg {
+  color: #089caf !important;
+}
+
+
+
+/* =========================================
+   AGENDA - CITA RECIÉN GUARDADA
+   ========================================= */
+
+.btn-pacientecita.agenda-dia-cita.agenda-card-historia.agenda-cita-reciente {
+  background: #effcff !important;
+  border: 2px solid #00abc4 !important;
+  border-left: 7px solid #00abc4 !important;
+  box-shadow: 0 0 0 5px rgba(0, 171, 196, 0.14) !important;
+  animation: agenda-resaltar-reciente 2.5s ease-in-out infinite !important;
+  scroll-margin-top: 110px;
+}
+
+@keyframes agenda-resaltar-reciente {
+  0%, 100% {
+    box-shadow: 0 0 0 4px rgba(0, 171, 196, 0.12);
+  }
+
+  50% {
+    box-shadow: 0 0 0 10px rgba(0, 171, 196, 0.25);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-pacientecita.agenda-dia-cita.agenda-card-historia.agenda-cita-reciente {
+    animation: none !important;
+  }
+}
